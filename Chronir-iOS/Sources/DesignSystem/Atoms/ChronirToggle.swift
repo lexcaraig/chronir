@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct ChronirToggle: View {
     let label: String
@@ -6,15 +9,25 @@ struct ChronirToggle: View {
 
     var body: some View {
         Toggle(isOn: $isOn) {
-            ChronirText(label, font: TypographyTokens.bodyMedium)
+            ChronirText(label, style: .bodyMedium)
         }
         .tint(ColorTokens.primary)
+        .onChange(of: isOn) {
+            #if os(iOS)
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+            #endif
+        }
     }
 }
 
-#Preview {
+#Preview("Toggle States") {
     @Previewable @State var isOn = true
-    ChronirToggle(label: "Enable Alarm", isOn: $isOn)
-        .padding()
-        .background(ColorTokens.backgroundPrimary)
+    @Previewable @State var isOff = false
+    VStack(spacing: SpacingTokens.md) {
+        ChronirToggle(label: "Enable Alarm", isOn: $isOn)
+        ChronirToggle(label: "Persistent Mode", isOn: $isOff)
+    }
+    .padding()
+    .background(ColorTokens.backgroundPrimary)
 }

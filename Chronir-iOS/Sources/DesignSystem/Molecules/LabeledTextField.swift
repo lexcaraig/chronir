@@ -7,7 +7,7 @@ struct LabeledTextField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            ChronirText(label, font: TypographyTokens.labelMedium, color: ColorTokens.textSecondary)
+            ChronirText(label, style: .labelMedium, color: ColorTokens.textSecondary)
             TextField(placeholder, text: $text)
                 .font(TypographyTokens.bodyMedium)
                 .foregroundStyle(ColorTokens.textPrimary)

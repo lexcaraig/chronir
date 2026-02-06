@@ -54,7 +54,7 @@ struct ChronirButton: View {
     }
 }
 
-#Preview {
+#Preview("Button Variants") {
     VStack(spacing: SpacingTokens.md) {
         ChronirButton("Primary Action") {}
         ChronirButton("Secondary", style: .secondary) {}

@@ -6,7 +6,7 @@ struct TimePickerField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            ChronirText(label, font: TypographyTokens.labelMedium, color: ColorTokens.textSecondary)
+            ChronirText(label, style: .labelMedium, color: ColorTokens.textSecondary)
             DatePicker(
                 "",
                 selection: $selection,

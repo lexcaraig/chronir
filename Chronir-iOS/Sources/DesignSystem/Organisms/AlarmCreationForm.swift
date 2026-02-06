@@ -12,7 +12,7 @@ struct AlarmCreationForm: View {
             LabeledTextField(label: "Alarm Name", placeholder: "Enter a name...", text: $title)
 
             VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-                ChronirText("Cycle Type", font: TypographyTokens.labelMedium, color: ColorTokens.textSecondary)
+                ChronirText("Cycle Type", style: .labelMedium, color: ColorTokens.textSecondary)
                 Picker("Cycle Type", selection: $cycleType) {
                     ForEach(CycleType.allCases) { type in
                         Text(type.displayName).tag(type)

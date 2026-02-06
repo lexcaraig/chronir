@@ -6,7 +6,7 @@ struct GroupMemberList: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.sm) {
-            ChronirText("Members", font: TypographyTokens.titleSmall, color: ColorTokens.textSecondary)
+            ChronirText("Members", style: .titleSmall, color: ColorTokens.textSecondary)
 
             ForEach(members) { member in
                 HStack(spacing: SpacingTokens.md) {
@@ -16,12 +16,12 @@ struct GroupMemberList: View {
                         .overlay {
                             ChronirText(
                                 String(member.displayName.prefix(1)).uppercased(),
-                                font: TypographyTokens.labelLarge
+                                style: .labelLarge
                             )
                         }
 
                     VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
-                        ChronirText(member.displayName, font: TypographyTokens.bodyMedium)
+                        ChronirText(member.displayName, style: .bodyMedium)
                         if member.id == ownerID {
                             ChronirBadge("Owner", color: ColorTokens.secondary)
                         }

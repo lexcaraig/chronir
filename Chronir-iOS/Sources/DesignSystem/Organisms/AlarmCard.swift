@@ -8,10 +8,10 @@ struct AlarmCard: View {
         VStack(alignment: .leading, spacing: SpacingTokens.sm) {
             HStack {
                 VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
-                    ChronirText(alarm.title, font: TypographyTokens.titleMedium)
+                    ChronirText(alarm.title, style: .titleMedium)
                     ChronirText(
                         alarm.cycleType.displayName,
-                        font: TypographyTokens.bodySmall,
+                        style: .bodySmall,
                         color: ColorTokens.textSecondary
                     )
                 }
@@ -24,7 +24,7 @@ struct AlarmCard: View {
             HStack {
                 ChronirText(
                     alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
-                    font: TypographyTokens.displaySmall
+                    style: .displaySmall
                 )
                 Spacer()
                 if alarm.isPersistent {

@@ -6,7 +6,7 @@ struct AlarmListSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.sm) {
-            ChronirText(title, font: TypographyTokens.titleSmall, color: ColorTokens.textSecondary)
+            ChronirText(title, style: .titleSmall, color: ColorTokens.textSecondary)
                 .padding(.horizontal, SpacingTokens.lg)
 
             ForEach(alarms) { alarm in

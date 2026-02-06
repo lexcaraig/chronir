@@ -1,28 +1,57 @@
 import SwiftUI
 
 struct SnoozeOptionButton: View {
-    let minutes: Int
+    let label: String
+    let sublabel: String
     let action: () -> Void
+
+    init(_ label: String, sublabel: String = "", action: @escaping () -> Void) {
+        self.label = label
+        self.sublabel = sublabel
+        self.action = action
+    }
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: SpacingTokens.xs) {
-                ChronirText("\(minutes)", font: TypographyTokens.headlineSmall)
-                ChronirText("min", font: TypographyTokens.labelSmall, color: ColorTokens.textSecondary)
+            VStack(spacing: SpacingTokens.xxs) {
+                ChronirText(label, style: .headlineSmall)
+                if !sublabel.isEmpty {
+                    ChronirText(sublabel, style: .labelSmall, color: ColorTokens.textSecondary)
+                }
             }
-            .frame(width: 64, height: 64)
+            .frame(width: 72, height: 64)
             .background(ColorTokens.backgroundTertiary)
             .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
         }
     }
 }
 
-#Preview {
-    HStack(spacing: SpacingTokens.md) {
-        SnoozeOptionButton(minutes: 5) {}
-        SnoozeOptionButton(minutes: 10) {}
-        SnoozeOptionButton(minutes: 15) {}
+struct SnoozeOptionBar: View {
+    let onSnooze: (SnoozeInterval) -> Void
+
+    enum SnoozeInterval {
+        case oneHour
+        case oneDay
+        case oneWeek
     }
-    .padding()
-    .background(ColorTokens.backgroundPrimary)
+
+    var body: some View {
+        HStack(spacing: SpacingTokens.md) {
+            SnoozeOptionButton("1", sublabel: "hour") { onSnooze(.oneHour) }
+            SnoozeOptionButton("1", sublabel: "day") { onSnooze(.oneDay) }
+            SnoozeOptionButton("1", sublabel: "week") { onSnooze(.oneWeek) }
+        }
+    }
+}
+
+#Preview("Snooze Option Bar") {
+    SnoozeOptionBar(onSnooze: { _ in })
+        .padding()
+        .background(ColorTokens.backgroundPrimary)
+}
+
+#Preview("Individual Button") {
+    SnoozeOptionButton("5", sublabel: "min") {}
+        .padding()
+        .background(ColorTokens.backgroundPrimary)
 }
