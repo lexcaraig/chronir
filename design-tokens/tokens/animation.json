@@ -1,0 +1,8 @@
+{
+  "animation": {
+    "durationFast": { "value": "150", "type": "duration" },
+    "durationNormal": { "value": "300", "type": "duration" },
+    "durationSlow": { "value": "500", "type": "duration" },
+    "easingDefault": { "value": "easeInOut", "type": "other" }
+  }
+}

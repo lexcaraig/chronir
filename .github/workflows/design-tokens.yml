@@ -1,0 +1,44 @@
+name: Design Tokens
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'design-tokens/tokens/**'
+      - 'design-tokens/config.js'
+      - '.github/workflows/design-tokens.yml'
+  pull_request:
+    paths:
+      - 'design-tokens/tokens/**'
+      - 'design-tokens/config.js'
+
+jobs:
+  build-tokens:
+    name: Build Design Tokens
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: design-tokens/package-lock.json
+      - name: Install dependencies
+        run: |
+          cd design-tokens
+          npm ci
+      - name: Build tokens
+        run: |
+          cd design-tokens
+          npm run build
+      - name: Upload iOS tokens
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-tokens
+          path: design-tokens/build/ios/
+      - name: Upload Android tokens
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-tokens
+          path: design-tokens/build/android/

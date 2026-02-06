@@ -1,0 +1,61 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'CycleAlarm-iOS/**'
+      - '.github/workflows/ios.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'CycleAlarm-iOS/**'
+      - '.github/workflows/ios.yml'
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: SwiftLint
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SwiftLint
+        run: brew install swiftlint
+      - name: Run SwiftLint
+        run: |
+          cd CycleAlarm-iOS
+          swiftlint lint --strict --reporter github-actions-logging
+
+  test:
+    name: Unit Tests
+    runs-on: macos-15
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+      - name: Resolve packages
+        run: |
+          cd CycleAlarm-iOS
+          swift package resolve
+      - name: Run unit tests
+        run: |
+          cd CycleAlarm-iOS
+          swift test
+
+  build:
+    name: Build
+    runs-on: macos-15
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+      - name: Build release
+        run: |
+          cd CycleAlarm-iOS
+          swift build -c release

@@ -1,0 +1,46 @@
+{
+  "color": {
+    "primitive": {
+      "blue": {
+        "500": { "value": "#3B82F6", "type": "color" },
+        "600": { "value": "#2563EB", "type": "color" },
+        "700": { "value": "#1D4ED8", "type": "color" }
+      },
+      "gray": {
+        "50": { "value": "#F9FAFB", "type": "color" },
+        "100": { "value": "#F3F4F6", "type": "color" },
+        "800": { "value": "#1F2937", "type": "color" },
+        "900": { "value": "#111827", "type": "color" }
+      },
+      "red": { "500": { "value": "#EF4444", "type": "color" } },
+      "green": { "500": { "value": "#22C55E", "type": "color" } },
+      "amber": { "500": { "value": "#F59E0B", "type": "color" } },
+      "white": { "value": "#FFFFFF", "type": "color" },
+      "black": { "value": "#000000", "type": "color" }
+    },
+    "semantic": {
+      "primary": { "value": "{color.primitive.blue.500}" },
+      "primaryHover": { "value": "{color.primitive.blue.600}" },
+      "destructive": { "value": "{color.primitive.red.500}" },
+      "success": { "value": "{color.primitive.green.500}" },
+      "warning": { "value": "{color.primitive.amber.500}" },
+      "background": { "value": "{color.primitive.white}" },
+      "backgroundDark": { "value": "{color.primitive.black}" },
+      "surface": { "value": "{color.primitive.gray.50}" },
+      "surfaceDark": { "value": "{color.primitive.gray.900}" },
+      "textPrimary": { "value": "{color.primitive.gray.900}" },
+      "textSecondary": { "value": "{color.primitive.gray.800}" }
+    },
+    "component": {
+      "alarmCardBackground": { "value": "{color.semantic.surface}" },
+      "alarmCardActiveBorder": { "value": "{color.semantic.primary}" },
+      "alarmFiringBackground": { "value": "{color.semantic.backgroundDark}" },
+      "alarmFiringText": { "value": "{color.primitive.white}" },
+      "badgeWeekly": { "value": "{color.semantic.primary}" },
+      "badgeMonthly": { "value": "{color.semantic.warning}" },
+      "badgeAnnual": { "value": "{color.semantic.destructive}" },
+      "snoozeButton": { "value": "{color.semantic.warning}" },
+      "dismissButton": { "value": "{color.semantic.success}" }
+    }
+  }
+}

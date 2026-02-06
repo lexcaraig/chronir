@@ -1,0 +1,69 @@
+# === macOS ===
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# === IDEs ===
+.vscode/
+.idea/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+
+# === iOS / Xcode ===
+CycleAlarm-iOS/DerivedData/
+CycleAlarm-iOS/build/
+CycleAlarm-iOS/.build/
+CycleAlarm-iOS/Pods/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+xcuserdata/
+
+# === Android / Gradle ===
+CycleAlarm-Android/.gradle/
+CycleAlarm-Android/build/
+CycleAlarm-Android/app/build/
+CycleAlarm-Android/core/*/build/
+CycleAlarm-Android/feature/*/build/
+CycleAlarm-Android/widget/build/
+CycleAlarm-Android/local.properties
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# === Node / Style Dictionary ===
+design-tokens/node_modules/
+design-tokens/build/
+
+# === Firebase ===
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+**/GoogleService-Info.plist
+**/google-services.json
+
+# === Secrets / Environment ===
+*.env
+*.env.local
+*.env.*.local
+.secret
+credentials.json
+
+# === Build artifacts ===
+*.log
+*.tmp

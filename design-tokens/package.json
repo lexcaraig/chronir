@@ -1,0 +1,14 @@
+{
+  "name": "cyclealarm-design-tokens",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Design token pipeline for CycleAlarm",
+  "scripts": {
+    "build": "style-dictionary build --config config.js",
+    "build:ios": "style-dictionary build --config config.js --platform ios",
+    "build:android": "style-dictionary build --config config.js --platform android"
+  },
+  "dependencies": {
+    "style-dictionary": "^5.0.0"
+  }
+}

@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: check if only specific fields are being updated
+    function onlyUpdatingFields(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // Users can only read/write their own profile
+    match /users/{userID} {
+      allow read, write: if request.auth != null && request.auth.uid == userID;
+
+      // Private alarms
+      match /alarms/{alarmID} {
+        allow read, write: if request.auth != null && request.auth.uid == userID;
+      }
+
+      // Completion records
+      match /completions/{recordID} {
+        allow read, write: if request.auth != null && request.auth.uid == userID;
+      }
+
+      // Device tokens
+      match /devices/{deviceID} {
+        allow read, write: if request.auth != null && request.auth.uid == userID;
+      }
+    }
+
+    // Shared alarms: readable by owner and shared members
+    match /shared_alarms/{alarmID} {
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.ownerID ||
+        request.auth.uid in resource.data.sharedWith
+      );
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (
+        // Owner can update anything
+        request.auth.uid == resource.data.ownerID ||
+        // Shared members can only update completion fields
+        (request.auth.uid in resource.data.sharedWith &&
+         onlyUpdatingFields(['completedAt', 'updatedAt']))
+      );
+      allow delete: if request.auth != null &&
+        request.auth.uid == resource.data.ownerID;
+    }
+
+    // Groups: readable by members, writable by owner
+    match /groups/{groupID} {
+      allow read: if request.auth != null &&
+        request.auth.uid in resource.data.memberIDs;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null &&
+        request.auth.uid == resource.data.ownerID;
+
+      // Group members subcollection
+      match /members/{uid} {
+        allow read: if request.auth != null &&
+          request.auth.uid in get(/databases/$(database)/documents/groups/$(groupID)).data.memberIDs;
+        allow write: if request.auth != null &&
+          request.auth.uid == get(/databases/$(database)/documents/groups/$(groupID)).data.ownerID;
+      }
+    }
+
+    // Invites: readable by anyone authenticated (to accept)
+    match /invitations/{inviteCode} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null &&
+        request.auth.uid == resource.data.createdBy;
+    }
+
+    // Subscriptions: only readable/writable by the owning user
+    match /subscriptions/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "typography": {
+    "display": { "fontSize": { "value": "34" }, "lineHeight": { "value": "41" }, "fontWeight": { "value": "bold" } },
+    "headline": { "fontSize": { "value": "28" }, "lineHeight": { "value": "34" }, "fontWeight": { "value": "bold" } },
+    "title": { "fontSize": { "value": "22" }, "lineHeight": { "value": "28" }, "fontWeight": { "value": "semibold" } },
+    "body": { "fontSize": { "value": "17" }, "lineHeight": { "value": "22" }, "fontWeight": { "value": "regular" } },
+    "caption": { "fontSize": { "value": "13" }, "lineHeight": { "value": "18" }, "fontWeight": { "value": "regular" } },
+    "alarmTime": { "fontSize": { "value": "72" }, "lineHeight": { "value": "80" }, "fontWeight": { "value": "bold" } }
+  }
+}
