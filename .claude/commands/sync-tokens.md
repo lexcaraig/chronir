@@ -30,7 +30,7 @@ cp design-tokens/build/ios/*.swift Chronir-iOS/Sources/DesignSystem/Tokens/
 ### Step 3: Copy to Android
 Copy generated Kotlin files to the Android design system:
 ```bash
-cp design-tokens/build/android/*.kt Chronir-Android/core/designsystem/src/main/java/com/chronir/android/core/designsystem/tokens/
+cp design-tokens/build/android/*.kt Chronir-Android/core/designsystem/src/main/java/com/chronir/designsystem/tokens/
 ```
 
 ### Step 4: Verify Builds
