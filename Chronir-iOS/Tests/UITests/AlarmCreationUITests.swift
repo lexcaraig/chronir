@@ -1,13 +1,14 @@
 import XCTest
 
+/// UI tests that require a simulator host app (Xcode scheme).
+/// These are skipped when running via `swift test` since
+/// XCUIApplication requires a configured target application.
 final class AlarmCreationUITests: XCTestCase {
-    private var app: XCUIApplication!
+    private var app: XCUIApplication?
 
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.launch()
     }
 
     override func tearDown() {
@@ -15,8 +16,22 @@ final class AlarmCreationUITests: XCTestCase {
         super.tearDown()
     }
 
-    func testAlarmCreationFlow() {
-        // TODO: Implement in Sprint 1
+    private func launchAppOrSkip() throws -> XCUIApplication {
+        // XCUIApplication() crashes without a host app in `swift test`.
+        // Detect headless environment and skip gracefully.
+        #if !os(iOS)
+        throw XCTSkip("UI tests require iOS simulator")
+        #else
+        let application = XCUIApplication()
+        application.launch()
+        return application
+        #endif
+    }
+
+    func testAlarmCreationFlow() throws {
+        let app = try launchAppOrSkip()
+        _ = app
+        // TODO: Implement
         // 1. Tap "+" button to open creation sheet
         // 2. Enter alarm title
         // 3. Select cycle type
@@ -25,16 +40,20 @@ final class AlarmCreationUITests: XCTestCase {
         // 6. Verify alarm appears in list
     }
 
-    func testAlarmCreationValidation() {
-        // TODO: Implement in Sprint 1
+    func testAlarmCreationValidation() throws {
+        let app = try launchAppOrSkip()
+        _ = app
+        // TODO: Implement
         // 1. Open creation sheet
         // 2. Leave title empty
         // 3. Tap Save
         // 4. Verify validation error is shown
     }
 
-    func testAlarmCreationCancel() {
-        // TODO: Implement in Sprint 1
+    func testAlarmCreationCancel() throws {
+        let app = try launchAppOrSkip()
+        _ = app
+        // TODO: Implement
         // 1. Open creation sheet
         // 2. Fill in some fields
         // 3. Tap Cancel

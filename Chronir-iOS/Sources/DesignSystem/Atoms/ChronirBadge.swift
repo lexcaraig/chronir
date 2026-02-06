@@ -27,12 +27,9 @@ struct ChronirBadge: View {
     private static func color(for cycleType: CycleType) -> Color {
         switch cycleType {
         case .weekly: return ColorTokens.badgeWeekly
-        case .monthly: return ColorTokens.badgeMonthly
-        case .yearly: return ColorTokens.badgeAnnual
-        case .custom: return ColorTokens.badgeCustom
-        case .daily: return ColorTokens.primary
-        case .biweekly: return ColorTokens.primary
-        case .quarterly: return ColorTokens.secondary
+        case .monthlyDate, .monthlyRelative: return ColorTokens.badgeMonthly
+        case .annual: return ColorTokens.badgeAnnual
+        case .customDays: return ColorTokens.badgeCustom
         }
     }
 }
@@ -40,9 +37,9 @@ struct ChronirBadge: View {
 #Preview("Cycle Type Badges") {
     HStack(spacing: SpacingTokens.sm) {
         ChronirBadge(cycleType: .weekly)
-        ChronirBadge(cycleType: .monthly)
-        ChronirBadge(cycleType: .yearly)
-        ChronirBadge(cycleType: .custom)
+        ChronirBadge(cycleType: .monthlyDate)
+        ChronirBadge(cycleType: .annual)
+        ChronirBadge(cycleType: .customDays)
     }
     .padding()
     .background(ColorTokens.backgroundPrimary)

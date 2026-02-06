@@ -11,7 +11,9 @@ struct AlarmCreationView: View {
             onSave: {
                 Task {
                     await viewModel.saveAlarm()
-                    dismiss()
+                    if viewModel.errorMessage == nil {
+                        dismiss()
+                    }
                 }
             },
             content: {
@@ -20,7 +22,9 @@ struct AlarmCreationView: View {
                     cycleType: $viewModel.cycleType,
                     scheduledTime: $viewModel.scheduledTime,
                     isPersistent: $viewModel.isPersistent,
-                    note: $viewModel.note
+                    note: $viewModel.note,
+                    selectedDays: $viewModel.selectedDays,
+                    dayOfMonth: $viewModel.dayOfMonth
                 )
             }
         )

@@ -6,7 +6,7 @@ struct IntervalPicker: View {
 
     init(
         selection: Binding<CycleType>,
-        options: [CycleType] = [.weekly, .monthly, .yearly]
+        options: [CycleType] = [.weekly, .monthlyDate, .annual]
     ) {
         self._selection = selection
         self.options = options
@@ -44,7 +44,7 @@ struct IntervalPicker: View {
 }
 
 #Preview("All Options") {
-    @Previewable @State var selected = CycleType.monthly
+    @Previewable @State var selected = CycleType.monthlyDate
     IntervalPicker(
         selection: $selected,
         options: CycleType.allCases
