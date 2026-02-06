@@ -1,24 +1,24 @@
 import Foundation
 
+// Values sourced from design-tokens/tokens/spacing.json (Style Dictionary)
+// See docs/design-system.md Section 3.4 for full spec
+
 enum SpacingTokens {
-    /// 2pt
-    static let xxs: CGFloat = 2
-    /// 4pt
-    static let xs: CGFloat = 4
-    /// 8pt
-    static let sm: CGFloat = 8
-    /// 12pt
-    static let md: CGFloat = 12
-    /// 16pt
-    static let lg: CGFloat = 16
-    /// 20pt
-    static let xl: CGFloat = 20
-    /// 24pt
-    static let xxl: CGFloat = 24
-    /// 32pt
-    static let xxxl: CGFloat = 32
-    /// 40pt
-    static let xxxxl: CGFloat = 40
-    /// 48pt
-    static let xxxxxl: CGFloat = 48
+    // MARK: - Scale
+
+    static let xxs: CGFloat = 4
+    static let xs: CGFloat = 8
+    static let sm: CGFloat = 12
+    static let md: CGFloat = 16
+    static let lg: CGFloat = 24
+    static let xl: CGFloat = 32
+    static let xxl: CGFloat = 48
+    static let xxxl: CGFloat = 48  // alias for backward compat
+
+    // MARK: - Functional
+
+    static let cardPadding: CGFloat = 16
+    static let listGap: CGFloat = 12
+    static let touchMinTarget: CGFloat = 44
+    static let firingButtonZone: CGFloat = 60  // percentage of screen height
 }

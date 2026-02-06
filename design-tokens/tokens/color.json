@@ -1,46 +1,67 @@
 {
   "color": {
     "primitive": {
+      "amber": {
+        "500": { "value": "#FFB800", "type": "color" }
+      },
       "blue": {
         "500": { "value": "#3B82F6", "type": "color" },
         "600": { "value": "#2563EB", "type": "color" },
         "700": { "value": "#1D4ED8", "type": "color" }
       },
-      "gray": {
-        "50": { "value": "#F9FAFB", "type": "color" },
-        "100": { "value": "#F3F4F6", "type": "color" },
-        "800": { "value": "#1F2937", "type": "color" },
-        "900": { "value": "#111827", "type": "color" }
+      "red": {
+        "400": { "value": "#F87171", "type": "color" },
+        "500": { "value": "#EF4444", "type": "color" }
       },
-      "red": { "500": { "value": "#EF4444", "type": "color" } },
-      "green": { "500": { "value": "#22C55E", "type": "color" } },
-      "amber": { "500": { "value": "#F59E0B", "type": "color" } },
+      "green": {
+        "500": { "value": "#22C55E", "type": "color" }
+      },
+      "purple": {
+        "500": { "value": "#8B5CF6", "type": "color" }
+      },
+      "gray": {
+        "50": { "value": "#F8F9FA", "type": "color" },
+        "100": { "value": "#F1F3F5", "type": "color" },
+        "400": { "value": "#9CA3AF", "type": "color" },
+        "800": { "value": "#1C1C1E", "type": "color" },
+        "900": { "value": "#111111", "type": "color" }
+      },
       "white": { "value": "#FFFFFF", "type": "color" },
-      "black": { "value": "#000000", "type": "color" }
+      "black": { "value": "#000000", "type": "color" },
+      "offWhite": { "value": "#F5F5F5", "type": "color" }
     },
-    "semantic": {
-      "primary": { "value": "{color.primitive.blue.500}" },
-      "primaryHover": { "value": "{color.primitive.blue.600}" },
-      "destructive": { "value": "{color.primitive.red.500}" },
-      "success": { "value": "{color.primitive.green.500}" },
-      "warning": { "value": "{color.primitive.amber.500}" },
-      "background": { "value": "{color.primitive.white}" },
-      "backgroundDark": { "value": "{color.primitive.black}" },
-      "surface": { "value": "{color.primitive.gray.50}" },
-      "surfaceDark": { "value": "{color.primitive.gray.900}" },
-      "textPrimary": { "value": "{color.primitive.gray.900}" },
-      "textSecondary": { "value": "{color.primitive.gray.800}" }
+    "surface": {
+      "primary": { "value": "{color.primitive.gray.50}", "type": "color", "description": "Primary surface (light mode)" },
+      "elevated": { "value": "{color.primitive.white}", "type": "color", "description": "Elevated surface (light mode)" }
     },
-    "component": {
-      "alarmCardBackground": { "value": "{color.semantic.surface}" },
-      "alarmCardActiveBorder": { "value": "{color.semantic.primary}" },
-      "alarmFiringBackground": { "value": "{color.semantic.backgroundDark}" },
-      "alarmFiringText": { "value": "{color.primitive.white}" },
-      "badgeWeekly": { "value": "{color.semantic.primary}" },
-      "badgeMonthly": { "value": "{color.semantic.warning}" },
-      "badgeAnnual": { "value": "{color.semantic.destructive}" },
-      "snoozeButton": { "value": "{color.semantic.warning}" },
-      "dismissButton": { "value": "{color.semantic.success}" }
+    "accent": {
+      "primary": { "value": "{color.primitive.blue.500}", "type": "color" },
+      "destructive": { "value": "{color.primitive.red.400}", "type": "color" }
+    },
+    "alarm": {
+      "active": {
+        "background": { "value": "{color.primitive.amber.500}", "type": "color", "description": "Active alarm card background" },
+        "foreground": { "value": "{color.primitive.gray.900}", "type": "color", "description": "Active alarm card text" }
+      },
+      "inactive": {
+        "background": { "value": "{color.primitive.gray.100}", "type": "color", "description": "Inactive alarm card background" },
+        "foreground": { "value": "{color.primitive.gray.400}", "type": "color", "description": "Inactive alarm card text" }
+      }
+    },
+    "firing": {
+      "background": { "value": "{color.primitive.black}", "type": "color", "description": "Firing screen background (OLED)" },
+      "foreground": { "value": "{color.primitive.offWhite}", "type": "color", "description": "Firing screen text" }
+    },
+    "badge": {
+      "weekly": { "value": "{color.primitive.blue.500}", "type": "color", "description": "Weekly cycle badge" },
+      "monthly": { "value": "{color.primitive.amber.500}", "type": "color", "description": "Monthly cycle badge" },
+      "annual": { "value": "{color.primitive.red.400}", "type": "color", "description": "Annual cycle badge" },
+      "custom": { "value": "{color.primitive.purple.500}", "type": "color", "description": "Custom cycle badge" }
+    },
+    "button": {
+      "snooze": { "value": "{color.primitive.amber.500}", "type": "color" },
+      "dismiss": { "value": "{color.primitive.green.500}", "type": "color" },
+      "destructive": { "value": "{color.primitive.red.500}", "type": "color" }
     }
   }
 }

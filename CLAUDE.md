@@ -209,3 +209,41 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 2. `/implement-task {task-id}` — Implement each task (includes auto-simplification before commit)
 3. `/build-all` — Verify all platforms build after changes
 4. `/phase-qa-gate {N}` — Run quality gate at end of phase (includes simplification audit)
+
+## Self-Learning Protocol
+
+Claude Code maintains a persistent memory at `~/.claude/projects/.../memory/` that survives across conversations. This section defines how mistakes and lessons are captured to prevent recurrence.
+
+### When to Record
+
+Record a learning whenever:
+- A build fails due to a preventable mistake
+- A wrong assumption leads to wasted work (e.g., branching from the wrong base)
+- A pattern or convention is discovered that isn't documented elsewhere
+- A platform-specific gotcha is encountered (iOS/Android/Firebase quirks)
+- A tool or command behaves unexpectedly
+- A file/config is missed during a rename, migration, or refactor
+
+### How to Record
+
+1. **Immediate:** After encountering a mistake, write to `MEMORY.md` (auto-loaded into system prompt) with a concise entry
+2. **Categorized:** For detailed notes, create topic-specific files (e.g., `ios-gotchas.md`, `build-issues.md`, `token-pipeline.md`) and link from `MEMORY.md`
+3. **Format:** Each entry should include: what happened, why it happened, and how to prevent it
+
+### Memory File Structure
+
+```
+~/.claude/projects/.../memory/
+├── MEMORY.md              # Index file (auto-loaded, keep under 200 lines)
+├── build-issues.md        # Build failures and fixes
+├── platform-gotchas.md    # iOS/Android-specific traps
+├── token-pipeline.md      # Design token generation lessons
+└── conventions.md         # Project patterns and conventions discovered
+```
+
+### Rules
+
+- Always check MEMORY.md at the start of a task for relevant prior learnings
+- Update or remove entries that turn out to be wrong or outdated
+- Keep MEMORY.md concise — detailed notes go in topic files
+- Never duplicate information already in CLAUDE.md or spec docs — only record surprises and gotchas

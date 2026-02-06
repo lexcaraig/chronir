@@ -2,12 +2,12 @@ name: iOS CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'sprint-*']
     paths:
       - 'Chronir-iOS/**'
       - '.github/workflows/ios.yml'
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, 'sprint-*']
     paths:
       - 'Chronir-iOS/**'
       - '.github/workflows/ios.yml'

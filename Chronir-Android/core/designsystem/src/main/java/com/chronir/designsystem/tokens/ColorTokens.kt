@@ -2,57 +2,120 @@ package com.chronir.designsystem.tokens
 
 import androidx.compose.ui.graphics.Color
 
+// Values sourced from design-tokens/tokens/color.json (Style Dictionary)
+// See docs/design-system.md Section 3.2 for full spec
+
 object ColorTokens {
-    // Primary
-    val Primary = Color(0xFF6750A4)
-    val OnPrimary = Color(0xFFFFFFFF)
-    val PrimaryContainer = Color(0xFFEADDFF)
-    val OnPrimaryContainer = Color(0xFF21005D)
+    // MARK: - Primitive
 
-    // Secondary
-    val Secondary = Color(0xFF625B71)
-    val OnSecondary = Color(0xFFFFFFFF)
-    val SecondaryContainer = Color(0xFFE8DEF8)
-    val OnSecondaryContainer = Color(0xFF1D192B)
+    val Amber500 = Color(0xFFFFB800)
+    val Blue500 = Color(0xFF3B82F6)
+    val Blue600 = Color(0xFF2563EB)
+    val Blue700 = Color(0xFF1D4ED8)
+    val Red400 = Color(0xFFF87171)
+    val Red500 = Color(0xFFEF4444)
+    val Green500 = Color(0xFF22C55E)
+    val Purple500 = Color(0xFF8B5CF6)
+    val Gray50 = Color(0xFFF8F9FA)
+    val Gray100 = Color(0xFFF1F3F5)
+    val Gray400 = Color(0xFF9CA3AF)
+    val Gray800 = Color(0xFF1C1C1E)
+    val Gray900 = Color(0xFF111111)
+    val OffWhite = Color(0xFFF5F5F5)
 
-    // Tertiary
-    val Tertiary = Color(0xFF7D5260)
-    val OnTertiary = Color(0xFFFFFFFF)
-    val TertiaryContainer = Color(0xFFFFD8E4)
-    val OnTertiaryContainer = Color(0xFF31111D)
+    // MARK: - Accent
 
-    // Error
-    val Error = Color(0xFFB3261E)
-    val OnError = Color(0xFFFFFFFF)
+    val AccentPrimary = Blue500
+    val AccentPrimaryHover = Blue600
+    val AccentPrimaryDark = Blue700
+    val AccentSecondary = Purple500
+
+    // MARK: - Semantic
+
+    val Success = Green500
+    val Warning = Amber500
+    val Error = Red500
+    val Info = Blue500
+
+    // MARK: - Surface (Dark theme — Chronir is dark-mode-first)
+
+    val SurfacePrimary = Gray50
+    val SurfaceElevated = Color.White
+    val BackgroundPrimary = Gray800
+    val BackgroundSecondary = Gray900
+    val BackgroundTertiary = Color(0xFF2C2C2E)
+    val SurfaceCard = Color(0xFF2C2C2E)
+
+    // MARK: - Text
+
+    val TextPrimary = Color.White
+    val TextSecondary = Gray400
+    val TextTertiary = Color(0xFF64748B)
+    val TextDisabled = Color(0xFF475569)
+
+    // MARK: - Border
+
+    val BorderDefault = Color(0xFF334155)
+    val BorderFocused = Blue500
+
+    // MARK: - Alarm State
+
+    val AlarmActiveBackground = Amber500
+    val AlarmActiveForeground = Gray900
+    val AlarmInactiveBackground = Gray100
+    val AlarmInactiveForeground = Gray400
+
+    // MARK: - Firing Screen
+
+    val FiringBackground = Color.Black
+    val FiringForeground = OffWhite
+
+    // MARK: - Cycle Badges
+
+    val BadgeWeekly = Blue500
+    val BadgeMonthly = Amber500
+    val BadgeAnnual = Red400
+    val BadgeCustom = Purple500
+
+    // MARK: - Action Buttons
+
+    val ButtonSnooze = Amber500
+    val ButtonDismiss = Green500
+    val ButtonDestructive = Red500
+
+    // MARK: - Material 3 Scheme Compat (used by ChronirTheme.kt)
+
+    val Primary = Blue500
+    val OnPrimary = Color.White
+    val PrimaryContainer = Blue700
+    val OnPrimaryContainer = Color.White
+    val Secondary = Purple500
+    val OnSecondary = Color.White
+    val SecondaryContainer = Color(0xFF4A3780)
+    val OnSecondaryContainer = Color.White
+    val Tertiary = Amber500
+    val OnTertiary = Gray900
+    val TertiaryContainer = Color(0xFFCC9300)
+    val OnTertiaryContainer = Gray900
+    val OnError = Color.White
     val ErrorContainer = Color(0xFFF9DEDC)
     val OnErrorContainer = Color(0xFF410E0B)
+    val Surface = Gray800
+    val OnSurface = Color.White
+    val SurfaceVariant = Color(0xFF2C2C2E)
+    val OnSurfaceVariant = Gray400
+    val Background = Gray900
+    val OnBackground = Color.White
+    val Outline = Color(0xFF334155)
+    val OutlineVariant = Color(0xFF475569)
 
-    // Surface
-    val Surface = Color(0xFFFFFBFE)
-    val OnSurface = Color(0xFF1C1B1F)
-    val SurfaceVariant = Color(0xFFE7E0EC)
-    val OnSurfaceVariant = Color(0xFF49454F)
-
-    // Background
-    val Background = Color(0xFFFFFBFE)
-    val OnBackground = Color(0xFF1C1B1F)
-
-    // Outline
-    val Outline = Color(0xFF79747E)
-    val OutlineVariant = Color(0xFFCAC4D0)
-
-    // Cycle-specific colors
-    val AlarmActive = Color(0xFF4CAF50)
-    val AlarmInactive = Color(0xFF9E9E9E)
-    val AlarmFiring = Color(0xFFFF5722)
-    val AlarmSnoozed = Color(0xFFFF9800)
-
-    // Cycle type badge colors
-    val CycleWeekly = Color(0xFF2196F3)
-    val CycleBiweekly = Color(0xFF03A9F4)
-    val CycleMonthly = Color(0xFF009688)
-    val CycleQuarterly = Color(0xFF4CAF50)
-    val CycleBiannual = Color(0xFF8BC34A)
-    val CycleAnnual = Color(0xFFFF9800)
-    val CycleCustom = Color(0xFF9C27B0)
+    // Backward compat aliases
+    val AlarmActive = AlarmActiveBackground
+    val AlarmInactive = AlarmInactiveForeground
+    val AlarmFiring = Red500
+    val AlarmSnoozed = Amber500
+    val CycleWeekly = BadgeWeekly
+    val CycleMonthly = BadgeMonthly
+    val CycleAnnual = BadgeAnnual
+    val CycleCustom = BadgeCustom
 }

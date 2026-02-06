@@ -1,38 +1,85 @@
 import SwiftUI
 
-enum ColorTokens {
-    // MARK: - Primary
-    static let primary = Color(hex: 0x6366F1)
-    static let primaryLight = Color(hex: 0x818CF8)
-    static let primaryDark = Color(hex: 0x4F46E5)
+// Values sourced from design-tokens/tokens/color.json (Style Dictionary)
+// See docs/design-system.md Section 3.2 for full spec
 
-    // MARK: - Secondary
-    static let secondary = Color(hex: 0x8B5CF6)
-    static let secondaryLight = Color(hex: 0xA78BFA)
-    static let secondaryDark = Color(hex: 0x7C3AED)
+enum ColorTokens {
+    // MARK: - Primitive
+
+    static let amber500 = Color(hex: 0xFFB800)
+    static let blue500 = Color(hex: 0x3B82F6)
+    static let blue600 = Color(hex: 0x2563EB)
+    static let blue700 = Color(hex: 0x1D4ED8)
+    static let red400 = Color(hex: 0xF87171)
+    static let red500 = Color(hex: 0xEF4444)
+    static let green500 = Color(hex: 0x22C55E)
+    static let purple500 = Color(hex: 0x8B5CF6)
+    static let gray50 = Color(hex: 0xF8F9FA)
+    static let gray100 = Color(hex: 0xF1F3F5)
+    static let gray400 = Color(hex: 0x9CA3AF)
+    static let gray800 = Color(hex: 0x1C1C1E)
+    static let gray900 = Color(hex: 0x111111)
+    static let offWhite = Color(hex: 0xF5F5F5)
+
+    // MARK: - Accent
+
+    static let primary = blue500
+    static let primaryHover = blue600
+    static let primaryDark = blue700
+    static let secondary = purple500
 
     // MARK: - Semantic
-    static let success = Color(hex: 0x22C55E)
-    static let warning = Color(hex: 0xF59E0B)
-    static let error = Color(hex: 0xEF4444)
-    static let info = Color(hex: 0x3B82F6)
 
-    // MARK: - Neutral
-    static let backgroundPrimary = Color(hex: 0x0F172A)
-    static let backgroundSecondary = Color(hex: 0x1E293B)
-    static let backgroundTertiary = Color(hex: 0x334155)
-    static let surfaceCard = Color(hex: 0x1E293B)
-    static let surfaceElevated = Color(hex: 0x334155)
+    static let success = green500
+    static let warning = amber500
+    static let error = red500
+    static let info = blue500
+
+    // MARK: - Surface
+
+    static let surfacePrimary = gray50
+    static let surfaceElevated = Color.white
+    static let backgroundPrimary = gray800
+    static let backgroundSecondary = gray900
+    static let backgroundTertiary = Color(hex: 0x2C2C2E)
+    static let surfaceCard = Color(hex: 0x2C2C2E)
 
     // MARK: - Text
+
     static let textPrimary = Color.white
-    static let textSecondary = Color(hex: 0x94A3B8)
+    static let textSecondary = gray400
     static let textTertiary = Color(hex: 0x64748B)
     static let textDisabled = Color(hex: 0x475569)
 
     // MARK: - Border
+
     static let borderDefault = Color(hex: 0x334155)
-    static let borderFocused = Color(hex: 0x6366F1)
+    static let borderFocused = blue500
+
+    // MARK: - Alarm State
+
+    static let alarmActiveBackground = amber500
+    static let alarmActiveForeground = gray900
+    static let alarmInactiveBackground = gray100
+    static let alarmInactiveForeground = gray400
+
+    // MARK: - Firing Screen
+
+    static let firingBackground = Color.black
+    static let firingForeground = offWhite
+
+    // MARK: - Cycle Badges
+
+    static let badgeWeekly = blue500
+    static let badgeMonthly = amber500
+    static let badgeAnnual = red400
+    static let badgeCustom = purple500
+
+    // MARK: - Action Buttons
+
+    static let buttonSnooze = amber500
+    static let buttonDismiss = green500
+    static let buttonDestructive = red500
 }
 
 // MARK: - Color Hex Initializer

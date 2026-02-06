@@ -2,12 +2,12 @@ name: Android CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'sprint-*']
     paths:
       - 'Chronir-Android/**'
       - '.github/workflows/android.yml'
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, 'sprint-*']
     paths:
       - 'Chronir-Android/**'
       - '.github/workflows/android.yml'

@@ -1,8 +1,16 @@
 {
   "animation": {
-    "durationFast": { "value": "150", "type": "duration" },
-    "durationNormal": { "value": "300", "type": "duration" },
-    "durationSlow": { "value": "500", "type": "duration" },
-    "easingDefault": { "value": "easeInOut", "type": "other" }
+    "duration": {
+      "instant": { "value": "100", "type": "duration" },
+      "quick": { "value": "150", "type": "duration" },
+      "standard": { "value": "300", "type": "duration" },
+      "slow": { "value": "500", "type": "duration" }
+    },
+    "spring": {
+      "defaultDamping": { "value": "0.8", "type": "other" },
+      "defaultStiffness": { "value": "380", "type": "other" },
+      "bouncyDamping": { "value": "0.65", "type": "other" },
+      "bouncyStiffness": { "value": "300", "type": "other" }
+    }
   }
 }

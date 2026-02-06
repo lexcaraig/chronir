@@ -1,27 +1,33 @@
 import SwiftUI
 
+// Values sourced from design-tokens/tokens/animation.json (Style Dictionary)
+// See docs/design-system.md Section 3.6 for full spec
+
 enum AnimationTokens {
-    /// Quick interactions (toggles, selections) - 150ms
+    // MARK: - Durations
+
+    static let instant: Animation = .easeInOut(duration: 0.1)
     static let fast: Animation = .easeInOut(duration: 0.15)
+    static let standard: Animation = .easeInOut(duration: 0.3)
+    static let slow: Animation = .easeInOut(duration: 0.5)
 
-    /// Standard transitions (cards, expansions) - 250ms
-    static let standard: Animation = .easeInOut(duration: 0.25)
+    // MARK: - Springs
 
-    /// Elaborate animations (page transitions, modals) - 350ms
-    static let slow: Animation = .easeInOut(duration: 0.35)
+    static let spring: Animation = .spring(
+        response: 0.35,
+        dampingFraction: 0.8
+    )
+    static let gentleSpring = spring  // alias for backward compat
 
-    /// Spring animation for bouncy interactions
-    static let spring: Animation = .spring(response: 0.35, dampingFraction: 0.7)
+    static let bouncySpring: Animation = .spring(
+        response: 0.4,
+        dampingFraction: 0.65
+    )
 
-    /// Gentle spring for subtle bounces
-    static let gentleSpring: Animation = .spring(response: 0.5, dampingFraction: 0.8)
+    // MARK: - Raw Durations (for non-Animation contexts)
 
-    // MARK: - Durations (for non-Animation contexts)
-
-    /// 150ms
+    static let instantDuration: Double = 0.1
     static let fastDuration: Double = 0.15
-    /// 250ms
-    static let standardDuration: Double = 0.25
-    /// 350ms
-    static let slowDuration: Double = 0.35
+    static let standardDuration: Double = 0.3
+    static let slowDuration: Double = 0.5
 }

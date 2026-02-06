@@ -1,12 +1,23 @@
 {
   "spacing": {
-    "xxs": { "value": "2", "type": "dimension" },
-    "xs": { "value": "4", "type": "dimension" },
-    "sm": { "value": "8", "type": "dimension" },
-    "md": { "value": "12", "type": "dimension" },
-    "lg": { "value": "16", "type": "dimension" },
-    "xl": { "value": "24", "type": "dimension" },
-    "xxl": { "value": "32", "type": "dimension" },
-    "xxxl": { "value": "48", "type": "dimension" }
+    "xxs": { "value": "4", "type": "dimension" },
+    "xs": { "value": "8", "type": "dimension" },
+    "sm": { "value": "12", "type": "dimension" },
+    "md": { "value": "16", "type": "dimension" },
+    "lg": { "value": "24", "type": "dimension" },
+    "xl": { "value": "32", "type": "dimension" },
+    "xxl": { "value": "48", "type": "dimension" },
+    "card": {
+      "padding": { "value": "16", "type": "dimension" }
+    },
+    "list": {
+      "gap": { "value": "12", "type": "dimension" }
+    },
+    "touch": {
+      "minTarget": { "value": "44", "type": "dimension", "description": "Minimum touch target (44pt iOS / 48dp Android)" }
+    },
+    "firing": {
+      "buttonZone": { "value": "60", "type": "dimension", "description": "Dismiss/snooze area as percentage of screen height" }
+    }
   }
 }

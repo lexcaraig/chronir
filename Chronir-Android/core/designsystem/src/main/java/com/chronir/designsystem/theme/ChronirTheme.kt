@@ -29,6 +29,33 @@ private val LightColorScheme = lightColorScheme(
     onError = ColorTokens.OnError,
     errorContainer = ColorTokens.ErrorContainer,
     onErrorContainer = ColorTokens.OnErrorContainer,
+    surface = ColorTokens.SurfacePrimary,
+    onSurface = ColorTokens.Gray900,
+    surfaceVariant = ColorTokens.Gray100,
+    onSurfaceVariant = ColorTokens.Gray800,
+    background = ColorTokens.SurfacePrimary,
+    onBackground = ColorTokens.Gray900,
+    outline = ColorTokens.Outline,
+    outlineVariant = ColorTokens.OutlineVariant
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = ColorTokens.Primary,
+    onPrimary = ColorTokens.OnPrimary,
+    primaryContainer = ColorTokens.PrimaryContainer,
+    onPrimaryContainer = ColorTokens.OnPrimaryContainer,
+    secondary = ColorTokens.Secondary,
+    onSecondary = ColorTokens.OnSecondary,
+    secondaryContainer = ColorTokens.SecondaryContainer,
+    onSecondaryContainer = ColorTokens.OnSecondaryContainer,
+    tertiary = ColorTokens.Tertiary,
+    onTertiary = ColorTokens.OnTertiary,
+    tertiaryContainer = ColorTokens.TertiaryContainer,
+    onTertiaryContainer = ColorTokens.OnTertiaryContainer,
+    error = ColorTokens.Error,
+    onError = ColorTokens.OnError,
+    errorContainer = ColorTokens.ErrorContainer,
+    onErrorContainer = ColorTokens.OnErrorContainer,
     surface = ColorTokens.Surface,
     onSurface = ColorTokens.OnSurface,
     surfaceVariant = ColorTokens.SurfaceVariant,
@@ -37,25 +64,6 @@ private val LightColorScheme = lightColorScheme(
     onBackground = ColorTokens.OnBackground,
     outline = ColorTokens.Outline,
     outlineVariant = ColorTokens.OutlineVariant
-)
-
-private val DarkColorScheme = darkColorScheme(
-    primary = ColorTokens.PrimaryContainer,
-    onPrimary = ColorTokens.OnPrimaryContainer,
-    primaryContainer = ColorTokens.Primary,
-    onPrimaryContainer = ColorTokens.OnPrimary,
-    secondary = ColorTokens.SecondaryContainer,
-    onSecondary = ColorTokens.OnSecondaryContainer,
-    secondaryContainer = ColorTokens.Secondary,
-    onSecondaryContainer = ColorTokens.OnSecondary,
-    tertiary = ColorTokens.TertiaryContainer,
-    onTertiary = ColorTokens.OnTertiaryContainer,
-    tertiaryContainer = ColorTokens.Tertiary,
-    onTertiaryContainer = ColorTokens.OnTertiary,
-    error = ColorTokens.ErrorContainer,
-    onError = ColorTokens.OnErrorContainer,
-    errorContainer = ColorTokens.Error,
-    onErrorContainer = ColorTokens.OnError
 )
 
 @Composable
@@ -67,7 +75,8 @@ fun ChronirTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            val dynamic = if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            DynamicColorProvider.applyChronirOverrides(dynamic)
         }
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
