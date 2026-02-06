@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 
 protocol AlarmRepositoryProtocol: Sendable {
     func fetchAll() async throws -> [Alarm]
@@ -9,35 +10,48 @@ protocol AlarmRepositoryProtocol: Sendable {
     func fetchEnabled() async throws -> [Alarm]
 }
 
-final class AlarmRepository: AlarmRepositoryProtocol {
-    static let shared = AlarmRepository()
-
-    private init() {}
+@ModelActor
+actor AlarmRepository: AlarmRepositoryProtocol {
+    static let shared: AlarmRepository = {
+        // swiftlint:disable:next force_try
+        let container = try! ModelContainer(for: Alarm.self) // Required for shared singleton
+        return AlarmRepository(modelContainer: container)
+    }()
 
     func fetchAll() async throws -> [Alarm] {
-        // TODO: Implement in Sprint 1 - SwiftData queries
-        return []
+        let descriptor = FetchDescriptor<Alarm>(
+            sortBy: [SortDescriptor(\.nextFireDate)]
+        )
+        return try modelContext.fetch(descriptor)
     }
 
     func fetch(by id: UUID) async throws -> Alarm? {
-        // TODO: Implement in Sprint 1
-        return nil
+        let descriptor = FetchDescriptor<Alarm>(
+            predicate: #Predicate<Alarm> { $0.id == id }
+        )
+        return try modelContext.fetch(descriptor).first
     }
 
     func save(_ alarm: Alarm) async throws {
-        // TODO: Implement in Sprint 1
+        modelContext.insert(alarm)
+        try modelContext.save()
     }
 
     func delete(_ alarm: Alarm) async throws {
-        // TODO: Implement in Sprint 1
+        modelContext.delete(alarm)
+        try modelContext.save()
     }
 
     func update(_ alarm: Alarm) async throws {
-        // TODO: Implement in Sprint 1
+        // SwiftData auto-tracks changes on managed objects
+        try modelContext.save()
     }
 
     func fetchEnabled() async throws -> [Alarm] {
-        // TODO: Implement in Sprint 1
-        return []
+        let descriptor = FetchDescriptor<Alarm>(
+            predicate: #Predicate<Alarm> { $0.isEnabled == true },
+            sortBy: [SortDescriptor(\.nextFireDate)]
+        )
+        return try modelContext.fetch(descriptor)
     }
 }

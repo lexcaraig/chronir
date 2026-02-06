@@ -32,6 +32,8 @@ import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.Alarm
 import com.chronir.model.CycleType
+import com.chronir.model.PersistenceLevel
+import com.chronir.model.Schedule
 import java.time.Instant
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -69,22 +71,19 @@ enum class AlarmVisualState {
 private val cycleTypeBadgeColor: (CycleType) -> Color = { cycleType ->
     when (cycleType) {
         CycleType.WEEKLY -> ColorTokens.BadgeWeekly
-        CycleType.MONTHLY -> ColorTokens.BadgeMonthly
+        CycleType.MONTHLY_DATE, CycleType.MONTHLY_RELATIVE -> ColorTokens.BadgeMonthly
         CycleType.ANNUAL -> ColorTokens.BadgeAnnual
-        CycleType.CUSTOM -> ColorTokens.BadgeCustom
-        else -> ColorTokens.AccentPrimary
+        CycleType.CUSTOM_DAYS -> ColorTokens.BadgeCustom
     }
 }
 
 private val cycleTypeLabel: (CycleType) -> String = { cycleType ->
     when (cycleType) {
         CycleType.WEEKLY -> "Weekly"
-        CycleType.BIWEEKLY -> "Biweekly"
-        CycleType.MONTHLY -> "Monthly"
-        CycleType.QUARTERLY -> "Quarterly"
-        CycleType.BIANNUAL -> "Biannual"
+        CycleType.MONTHLY_DATE -> "Monthly"
+        CycleType.MONTHLY_RELATIVE -> "Monthly"
         CycleType.ANNUAL -> "Annual"
-        CycleType.CUSTOM -> "Custom"
+        CycleType.CUSTOM_DAYS -> "Custom"
     }
 }
 
@@ -155,12 +154,12 @@ fun AlarmCard(
                     val timeFormatter = remember { DateTimeFormatter.ofPattern("h:mm a") }
                     if (visualState != AlarmVisualState.Inactive) {
                         AlarmTimeDisplay(
-                            timeText = alarm.scheduledTime.format(timeFormatter),
+                            timeText = alarm.timeOfDay.format(timeFormatter),
                             countdownText = if (visualState == AlarmVisualState.Active) "Alarm in 6h 32m" else null
                         )
                     } else {
                         ChronirText(
-                            text = alarm.scheduledTime.format(timeFormatter),
+                            text = alarm.timeOfDay.format(timeFormatter),
                             style = ChronirTextStyle.HeadlineTime,
                             color = ColorTokens.TextDisabled
                         )
@@ -205,15 +204,17 @@ fun AlarmCard(
 private val sampleAlarm = Alarm(
     title = "Morning Workout",
     cycleType = CycleType.WEEKLY,
-    scheduledTime = LocalTime.of(7, 0),
+    timeOfDay = LocalTime.of(7, 0),
+    schedule = Schedule.Weekly(daysOfWeek = listOf(1), interval = 1),
     nextFireDate = Instant.now(),
-    isPersistent = true
+    persistenceLevel = PersistenceLevel.FULL
 )
 
 private val sampleAlarmMonthly = Alarm(
     title = "Pay Rent",
-    cycleType = CycleType.MONTHLY,
-    scheduledTime = LocalTime.of(9, 0),
+    cycleType = CycleType.MONTHLY_DATE,
+    timeOfDay = LocalTime.of(9, 0),
+    schedule = Schedule.MonthlyDate(dayOfMonth = 1, interval = 1),
     nextFireDate = Instant.now()
 )
 

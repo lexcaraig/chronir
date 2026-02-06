@@ -63,9 +63,7 @@ struct AlarmFiringOverlay: View {
         alarm: Alarm(
             title: "Morning Workout",
             cycleType: .weekly,
-            scheduledTime: Date(),
-            nextFireDate: Date(),
-            isPersistent: true
+            persistenceLevel: .full
         ),
         onDismiss: {},
         onSnooze: { _ in }
@@ -76,9 +74,8 @@ struct AlarmFiringOverlay: View {
     AlarmFiringOverlay(
         alarm: Alarm(
             title: "Pay Rent",
-            cycleType: .monthly,
-            scheduledTime: Date(),
-            nextFireDate: Date(),
+            cycleType: .monthlyDate,
+            schedule: .monthlyDate(dayOfMonth: 1, interval: 1),
             note: "Transfer to landlord account"
         ),
         onDismiss: {},
@@ -91,9 +88,7 @@ struct AlarmFiringOverlay: View {
         alarm: Alarm(
             title: "Morning Workout",
             cycleType: .weekly,
-            scheduledTime: Date(),
-            nextFireDate: Date(),
-            isPersistent: true
+            persistenceLevel: .full
         ),
         snoozeCount: 2,
         onDismiss: {},

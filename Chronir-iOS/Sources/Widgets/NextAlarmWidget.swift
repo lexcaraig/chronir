@@ -58,7 +58,7 @@ struct NextAlarmTimelineProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<NextAlarmEntry>) -> Void) {
-        // TODO: Implement in Sprint 3 - fetch from shared app group container
+        // TODO: Implement — fetch from shared app group container
         let entry = NextAlarmEntry(date: Date(), alarmTitle: "No alarms", nextFireDate: nil, cycleType: nil)
         let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(900)))
         completion(timeline)

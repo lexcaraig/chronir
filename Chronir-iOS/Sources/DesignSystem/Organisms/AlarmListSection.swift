@@ -51,20 +51,19 @@ struct AlarmListSection: View {
         Alarm(
             title: "Morning Workout",
             cycleType: .weekly,
-            scheduledTime: Date(),
             nextFireDate: Date().addingTimeInterval(3600),
-            isPersistent: true
+            persistenceLevel: .full
         ),
         Alarm(
             title: "Pay Rent",
-            cycleType: .monthly,
-            scheduledTime: Date(),
+            cycleType: .monthlyDate,
+            schedule: .monthlyDate(dayOfMonth: 1, interval: 1),
             nextFireDate: Date().addingTimeInterval(-3600)
         ),
         Alarm(
             title: "Annual Checkup",
-            cycleType: .yearly,
-            scheduledTime: Date(),
+            cycleType: .annual,
+            schedule: .annual(month: 3, dayOfMonth: 15, interval: 1),
             nextFireDate: Date().addingTimeInterval(86400)
         )
     ]

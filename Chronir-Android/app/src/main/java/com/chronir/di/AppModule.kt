@@ -3,6 +3,9 @@ package com.chronir.di
 import android.content.Context
 import com.chronir.data.local.ChronirDatabase
 import com.chronir.data.local.AlarmDao
+import com.chronir.services.AlarmScheduler
+import com.chronir.services.AlarmSchedulerImpl
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,4 +28,13 @@ object AppModule {
     fun provideAlarmDao(database: ChronirDatabase): AlarmDao {
         return database.alarmDao()
     }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class ServiceBindingsModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindAlarmScheduler(impl: AlarmSchedulerImpl): AlarmScheduler
 }

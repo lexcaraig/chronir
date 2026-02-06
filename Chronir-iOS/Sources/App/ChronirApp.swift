@@ -1,8 +1,8 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct ChronirApp: App {
-    // TODO: Add SwiftData modelContainer when models are finalized
     // TODO: Add Firebase configuration in init()
     // TODO: Replace with AlarmKit when Xcode 18/iOS 26 is available
 
@@ -34,5 +34,6 @@ struct ChronirApp: App {
             }
             .tint(ColorTokens.primary)
         }
+        .modelContainer(for: [Alarm.self])
     }
 }

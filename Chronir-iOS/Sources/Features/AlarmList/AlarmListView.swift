@@ -7,18 +7,20 @@ struct AlarmListView: View {
 
     var body: some View {
         SingleColumnTemplate(title: "Alarms") {
-            if sampleAlarms.isEmpty {
+            if viewModel.alarms.isEmpty {
                 EmptyStateView(onCreateAlarm: { showingCreateAlarm = true })
             } else {
                 AlarmListSection(
                     title: "Upcoming",
-                    alarms: sampleAlarms,
+                    alarms: viewModel.alarms,
                     enabledStates: $enabledStates,
-                    onDelete: { _ in }
+                    onDelete: { alarm in
+                        Task { await viewModel.deleteAlarm(alarm) }
+                    }
                 )
             }
         } floatingAction: {
-            if !sampleAlarms.isEmpty {
+            if !viewModel.alarms.isEmpty {
                 Button(
                     action: { showingCreateAlarm = true },
                     label: {
@@ -36,33 +38,16 @@ struct AlarmListView: View {
         .sheet(isPresented: $showingCreateAlarm) {
             AlarmCreationView()
         }
+        .task {
+            await viewModel.loadAlarms()
+        }
+        .onChange(of: enabledStates) {
+            for (id, isEnabled) in enabledStates {
+                Task { await viewModel.toggleAlarm(id: id, isEnabled: isEnabled) }
+            }
+        }
     }
 }
-
-// MARK: - Sample Data
-
-private let sampleAlarms: [Alarm] = [
-    Alarm(
-        title: "Morning Workout",
-        cycleType: .weekly,
-        scheduledTime: Date().addingTimeInterval(3600),
-        nextFireDate: Date().addingTimeInterval(3600),
-        isPersistent: true,
-        note: "Don't skip leg day"
-    ),
-    Alarm(
-        title: "Pay Rent",
-        cycleType: .monthly,
-        scheduledTime: Date().addingTimeInterval(-7200),
-        nextFireDate: Date().addingTimeInterval(-7200)
-    ),
-    Alarm(
-        title: "Annual Checkup",
-        cycleType: .yearly,
-        scheduledTime: Date().addingTimeInterval(86400),
-        nextFireDate: Date().addingTimeInterval(86400)
-    )
-]
 
 #Preview {
     NavigationStack {

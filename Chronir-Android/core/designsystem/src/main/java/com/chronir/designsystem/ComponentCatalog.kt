@@ -42,6 +42,8 @@ import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.Alarm
 import com.chronir.model.CycleType
+import com.chronir.model.PersistenceLevel
+import com.chronir.model.Schedule
 import java.time.Instant
 import java.time.LocalTime
 
@@ -98,7 +100,7 @@ fun ComponentCatalog(
 
         CatalogSection(title = "Organisms", isExpanded = expandedSection == "organisms", onToggle = { expandedSection = if (expandedSection == "organisms") null else "organisms" }) {
             AlarmCard(
-                alarm = Alarm(title = "Active Card", cycleType = CycleType.WEEKLY, scheduledTime = LocalTime.of(7, 0), nextFireDate = Instant.now().plusSeconds(3600), isPersistent = true),
+                alarm = Alarm(title = "Active Card", cycleType = CycleType.WEEKLY, timeOfDay = LocalTime.of(7, 0), schedule = Schedule.Weekly(daysOfWeek = listOf(1), interval = 1), nextFireDate = Instant.now().plusSeconds(3600), persistenceLevel = PersistenceLevel.FULL),
                 visualState = AlarmVisualState.Active,
                 isEnabled = true,
                 onToggle = {},
@@ -106,7 +108,7 @@ fun ComponentCatalog(
             )
             Spacer(Modifier.height(SpacingTokens.Small))
             AlarmCard(
-                alarm = Alarm(title = "Snoozed Card", cycleType = CycleType.MONTHLY, scheduledTime = LocalTime.of(9, 0), nextFireDate = Instant.now()),
+                alarm = Alarm(title = "Snoozed Card", cycleType = CycleType.MONTHLY_DATE, timeOfDay = LocalTime.of(9, 0), schedule = Schedule.MonthlyDate(dayOfMonth = 1, interval = 1), nextFireDate = Instant.now()),
                 visualState = AlarmVisualState.Snoozed,
                 isEnabled = true,
                 onToggle = {},
@@ -114,7 +116,7 @@ fun ComponentCatalog(
             )
             Spacer(Modifier.height(SpacingTokens.Small))
             AlarmCard(
-                alarm = Alarm(title = "Overdue Card", cycleType = CycleType.ANNUAL, scheduledTime = LocalTime.of(10, 0), nextFireDate = Instant.now().minusSeconds(3600)),
+                alarm = Alarm(title = "Overdue Card", cycleType = CycleType.ANNUAL, timeOfDay = LocalTime.of(10, 0), schedule = Schedule.Annual(month = 3, dayOfMonth = 15, interval = 1), nextFireDate = Instant.now().minusSeconds(3600)),
                 visualState = AlarmVisualState.Overdue,
                 isEnabled = true,
                 onToggle = {},

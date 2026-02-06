@@ -84,9 +84,9 @@ private struct CatalogBadgeView: View {
         VStack(spacing: SpacingTokens.md) {
             HStack(spacing: SpacingTokens.sm) {
                 ChronirBadge(cycleType: .weekly)
-                ChronirBadge(cycleType: .monthly)
-                ChronirBadge(cycleType: .yearly)
-                ChronirBadge(cycleType: .custom)
+                ChronirBadge(cycleType: .monthlyDate)
+                ChronirBadge(cycleType: .annual)
+                ChronirBadge(cycleType: .customDays)
             }
             HStack(spacing: SpacingTokens.sm) {
                 ChronirBadge("Active", color: ColorTokens.success)
@@ -215,41 +215,27 @@ private struct CatalogAlarmCardView: View {
         ScrollView {
             VStack(spacing: SpacingTokens.md) {
                 AlarmCard(
-                    alarm: Alarm(
-                        title: "Active Card",
-                        cycleType: .weekly,
-                        scheduledTime: Date(),
-                        nextFireDate: Date().addingTimeInterval(3600),
-                        isPersistent: true
-                    ),
+                    alarm: Alarm(title: "Active Card", cycleType: .weekly, persistenceLevel: .full),
                     visualState: .active,
                     isEnabled: $enabled1
                 )
                 AlarmCard(
                     alarm: Alarm(
-                        title: "Inactive Card",
-                        cycleType: .monthly,
-                        scheduledTime: Date(),
-                        nextFireDate: Date()
+                        title: "Inactive Card", cycleType: .monthlyDate,
+                        schedule: .monthlyDate(dayOfMonth: 1, interval: 1)
                     ),
                     visualState: .inactive,
                     isEnabled: $enabled2
                 )
                 AlarmCard(
-                    alarm: Alarm(
-                        title: "Snoozed Card",
-                        cycleType: .weekly,
-                        scheduledTime: Date(),
-                        nextFireDate: Date()
-                    ),
+                    alarm: Alarm(title: "Snoozed Card", cycleType: .weekly),
                     visualState: .snoozed,
                     isEnabled: $enabled3
                 )
                 AlarmCard(
                     alarm: Alarm(
-                        title: "Overdue Card",
-                        cycleType: .yearly,
-                        scheduledTime: Date(),
+                        title: "Overdue Card", cycleType: .annual,
+                        schedule: .annual(month: 1, dayOfMonth: 1, interval: 1),
                         nextFireDate: Date().addingTimeInterval(-3600)
                     ),
                     visualState: .overdue,
@@ -271,16 +257,10 @@ private struct CatalogAlarmListSectionView: View {
             AlarmListSection(
                 title: "Upcoming",
                 alarms: [
+                    Alarm(title: "Workout", cycleType: .weekly, nextFireDate: Date().addingTimeInterval(3600)),
                     Alarm(
-                        title: "Workout",
-                        cycleType: .weekly,
-                        scheduledTime: Date(),
-                        nextFireDate: Date().addingTimeInterval(3600)
-                    ),
-                    Alarm(
-                        title: "Pay Rent",
-                        cycleType: .monthly,
-                        scheduledTime: Date(),
+                        title: "Pay Rent", cycleType: .monthlyDate,
+                        schedule: .monthlyDate(dayOfMonth: 1, interval: 1),
                         nextFireDate: Date().addingTimeInterval(-3600)
                     )
                 ],
@@ -303,13 +283,7 @@ private struct CatalogEmptyStateView: View {
 private struct CatalogAlarmFiringOverlayView: View {
     var body: some View {
         AlarmFiringOverlay(
-            alarm: Alarm(
-                title: "Morning Workout",
-                cycleType: .weekly,
-                scheduledTime: Date(),
-                nextFireDate: Date(),
-                isPersistent: true
-            ),
+            alarm: Alarm(title: "Morning Workout", cycleType: .weekly, persistenceLevel: .full),
             snoozeCount: 1,
             onDismiss: {},
             onSnooze: { _ in }
@@ -324,6 +298,8 @@ private struct CatalogAlarmCreationFormView: View {
     @State private var time = Date()
     @State private var isPersistent = false
     @State private var note = ""
+    @State private var selectedDays: Set<Int> = [2]
+    @State private var dayOfMonth = 1
 
     var body: some View {
         ScrollView {
@@ -332,7 +308,9 @@ private struct CatalogAlarmCreationFormView: View {
                 cycleType: $cycleType,
                 scheduledTime: $time,
                 isPersistent: $isPersistent,
-                note: $note
+                note: $note,
+                selectedDays: $selectedDays,
+                dayOfMonth: $dayOfMonth
             )
         }
         .background(ColorTokens.backgroundPrimary)
