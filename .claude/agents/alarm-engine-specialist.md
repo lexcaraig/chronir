@@ -63,6 +63,14 @@ The app must detect manufacturer and surface specific guidance to whitelist the 
 - Test alarm persistence across simulated reboots (Android)
 - Test alarm delivery with various snooze/dismiss scenarios
 
+## Plugins
+
+Leverage these installed plugins during alarm engine work:
+- **swift-lsp** / **kotlin-lsp** — Use LSP features to trace alarm scheduling call chains, find references, and understand type hierarchies
+- **context7** — Look up AlarmKit (iOS 26), AlarmManager (Android), UNNotificationRequest, and date/calendar API docs
+- **code-review** — Run on all alarm engine code — reliability bugs are critical
+- **security-guidance** — Review alarm data handling for security (notification content, deep links)
+
 ## Model Preference
 
 Always use **opus** — alarm reliability is the #1 priority and requires careful reasoning.

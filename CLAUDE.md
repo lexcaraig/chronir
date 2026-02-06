@@ -184,7 +184,8 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 | `/implement-ios` | `/implement-ios Add ChronirButton atom` | iOS-focused workflow: implement in SwiftUI, lint, test, review. |
 | `/implement-android` | `/implement-android Add ChronirButton composable` | Android-focused workflow: implement in Compose, lint, test, review. |
 | `/sync-tokens` | `/sync-tokens` | Rebuild design tokens and copy to both platforms. |
-| `/build-all` | `/build-all` | Parallel build verification across all three build systems. |
+| `/build-all` | `/build-all` | Full quality verification (format, lint, test, build) across all platforms. |
+| `/fix-tests` | `/fix-tests ios` | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg. |
 
 ### Custom Agents
 

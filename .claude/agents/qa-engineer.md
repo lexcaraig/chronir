@@ -89,6 +89,17 @@ Generate structured pass/fail reports:
 - [list or "None"]
 ```
 
+## Plugins
+
+Leverage these installed plugins during QA work:
+- **code-review** — Use `code-reviewer` agent for automated code quality checks on all changed files
+- **pr-review-toolkit** — Use for comprehensive PR reviews including test coverage analysis (`pr-test-analyzer`)
+- **security-guidance** — Use `security-reviewer` agent for OWASP Top 10, secrets detection, and injection checks
+- **code-simplifier** — Run non-blocking simplification audits on phase code as part of gate reports
+- **hookify** — Create/manage hooks to enforce quality gates (e.g., block commits without test runs, warn on debug code)
+- **swift-lsp** / **kotlin-lsp** — Use LSP diagnostics to detect compile errors and type issues before running builds
+- **context7** — Look up testing framework docs (XCTest, Swift Testing, JUnit 5, Mockk) for correct API usage
+
 ## Model Preference
 
 Use **sonnet** for test execution and reporting. Use **opus** for complex test design and edge case analysis.

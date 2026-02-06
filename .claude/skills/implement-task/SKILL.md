@@ -55,21 +55,41 @@ Execute the approved plan:
 - For design system work: Follow conventions from `design-system-builder` agent
 - Write code incrementally, testing as you go
 
-### Step 6: Test
-Run platform-specific tests:
-- **iOS:** `cd Chronir-iOS && swiftlint && swift test`
-- **Android:** `cd Chronir-Android && ./gradlew ktlintCheck && ./gradlew test`
-- Write new unit tests for the implemented functionality
+### Step 6: Write Unit Tests
+Write new unit tests for the implemented functionality:
 - Use the `test-writer-fixer` agent for comprehensive test coverage
+- Target 80%+ coverage on new code
+- Cover happy path, edge cases, and error states
 
-### Step 7: Review
+### Step 7: Quality Gate (MANDATORY — must pass before proceeding)
+Run the full quality gate on all affected platforms. **Do not skip any step. Do not proceed to review or commit until all pass.**
+
+**iOS (run sequentially):**
+```bash
+cd Chronir-iOS && swiftlint --fix     # Auto-format
+cd Chronir-iOS && swiftlint           # Lint — must be zero warnings in changed files
+cd Chronir-iOS && swift test          # Unit tests — must all pass
+cd Chronir-iOS && swift build         # Build — must compile with zero errors
+```
+
+**Android (run sequentially):**
+```bash
+cd Chronir-Android && ./gradlew ktlintFormat    # Auto-format
+cd Chronir-Android && ./gradlew ktlintCheck     # Lint — must pass
+cd Chronir-Android && ./gradlew test            # Unit tests — must all pass
+cd Chronir-Android && ./gradlew assembleDebug   # Build — must compile
+```
+
+**If any step fails:** Fix the issues immediately and re-run the full gate. Loop until all steps pass.
+
+### Step 8: Review
 Run the `code-reviewer` agent on all changed files to check:
 - Code quality and conventions adherence
 - Security vulnerabilities
 - Performance concerns
 - Missing error handling
 
-### Step 8: Simplify
+### Step 9: Simplify
 Run the `code-simplifier` agent on all modified files to:
 - Reduce nesting and redundant code
 - Improve naming clarity
@@ -78,11 +98,26 @@ Run the `code-simplifier` agent on all modified files to:
 
 This step preserves exact functionality while cleaning up implementation verbosity.
 
-### Step 9: Commit
+### Step 10: Re-run Quality Gate
+After review and simplification may have changed code, **re-run the full quality gate from Step 7** to ensure nothing was broken. All checks must still pass.
+
+### Step 11: Commit
 Stage all changes and create a commit:
 - Commit message format: `feat(platform): [TASK-ID] description`
 - Example: `feat(ios): [S4-01] implement alarm scheduling service`
 - Include all modified files, excluding any temporary or generated files
+
+## Plugins
+
+Use these installed plugins at the appropriate steps:
+- **swift-lsp** / **kotlin-lsp** — Use LSP features during implementation (Step 5) to navigate code, find references, and check diagnostics
+- **context7** — Look up latest API documentation during context gathering (Step 2) when unsure about framework APIs
+- **code-review** — Powers the review step (Step 8). Use `code-reviewer` agent on all changed files
+- **code-simplifier** — Powers the simplification step (Step 9). Run on all modified files
+- **security-guidance** — Use `security-reviewer` agent during review (Step 8) for security-sensitive tasks (auth, data, network)
+- **firebase** — For Firebase tasks, use Firebase MCP tools to validate rules (`firebase_validate_security_rules`), query data, and check config
+- **commit-commands** — Use `/commit` for the commit step (Step 11) to get standardized commit messages
+- **pr-review-toolkit** — Use when creating PRs after the sprint to get comprehensive review with `pr-test-analyzer`
 
 ## Notes
 - If a task spans both platforms, implement iOS first, then Android, to establish the pattern

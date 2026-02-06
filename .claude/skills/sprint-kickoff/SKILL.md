@@ -39,13 +39,31 @@ Create a structured task list using the TaskCreate tool for each sprint task:
 - Include platform designation in each task description
 - Include story points for effort tracking
 
-### Step 4: Run Baseline Builds
-Run builds on all platforms to establish a green baseline:
-- **Design tokens:** `cd design-tokens && npm run build`
-- **iOS:** `cd Chronir-iOS && swift build`
-- **Android:** `cd Chronir-Android && ./gradlew assembleDebug`
+### Step 4: Run Baseline Quality Gate
+Run the full quality gate on all platforms to establish a green baseline. **All checks must pass before sprint work begins.**
 
-Report any baseline build failures — these must be fixed before sprint work begins.
+**Design tokens:**
+```bash
+cd design-tokens && npm run build
+```
+
+**iOS (run sequentially):**
+```bash
+cd Chronir-iOS && swiftlint --fix     # Auto-format
+cd Chronir-iOS && swiftlint           # Lint
+cd Chronir-iOS && swift test          # Unit tests
+cd Chronir-iOS && swift build         # Build
+```
+
+**Android (run sequentially):**
+```bash
+cd Chronir-Android && ./gradlew ktlintFormat    # Auto-format
+cd Chronir-Android && ./gradlew ktlintCheck     # Lint
+cd Chronir-Android && ./gradlew test            # Unit tests
+cd Chronir-Android && ./gradlew assembleDebug   # Build
+```
+
+Report any baseline failures — these must be fixed before sprint work begins.
 
 ### Step 5: Sprint Summary
 Output a summary including:
@@ -54,6 +72,13 @@ Output a summary including:
 - Task count by platform (iOS / Android / Both / Infrastructure)
 - Any baseline build issues
 - Suggested task execution order
+
+## Plugins
+
+Use these installed plugins during sprint kickoff:
+- **hookify** — After creating the sprint branch, consider creating hookify rules for the sprint (e.g., block commits without test runs, warn on hardcoded token values). Use `/hookify` to analyze common mistakes.
+- **claude-md-management** — Run `/revise-claude-md` at the end of kickoff to capture any new project context discovered during scope review
+- **context7** — Look up framework documentation if sprint scope introduces new APIs or libraries
 
 ## Notes
 - If baseline builds fail, fix them before proceeding with sprint tasks

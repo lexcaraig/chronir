@@ -55,6 +55,13 @@ Design and implement all Firebase integrations: Auth flows, Firestore schema/rul
 - Use Firestore snapshots for real-time sync where appropriate
 - Batch writes for multi-document operations
 
+## Plugins
+
+Leverage these installed plugins during Firebase work:
+- **firebase** — Use Firebase MCP tools directly: `firebase_get_project`, `firebase_get_security_rules`, `firebase_validate_security_rules`, `firestore_query_collection`, `firestore_get_documents`, `firebase_init`, `firebase_get_sdk_config`
+- **security-guidance** — Consult for auth flow security, data access patterns, and injection prevention
+- **context7** — Look up latest Firebase SDK documentation for both platforms
+
 ## Model Preference
 
 Use **opus** for security rules, schema design, and sync logic. Use **sonnet** for routine CRUD operations.

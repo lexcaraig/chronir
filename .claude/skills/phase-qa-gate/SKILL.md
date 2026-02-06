@@ -15,20 +15,22 @@ Example: `/phase-qa-gate 1`
 ### Step 0: Enter Plan Mode
 **Immediately** use the `EnterPlanMode` tool before doing anything else. Identify which sprints belong to the specified phase, outline what checks will run, and present the QA scope. Use `ExitPlanMode` to get user approval before running checks.
 
-### Step 1: Lint
-Run linters on both platforms in parallel:
+### Step 1: Format & Lint
+Run auto-format first, then lint on both platforms:
 
 **iOS:**
 ```bash
-cd Chronir-iOS && swiftlint
+cd Chronir-iOS && swiftlint --fix     # Auto-format
+cd Chronir-iOS && swiftlint           # Lint verification
 ```
 
 **Android:**
 ```bash
-cd Chronir-Android && ./gradlew ktlintCheck
+cd Chronir-Android && ./gradlew ktlintFormat    # Auto-format
+cd Chronir-Android && ./gradlew ktlintCheck     # Lint verification
 ```
 
-Record: pass/fail status and issue count for each.
+Record: pass/fail status and issue count for each. If auto-format made changes, stage them.
 
 ### Step 2: Unit Tests
 Run unit tests on both platforms in parallel:
@@ -95,8 +97,10 @@ Output a structured report following this format:
 
 ### Summary: PASS / FAIL
 
-### Lint
+### Format & Lint
+- iOS format (swiftlint --fix): Applied / No changes needed
 - iOS swiftlint: PASS/FAIL (N issues)
+- Android format (ktlintFormat): Applied / No changes needed
 - Android ktlint: PASS/FAIL (N issues)
 
 ### Unit Tests
@@ -133,6 +137,16 @@ Output a structured report following this format:
 [PASS: Ready to proceed to Phase {N+1}]
 [FAIL: {N} blocking issues must be resolved]
 ```
+
+## Plugins
+
+Use these installed plugins during QA gate:
+- **code-review** — Powers Step 4 indirectly. Use `code-reviewer` agent for automated quality checks
+- **security-guidance** — Powers Step 4 (Security Review). Use `security-reviewer` agent for OWASP Top 10, secrets detection, injection checks
+- **code-simplifier** — Powers Step 5 (Simplification Audit). Run on all phase-modified files as non-blocking quality step
+- **pr-review-toolkit** — Use `pr-test-analyzer` to verify test coverage quality for the phase
+- **swift-lsp** / **kotlin-lsp** — Use LSP diagnostics as an additional signal for code health
+- **claude-md-management** — After gate passes, run `/revise-claude-md` to capture any lessons learned during the phase
 
 ## Gate Criteria
 - **PASS:** Zero blocking issues. Lint clean, all tests pass, builds succeed, no critical security findings.

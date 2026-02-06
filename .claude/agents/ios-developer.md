@@ -51,9 +51,35 @@ swift test               # Unit tests
 swift build -c release   # Release build
 ```
 
-## Post-Implementation
+## Mandatory Quality Gate (after every implementation)
 
-After implementation, the `code-simplifier` agent should be run on all modified files to reduce nesting, improve naming, and simplify conditionals while preserving exact functionality. Write clean code from the start to minimize simplification needs.
+After every implementation — no exceptions — run the full quality gate before review, simplification, or commit:
+
+```bash
+cd Chronir-iOS && swiftlint --fix     # 1. Auto-format
+cd Chronir-iOS && swiftlint           # 2. Lint — zero warnings in changed files
+cd Chronir-iOS && swift test          # 3. Unit tests — all pass
+cd Chronir-iOS && swift build         # 4. Build — zero errors
+```
+
+**If any step fails:** Fix immediately and re-run the full gate. Do not proceed until all pass.
+
+Write new unit tests for every implementation. Target 80%+ coverage on new code. Cover happy path, edge cases, and error states. Use the `test-writer-fixer` agent for comprehensive test coverage.
+
+## Post-Quality Gate
+
+After the quality gate passes, run the `code-simplifier` agent on all modified files to reduce nesting, improve naming, and simplify conditionals while preserving exact functionality. Then **re-run the quality gate** to verify simplification didn't break anything.
+
+## Plugins
+
+Leverage these installed plugins during iOS development:
+- **swift-lsp** — Use LSP features (go-to-definition, find-references, hover, diagnostics) for navigating and understanding Swift code
+- **code-simplifier** — Run after implementation to reduce nesting and improve naming while preserving functionality
+- **code-review** — Run on all changed files to check quality, security, and conventions
+- **security-guidance** — Consult for security-sensitive code (auth, data storage, network)
+- **firebase** — Use Firebase MCP tools for Firestore operations, rules validation, and project config
+- **context7** — Look up latest SwiftUI/SwiftData/AlarmKit documentation when unsure about APIs
+- **commit-commands** — Use `/commit` for standardized git commits after quality gate passes
 
 ## Model Preference
 

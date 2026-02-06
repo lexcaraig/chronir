@@ -33,21 +33,29 @@ Copy generated Kotlin files to the Android design system:
 cp design-tokens/build/android/*.kt Chronir-Android/core/designsystem/src/main/java/com/chronir/android/core/designsystem/tokens/
 ```
 
-### Step 4: Verify Builds
-Run builds on both platforms to verify the token files compile:
+### Step 4: Quality Gate (MANDATORY)
+Run the full quality gate on both platforms to verify the synced tokens don't break anything. **All checks must pass.**
 
-**iOS:**
+**iOS (run sequentially):**
 ```bash
-cd Chronir-iOS && swift build 2>&1 | tail -5
+cd Chronir-iOS && swiftlint --fix     # Auto-format
+cd Chronir-iOS && swiftlint           # Lint
+cd Chronir-iOS && swift test          # Unit tests
+cd Chronir-iOS && swift build         # Build
 ```
 
-**Android:**
+**Android (run sequentially):**
 ```bash
-cd Chronir-Android && ./gradlew :core:designsystem:compileDebugKotlin 2>&1 | tail -5
+cd Chronir-Android && ./gradlew ktlintFormat    # Auto-format
+cd Chronir-Android && ./gradlew ktlintCheck     # Lint
+cd Chronir-Android && ./gradlew test            # Unit tests
+cd Chronir-Android && ./gradlew assembleDebug   # Build
 ```
+
+**If any step fails:** Fix the issues immediately and re-run the gate.
 
 ### Step 5: Report
-Output which token files were generated and whether both platforms compile successfully.
+Output which token files were generated and whether both platforms pass the full quality gate (format, lint, tests, build).
 
 ## Notes
 - Run this after ANY change to `design-tokens/tokens/*.json`

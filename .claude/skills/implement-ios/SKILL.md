@@ -40,23 +40,41 @@ Write code following iOS conventions:
 - **Concurrency:** Swift 6 strict concurrency
 - **Protocols:** Abstract services behind protocols
 
-### Step 4: Lint
-```bash
-cd Chronir-iOS && swiftlint
-```
-Fix any lint issues before proceeding.
+### Step 4: Write Unit Tests
+Write new unit tests for the implementation:
+- Use the `test-writer-fixer` agent for comprehensive test coverage
+- Target 80%+ coverage on new code
+- Cover happy path, edge cases, and error states
 
-### Step 5: Test
+### Step 5: Quality Gate (MANDATORY — must pass before proceeding)
+Run the full quality gate. **Do not skip any step. Do not proceed to review until all pass.**
+
 ```bash
-cd Chronir-iOS && swift test
+cd Chronir-iOS && swiftlint --fix     # Auto-format
+cd Chronir-iOS && swiftlint           # Lint — must be zero warnings in changed files
+cd Chronir-iOS && swift test          # Unit tests — must all pass
+cd Chronir-iOS && swift build         # Build — must compile with zero errors
 ```
-Write new unit tests for the implementation. Fix any test failures.
+
+**If any step fails:** Fix the issues immediately and re-run the full gate. Loop until all steps pass.
 
 ### Step 6: Review
 Run the `code-reviewer` agent on all changed files. Address any findings.
 
 ### Step 7: Simplify
 Run the `code-simplifier` agent on all modified files to clean up implementation verbosity — reduce nesting, improve naming, simplify conditionals — while preserving exact functionality.
+
+### Step 8: Re-run Quality Gate
+After review and simplification may have changed code, **re-run the full quality gate from Step 5** to ensure nothing was broken. All checks must still pass.
+
+## Plugins
+
+Use these installed plugins at the appropriate steps:
+- **swift-lsp** — Use LSP features during implementation (Step 3) for go-to-definition, find-references, hover info, and diagnostics on Swift files
+- **context7** — Look up latest SwiftUI/SwiftData/AlarmKit documentation during planning (Step 1) when unsure about APIs
+- **code-review** — Powers the review step (Step 6). Use `code-reviewer` agent on all changed files
+- **code-simplifier** — Powers the simplification step (Step 7). Run on all modified files
+- **security-guidance** — Consult during review for auth, data storage, and network security
 
 ## Notes
 - Always use design tokens from `DesignSystem/Tokens/`, never hardcode values
