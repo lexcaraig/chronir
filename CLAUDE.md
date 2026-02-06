@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CycleAlarm is a high-persistence alarm app for long-cycle recurring tasks (weekly, monthly, annually). It treats long-term obligations with the urgency of a morning wake-up alarm — full-screen, persistent, undeniable.
+Chronir is a high-persistence alarm app for long-cycle recurring tasks (weekly, monthly, annually). It treats long-term obligations with the urgency of a morning wake-up alarm — full-screen, persistent, undeniable.
 
 **Status:** Foundation scaffolded. iOS (SwiftUI/SPM), Android (Jetpack Compose/Gradle multi-module), design token pipeline, Firebase project, and CI/CD workflows are in place. Sprint 1 implementation is next.
 
@@ -39,20 +39,20 @@ Three-tier token system (Primitive → Semantic → Component) defined in `desig
 
 Component hierarchy: Tokens → Atoms → Molecules → Organisms → Templates → Pages.
 
-iOS uses Liquid Glass (`.glassEffect()`); Android uses Material 3 + Dynamic Color. All design system components are prefixed with `Cycle` (e.g., `CycleButton`, `CycleText`, `CycleBadge`).
+iOS uses Liquid Glass (`.glassEffect()`); Android uses Material 3 + Dynamic Color. All design system components are prefixed with `Chronir` (e.g., `ChronirButton`, `ChronirText`, `ChronirBadge`).
 
 ### Project Structure
 
 ```
-CycleAlarm/
-├── CycleAlarm-iOS/           # Swift Package (Package.swift)
+Chronir/
+├── Chronir-iOS/           # Swift Package (Package.swift)
 │   └── Sources/
-│       ├── App/              # CycleAlarmApp entry, Configuration (GoogleService-Info.plist)
+│       ├── App/              # ChronirApp entry, Configuration (GoogleService-Info.plist)
 │       ├── DesignSystem/     # Tokens, Atoms, Molecules, Organisms, Templates
 │       ├── Features/         # AlarmList, AlarmDetail, AlarmCreation, AlarmFiring, Settings, Sharing, Paywall
 │       ├── Core/             # Models, Services, Repositories, Utilities
 │       └── Widgets/          # NextAlarmWidget, CountdownLiveActivity
-├── CycleAlarm-Android/       # Gradle multi-module (settings.gradle.kts)
+├── Chronir-Android/       # Gradle multi-module (settings.gradle.kts)
 │   ├── app/                  # Main app module (Hilt, Navigation, MainActivity)
 │   ├── core/                 # designsystem, model, data, services modules
 │   ├── feature/              # alarmlist, alarmdetail, alarmcreation, alarmfiring, settings, sharing, paywall
@@ -86,7 +86,7 @@ Features are organized by screen: `AlarmList`, `AlarmDetail`, `AlarmCreation`, `
 ### iOS (Swift Package)
 
 ```bash
-cd CycleAlarm-iOS
+cd Chronir-iOS
 
 # Resolve dependencies
 swift package resolve
@@ -104,7 +104,7 @@ swift build -c release
 ### Android (Gradle multi-module)
 
 ```bash
-cd CycleAlarm-Android
+cd Chronir-Android
 
 # Lint
 ./gradlew ktlintCheck
@@ -137,11 +137,11 @@ PR triggers lint + tests; merge to main triggers release build.
 ## Firebase
 
 - **Project:** `cyclealarm-app` (ID: 410553847054)
-- **iOS App:** `1:410553847054:ios:1d995526fac6a044ec5b5f` (bundle: `com.cyclealarm.ios`)
-- **Android App:** `1:410553847054:android:c6ad3cea467ca862ec5b5f` (package: `com.cyclealarm.android`)
+- **iOS App:** `1:410553847054:ios:1d995526fac6a044ec5b5f` (bundle: `com.chronir.ios`)
+- **Android App:** `1:410553847054:android:c6ad3cea467ca862ec5b5f` (package: `com.chronir.android`)
 - **Firestore:** `(default)` database, region `nam5`
 - **Security Rules:** `firestore.rules` (keep in sync with `docs/technical-spec.md` Section 6.4)
-- **SDK configs:** `CycleAlarm-iOS/Sources/App/Configuration/GoogleService-Info.plist`, `CycleAlarm-Android/app/google-services.json` (both gitignored)
+- **SDK configs:** `Chronir-iOS/Sources/App/Configuration/GoogleService-Info.plist`, `Chronir-Android/app/google-services.json` (both gitignored)
 
 ## Critical Implementation Notes
 
@@ -151,7 +151,7 @@ PR triggers lint + tests; merge to main triggers release build.
 - **DateCalculator is the most test-critical module.** Must handle: month-end overflow (e.g., 31st in Feb), leap years, DST transitions, timezone changes, relative schedules ("last Friday of month").
 - **BootReceiver (Android)** must re-register all active alarms after device reboot.
 - **Firestore security rules** are defined in `technical-spec.md` Section 6.4 — follow them exactly.
-- **Deep links:** `cyclealarm://alarm/{id}`, `cyclealarm://invite/{code}`, `https://cyclealarm.app/invite/{code}`
+- **Deep links:** `chronir://alarm/{id}`, `chronir://invite/{code}`, `https://chronir.app/invite/{code}`
 - Preview-driven development: every component needs Light/Dark + relevant state previews.
 
 ## Spec Documents
@@ -171,3 +171,41 @@ All planning documents are in `docs/`:
 - `docs/privacy-policy-and-tos.md` — Privacy policy and terms of service
 
 When implementing a feature, cross-reference `docs/technical-spec.md` (architecture), `docs/data-schema.md` (data model), and `docs/design-system.md` (UI components).
+
+## Workflows (Custom Commands & Agents)
+
+### Slash Commands
+
+| Command | Usage | Purpose |
+|---------|-------|---------|
+| `/implement-task` | `/implement-task S4-01` | Main orchestrator. Reads specs, plans, implements, tests, reviews, and commits a sprint task. |
+| `/sprint-kickoff` | `/sprint-kickoff 4` | Initialize a sprint: read roadmap, create branch, build task list, run baseline builds. |
+| `/phase-qa-gate` | `/phase-qa-gate 1` | Quality gate: lint, test, build, security review, QA plan cross-reference. Generates pass/fail report. |
+| `/implement-ios` | `/implement-ios Add ChronirButton atom` | iOS-focused workflow: implement in SwiftUI, lint, test, review. |
+| `/implement-android` | `/implement-android Add ChronirButton composable` | Android-focused workflow: implement in Compose, lint, test, review. |
+| `/sync-tokens` | `/sync-tokens` | Rebuild design tokens and copy to both platforms. |
+| `/build-all` | `/build-all` | Parallel build verification across all three build systems. |
+
+### Custom Agents
+
+| Agent | Specialty |
+|-------|-----------|
+| `ios-developer` | SwiftUI, AlarmKit, SwiftData, SPM, iOS 26 APIs |
+| `android-developer` | Jetpack Compose, AlarmManager, Room, Hilt, Gradle |
+| `alarm-engine-specialist` | Alarm scheduling reliability, DateCalculator, edge cases (DST, leap year, month-end) |
+| `firebase-architect` | Auth, Firestore rules, cloud sync, conflict resolution, FCM |
+| `design-system-builder` | Atomic Design, Style Dictionary, Chronir-prefixed components, tokens |
+| `qa-engineer` | Platform-specific test strategies, QA plan test IDs, persona tests, accessibility |
+
+### Plugins
+
+| Plugin | Purpose |
+|--------|---------|
+| `code-simplifier` | Runs automatically after implementation in `/implement-task`, `/implement-ios`, `/implement-android`. Simplifies code for clarity and maintainability while preserving functionality. Also runs during `/phase-qa-gate` as a non-blocking quality audit. |
+
+### Typical Sprint Flow
+
+1. `/sprint-kickoff {N}` — Initialize sprint, create branch, build task list
+2. `/implement-task {task-id}` — Implement each task (includes auto-simplification before commit)
+3. `/build-all` — Verify all platforms build after changes
+4. `/phase-qa-gate {N}` — Run quality gate at end of phase (includes simplification audit)

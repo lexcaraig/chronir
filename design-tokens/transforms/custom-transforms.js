@@ -1,5 +1,5 @@
 /**
- * Custom transforms for CycleAlarm design tokens.
+ * Custom transforms for Chronir design tokens.
  *
  * These transforms can be registered with Style Dictionary to handle
  * platform-specific value conversions beyond the built-in transform groups.

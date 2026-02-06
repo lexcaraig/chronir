@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'CycleAlarm-iOS/**'
+      - 'Chronir-iOS/**'
       - '.github/workflows/ios.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'CycleAlarm-iOS/**'
+      - 'Chronir-iOS/**'
       - '.github/workflows/ios.yml'
 
 concurrency:
@@ -26,7 +26,7 @@ jobs:
         run: brew install swiftlint
       - name: Run SwiftLint
         run: |
-          cd CycleAlarm-iOS
+          cd Chronir-iOS
           swiftlint lint --strict --reporter github-actions-logging
 
   test:
@@ -39,11 +39,11 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
       - name: Resolve packages
         run: |
-          cd CycleAlarm-iOS
+          cd Chronir-iOS
           swift package resolve
       - name: Run unit tests
         run: |
-          cd CycleAlarm-iOS
+          cd Chronir-iOS
           swift test
 
   build:
@@ -57,5 +57,5 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
       - name: Build release
         run: |
-          cd CycleAlarm-iOS
+          cd Chronir-iOS
           swift build -c release

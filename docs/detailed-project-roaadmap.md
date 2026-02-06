@@ -1,4 +1,4 @@
-# CycleAlarm — Detailed Project Roadmap
+# Chronir — Detailed Project Roadmap
 
 **Version:** 1.0  
 **Last Updated:** February 6, 2026  
@@ -52,11 +52,11 @@
 
 | ID    | Task                                                                                           | Platform | Priority | Story Points |
 | ----- | ---------------------------------------------------------------------------------------------- | -------- | -------- | ------------ |
-| S2-01 | **Atom:** CycleText — styled text variants (display, headline, body, caption)                  | Both     | P0       | 2            |
-| S2-02 | **Atom:** CycleIcon — icon wrapper with size/color token support (SF Symbols / Material Icons) | Both     | P0       | 2            |
-| S2-03 | **Atom:** CycleToggle — alarm on/off switch with haptic feedback                               | Both     | P0       | 2            |
-| S2-04 | **Atom:** CycleBadge — cycle type indicator (Weekly=green, Monthly=blue, Annual=purple)        | Both     | P0       | 2            |
-| S2-05 | **Atom:** CycleButton — primary, secondary, destructive variants                               | Both     | P0       | 3            |
+| S2-01 | **Atom:** ChronirText — styled text variants (display, headline, body, caption)                  | Both     | P0       | 2            |
+| S2-02 | **Atom:** ChronirIcon — icon wrapper with size/color token support (SF Symbols / Material Icons) | Both     | P0       | 2            |
+| S2-03 | **Atom:** ChronirToggle — alarm on/off switch with haptic feedback                               | Both     | P0       | 2            |
+| S2-04 | **Atom:** ChronirBadge — cycle type indicator (Weekly=green, Monthly=blue, Annual=purple)        | Both     | P0       | 2            |
+| S2-05 | **Atom:** ChronirButton — primary, secondary, destructive variants                               | Both     | P0       | 3            |
 | S2-06 | **Molecule:** AlarmTimeDisplay — large time + AM/PM + countdown subtext                        | Both     | P0       | 3            |
 | S2-07 | **Molecule:** AlarmToggleRow — label + cycle badge + toggle + next fire date                   | Both     | P0       | 3            |
 | S2-08 | **Molecule:** IntervalPicker — cycle type selector (weekly / monthly / annual)                 | Both     | P1       | 3            |

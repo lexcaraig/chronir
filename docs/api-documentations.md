@@ -1,4 +1,4 @@
-# CycleAlarm API Documentation
+# Chronir API Documentation
 
 **Version:** 1.0.0  
 **Last Updated:** February 6, 2026  
@@ -702,7 +702,7 @@ Operation: add()
 **Logic:**
 
 1. Generate invitation document with 7-day expiry
-2. Generate deep link: `https://cyclealarm.app/invite/{invitationId}`
+2. Generate deep link: `https://chronir.app/invite/{invitationId}`
 3. If `inviteeEmail` provided → send push notification (if user exists) or email
 4. If link invite → return shareable URL
 
@@ -895,10 +895,10 @@ match /users/{uid}/alarms/{alarmId}/{file} {
 
 | Product ID (iOS)                 | Product ID (Android)         | Tier    | Price     |
 | -------------------------------- | ---------------------------- | ------- | --------- |
-| `com.cyclealarm.plus.monthly`    | `cyclealarm_plus_monthly`    | Plus    | $1.99/mo  |
-| `com.cyclealarm.plus.annual`     | `cyclealarm_plus_annual`     | Plus    | $14.99/yr |
-| `com.cyclealarm.premium.monthly` | `cyclealarm_premium_monthly` | Premium | $3.99/mo  |
-| `com.cyclealarm.premium.annual`  | `cyclealarm_premium_annual`  | Premium | $29.99/yr |
+| `com.chronir.plus.monthly`    | `chronir_plus_monthly`    | Plus    | $1.99/mo  |
+| `com.chronir.plus.annual`     | `chronir_plus_annual`     | Plus    | $14.99/yr |
+| `com.chronir.premium.monthly` | `chronir_premium_monthly` | Premium | $3.99/mo  |
+| `com.chronir.premium.annual`  | `chronir_premium_annual`  | Premium | $29.99/yr |
 
 ### 9.2 Purchase Flow
 
@@ -1031,7 +1031,7 @@ alarmManager.setAlarmClock(
 ```kotlin
 val channel = NotificationChannel(
     "cycle_alarm_channel",
-    "CycleAlarm Alerts",
+    "Chronir Alerts",
     NotificationManager.IMPORTANCE_HIGH
 ).apply {
     setBypassDnd(true)
@@ -1058,7 +1058,7 @@ class BootReceiver : BroadcastReceiver() {
 
 ### 10.4 OEM Battery Optimization Guidance
 
-Many Android OEMs aggressively kill background processes. The app must include an in-app guide prompting users to whitelist CycleAlarm.
+Many Android OEMs aggressively kill background processes. The app must include an in-app guide prompting users to whitelist Chronir.
 
 | OEM         | Setting Path                                               |
 | ----------- | ---------------------------------------------------------- |
@@ -1399,7 +1399,7 @@ Collection: groups
 ## Appendix B: Deep Link Schema
 
 ```
-Base URL: https://cyclealarm.app
+Base URL: https://chronir.app
 
 Routes:
   /invite/{invitationId}          → Open invitation acceptance flow
@@ -1419,7 +1419,7 @@ Android: App Links (assetlinks.json)
 ```json
 {
 	"notification": {
-		"title": "CycleAlarm: Change HVAC Filter",
+		"title": "Chronir: Change HVAC Filter",
 		"body": "Shared alarm from Lex's Household group"
 	},
 	"data": {
@@ -1467,17 +1467,17 @@ Android: App Links (assetlinks.json)
 ```json
 {
 	"notification": {
-		"title": "CycleAlarm Invite",
+		"title": "Chronir Invite",
 		"body": "Lex invited you to the Household group"
 	},
 	"data": {
 		"type": "invitation_received",
 		"invitationId": "inv_abc123",
-		"deepLink": "https://cyclealarm.app/invite/inv_abc123"
+		"deepLink": "https://chronir.app/invite/inv_abc123"
 	}
 }
 ```
 
 ---
 
-_This document serves as the single source of truth for all CycleAlarm API contracts during development. Update version and date on every revision._
+_This document serves as the single source of truth for all Chronir API contracts during development. Update version and date on every revision._

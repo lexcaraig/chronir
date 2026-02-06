@@ -1,4 +1,4 @@
-# CycleAlarm — QA Test Plan
+# Chronir — QA Test Plan
 
 |                |                                                                    |
 | -------------- | ------------------------------------------------------------------ |
@@ -13,7 +13,7 @@
 
 ## 1. Purpose & Scope
 
-This document defines the complete QA strategy for CycleAlarm, a premium native recurring alarm application built separately for iOS (SwiftUI with Liquid Glass) and Android (Kotlin/Jetpack Compose with Material 3). It establishes what "done" means for every feature, the device and OS matrix to cover, test scenarios mapped to user personas, and acceptance criteria for App Store and Play Store submission.
+This document defines the complete QA strategy for Chronir, a premium native recurring alarm application built separately for iOS (SwiftUI with Liquid Glass) and Android (Kotlin/Jetpack Compose with Material 3). It establishes what "done" means for every feature, the device and OS matrix to cover, test scenarios mapped to user personas, and acceptance criteria for App Store and Play Store submission.
 
 ### 1.1 What This Plan Covers
 
@@ -233,7 +233,7 @@ Every test scenario traces back to a defined user persona to ensure real-world c
 | iPhone 15           | iOS 26      | 6.1"        | Previous generation compatibility      |
 | iPad Pro 13"        | iPadOS 26   | 13"         | Tablet layout (if supported)           |
 
-> **Note:** CycleAlarm targets iOS 26+ minimum (AlarmKit dependency). No older OS testing required.
+> **Note:** Chronir targets iOS 26+ minimum (AlarmKit dependency). No older OS testing required.
 
 ### 5.2 Android Test Devices
 
@@ -246,22 +246,22 @@ Every test scenario traces back to a defined user persona to ensure real-world c
 | Xiaomi 14          | Android 14 (HyperOS)     | Xiaomi  | Aggressive battery killer, high SE Asia market share |
 | OnePlus 12         | Android 14 (OxygenOS 14) | OnePlus | Aggressive background app management                 |
 
-> **Note:** CycleAlarm targets Android 12 (API 31) minimum for `SCHEDULE_EXACT_ALARM` support.
+> **Note:** Chronir targets Android 12 (API 31) minimum for `SCHEDULE_EXACT_ALARM` support.
 
 ### 5.3 OEM Battery Kill Test Protocol (Android-Critical)
 
-This is the single highest-risk area for CycleAlarm on Android. OEM battery optimizations can silently kill background alarm processes.
+This is the single highest-risk area for Chronir on Android. OEM battery optimizations can silently kill background alarm processes.
 
 | Test ID | OEM      | Scenario                         | Steps                                                               | Expected Result                                               |
 | ------- | -------- | -------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------- |
-| BK-01   | Samsung  | App in Sleeping Apps list        | Add CycleAlarm to "Sleeping apps" → Schedule alarm 2 hours out      | Alarm fires on time (MUST FAIL — document for user guidance)  |
+| BK-01   | Samsung  | App in Sleeping Apps list        | Add Chronir to "Sleeping apps" → Schedule alarm 2 hours out      | Alarm fires on time (MUST FAIL — document for user guidance)  |
 | BK-02   | Samsung  | App whitelisted                  | Remove from battery optimization → Schedule alarm 2 hours out       | Alarm fires on time                                           |
 | BK-03   | Samsung  | Deep Sleep                       | Battery saver on, phone idle 4 hours → Alarm scheduled              | Alarm fires on time after whitelist                           |
 | BK-04   | Xiaomi   | Battery Saver enabled            | Enable battery saver → Schedule alarm 1 hour out                    | Alarm fires on time with proper autostart permissions         |
 | BK-05   | Xiaomi   | Autostart disabled               | Disable autostart permission → Schedule alarm                       | Alarm FAILS — validate in-app guidance prompts user to enable |
-| BK-06   | Xiaomi   | App lock enabled                 | Enable app lock for CycleAlarm → Kill from recents → Wait for alarm | Alarm fires on time                                           |
+| BK-06   | Xiaomi   | App lock enabled                 | Enable app lock for Chronir → Kill from recents → Wait for alarm | Alarm fires on time                                           |
 | BK-07   | OnePlus  | Battery Optimization ON          | Default settings → Schedule alarm                                   | Document behavior — may or may not fire                       |
-| BK-08   | OnePlus  | Battery Optimization OFF for app | Exempt CycleAlarm → Schedule alarm                                  | Alarm fires on time                                           |
+| BK-08   | OnePlus  | Battery Optimization OFF for app | Exempt Chronir → Schedule alarm                                  | Alarm fires on time                                           |
 | BK-09   | All OEMs | After phone restart              | Schedule alarm → Restart phone → Wait for alarm time                | Alarm fires (requires BOOT_COMPLETED receiver)                |
 | BK-10   | All OEMs | After force stop                 | Force stop app → Wait for alarm time                                | Alarm does NOT fire (expected) — document for user guidance   |
 
@@ -385,7 +385,7 @@ These are the most critical tests in the entire plan. If alarms don't fire relia
 | NP-01   | Notification permission denied    | App explains why alarms need permission, deep link to Settings | P0       |
 | NP-02   | AlarmKit permission (iOS 26)      | Permission granted → Alarms use AlarmKit API                   | P0       |
 | NP-03   | Time Sensitive notification level | Pre-alarm warnings delivered as time-sensitive                 | P1       |
-| NP-04   | Notification grouping             | Multiple pre-alarms group under "CycleAlarm"                   | P2       |
+| NP-04   | Notification grouping             | Multiple pre-alarms group under "Chronir"                   | P2       |
 
 ### 10.2 Android
 

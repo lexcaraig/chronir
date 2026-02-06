@@ -1,8 +1,8 @@
-# CycleAlarm — Privacy Policy & Terms of Service
+# Chronir — Privacy Policy & Terms of Service
 
 **Last Updated:** February 6, 2026
 **Effective Date:** February 6, 2026
-**App Name:** CycleAlarm
+**App Name:** Chronir
 **Platforms:** iOS (App Store), Android (Google Play)
 **Developer:** [Your Legal Entity Name]
 **Contact:** [your-email@domain.com]
@@ -11,7 +11,7 @@
 
 ## Table of Contents
 
-- [CycleAlarm — Privacy Policy \& Terms of Service](#cyclealarm--privacy-policy--terms-of-service)
+- [Chronir — Privacy Policy \& Terms of Service](#chronir--privacy-policy--terms-of-service)
     - [Table of Contents](#table-of-contents)
 - [Privacy Policy](#privacy-policy)
     - [1. Information We Collect](#1-information-we-collect)
@@ -65,9 +65,9 @@
 
 # Privacy Policy
 
-CycleAlarm ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, and share information when you use our mobile application ("App") available on iOS and Android platforms.
+Chronir ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, store, and share information when you use our mobile application ("App") available on iOS and Android platforms.
 
-By downloading, installing, or using CycleAlarm, you agree to the practices described in this Privacy Policy. If you do not agree, please do not use the App.
+By downloading, installing, or using Chronir, you agree to the practices described in this Privacy Policy. If you do not agree, please do not use the App.
 
 ---
 
@@ -77,7 +77,7 @@ The information we collect depends on which subscription tier you use.
 
 ### 1.1 Free Tier (No Account Required)
 
-When using CycleAlarm at the Free tier, all data is stored locally on your device. We collect:
+When using Chronir at the Free tier, all data is stored locally on your device. We collect:
 
 - **Alarm Data (Local Only):** Alarm titles, recurrence intervals, scheduled times, and snooze preferences. This data never leaves your device.
 - **Device Information:** Anonymous, non-identifiable technical data including device model, operating system version, and app version for crash reporting and compatibility purposes.
@@ -99,7 +99,7 @@ When you upgrade to Plus, the following additional data is collected:
 In addition to all data collected at the Plus tier:
 
 - **Shared Alarm Data:** When you share alarms with other users, we process the alarm data, recipient identifiers, and group membership to facilitate real-time collaboration.
-- **Contact Information for Sharing:** Email addresses or invite links used to connect with other CycleAlarm users for shared alarms and groups.
+- **Contact Information for Sharing:** Email addresses or invite links used to connect with other Chronir users for shared alarms and groups.
 - **Group Data:** Group names, member lists, and assigned alarm responsibilities.
 
 ### 1.4 Information We Never Collect
@@ -159,7 +159,7 @@ While we take reasonable measures to protect your data, no method of electronic 
 
 ## 4. Third-Party Services
 
-CycleAlarm integrates with the following third-party services, each governed by their own privacy policies:
+Chronir integrates with the following third-party services, each governed by their own privacy policies:
 
 | Service                     | Purpose                                  | Data Shared                        | Privacy Policy                                               |
 | --------------------------- | ---------------------------------------- | ---------------------------------- | ------------------------------------------------------------ |
@@ -180,10 +180,10 @@ We do **not** integrate any advertising SDKs, analytics tracking beyond Crashlyt
 
 We do not sell, rent, or trade your personal information to third parties. We may share your information only in the following circumstances:
 
-- **With Other CycleAlarm Users (Premium):** When you explicitly share alarms or create groups, the relevant alarm data and your display name are visible to group members.
+- **With Other Chronir Users (Premium):** When you explicitly share alarms or create groups, the relevant alarm data and your display name are visible to group members.
 - **Service Providers:** With Google/Firebase as our infrastructure provider, strictly for operating the App as described in this policy.
 - **Legal Requirements:** If required by law, regulation, legal process, or enforceable governmental request.
-- **Safety:** To protect the rights, property, or safety of CycleAlarm, our users, or the public as required or permitted by law.
+- **Safety:** To protect the rights, property, or safety of Chronir, our users, or the public as required or permitted by law.
 - **Business Transfers:** In connection with a merger, acquisition, or sale of assets, in which case you would be notified of any change in ownership or control of your data.
 
 ---
@@ -246,13 +246,13 @@ To exercise these rights, contact us at [your-email@domain.com].
 
 ## 8. Children's Privacy
 
-CycleAlarm is not directed at children under the age of 13 (or under 16 in the EEA). We do not knowingly collect personal information from children. If we become aware that a child has provided us with personal information, we will take steps to delete that information promptly. If you believe a child has provided us with personal data, please contact us at [your-email@domain.com].
+Chronir is not directed at children under the age of 13 (or under 16 in the EEA). We do not knowingly collect personal information from children. If we become aware that a child has provided us with personal information, we will take steps to delete that information promptly. If you believe a child has provided us with personal data, please contact us at [your-email@domain.com].
 
 ---
 
 ## 9. International Data Transfers
 
-Your data may be processed on servers located outside your country of residence, including in the United States (where Google Cloud Platform infrastructure is located). By using CycleAlarm, you consent to the transfer of your information to these locations. We ensure appropriate safeguards are in place, including Standard Contractual Clauses where required by GDPR.
+Your data may be processed on servers located outside your country of residence, including in the United States (where Google Cloud Platform infrastructure is located). By using Chronir, you consent to the transfer of your information to these locations. We ensure appropriate safeguards are in place, including Standard Contractual Clauses where required by GDPR.
 
 ---
 
@@ -260,7 +260,7 @@ Your data may be processed on servers located outside your country of residence,
 
 We may update this Privacy Policy from time to time. When we make material changes, we will notify you through the App or via email (for registered users) at least 14 days before the changes take effect. The "Last Updated" date at the top of this document will be revised accordingly.
 
-Your continued use of CycleAlarm after changes become effective constitutes acceptance of the updated Privacy Policy.
+Your continued use of Chronir after changes become effective constitutes acceptance of the updated Privacy Policy.
 
 ---
 
@@ -268,21 +268,21 @@ Your continued use of CycleAlarm after changes become effective constitutes acce
 
 # Terms of Service
 
-These Terms of Service ("Terms") govern your use of the CycleAlarm mobile application ("App") provided by [Your Legal Entity Name] ("we," "our," or "us"). By downloading, installing, or using CycleAlarm, you agree to be bound by these Terms.
+These Terms of Service ("Terms") govern your use of the Chronir mobile application ("App") provided by [Your Legal Entity Name] ("we," "our," or "us"). By downloading, installing, or using Chronir, you agree to be bound by these Terms.
 
 ---
 
 ## 1. Acceptance of Terms
 
-By accessing or using CycleAlarm, you confirm that you are at least 13 years of age (or 16 in the EEA), and that you have read, understood, and agree to be bound by these Terms and our Privacy Policy. If you do not agree, you must uninstall the App and discontinue use immediately.
+By accessing or using Chronir, you confirm that you are at least 13 years of age (or 16 in the EEA), and that you have read, understood, and agree to be bound by these Terms and our Privacy Policy. If you do not agree, you must uninstall the App and discontinue use immediately.
 
 ---
 
 ## 2. Description of Service
 
-CycleAlarm is a recurring alarm application designed for long-cycle tasks (weekly, monthly, annually). The App provides persistent, high-urgency alarms that ensure critical infrequent tasks are never missed. Features include customizable recurrence intervals, pre-alarm warnings, task attachments, completion tracking, cloud sync, and shared alarms depending on your subscription tier.
+Chronir is a recurring alarm application designed for long-cycle tasks (weekly, monthly, annually). The App provides persistent, high-urgency alarms that ensure critical infrequent tasks are never missed. Features include customizable recurrence intervals, pre-alarm warnings, task attachments, completion tracking, cloud sync, and shared alarms depending on your subscription tier.
 
-**CycleAlarm is a reminder and alarm tool. It is not a substitute for professional scheduling, medical reminders, legal compliance tracking, or safety-critical alerting systems.** You are solely responsible for ensuring important obligations are met.
+**Chronir is a reminder and alarm tool. It is not a substitute for professional scheduling, medical reminders, legal compliance tracking, or safety-critical alerting systems.** You are solely responsible for ensuring important obligations are met.
 
 ---
 
@@ -298,7 +298,7 @@ CycleAlarm is a recurring alarm application designed for long-cycle tasks (weekl
 
 ## 4. Subscription Tiers and Pricing
 
-CycleAlarm offers three subscription tiers:
+Chronir offers three subscription tiers:
 
 | Tier        | Price                      | Features                                                                                                |
 | ----------- | -------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -324,8 +324,8 @@ Subscriptions automatically renew at the end of each billing period (monthly or 
 
 You may cancel your subscription at any time through your device's subscription management settings:
 
-- **iOS:** Settings → Apple ID → Subscriptions → CycleAlarm → Cancel
-- **Android:** Google Play Store → Subscriptions → CycleAlarm → Cancel
+- **iOS:** Settings → Apple ID → Subscriptions → Chronir → Cancel
+- **Android:** Google Play Store → Subscriptions → Chronir → Cancel
 
 Upon cancellation, you retain access to your paid features until the end of the current billing period. After that, your account will revert to the Free tier. Your cloud-synced data will remain stored for 90 days, during which you may resubscribe to regain access or request data export. After 90 days, cloud data may be permanently deleted.
 
@@ -360,7 +360,7 @@ Violation of these terms may result in suspension or termination of your account
 
 ### 7.1 Our Intellectual Property
 
-CycleAlarm, including its design, code, graphics, logos, icons, and content, is owned by [Your Legal Entity Name] and is protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, sell, or create derivative works based on any part of the App without our prior written consent.
+Chronir, including its design, code, graphics, logos, icons, and content, is owned by [Your Legal Entity Name] and is protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, sell, or create derivative works based on any part of the App without our prior written consent.
 
 ### 7.2 Your Content
 
@@ -405,7 +405,7 @@ You agree to indemnify, defend, and hold harmless [Your Legal Entity Name], its 
 
 ### 11.1 By You
 
-You may stop using CycleAlarm at any time by uninstalling the App. If you have an active subscription, you must cancel it separately through your platform's subscription management to stop future charges.
+You may stop using Chronir at any time by uninstalling the App. If you have an active subscription, you must cancel it separately through your platform's subscription management to stop future charges.
 
 ### 11.2 By Us
 
@@ -446,4 +446,4 @@ For GDPR inquiries, you may also contact your local Data Protection Authority.
 
 ---
 
-**By using CycleAlarm, you acknowledge that you have read and understood both this Privacy Policy and these Terms of Service, and you agree to be bound by them.**
+**By using Chronir, you acknowledge that you have read and understood both this Privacy Policy and these Terms of Service, and you agree to be bound by them.**

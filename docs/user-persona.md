@@ -1,4 +1,4 @@
-# CycleAlarm — User Personas
+# Chronir — User Personas
 
 **Informing All Design and Technical Decisions**
 
@@ -13,7 +13,7 @@
 
 ## 1. Document Purpose
 
-This document defines the primary user personas for CycleAlarm, a premium recurring alarm application for long-cycle tasks. Each persona is built from user journey analysis, market research, and competitive landscape review. These personas serve as the authoritative reference for all product, design, and engineering decisions.
+This document defines the primary user personas for Chronir, a premium recurring alarm application for long-cycle tasks. Each persona is built from user journey analysis, market research, and competitive landscape review. These personas serve as the authoritative reference for all product, design, and engineering decisions.
 
 _Every feature, UI component, design token value, and architectural choice should be traceable to at least one persona's needs. If a decision does not serve a defined persona, it should be questioned._
 
@@ -64,7 +64,7 @@ _Every feature, UI component, design token value, and architectural choice shoul
 
 #### Bio
 
-Sarah is budget-conscious and skeptical of paid apps. She missed her car registration renewal last year because a calendar notification got buried in a sea of alerts. She downloaded CycleAlarm after a friend recommended it, expecting it to be just another reminder app. She was surprised when it actually woke her up like a real alarm for her rent deadline. She uses exactly two alarms and sees no reason to pay for more.
+Sarah is budget-conscious and skeptical of paid apps. She missed her car registration renewal last year because a calendar notification got buried in a sea of alerts. She downloaded Chronir after a friend recommended it, expecting it to be just another reminder app. She was surprised when it actually woke her up like a real alarm for her rent deadline. She uses exactly two alarms and sees no reason to pay for more.
 
 #### Goals
 
@@ -80,9 +80,9 @@ Sarah is budget-conscious and skeptical of paid apps. She missed her car registr
 - Apps that nag about upgrading every time she opens them
 - Too many apps requesting unnecessary permissions
 
-#### CycleAlarm Usage Scenario
+#### Chronir Usage Scenario
 
-Sarah downloads CycleAlarm, creates two alarms in under 90 seconds (no account needed), and forgets about it until the 1st of the month. The alarm fires with full-screen persistence at 9 AM. She pays rent, dismisses the alarm, and returns to her day. She tells her roommate about the app.
+Sarah downloads Chronir, creates two alarms in under 90 seconds (no account needed), and forgets about it until the 1st of the month. The alarm fires with full-screen persistence at 9 AM. She pays rent, dismisses the alarm, and returns to her day. She tells her roommate about the app.
 
 #### Key Alarms
 
@@ -117,7 +117,7 @@ Sarah downloads CycleAlarm, creates two alarms in under 90 seconds (no account n
 
 #### Bio
 
-David bought his first home two years ago and quickly realized how many recurring maintenance tasks exist. He started with CycleAlarm on Free tier for rent and smoke detector batteries but kept hitting the 2-alarm limit. After his wife reminded him for the third time about the HVAC filter, he decided $14.99/year was worth his marriage. He now has 12 alarms covering every household task, each with photos of the specific product he needs to buy.
+David bought his first home two years ago and quickly realized how many recurring maintenance tasks exist. He started with Chronir on Free tier for rent and smoke detector batteries but kept hitting the 2-alarm limit. After his wife reminded him for the third time about the HVAC filter, he decided $14.99/year was worth his marriage. He now has 12 alarms covering every household task, each with photos of the specific product he needs to buy.
 
 #### Goals
 
@@ -133,7 +133,7 @@ David bought his first home two years ago and quickly realized how many recurrin
 - Calendar reminders that lack context (no photos/notes)
 - Not knowing when he last did a recurring task
 
-#### CycleAlarm Usage Scenario
+#### Chronir Usage Scenario
 
 David upgrades to Plus after creating his 3rd alarm attempt. He spends 20 minutes one Saturday creating all 12 alarms, attaching photos of each filter/product from his phone gallery. When HVAC filter month arrives, the pre-alarm fires 24 hours early. He checks the attached photo, orders the right filter on Amazon, and replaces it the next day. He marks it done. His wife checks the app and sees it is confirmed.
 
@@ -190,9 +190,9 @@ Priya runs her own design studio and handles all administrative tasks solo. Quar
 - Previous apps lost all data during a phone migration
 - Having to log into multiple sites to find payment amounts each quarter
 
-#### CycleAlarm Usage Scenario
+#### Chronir Usage Scenario
 
-Q1 estimated taxes are due April 15. CycleAlarm fires a pre-alarm on April 14. Priya opens the alarm, sees her note: "$2,340 | IRS Direct Pay: [link] | State: [link]". She pays both, marks the alarm done. The alarm auto-schedules Q2 for June 15. She checks completion history in December to verify all four quarters were paid for her CPA.
+Q1 estimated taxes are due April 15. Chronir fires a pre-alarm on April 14. Priya opens the alarm, sees her note: "$2,340 | IRS Direct Pay: [link] | State: [link]". She pays both, marks the alarm done. The alarm auto-schedules Q2 for June 15. She checks completion history in December to verify all four quarters were paid for her CPA.
 
 #### Key Alarms
 
@@ -247,7 +247,7 @@ Maria and Jorge have three kids, a house, two cars, and opposite work schedules.
 - No way to confirm that a reminder was actually acted upon
 - Different phone platforms making app-sharing difficult
 
-#### CycleAlarm Usage Scenario
+#### Chronir Usage Scenario
 
 Jorge creates a Premium household group and invites Maria. They set up 15 shared alarms covering mortgage, insurance, car maintenance, and kids' activities. Maria assigns "Emma Piano Payment" to Jorge since he handles music lessons. The alarm fires on his phone; he pays, marks done. Maria sees the green checkmark. When the oil change alarm fires, Maria handles it since Jorge works weekends. Zero arguments.
 
@@ -304,7 +304,7 @@ Tom has two dogs (Max and Bella) and a cat (Whiskers), each on different medicat
 - No visual reference when the alarm fires (just a text label)
 - Accidentally giving medication twice because he forgot he already did
 
-#### CycleAlarm Usage Scenario
+#### Chronir Usage Scenario
 
 Tom creates 7 alarms: monthly heartworm for each dog, bi-monthly flea treatment for all three, and annual vet checkups. Each alarm has a photo of the medication box with dosage circled. When the alarm fires, the full-screen display shows "Max — Heartworm" with the photo. Tom administers the medication, taps "Done". He checks history to confirm Bella also got hers last week.
 
@@ -345,7 +345,7 @@ Tom creates 7 alarms: monthly heartworm for each dog, bi-monthly flea treatment 
 
 #### Bio
 
-Rachel manages 15 rental properties with a team of 3 maintenance workers. Annual inspections, HVAC servicing, lease renewals, pest control contracts — each property has 5-8 recurring obligations. She upgraded to Premium immediately for group sharing and assignment features. Her maintenance team receives assigned alarms on their personal phones. Rachel sees a dashboard of completions across all properties. One missed inspection could mean regulatory fines; CycleAlarm is now part of her business workflow.
+Rachel manages 15 rental properties with a team of 3 maintenance workers. Annual inspections, HVAC servicing, lease renewals, pest control contracts — each property has 5-8 recurring obligations. She upgraded to Premium immediately for group sharing and assignment features. Her maintenance team receives assigned alarms on their personal phones. Rachel sees a dashboard of completions across all properties. One missed inspection could mean regulatory fines; Chronir is now part of her business workflow.
 
 #### Goals
 
@@ -361,7 +361,7 @@ Rachel manages 15 rental properties with a team of 3 maintenance workers. Annual
 - Context switching between properties is overwhelming
 - Regulatory deadlines for inspections have real financial penalties
 
-#### CycleAlarm Usage Scenario
+#### Chronir Usage Scenario
 
 Rachel creates a "Properties" group with her 3 maintenance workers. She creates 60+ alarms organized by property. "Unit 4B — HVAC Service" is assigned to Mike with notes containing the tenant's phone number and access code. When the alarm fires on Mike's phone, he contacts the tenant, performs the service, and marks done. Rachel sees the completion logged with timestamp. During annual audits, she exports the completion history as proof of maintenance compliance.
 
@@ -402,7 +402,7 @@ Rachel creates a "Properties" group with her 3 maintenance workers. She creates 
 
 #### Bio
 
-James and Lisa are divorced co-parents of two kids (ages 8 and 11). They share financial responsibilities for extracurricular activities, medical appointments, and school deadlines. Before CycleAlarm, miscommunication about who handled what led to missed payments, duplicated efforts, and arguments. Premium's shared alarm groups with completion visibility eliminated the "I thought you handled it" problem entirely.
+James and Lisa are divorced co-parents of two kids (ages 8 and 11). They share financial responsibilities for extracurricular activities, medical appointments, and school deadlines. Before Chronir, miscommunication about who handled what led to missed payments, duplicated efforts, and arguments. Premium's shared alarm groups with completion visibility eliminated the "I thought you handled it" problem entirely.
 
 #### Goals
 
@@ -418,7 +418,7 @@ James and Lisa are divorced co-parents of two kids (ages 8 and 11). They share f
 - Using text messages to coordinate recurring payments is error-prone
 - Emotional friction in every logistics conversation
 
-#### CycleAlarm Usage Scenario
+#### Chronir Usage Scenario
 
 James creates a "Kids" Premium group, invites Lisa. They set up 10 shared alarms covering piano lessons, soccer registration, dentist checkups, and school supply fees. Each alarm is assigned to one parent. When James pays the piano lesson fee, he marks it done. Lisa sees the confirmation without needing to text James. At year-end, they export the history to split costs fairly.
 
@@ -454,7 +454,7 @@ Shared alarms must work seamlessly between iOS and Android. Firebase backend mus
 
 ### 3.3 Alarm Persistence (Driven by all personas)
 
-The core differentiator. Every persona chose CycleAlarm because standard notifications failed them. Full-screen alarm display that demands dismissal. AlarmKit (iOS 26+) and `setAlarmClock` (Android) for OS-level persistence. Bypass Do Not Disturb where permissions allow. Snooze options: 1 hour, 1 day, 1 week (never "dismiss silently").
+The core differentiator. Every persona chose Chronir because standard notifications failed them. Full-screen alarm display that demands dismissal. AlarmKit (iOS 26+) and `setAlarmClock` (Android) for OS-level persistence. Bypass Do Not Disturb where permissions allow. Snooze options: 1 hour, 1 day, 1 week (never "dismiss silently").
 
 ### 3.4 Photo Attachments (Driven by David, Tom, Rachel)
 

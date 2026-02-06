@@ -1,8 +1,8 @@
 {
-  "name": "cyclealarm-design-tokens",
+  "name": "chronir-design-tokens",
   "version": "1.0.0",
   "type": "module",
-  "description": "Design token pipeline for CycleAlarm",
+  "description": "Design token pipeline for Chronir",
   "scripts": {
     "build": "style-dictionary build --config config.js",
     "build:ios": "style-dictionary build --config config.js --platform ios",

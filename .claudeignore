@@ -1,0 +1,59 @@
+# Build artifacts & derived data
+Chronir-iOS/.build/
+Chronir-iOS/DerivedData/
+Chronir-Android/.gradle/
+Chronir-Android/build/
+Chronir-Android/app/build/
+Chronir-Android/core/*/build/
+Chronir-Android/feature/*/build/
+Chronir-Android/widget/build/
+design-tokens/build/
+
+# Dependencies
+design-tokens/node_modules/
+Chronir-iOS/Pods/
+
+# IDE & OS
+.DS_Store
+._*
+.vscode/
+.idea/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Secrets & credentials
+*.env
+*.env.local
+*.env.*.local
+.secret
+credentials.json
+**/GoogleService-Info.plist
+**/google-services.json
+*.jks
+*.keystore
+
+# Firebase local emulator
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Binary & archive artifacts
+*.apk
+*.aab
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.hmap
+
+# Logs & temp
+*.log
+*.tmp
+
+# Android local config
+Chronir-Android/local.properties
+
+# Lock files (large, not useful for context)
+package-lock.json
+Chronir-iOS/Package.resolved

@@ -1,4 +1,4 @@
-# CycleAlarm — Technical Specification
+# Chronir — Technical Specification
 
 **Status:** LOCKED — Architecture Finalized  
 **Version:** 1.0  
@@ -31,7 +31,7 @@
 
 ## 1. Executive Summary
 
-CycleAlarm is a high-persistence alarm app designed for long-cycle recurring tasks (weekly, monthly, annually). Unlike calendar notifications that are easily dismissed, CycleAlarm treats long-term obligations with the same urgency as a morning wake-up alarm — full-screen, persistent, undeniable.
+Chronir is a high-persistence alarm app designed for long-cycle recurring tasks (weekly, monthly, annually). Unlike calendar notifications that are easily dismissed, Chronir treats long-term obligations with the same urgency as a morning wake-up alarm — full-screen, persistent, undeniable.
 
 **Core Differentiator:** Accountability over scheduling. The alarm fires and demands action.
 
@@ -68,9 +68,9 @@ CycleAlarm is a high-persistence alarm app designed for long-cycle recurring tas
 **iOS Project Structure:**
 
 ```
-CycleAlarm-iOS/
+Chronir-iOS/
 ├── App/
-│   ├── CycleAlarmApp.swift
+│   ├── ChronirApp.swift
 │   ├── AppDelegate.swift
 │   └── Configuration/
 │       ├── GoogleService-Info.plist
@@ -83,16 +83,16 @@ CycleAlarm-iOS/
 │   │   ├── RadiusTokens.swift
 │   │   └── AnimationTokens.swift
 │   ├── Atoms/
-│   │   ├── CycleText.swift
-│   │   ├── CycleIcon.swift
-│   │   ├── CycleButton.swift
-│   │   ├── CycleBadge.swift
-│   │   └── CycleToggle.swift
+│   │   ├── ChronirText.swift
+│   │   ├── ChronirIcon.swift
+│   │   ├── ChronirButton.swift
+│   │   ├── ChronirBadge.swift
+│   │   └── ChronirToggle.swift
 │   ├── Molecules/
 │   │   ├── LabeledTextField.swift
 │   │   ├── AlarmToggleRow.swift
 │   │   ├── TimePickerField.swift
-│   │   ├── CycleBadgeGroup.swift
+│   │   ├── ChronirBadgeGroup.swift
 │   │   └── SnoozeOptionButton.swift
 │   ├── Organisms/
 │   │   ├── AlarmCard.swift
@@ -105,7 +105,7 @@ CycleAlarm-iOS/
 │   │   ├── ModalSheetTemplate.swift
 │   │   └── FullScreenAlarmTemplate.swift
 │   └── Modifiers/
-│       ├── GlassEffect+CycleAlarm.swift
+│       ├── GlassEffect+Chronir.swift
 │       └── TokenModifiers.swift
 ├── Features/
 │   ├── AlarmList/
@@ -175,11 +175,11 @@ CycleAlarm-iOS/
 **Android Project Structure:**
 
 ```
-CycleAlarm-Android/
+Chronir-Android/
 ├── app/
 │   └── src/main/
-│       ├── java/com/cyclealarm/
-│       │   ├── CycleAlarmApp.kt
+│       ├── java/com/chronir/
+│       │   ├── ChronirApp.kt
 │       │   ├── MainActivity.kt
 │       │   └── di/
 │       │       └── AppModule.kt
@@ -194,16 +194,16 @@ CycleAlarm-Android/
 │   │   │   ├── RadiusTokens.kt
 │   │   │   └── AnimationTokens.kt
 │   │   ├── atoms/
-│   │   │   ├── CycleText.kt
-│   │   │   ├── CycleIcon.kt
-│   │   │   ├── CycleButton.kt
-│   │   │   ├── CycleBadge.kt
-│   │   │   └── CycleToggle.kt
+│   │   │   ├── ChronirText.kt
+│   │   │   ├── ChronirIcon.kt
+│   │   │   ├── ChronirButton.kt
+│   │   │   ├── ChronirBadge.kt
+│   │   │   └── ChronirToggle.kt
 │   │   ├── molecules/
 │   │   │   ├── LabeledTextField.kt
 │   │   │   ├── AlarmToggleRow.kt
 │   │   │   ├── TimePickerField.kt
-│   │   │   ├── CycleBadgeGroup.kt
+│   │   │   ├── ChronirBadgeGroup.kt
 │   │   │   └── SnoozeOptionButton.kt
 │   │   ├── organisms/
 │   │   │   ├── AlarmCard.kt
@@ -216,7 +216,7 @@ CycleAlarm-Android/
 │   │   │   ├── ModalSheetTemplate.kt
 │   │   │   └── FullScreenAlarmTemplate.kt
 │   │   └── theme/
-│   │       ├── CycleAlarmTheme.kt
+│   │       ├── ChronirTheme.kt
 │   │       └── DynamicColorProvider.kt
 │   ├── model/
 │   │   ├── Alarm.kt
@@ -226,7 +226,7 @@ CycleAlarm-Android/
 │   ├── data/
 │   │   ├── local/
 │   │   │   ├── AlarmDao.kt
-│   │   │   ├── CycleAlarmDatabase.kt
+│   │   │   ├── ChronirDatabase.kt
 │   │   │   └── Converters.kt
 │   │   ├── remote/
 │   │   │   ├── FirestoreDataSource.kt
@@ -422,7 +422,7 @@ tokens.json → Style Dictionary → ├── ColorTokens.swift  (iOS)
 // ColorTokens.swift
 import SwiftUI
 
-enum CycleColors {
+enum ChronirColors {
     // Semantic
     static let primary = Color(hex: "#3B82F6")
     static let destructive = Color(hex: "#EF4444")
@@ -437,7 +437,7 @@ enum CycleColors {
     static let badgeAnnual = destructive
 }
 
-enum CycleSpacing {
+enum ChronirSpacing {
     static let xxs: CGFloat = 2
     static let xs: CGFloat = 4
     static let sm: CGFloat = 8
@@ -453,7 +453,7 @@ enum CycleSpacing {
 
 ```kotlin
 // ColorTokens.kt
-object CycleColors {
+object ChronirColors {
     val Primary = Color(0xFF3B82F6)
     val Destructive = Color(0xFFEF4444)
     val Success = Color(0xFF22C55E)
@@ -466,7 +466,7 @@ object CycleColors {
     val BadgeAnnual = Destructive
 }
 
-object CycleSpacing {
+object ChronirSpacing {
     val XXS = 2.dp
     val XS = 4.dp
     val SM = 8.dp
@@ -484,34 +484,34 @@ object CycleSpacing {
 
 | Component    | iOS (SwiftUI)           | Android (Compose)       | Purpose                                   |
 | ------------ | ----------------------- | ----------------------- | ----------------------------------------- |
-| CycleText    | Text + token modifiers  | Text + token styles     | Styled text with typography tokens        |
-| CycleIcon    | Image (SF Symbols)      | Icon (Material Icons)   | Themed iconography                        |
-| CycleButton  | Button + .glassEffect() | Button + tonalElevation | Primary action trigger                    |
-| CycleBadge   | Capsule + token colors  | Surface + rounded shape | Cycle type labels (Weekly/Monthly/Annual) |
-| CycleToggle  | Toggle                  | Switch                  | On/off alarm states                       |
-| CycleDivider | Divider                 | HorizontalDivider       | Section separators                        |
+| ChronirText    | Text + token modifiers  | Text + token styles     | Styled text with typography tokens        |
+| ChronirIcon    | Image (SF Symbols)      | Icon (Material Icons)   | Themed iconography                        |
+| ChronirButton  | Button + .glassEffect() | Button + tonalElevation | Primary action trigger                    |
+| ChronirBadge   | Capsule + token colors  | Surface + rounded shape | Cycle type labels (Weekly/Monthly/Annual) |
+| ChronirToggle  | Toggle                  | Switch                  | On/off alarm states                       |
+| ChronirDivider | Divider                 | HorizontalDivider       | Section separators                        |
 
 #### Molecules
 
 | Component           | Composition                          | Purpose                                     |
 | ------------------- | ------------------------------------ | ------------------------------------------- |
-| LabeledTextField    | CycleText + TextField                | Form input with label                       |
-| AlarmToggleRow      | CycleText + CycleBadge + CycleToggle | Single alarm enable/disable                 |
-| TimePickerField     | CycleText + native picker            | Time selection with label                   |
-| CycleBadgeGroup     | Multiple CycleBadge atoms            | Cycle type selector (Weekly/Monthly/Annual) |
-| SnoozeOptionButton  | CycleIcon + CycleText                | Snooze duration choice (1hr/1day/1week)     |
-| AttachmentThumbnail | Image + CycleIcon (delete)           | Photo attachment preview                    |
+| LabeledTextField    | ChronirText + TextField                | Form input with label                       |
+| AlarmToggleRow      | ChronirText + ChronirBadge + ChronirToggle | Single alarm enable/disable                 |
+| TimePickerField     | ChronirText + native picker            | Time selection with label                   |
+| ChronirBadgeGroup     | Multiple ChronirBadge atoms            | Cycle type selector (Weekly/Monthly/Annual) |
+| SnoozeOptionButton  | ChronirIcon + ChronirText                | Snooze duration choice (1hr/1day/1week)     |
+| AttachmentThumbnail | Image + ChronirIcon (delete)           | Photo attachment preview                    |
 
 #### Organisms
 
 | Component         | Composition                                                             | Purpose                                   |
 | ----------------- | ----------------------------------------------------------------------- | ----------------------------------------- |
-| AlarmCard         | AlarmToggleRow + CycleText (next fire) + CycleBadge                     | Single alarm in the list                  |
+| AlarmCard         | AlarmToggleRow + ChronirText (next fire) + ChronirBadge                     | Single alarm in the list                  |
 | AlarmListSection  | Section header + multiple AlarmCard                                     | Grouped alarms (Active/Upcoming/Inactive) |
-| AlarmCreationForm | LabeledTextField + CycleBadgeGroup + TimePickerField + CycleButton      | Full alarm creation interface             |
-| AlarmFiringView   | CycleText (time) + CycleText (title) + SnoozeOptionButton + CycleButton | Full-screen alarm dismissal               |
-| GroupMemberList   | Multiple member rows + invite CycleButton                               | Premium group management                  |
-| PaywallCard       | CycleText + feature list + CycleButton                                  | Tier upgrade prompt                       |
+| AlarmCreationForm | LabeledTextField + ChronirBadgeGroup + TimePickerField + ChronirButton      | Full alarm creation interface             |
+| AlarmFiringView   | ChronirText (time) + ChronirText (title) + SnoozeOptionButton + ChronirButton | Full-screen alarm dismissal               |
+| GroupMemberList   | Multiple member rows + invite ChronirButton                               | Premium group management                  |
+| PaywallCard       | ChronirText + feature list + ChronirButton                                  | Tier upgrade prompt                       |
 
 #### Templates
 
@@ -1075,9 +1075,9 @@ sealed class BottomSheet {
 
 | Link Pattern                           | Target                        | Context            |
 | -------------------------------------- | ----------------------------- | ------------------ |
-| `cyclealarm://alarm/{id}`              | Alarm Detail                  | Notification tap   |
-| `cyclealarm://invite/{code}`           | Invite Acceptance             | Shared invite link |
-| `https://cyclealarm.app/invite/{code}` | Invite Acceptance (universal) | Web/message share  |
+| `chronir://alarm/{id}`              | Alarm Detail                  | Notification tap   |
+| `chronir://invite/{code}`           | Invite Acceptance             | Shared invite link |
+| `https://chronir.app/invite/{code}` | Invite Acceptance (universal) | Web/message share  |
 
 ---
 

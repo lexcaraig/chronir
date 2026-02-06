@@ -1,4 +1,4 @@
-# CycleAlarm Wireframes & Design System Visual Guide
+# Chronir Wireframes & Design System Visual Guide
 
 **Version:** 1.0  
 **Last Updated:** February 2026  
@@ -23,7 +23,7 @@
 
 ### Core Principles
 
-CycleAlarm follows the principle of **"boring but trustworthy"** — users interact with this app infrequently to set recurring tasks, then forget it exists until the alarm saves them from missing something important. The UI must feel reliable, not flashy.
+Chronir follows the principle of **"boring but trustworthy"** — users interact with this app infrequently to set recurring tasks, then forget it exists until the alarm saves them from missing something important. The UI must feel reliable, not flashy.
 
 | Principle               | Description                          | Implementation                          |
 | ----------------------- | ------------------------------------ | --------------------------------------- |
@@ -314,7 +314,7 @@ BUTTONS         │ PrimaryButton       │ Main action, filled
                 │ GlassFAB            │ Floating action (iOS)
 ─────────────────────────────────────────────────────────────────
 ICONS           │ AlarmIcon           │ Bell/clock variants
-                │ CycleIcon           │ Weekly/monthly/annual
+                │ ChronirIcon           │ Weekly/monthly/annual
                 │ StatusIcon          │ Sun/moon active states
                 │ NavigationIcon      │ Back, close, menu
                 │ ActionIcon          │ Edit, delete, share
@@ -352,7 +352,7 @@ TimeDisplay           │ DisplayText, StatusIcon   │ Shows alarm time
 AlarmToggleRow        │ BodyText, Switch, Icon    │ Toggle alarm on/off
                       │                           │ with label
 ─────────────────────────────────────────────────────────────────
-CycleBadge            │ Badge, CycleIcon, Label   │ Shows recurring
+ChronirBadge            │ Badge, ChronirIcon, Label   │ Shows recurring
                       │                           │ pattern type
 ─────────────────────────────────────────────────────────────────
 TimePickerField       │ TextField, IconButton     │ Time input with
@@ -382,7 +382,7 @@ ORGANISMS LIST
 ─────────────────────────────────────────────────────────────────
 Organism Name         │ Molecules Used            │ Purpose
 ─────────────────────────────────────────────────────────────────
-AlarmCard             │ TimeDisplay, CycleBadge   │ Single alarm in
+AlarmCard             │ TimeDisplay, ChronirBadge   │ Single alarm in
                       │ AlarmToggleRow, Caption   │ the list view
 ─────────────────────────────────────────────────────────────────
 AlarmListHeader       │ HeadlineText, Badge       │ Section header
@@ -391,13 +391,13 @@ AlarmListHeader       │ HeadlineText, Badge       │ Section header
 AlarmCreationForm     │ LabeledTextField          │ Full alarm
                       │ TimePickerField           │ creation form
                       │ DatePickerField           │
-                      │ CycleSelector             │
+                      │ ChronirSelector             │
 ─────────────────────────────────────────────────────────────────
 FiringControls        │ PrimaryButton (Snooze)    │ Alarm dismiss
                       │ SecondaryButton (Stop)    │ interaction zone
                       │ SnoozeCounter             │
 ─────────────────────────────────────────────────────────────────
-CycleSelector         │ RadioButton[], CycleBadge │ Weekly/monthly/
+ChronirSelector         │ RadioButton[], ChronirBadge │ Weekly/monthly/
                       │ LabelText                 │ annual picker
 ─────────────────────────────────────────────────────────────────
 NavigationBar         │ IconButton, HeadlineText  │ Top navigation
@@ -459,7 +459,7 @@ OnboardingTemplate    │ PageIndicator             │ Swipeable
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │  CycleAlarm                            [⚙️ Settings]    │   │
+│  │  Chronir                            [⚙️ Settings]    │   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │  ┌─ UPCOMING ─────────────────────────────────────────────┐   │
@@ -512,7 +512,7 @@ Alarm Card              │ Organism      │ AlarmCard
   └─ Time Display       │ Molecule      │ TimeDisplay
   └─ Toggle             │ Atom          │ Switch
   └─ Title              │ Atom          │ HeadlineText
-  └─ Cycle Badge        │ Molecule      │ CycleBadge
+  └─ Cycle Badge        │ Molecule      │ ChronirBadge
   └─ Countdown          │ Molecule      │ CountdownDisplay
 FAB                     │ Atom          │ FABButton / GlassFAB
 Tab Bar                 │ Organism      │ TabBar / BottomNav
@@ -638,7 +638,7 @@ Sheet Handle            │ Atom          │ SheetHandle
 Sheet Header            │ Molecule      │ SheetHeader
 Title Field             │ Molecule      │ LabeledTextField
 Time Picker             │ Molecule      │ TimePickerField
-Cycle Selector          │ Organism      │ CycleSelector
+Cycle Selector          │ Organism      │ ChronirSelector
 Day Picker              │ Molecule      │ DatePickerField
 Optional Section        │ Organism      │ SettingsSection
   └─ Note Row           │ Molecule      │ ActionRow
@@ -723,7 +723,7 @@ ACCESSIBILITY NOTES:
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │  CycleAlarm                            [⚙️ Settings]    │   │
+│  │  Chronir                            [⚙️ Settings]    │   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 │                                                                 │
@@ -980,7 +980,7 @@ CTA Button              │ Atom          │ PrimaryButton
 │                                                                 │
 │                          ⭐                                     │
 │                                                                 │
-│                  Unlock CycleAlarm                              │
+│                  Unlock Chronir                              │
 │                       Plus                                      │
 │                                                                 │
 │                                                                 │
@@ -1059,7 +1059,7 @@ Sheet                   │ .sheet() with .presentationDetents
 
 FOLDER STRUCTURE (iOS)
 ─────────────────────────────────────────────────────────────────
-CycleAlarm/
+Chronir/
 ├── DesignSystem/
 │   ├── Tokens/
 │   │   ├── Colors.swift          // Color extensions
@@ -1070,7 +1070,7 @@ CycleAlarm/
 │   │   ├── PrimaryButton.swift
 │   │   ├── SecondaryButton.swift
 │   │   ├── AlarmIcon.swift
-│   │   └── CycleBadge.swift
+│   │   └── ChronirBadge.swift
 │   ├── Molecules/
 │   │   ├── TimeDisplay.swift
 │   │   ├── AlarmToggleRow.swift
@@ -1144,7 +1144,7 @@ app/
 │   │   ├── PrimaryButton.kt
 │   │   ├── SecondaryButton.kt
 │   │   ├── AlarmIcon.kt
-│   │   └── CycleBadge.kt
+│   │   └── ChronirBadge.kt
 │   ├── molecules/
 │   │   ├── TimeDisplay.kt
 │   │   ├── AlarmToggleRow.kt
@@ -1293,7 +1293,7 @@ Firing snooze button    │ 72pt height     │ 72dp height
 ```
 CONTRAST REQUIREMENTS (WCAG 2.2 AA)
 ─────────────────────────────────────────────────────────────────
-Usage                   │ Minimum Ratio   │ CycleAlarm Value
+Usage                   │ Minimum Ratio   │ Chronir Value
 ─────────────────────────────────────────────────────────────────
 Body text               │ 4.5:1           │ 7.2:1 ✓
 Large text (24pt+)      │ 3:1             │ 4.8:1 ✓
@@ -1393,7 +1393,7 @@ ANATOMY
 ┌─────────────────────────────────────────────────────────────┐
 │  [StatusIcon]  [TimeDisplay]        [SharedBadge?] [Toggle] │
 │               [Title]                                        │
-│               [CycleBadge] · [NextDate]                      │
+│               [ChronirBadge] · [NextDate]                      │
 │               [Countdown]                                    │
 └─────────────────────────────────────────────────────────────┘
 ─────────────────────────────────────────────────────────────────
@@ -1462,17 +1462,17 @@ fun AlarmCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.padding(CycleSpacing.md),
+        modifier = modifier.padding(ChronirSpacing.md),
         colors = CardDefaults.cardColors(
             containerColor = if (alarm.isActive)
-                CycleColors.alarm.active.background
+                ChronirColors.alarm.active.background
             else
-                CycleColors.alarm.inactive.background
+                ChronirColors.alarm.inactive.background
         ),
-        shape = RoundedCornerShape(CycleRadius.md)
+        shape = RoundedCornerShape(ChronirRadius.md)
     ) {
         Row(
-            modifier = Modifier.padding(CycleSpacing.md),
+            modifier = Modifier.padding(ChronirSpacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -1482,22 +1482,22 @@ fun AlarmCard(
                     Icons.Filled.NightsStay,
                 contentDescription = null,
                 tint = if (alarm.isActive)
-                    CycleColors.alarm.active.foreground
+                    ChronirColors.alarm.active.foreground
                 else
-                    CycleColors.alarm.inactive.foreground
+                    ChronirColors.alarm.inactive.foreground
             )
 
-            Spacer(modifier = Modifier.width(CycleSpacing.sm))
+            Spacer(modifier = Modifier.width(ChronirSpacing.sm))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = alarm.timeFormatted,
-                    style = CycleTypography.headline.small
+                    style = ChronirTypography.headline.small
                 )
                 Text(
                     text = alarm.title,
-                    style = CycleTypography.body.large,
-                    color = CycleColors.text.primary
+                    style = ChronirTypography.body.large,
+                    color = ChronirColors.text.primary
                 )
             }
 
@@ -1557,4 +1557,4 @@ ANIMATION
 
 ---
 
-_This document serves as the visual reference for CycleAlarm's UI implementation. All wireframes should be interpreted through the lens of the atomic design system and design tokens defined herein. Platform-specific adjustments (Liquid Glass for iOS, Material 3 for Android) should preserve the core information architecture and interaction patterns._
+_This document serves as the visual reference for Chronir's UI implementation. All wireframes should be interpreted through the lens of the atomic design system and design tokens defined herein. Platform-specific adjustments (Liquid Glass for iOS, Material 3 for Android) should preserve the core information architecture and interaction patterns._

@@ -1,8 +1,8 @@
-# CycleAlarm — Data Schema Specification
+# Chronir — Data Schema Specification
 
 **Status:** Draft | **Version:** 1.0 | **Date:** February 5, 2026  
 **Author:** Lex (Product Owner) + Claude (Technical Spec)  
-**Purpose:** Defines all data entities, relationships, and storage strategies for CycleAlarm. This document drives the Technical Spec and API Docs.
+**Purpose:** Defines all data entities, relationships, and storage strategies for Chronir. This document drives the Technical Spec and API Docs.
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## 1. Schema Overview
 
-CycleAlarm operates with a **dual-storage architecture**: local-first for offline reliability and alarm scheduling, with optional cloud sync for Plus/Premium tiers. The schema is designed around these principles:
+Chronir operates with a **dual-storage architecture**: local-first for offline reliability and alarm scheduling, with optional cloud sync for Plus/Premium tiers. The schema is designed around these principles:
 
 - **Local-first:** Alarms always fire from on-device storage. Cloud is secondary.
 - **Tier-gated:** Free/Plus users have no cloud entities. Premium unlocks Firestore collections.
@@ -437,7 +437,7 @@ Top-level collection representing a shared group (Household, Team, etc.).
 | `member_uids`  | Array\<String\> | ✓        | All member UIDs (including owner). Max 20.             |
 | `member_count` | Number          | ✓        | Denormalized count                                     |
 | `invite_code`  | String(8)       | ✓        | Shareable join code. Regeneratable by owner.           |
-| `invite_link`  | String          | ✓        | Deep link: `https://cyclealarm.app/join/{invite_code}` |
+| `invite_link`  | String          | ✓        | Deep link: `https://chronir.app/join/{invite_code}` |
 | `max_members`  | Number          | ✓        | 20 (configurable)                                      |
 | `created_at`   | Timestamp       | ✓        |                                                        |
 | `updated_at`   | Timestamp       | ✓        |                                                        |
@@ -566,7 +566,7 @@ Server-side subscription state. Updated via App Store / Play Store webhook or re
 | `uid`                    | String    | ✓        | Firebase UID (document ID)                            |
 | `tier`                   | String    | ✓        | `plus` or `premium`                                   |
 | `platform`               | String    | ✓        | `ios` or `android`                                    |
-| `product_id`             | String    | ✓        | Store product ID. E.g., `com.cyclealarm.plus.monthly` |
+| `product_id`             | String    | ✓        | Store product ID. E.g., `com.chronir.plus.monthly` |
 | `purchase_token`         | String    | ✓        | Store transaction token for validation                |
 | `is_active`              | Boolean   | ✓        | Whether subscription is currently valid               |
 | `auto_renew`             | Boolean   | ✓        | Auto-renewal status                                   |
@@ -998,10 +998,10 @@ Version 2 → (reserved for post-launch changes)
 
 | Product ID                       | Tier    | Billing     |
 | -------------------------------- | ------- | ----------- |
-| `com.cyclealarm.plus.monthly`    | Plus    | $1.99/month |
-| `com.cyclealarm.plus.annual`     | Plus    | $14.99/year |
-| `com.cyclealarm.premium.monthly` | Premium | $3.99/month |
-| `com.cyclealarm.premium.annual`  | Premium | $29.99/year |
+| `com.chronir.plus.monthly`    | Plus    | $1.99/month |
+| `com.chronir.plus.annual`     | Plus    | $14.99/year |
+| `com.chronir.premium.monthly` | Premium | $3.99/month |
+| `com.chronir.premium.annual`  | Premium | $29.99/year |
 
 ## Appendix B: Firebase Cloud Storage Structure
 
@@ -1053,4 +1053,4 @@ Used for FCM push notifications (shared alarm events).
 
 ---
 
-_This schema is the single source of truth for all CycleAlarm data structures. All technical specs, API documentation, and platform implementations must conform to this document._
+_This schema is the single source of truth for all Chronir data structures. All technical specs, API documentation, and platform implementations must conform to this document._

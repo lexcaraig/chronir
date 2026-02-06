@@ -1,4 +1,4 @@
-# CycleAlarm — User Stories & Development Backlog
+# Chronir — User Stories & Development Backlog
 
 **Version:** 1.0  
 **Last Updated:** February 6, 2026  
@@ -9,7 +9,7 @@
 
 ## How to Use This Document
 
-This is the **living development task list** for CycleAlarm. Each epic contains user stories written in standard format with acceptance criteria, priority, tier association, and estimated effort. Stories are ordered by dependency and recommended implementation sequence.
+This is the **living development task list** for Chronir. Each epic contains user stories written in standard format with acceptance criteria, priority, tier association, and estimated effort. Stories are ordered by dependency and recommended implementation sequence.
 
 **Priority Key:**  
 🔴 P0 — Must ship in MVP  
@@ -410,7 +410,7 @@ This is the **living development task list** for CycleAlarm. Each epic contains 
 `🔴 P0` · `[FREE]` · `Effort: 5` · `Status: [ ]`
 
 **As a** new user,  
-**I want** a brief onboarding that explains CycleAlarm's purpose,  
+**I want** a brief onboarding that explains Chronir's purpose,  
 **So that** I understand why this is different from my calendar.
 
 **Acceptance Criteria:**
@@ -450,7 +450,7 @@ This is the **living development task list** for CycleAlarm. Each epic contains 
 
 **As a** user,  
 **I want** a settings screen to configure app-wide preferences,  
-**So that** I can customize CycleAlarm to my needs.
+**So that** I can customize Chronir to my needs.
 
 **Acceptance Criteria:**
 

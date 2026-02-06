@@ -1,4 +1,4 @@
-# CycleAlarm Design System Document
+# Chronir Design System Document
 
 **Version:** 1.0  
 **Status:** Draft  
@@ -25,23 +25,23 @@
 
 ## 1. Overview
 
-### 1.1 What is CycleAlarm?
+### 1.1 What is Chronir?
 
-CycleAlarm is a high-persistence alarm app designed for long-cycle recurring tasks — weekly, monthly, and annually. Unlike standard calendar notifications that are easily swiped away, CycleAlarm treats long-term obligations with the urgency of a morning wake-up call.
+Chronir is a high-persistence alarm app designed for long-cycle recurring tasks — weekly, monthly, and annually. Unlike standard calendar notifications that are easily swiped away, Chronir treats long-term obligations with the urgency of a morning wake-up call.
 
 ### 1.2 Design System Purpose
 
-This document defines the shared design language across CycleAlarm's two native codebases. The system uses **atomic design methodology** with **design tokens** as the sub-atomic foundation, ensuring visual consistency while respecting platform conventions.
+This document defines the shared design language across Chronir's two native codebases. The system uses **atomic design methodology** with **design tokens** as the sub-atomic foundation, ensuring visual consistency while respecting platform conventions.
 
 ### 1.3 Design Philosophy
 
 > **"Boring but trustworthy."**
 
-Users interact with CycleAlarm briefly but critically — setting an alarm once, then trusting it to fire reliably weeks or months later. The interface must be instantly scannable, deliberately tactile, and contextually aware of the user's situation (2 AM bedtime vs 6 AM wake-up).
+Users interact with Chronir briefly but critically — setting an alarm once, then trusting it to fire reliably weeks or months later. The interface must be instantly scannable, deliberately tactile, and contextually aware of the user's situation (2 AM bedtime vs 6 AM wake-up).
 
 ### 1.4 Platform Strategy
 
-CycleAlarm follows a **multi-platform** approach (not cross-platform): shared information architecture and feature set, platform-specific visual expression.
+Chronir follows a **multi-platform** approach (not cross-platform): shared information architecture and feature set, platform-specific visual expression.
 
 | Aspect           | iOS                          | Android                       |
 | ---------------- | ---------------------------- | ----------------------------- |
@@ -75,7 +75,7 @@ CycleAlarm follows a **multi-platform** approach (not cross-platform): shared in
 
 ## 3. Design Token System
 
-Design tokens are named entities storing visual attributes. They replace hard-coded values with semantic, platform-agnostic definitions and sit beneath atoms in the atomic hierarchy. CycleAlarm uses a **three-tier token architecture**.
+Design tokens are named entities storing visual attributes. They replace hard-coded values with semantic, platform-agnostic definitions and sit beneath atoms in the atomic hierarchy. Chronir uses a **three-tier token architecture**.
 
 ### 3.1 Token Architecture
 
@@ -249,7 +249,7 @@ extension Color {
 #### Android Output (Compose Theme)
 
 ```kotlin
-data class CycleAlarmColorScheme(
+data class ChronirColorScheme(
     val alarmActiveBackground: Color,
     val alarmActiveForeground: Color,
     val alarmInactiveBackground: Color,
@@ -257,7 +257,7 @@ data class CycleAlarmColorScheme(
     // ...
 )
 
-val LocalCycleAlarmColors = staticCompositionLocalOf { lightCycleAlarmColors() }
+val LocalChronirColors = staticCompositionLocalOf { lightChronirColors() }
 ```
 
 ---
@@ -358,11 +358,11 @@ fun PrimaryButton(
         enabled = enabled,
         modifier = modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = CycleAlarmTheme.colors.accentPrimary
+            containerColor = ChronirTheme.colors.accentPrimary
         ),
-        shape = RoundedCornerShape(CycleAlarmTheme.radius.md)
+        shape = RoundedCornerShape(ChronirTheme.radius.md)
     ) {
-        Text(title, style = CycleAlarmTheme.typography.body)
+        Text(title, style = ChronirTheme.typography.body)
     }
 }
 ```
@@ -382,7 +382,7 @@ Animated icon that morphs between sun (active) and moon (inactive).
 - Inactive: Reduced visual weight, desaturated colors, no animation
 - Respects `prefers-reduced-motion` — disables breathing animation, uses instant state changes
 
-#### CycleBadge
+#### ChronirBadge
 
 A small colored chip indicating the alarm's recurrence type.
 
@@ -453,7 +453,7 @@ The primary list item displaying a single alarm with all relevant information.
 ┌─────────────────────────────────────────┐
 │  [AlarmIcon]  7:00 AM          [Toggle] │
 │               Pay Rent                  │
-│  [CycleBadge: Monthly]   Alarm in 6h   │
+│  [ChronirBadge: Monthly]   Alarm in 6h   │
 └─────────────────────────────────────────┘
 ```
 
@@ -600,7 +600,7 @@ This is the highest-priority screen in the entire app. It must work flawlessly a
 └─────────────────────────────┘
 ```
 
-**Critical design note:** Apple's testing revealed equal-sized Snooze/Stop buttons made users 30% more likely to accidentally hit Stop. CycleAlarm uses the slide-to-stop pattern to prevent accidental dismissal.
+**Critical design note:** Apple's testing revealed equal-sized Snooze/Stop buttons made users 30% more likely to accidentally hit Stop. Chronir uses the slide-to-stop pattern to prevent accidental dismissal.
 
 ### 6.4 Widgets
 
@@ -679,7 +679,7 @@ Use **neutral naming** that avoids platform-specific terminology (per Lyft's app
 
 ## 8. Accessibility Standards
 
-CycleAlarm targets **WCAG 2.2 Level AA compliance** (required for U.S. ADA Title II by April 2026).
+Chronir targets **WCAG 2.2 Level AA compliance** (required for U.S. ADA Title II by April 2026).
 
 ### 8.1 Touch Targets
 
@@ -779,7 +779,7 @@ Register Siri Shortcuts and Google Assistant routines for:
 ### 10.1 iOS Folder Structure
 
 ```
-CycleAlarm-iOS/
+Chronir-iOS/
 ├── DesignSystem/
 │   ├── Tokens/
 │   │   ├── Colors.swift
@@ -790,7 +790,7 @@ CycleAlarm-iOS/
 │   ├── Atoms/
 │   │   ├── PrimaryButton.swift
 │   │   ├── AlarmIcon.swift
-│   │   ├── CycleBadge.swift
+│   │   ├── ChronirBadge.swift
 │   │   └── CountdownText.swift
 │   ├── Molecules/
 │   │   ├── TimePickerField.swift
@@ -834,7 +834,7 @@ CycleAlarm-iOS/
 ### 10.2 Android Folder Structure
 
 ```
-CycleAlarm-Android/
+Chronir-Android/
 ├── designsystem/
 │   ├── tokens/
 │   │   ├── Color.kt
@@ -843,11 +843,11 @@ CycleAlarm-Android/
 │   │   ├── Radius.kt
 │   │   └── Motion.kt
 │   ├── theme/
-│   │   └── CycleAlarmTheme.kt
+│   │   └── ChronirTheme.kt
 │   ├── atom/
 │   │   ├── PrimaryButton.kt
 │   │   ├── AlarmIcon.kt
-│   │   ├── CycleBadge.kt
+│   │   ├── ChronirBadge.kt
 │   │   └── CountdownText.kt
 │   ├── molecule/
 │   │   ├── TimePickerField.kt

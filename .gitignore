@@ -14,10 +14,10 @@
 *.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 
 # === iOS / Xcode ===
-CycleAlarm-iOS/DerivedData/
-CycleAlarm-iOS/build/
-CycleAlarm-iOS/.build/
-CycleAlarm-iOS/Pods/
+Chronir-iOS/DerivedData/
+Chronir-iOS/build/
+Chronir-iOS/.build/
+Chronir-iOS/Pods/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -33,13 +33,13 @@ CycleAlarm-iOS/Pods/
 xcuserdata/
 
 # === Android / Gradle ===
-CycleAlarm-Android/.gradle/
-CycleAlarm-Android/build/
-CycleAlarm-Android/app/build/
-CycleAlarm-Android/core/*/build/
-CycleAlarm-Android/feature/*/build/
-CycleAlarm-Android/widget/build/
-CycleAlarm-Android/local.properties
+Chronir-Android/.gradle/
+Chronir-Android/build/
+Chronir-Android/app/build/
+Chronir-Android/core/*/build/
+Chronir-Android/feature/*/build/
+Chronir-Android/widget/build/
+Chronir-Android/local.properties
 *.apk
 *.aab
 *.jks

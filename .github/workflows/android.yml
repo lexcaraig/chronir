@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'CycleAlarm-Android/**'
+      - 'Chronir-Android/**'
       - '.github/workflows/android.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'CycleAlarm-Android/**'
+      - 'Chronir-Android/**'
       - '.github/workflows/android.yml'
 
 concurrency:
@@ -31,7 +31,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Run ktlint
         run: |
-          cd CycleAlarm-Android
+          cd Chronir-Android
           ./gradlew ktlintCheck
 
   test:
@@ -49,7 +49,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Run unit tests
         run: |
-          cd CycleAlarm-Android
+          cd Chronir-Android
           ./gradlew test
 
   build:
@@ -68,13 +68,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build release APK and AAB
         run: |
-          cd CycleAlarm-Android
+          cd Chronir-Android
           ./gradlew assembleRelease bundleRelease
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: CycleAlarm-Android/app/build/outputs/apk/release/*.apk
+          path: Chronir-Android/app/build/outputs/apk/release/*.apk
 
   instrumented-tests:
     name: Instrumented Tests
@@ -100,4 +100,4 @@ jobs:
         with:
           api-level: 31
           arch: x86_64
-          script: cd CycleAlarm-Android && ./gradlew connectedAndroidTest
+          script: cd Chronir-Android && ./gradlew connectedAndroidTest
