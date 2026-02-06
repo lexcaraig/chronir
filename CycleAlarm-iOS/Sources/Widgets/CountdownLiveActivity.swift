@@ -1,9 +1,11 @@
 import Foundation
-import ActivityKit
 import SwiftUI
 
 // TODO: Move to a separate Widget Extension target when creating the Xcode project
 // TODO: Replace with AlarmKit Live Activity when Xcode 18/iOS 26 is available
+
+#if canImport(ActivityKit)
+import ActivityKit
 
 struct AlarmCountdownAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
@@ -39,3 +41,4 @@ struct CountdownLiveActivityView: View {
         .padding(SpacingTokens.lg)
     }
 }
+#endif

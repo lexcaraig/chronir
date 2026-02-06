@@ -10,7 +10,9 @@ struct FullScreenAlarmTemplate<Content: View>: View {
 
             content()
         }
+        #if os(iOS)
         .statusBarHidden(true)
+        #endif
     }
 }
 

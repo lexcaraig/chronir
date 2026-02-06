@@ -12,7 +12,9 @@ struct TimePickerField: View {
                 selection: $selection,
                 displayedComponents: .hourAndMinute
             )
+            #if os(iOS)
             .datePickerStyle(.wheel)
+            #endif
             .labelsHidden()
             .tint(ColorTokens.primary)
         }

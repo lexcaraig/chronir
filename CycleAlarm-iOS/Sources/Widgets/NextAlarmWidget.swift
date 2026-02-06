@@ -1,7 +1,9 @@
 import SwiftUI
-import WidgetKit
 
 // TODO: Move to a separate Widget Extension target when creating the Xcode project
+
+#if canImport(WidgetKit)
+import WidgetKit
 
 struct NextAlarmEntry: TimelineEntry {
     let date: Date
@@ -46,7 +48,12 @@ struct NextAlarmTimelineProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (NextAlarmEntry) -> Void) {
-        let entry = NextAlarmEntry(date: Date(), alarmTitle: "Morning Workout", nextFireDate: Date().addingTimeInterval(3600), cycleType: .weekly)
+        let entry = NextAlarmEntry(
+            date: Date(),
+            alarmTitle: "Morning Workout",
+            nextFireDate: Date().addingTimeInterval(3600),
+            cycleType: .weekly
+        )
         completion(entry)
     }
 
@@ -57,3 +64,4 @@ struct NextAlarmTimelineProvider: TimelineProvider {
         completion(timeline)
     }
 }
+#endif

@@ -1,4 +1,6 @@
 import Foundation
+
+#if canImport(UIKit)
 import UIKit
 
 protocol HapticServiceProtocol {
@@ -33,3 +35,23 @@ final class HapticService: HapticServiceProtocol {
         generator.impactOccurred()
     }
 }
+
+#else
+
+protocol HapticServiceProtocol {
+    func playSuccess()
+    func playError()
+    func playSelection()
+}
+
+final class HapticService: HapticServiceProtocol {
+    static let shared = HapticService()
+
+    private init() {}
+
+    func playSuccess() {}
+    func playError() {}
+    func playSelection() {}
+}
+
+#endif

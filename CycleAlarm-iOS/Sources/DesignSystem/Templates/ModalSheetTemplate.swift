@@ -13,7 +13,9 @@ struct ModalSheetTemplate<Content: View>: View {
             }
             .background(ColorTokens.backgroundPrimary)
             .navigationTitle(title)
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onDismiss)
