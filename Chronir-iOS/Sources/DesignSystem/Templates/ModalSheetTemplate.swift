@@ -34,10 +34,11 @@ struct ModalSheetTemplate<Content: View>: View {
     ModalSheetTemplate(
         title: "New Alarm",
         onDismiss: {},
-        onSave: {}
-    ) {
-        Text("Form content")
-            .foregroundStyle(ColorTokens.textPrimary)
-            .padding()
-    }
+        onSave: {},
+        content: {
+            Text("Form content")
+                .foregroundStyle(ColorTokens.textPrimary)
+                .padding()
+        }
+    )
 }

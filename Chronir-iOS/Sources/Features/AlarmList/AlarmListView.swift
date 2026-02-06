@@ -19,15 +19,18 @@ struct AlarmListView: View {
             }
         } floatingAction: {
             if !sampleAlarms.isEmpty {
-                Button(action: { showingCreateAlarm = true }) {
-                    Image(systemName: "plus")
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                        .frame(width: 56, height: 56)
-                        .background(ColorTokens.primary)
-                        .clipShape(Circle())
-                        .shadow(radius: 4)
-                }
+                Button(
+                    action: { showingCreateAlarm = true },
+                    label: {
+                        Image(systemName: "plus")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 56, height: 56)
+                            .background(ColorTokens.primary)
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
+                    }
+                )
             }
         }
         .sheet(isPresented: $showingCreateAlarm) {

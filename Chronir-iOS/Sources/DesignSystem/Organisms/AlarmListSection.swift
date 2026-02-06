@@ -4,7 +4,7 @@ struct AlarmListSection: View {
     let title: String
     let alarms: [Alarm]
     @Binding var enabledStates: [UUID: Bool]
-    var onDelete: ((Alarm) -> Void)? = nil
+    var onDelete: ((Alarm) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.sm) {
@@ -48,9 +48,25 @@ struct AlarmListSection: View {
 #Preview {
     @Previewable @State var enabledStates: [UUID: Bool] = [:]
     let alarms = [
-        Alarm(title: "Morning Workout", cycleType: .weekly, scheduledTime: Date(), nextFireDate: Date().addingTimeInterval(3600), isPersistent: true),
-        Alarm(title: "Pay Rent", cycleType: .monthly, scheduledTime: Date(), nextFireDate: Date().addingTimeInterval(-3600)),
-        Alarm(title: "Annual Checkup", cycleType: .yearly, scheduledTime: Date(), nextFireDate: Date().addingTimeInterval(86400))
+        Alarm(
+            title: "Morning Workout",
+            cycleType: .weekly,
+            scheduledTime: Date(),
+            nextFireDate: Date().addingTimeInterval(3600),
+            isPersistent: true
+        ),
+        Alarm(
+            title: "Pay Rent",
+            cycleType: .monthly,
+            scheduledTime: Date(),
+            nextFireDate: Date().addingTimeInterval(-3600)
+        ),
+        Alarm(
+            title: "Annual Checkup",
+            cycleType: .yearly,
+            scheduledTime: Date(),
+            nextFireDate: Date().addingTimeInterval(86400)
+        )
     ]
     ScrollView {
         AlarmListSection(

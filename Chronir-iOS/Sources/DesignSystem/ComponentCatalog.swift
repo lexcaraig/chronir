@@ -215,22 +215,43 @@ private struct CatalogAlarmCardView: View {
         ScrollView {
             VStack(spacing: SpacingTokens.md) {
                 AlarmCard(
-                    alarm: Alarm(title: "Active Card", cycleType: .weekly, scheduledTime: Date(), nextFireDate: Date().addingTimeInterval(3600), isPersistent: true),
+                    alarm: Alarm(
+                        title: "Active Card",
+                        cycleType: .weekly,
+                        scheduledTime: Date(),
+                        nextFireDate: Date().addingTimeInterval(3600),
+                        isPersistent: true
+                    ),
                     visualState: .active,
                     isEnabled: $enabled1
                 )
                 AlarmCard(
-                    alarm: Alarm(title: "Inactive Card", cycleType: .monthly, scheduledTime: Date(), nextFireDate: Date()),
+                    alarm: Alarm(
+                        title: "Inactive Card",
+                        cycleType: .monthly,
+                        scheduledTime: Date(),
+                        nextFireDate: Date()
+                    ),
                     visualState: .inactive,
                     isEnabled: $enabled2
                 )
                 AlarmCard(
-                    alarm: Alarm(title: "Snoozed Card", cycleType: .weekly, scheduledTime: Date(), nextFireDate: Date()),
+                    alarm: Alarm(
+                        title: "Snoozed Card",
+                        cycleType: .weekly,
+                        scheduledTime: Date(),
+                        nextFireDate: Date()
+                    ),
                     visualState: .snoozed,
                     isEnabled: $enabled3
                 )
                 AlarmCard(
-                    alarm: Alarm(title: "Overdue Card", cycleType: .yearly, scheduledTime: Date(), nextFireDate: Date().addingTimeInterval(-3600)),
+                    alarm: Alarm(
+                        title: "Overdue Card",
+                        cycleType: .yearly,
+                        scheduledTime: Date(),
+                        nextFireDate: Date().addingTimeInterval(-3600)
+                    ),
                     visualState: .overdue,
                     isEnabled: $enabled4
                 )
@@ -250,8 +271,18 @@ private struct CatalogAlarmListSectionView: View {
             AlarmListSection(
                 title: "Upcoming",
                 alarms: [
-                    Alarm(title: "Workout", cycleType: .weekly, scheduledTime: Date(), nextFireDate: Date().addingTimeInterval(3600)),
-                    Alarm(title: "Pay Rent", cycleType: .monthly, scheduledTime: Date(), nextFireDate: Date().addingTimeInterval(-3600))
+                    Alarm(
+                        title: "Workout",
+                        cycleType: .weekly,
+                        scheduledTime: Date(),
+                        nextFireDate: Date().addingTimeInterval(3600)
+                    ),
+                    Alarm(
+                        title: "Pay Rent",
+                        cycleType: .monthly,
+                        scheduledTime: Date(),
+                        nextFireDate: Date().addingTimeInterval(-3600)
+                    )
                 ],
                 enabledStates: $enabledStates
             )
@@ -272,7 +303,13 @@ private struct CatalogEmptyStateView: View {
 private struct CatalogAlarmFiringOverlayView: View {
     var body: some View {
         AlarmFiringOverlay(
-            alarm: Alarm(title: "Morning Workout", cycleType: .weekly, scheduledTime: Date(), nextFireDate: Date(), isPersistent: true),
+            alarm: Alarm(
+                title: "Morning Workout",
+                cycleType: .weekly,
+                scheduledTime: Date(),
+                nextFireDate: Date(),
+                isPersistent: true
+            ),
             snoozeCount: 1,
             onDismiss: {},
             onSnooze: { _ in }
@@ -308,8 +345,8 @@ private struct CatalogAlarmCreationFormView: View {
 private struct CatalogSingleColumnView: View {
     var body: some View {
         SingleColumnTemplate(title: "Sample") {
-            ForEach(0..<5) { i in
-                ChronirText("Item \(i)", style: .bodyPrimary)
+            ForEach(0..<5) { index in
+                ChronirText("Item \(index)", style: .bodyPrimary)
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(ColorTokens.surfaceCard)
@@ -332,10 +369,15 @@ private struct CatalogModalSheetView: View {
         }
         .background(ColorTokens.backgroundPrimary)
         .sheet(isPresented: $showSheet) {
-            ModalSheetTemplate(title: "Sample", onDismiss: { showSheet = false }, onSave: { showSheet = false }) {
-                ChronirText("Modal content", style: .bodyPrimary)
-                    .padding()
-            }
+            ModalSheetTemplate(
+                title: "Sample",
+                onDismiss: { showSheet = false },
+                onSave: { showSheet = false },
+                content: {
+                    ChronirText("Modal content", style: .bodyPrimary)
+                        .padding()
+                }
+            )
         }
         .navigationTitle("ModalSheetTemplate")
     }

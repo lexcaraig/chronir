@@ -29,7 +29,7 @@ struct AlarmCard: View {
     let alarm: Alarm
     let visualState: AlarmVisualState
     @Binding var isEnabled: Bool
-    var onDelete: (() -> Void)? = nil
+    var onDelete: (() -> Void)?
 
     private var textOpacity: Double {
         visualState == .inactive ? 0.5 : 1.0

@@ -13,16 +13,17 @@ struct AlarmCreationView: View {
                     await viewModel.saveAlarm()
                     dismiss()
                 }
+            },
+            content: {
+                AlarmCreationForm(
+                    title: $viewModel.title,
+                    cycleType: $viewModel.cycleType,
+                    scheduledTime: $viewModel.scheduledTime,
+                    isPersistent: $viewModel.isPersistent,
+                    note: $viewModel.note
+                )
             }
-        ) {
-            AlarmCreationForm(
-                title: $viewModel.title,
-                cycleType: $viewModel.cycleType,
-                scheduledTime: $viewModel.scheduledTime,
-                isPersistent: $viewModel.isPersistent,
-                note: $viewModel.note
-            )
-        }
+        )
     }
 }
 

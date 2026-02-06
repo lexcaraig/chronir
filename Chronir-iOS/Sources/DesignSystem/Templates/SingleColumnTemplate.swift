@@ -59,15 +59,18 @@ extension SingleColumnTemplate where FloatingAction == EmptyView {
             Text("Content goes here")
                 .foregroundStyle(ColorTokens.textPrimary)
         } floatingAction: {
-            Button(action: {}) {
-                Image(systemName: "plus")
-                    .font(.title2)
-                    .foregroundStyle(.white)
-                    .frame(width: 56, height: 56)
-                    .background(ColorTokens.primary)
-                    .clipShape(Circle())
-                    .shadow(radius: 4)
-            }
+            Button(
+                action: {},
+                label: {
+                    Image(systemName: "plus")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                        .frame(width: 56, height: 56)
+                        .background(ColorTokens.primary)
+                        .clipShape(Circle())
+                        .shadow(radius: 4)
+                }
+            )
         }
     }
 }
