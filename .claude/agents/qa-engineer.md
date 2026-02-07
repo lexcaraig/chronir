@@ -16,7 +16,7 @@ Execute the QA plan, write and run tests, verify acceptance criteria, and genera
 ## Test Strategy
 
 ### Unit Tests
-- **iOS:** `swift test` (XCTest + Swift Testing framework)
+- **iOS:** `xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest'` (XCTest + Swift Testing framework)
 - **Android:** `./gradlew test` (JUnit 5 + Mockk)
 - Target: 80%+ code coverage on core modules
 

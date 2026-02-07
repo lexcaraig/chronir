@@ -19,7 +19,7 @@ Design and implement all Firebase integrations: Auth flows, Firestore schema/rul
 - `docs/technical-spec.md` Section 6.4 — Security rules specification
 - `docs/api-documentations.md` — Firebase API usage, auth flows, CRUD operations, error codes
 - `firestore.rules` — Current deployed security rules (must stay in sync with spec)
-- `Chronir-iOS/Sources/Core/Services/` — iOS Firebase service implementations
+- `chronir/chronir/Core/Services/` — iOS Firebase service implementations
 - `Chronir-Android/core/data/` — Android Firebase data sources
 
 ## Architecture Decisions

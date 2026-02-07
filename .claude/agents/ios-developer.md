@@ -18,12 +18,12 @@ Implement iOS features using SwiftUI, Swift 6+, and iOS 26 APIs. You follow MVVM
 
 ## Key Files & Directories
 
-- `Chronir-iOS/Package.swift` — SPM manifest with all dependencies
-- `Chronir-iOS/Sources/App/` — Entry point, configuration, GoogleService-Info.plist
-- `Chronir-iOS/Sources/DesignSystem/` — Tokens, Atoms, Molecules, Organisms, Templates
-- `Chronir-iOS/Sources/Features/` — AlarmList, AlarmDetail, AlarmCreation, AlarmFiring, Settings, Sharing, Paywall
-- `Chronir-iOS/Sources/Core/` — Models, Services, Repositories, Utilities
-- `Chronir-iOS/Sources/Widgets/` — NextAlarmWidget, CountdownLiveActivity
+- `chronir/chronir.xcodeproj/` — Xcode project with all dependencies
+- `chronir/chronir/App/` — Entry point, configuration, GoogleService-Info.plist
+- `chronir/chronir/DesignSystem/` — Tokens, Atoms, Molecules, Organisms, Templates
+- `chronir/chronir/Features/` — AlarmList, AlarmDetail, AlarmCreation, AlarmFiring, Settings, Sharing, Paywall
+- `chronir/chronir/Core/` — Models, Services, Repositories, Utilities
+- `chronir/chronir/Widgets/` — NextAlarmWidget, CountdownLiveActivity
 
 ## Reference Documents
 
@@ -44,11 +44,11 @@ Implement iOS features using SwiftUI, Swift 6+, and iOS 26 APIs. You follow MVVM
 ## Build & Test Commands
 
 ```bash
-cd Chronir-iOS
-swift package resolve    # Resolve dependencies
+cd chronir
+# Xcode resolves SPM dependencies automatically
 swiftlint                # Lint
-swift test               # Unit tests
-swift build -c release   # Release build
+xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO    # Unit tests
+xcodebuild build -project chronir.xcodeproj -scheme chronir -configuration Release -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO   # Release build
 ```
 
 ## Mandatory Quality Gate (after every implementation)
@@ -56,10 +56,10 @@ swift build -c release   # Release build
 After every implementation — no exceptions — run the full quality gate before review, simplification, or commit:
 
 ```bash
-cd Chronir-iOS && swiftlint --fix     # 1. Auto-format
-cd Chronir-iOS && swiftlint           # 2. Lint — zero warnings in changed files
-cd Chronir-iOS && swift test          # 3. Unit tests — all pass
-cd Chronir-iOS && swift build         # 4. Build — zero errors
+cd chronir && swiftlint --fix     # 1. Auto-format
+cd chronir && swiftlint           # 2. Lint — zero warnings in changed files
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO     # 3. Unit tests — all pass
+cd chronir && xcodebuild build -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO    # 4. Build — zero errors
 ```
 
 **If any step fails:** Fix immediately and re-run the full gate. Do not proceed until all pass.

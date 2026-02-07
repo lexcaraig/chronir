@@ -14,10 +14,10 @@
 *.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 
 # === iOS / Xcode ===
-Chronir-iOS/DerivedData/
-Chronir-iOS/build/
-Chronir-iOS/.build/
-Chronir-iOS/Pods/
+chronir/DerivedData/
+chronir/build/
+chronir/.build/
+chronir/Pods/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
