@@ -56,6 +56,7 @@ struct AlarmCard: View {
     }
 
     var body: some View {
+        TimelineView(.periodic(from: .now, by: 60)) { _ in
         VStack(alignment: .leading, spacing: SpacingTokens.sm) {
             HStack {
                 VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
@@ -104,6 +105,7 @@ struct AlarmCard: View {
                 .stroke(visualState.accentColor ?? .clear, lineWidth: visualState.accentColor != nil ? 2 : 0)
         )
         .opacity(textOpacity)
+        }
     }
 }
 

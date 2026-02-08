@@ -8,10 +8,15 @@ protocol HapticServiceProtocol {
     func playError()
     func playSelection()
     func playImpact(style: UIImpactFeedbackGenerator.FeedbackStyle)
+    func playAlarmVibration()
+    func startAlarmVibrationLoop()
+    func stopAlarmVibrationLoop()
 }
 
 final class HapticService: HapticServiceProtocol {
     static let shared = HapticService()
+
+    private var vibrationTimer: Timer?
 
     private init() {}
 
@@ -34,6 +39,24 @@ final class HapticService: HapticServiceProtocol {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.impactOccurred()
     }
+
+    func playAlarmVibration() {
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        generator.impactOccurred()
+    }
+
+    func startAlarmVibrationLoop() {
+        stopAlarmVibrationLoop()
+        playAlarmVibration()
+        vibrationTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in
+            self?.playAlarmVibration()
+        }
+    }
+
+    func stopAlarmVibrationLoop() {
+        vibrationTimer?.invalidate()
+        vibrationTimer = nil
+    }
 }
 
 #else
@@ -42,6 +65,9 @@ protocol HapticServiceProtocol {
     func playSuccess()
     func playError()
     func playSelection()
+    func playAlarmVibration()
+    func startAlarmVibrationLoop()
+    func stopAlarmVibrationLoop()
 }
 
 final class HapticService: HapticServiceProtocol {
@@ -52,6 +78,9 @@ final class HapticService: HapticServiceProtocol {
     func playSuccess() {}
     func playError() {}
     func playSelection() {}
+    func playAlarmVibration() {}
+    func startAlarmVibrationLoop() {}
+    func stopAlarmVibrationLoop() {}
 }
 
 #endif

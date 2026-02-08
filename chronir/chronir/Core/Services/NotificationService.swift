@@ -26,7 +26,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
     func registerCategories() {
         let snoozeAction = UNNotificationAction(
             identifier: "SNOOZE_ACTION",
-            title: "Snooze 5 min",
+            title: "Snooze 1 Hour",
             options: []
         )
         let dismissAction = UNNotificationAction(
@@ -52,7 +52,18 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        completionHandler([.banner, .sound, .badge])
+        guard let alarmIDString = notification.request.content.userInfo["alarmID"] as? String,
+              let alarmID = UUID(uuidString: alarmIDString) else {
+            completionHandler([.banner, .sound, .badge])
+            return
+        }
+
+        Task { @MainActor in
+            AlarmFiringCoordinator.shared.presentAlarm(id: alarmID)
+        }
+
+        // Suppress system banner — full-screen UI is showing
+        completionHandler([])
     }
 
     func userNotificationCenter(
@@ -61,20 +72,78 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let actionIdentifier = response.actionIdentifier
-        let alarmID = response.notification.request.content.userInfo["alarmID"] as? String
+        let alarmIDString = response.notification.request.content.userInfo["alarmID"] as? String
 
         switch actionIdentifier {
         case "SNOOZE_ACTION":
-            // TODO: Re-schedule for 5 minutes from now
-            break
-        case "DISMISS_ACTION", UNNotificationDefaultActionIdentifier:
-            // TODO: Mark alarm as dismissed, calculate next fire date
-            break
+            handleSnoozeAction(alarmIDString: alarmIDString)
+        case "DISMISS_ACTION":
+            handleDismissAction(alarmIDString: alarmIDString)
+        case UNNotificationDefaultActionIdentifier:
+            // User tapped notification — present full-screen alarm UI
+            if let alarmIDString, let alarmID = UUID(uuidString: alarmIDString) {
+                Task { @MainActor in
+                    AlarmFiringCoordinator.shared.presentAlarm(id: alarmID)
+                }
+            }
         default:
             break
         }
 
         completionHandler()
+    }
+
+    // MARK: - Action Handlers
+
+    private func handleSnoozeAction(alarmIDString: String?) {
+        guard let alarmIDString, let alarmID = UUID(uuidString: alarmIDString) else { return }
+
+        // Schedule snooze notification for 1 hour from now
+        let content = UNMutableNotificationContent()
+        content.title = "Snoozed Alarm"
+        content.body = "Your alarm is firing again"
+        content.sound = .defaultCritical
+        content.interruptionLevel = .timeSensitive
+        content.categoryIdentifier = "ALARM_CATEGORY"
+        content.userInfo = ["alarmID": alarmIDString]
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 3600, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: "\(alarmIDString)_snooze",
+            content: content,
+            trigger: trigger
+        )
+
+        notificationCenter.add(request)
+
+        // Update snoozeCount via repository
+        Task {
+            guard let repo = AlarmRepository.shared else { return }
+            if let alarm = try? await repo.fetch(by: alarmID) {
+                alarm.snoozeCount += 1
+                try? await repo.update(alarm)
+            }
+        }
+    }
+
+    private func handleDismissAction(alarmIDString: String?) {
+        guard let alarmIDString, let alarmID = UUID(uuidString: alarmIDString) else { return }
+
+        Task {
+            guard let repo = AlarmRepository.shared else { return }
+            guard let alarm = try? await repo.fetch(by: alarmID) else { return }
+
+            let dateCalculator = DateCalculator()
+            alarm.lastFiredDate = Date()
+            alarm.snoozeCount = 0
+            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+            try? await repo.update(alarm)
+
+            // Cancel old and schedule new
+            let scheduler = AlarmScheduler.shared
+            try? await scheduler.cancelAlarm(alarm)
+            try? await scheduler.scheduleAlarm(alarm)
+        }
     }
 }
 #else

@@ -3,21 +3,32 @@ import Observation
 
 @Observable
 final class PaywallViewModel {
-    // TODO: Implement in Sprint 5
-
     var currentTier: SubscriptionTier = .free
     var isLoading: Bool = false
     var errorMessage: String?
 
+    var isFreeTier: Bool {
+        currentTier.isFreeTier
+    }
+
+    var alarmLimit: Int? {
+        currentTier.alarmLimit
+    }
+
+    func canCreateAlarm(currentCount: Int) -> Bool {
+        guard let limit = alarmLimit else { return true }
+        return currentCount < limit
+    }
+
     func loadSubscriptionStatus() async {
-        // TODO: Implement in Sprint 5 - StoreKit 2 integration
+        // TODO: StoreKit 2 integration (Sprint 8)
     }
 
     func purchase(tier: SubscriptionTier) async {
-        // TODO: Implement in Sprint 5
+        // TODO: StoreKit 2 integration (Sprint 8)
     }
 
     func restorePurchases() async {
-        // TODO: Implement in Sprint 5
+        // TODO: StoreKit 2 integration (Sprint 8)
     }
 }
