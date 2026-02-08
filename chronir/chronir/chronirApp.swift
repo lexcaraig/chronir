@@ -5,6 +5,7 @@ import SwiftData
 struct ChronirApp: App {
     let container: ModelContainer
     @State private var coordinator = AlarmFiringCoordinator.shared
+    @Bindable private var settings = UserSettings.shared
 
     init() {
         do {
@@ -26,12 +27,20 @@ struct ChronirApp: App {
                 NotificationService.shared.registerCategories()
             }
             .task {
+                guard settings.hasCompletedOnboarding else { return }
                 _ = try? await PermissionManager.shared.requestNotificationPermission()
                 try? await AlarmScheduler.shared.rescheduleAllAlarms()
             }
             .fullScreenCover(item: $coordinator.firingAlarmID) { alarmID in
                 AlarmFiringView(alarmID: alarmID)
                     .modelContainer(container)
+            }
+            .sheet(isPresented: Binding(
+                get: { !settings.hasCompletedOnboarding },
+                set: { if !$0 { settings.hasCompletedOnboarding = true } }
+            )) {
+                OnboardingView()
+                    .interactiveDismissDisabled()
             }
         }
     }

@@ -33,7 +33,7 @@ final class AlarmFiringViewModel {
 
     func startFiring() {
         isFiring = true
-        soundService.startPlaying()
+        soundService.startPlaying(soundName: nil)
         hapticService.startAlarmVibrationLoop()
     }
 
