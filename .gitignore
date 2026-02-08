@@ -48,6 +48,8 @@ Chronir-Android/local.properties
 # === Node / Style Dictionary ===
 design-tokens/node_modules/
 design-tokens/build/
+design-tokens/docs/node_modules/
+design-tokens/docs/dist/
 
 # === Firebase ===
 .firebase/
