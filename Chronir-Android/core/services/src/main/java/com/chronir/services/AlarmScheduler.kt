@@ -5,12 +5,13 @@ import android.app.AlarmManager.AlarmClockInfo
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import com.chronir.model.Alarm
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
 interface AlarmScheduler {
-    fun schedule(alarmId: String, triggerAtMillis: Long)
+    fun schedule(alarm: Alarm)
     fun cancel(alarmId: String)
 }
 
@@ -22,20 +23,22 @@ class AlarmSchedulerImpl @Inject constructor(
     private val alarmManager: AlarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    override fun schedule(alarmId: String, triggerAtMillis: Long) {
+    override fun schedule(alarm: Alarm) {
+        val triggerAtMillis = alarm.nextFireDate.toEpochMilli()
+
         val intent = Intent(context, AlarmReceiver::class.java).apply {
-            putExtra(AlarmReceiver.EXTRA_ALARM_ID, alarmId)
+            putExtra(AlarmReceiver.EXTRA_ALARM_ID, alarm.id)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            alarmId.hashCode(),
+            alarm.id.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val showIntent = PendingIntent.getActivity(
             context,
-            alarmId.hashCode(),
+            alarm.id.hashCode(),
             context.packageManager.getLaunchIntentForPackage(context.packageName),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

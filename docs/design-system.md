@@ -779,7 +779,7 @@ Register Siri Shortcuts and Google Assistant routines for:
 ### 10.1 iOS Folder Structure
 
 ```
-Chronir-iOS/
+chronir/chronir/
 ├── DesignSystem/
 │   ├── Tokens/
 │   │   ├── Colors.swift

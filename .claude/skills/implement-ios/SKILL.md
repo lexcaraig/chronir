@@ -20,7 +20,7 @@ Based on the description, read relevant files:
 - `docs/technical-spec.md` — Architecture patterns
 - `docs/design-system.md` — If UI-related
 - `docs/data-schema.md` — If data-related
-- Existing files in the target area of `Chronir-iOS/Sources/`
+- Existing files in the target area of `chronir/chronir/`
 
 ### Step 2: Plan
 Identify the implementation approach:
@@ -50,10 +50,10 @@ Write new unit tests for the implementation:
 Run the full quality gate. **Do not skip any step. Do not proceed to review until all pass.**
 
 ```bash
-cd Chronir-iOS && swiftlint --fix     # Auto-format
-cd Chronir-iOS && swiftlint           # Lint — must be zero warnings in changed files
-cd Chronir-iOS && swift test          # Unit tests — must all pass
-cd Chronir-iOS && swift build         # Build — must compile with zero errors
+cd chronir && swiftlint --fix     # Auto-format
+cd chronir && swiftlint           # Lint — must be zero warnings in changed files
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO     # Unit tests — must all pass
+cd chronir && xcodebuild build -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO    # Build — must compile with zero errors
 ```
 
 **If any step fails:** Fix the issues immediately and re-run the full gate. Loop until all steps pass.

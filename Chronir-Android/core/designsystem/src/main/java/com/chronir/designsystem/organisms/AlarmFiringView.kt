@@ -23,6 +23,8 @@ import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.Alarm
 import com.chronir.model.CycleType
+import com.chronir.model.PersistenceLevel
+import com.chronir.model.Schedule
 import java.time.Instant
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -56,7 +58,7 @@ fun AlarmFiringView(
         Spacer(Modifier.height(SpacingTokens.Small))
 
         ChronirText(
-            text = alarm.scheduledTime.format(timeFormatter),
+            text = alarm.timeOfDay.format(timeFormatter),
             style = ChronirTextStyle.DisplayAlarm,
             color = ColorTokens.FiringForeground
         )
@@ -108,31 +110,29 @@ fun AlarmFiringView(
 private val cycleTypeBadgeColor: (CycleType) -> androidx.compose.ui.graphics.Color = { cycleType ->
     when (cycleType) {
         CycleType.WEEKLY -> ColorTokens.BadgeWeekly
-        CycleType.MONTHLY -> ColorTokens.BadgeMonthly
+        CycleType.MONTHLY_DATE, CycleType.MONTHLY_RELATIVE -> ColorTokens.BadgeMonthly
         CycleType.ANNUAL -> ColorTokens.BadgeAnnual
-        CycleType.CUSTOM -> ColorTokens.BadgeCustom
-        else -> ColorTokens.AccentPrimary
+        CycleType.CUSTOM_DAYS -> ColorTokens.BadgeCustom
     }
 }
 
 private val cycleTypeLabel: (CycleType) -> String = { cycleType ->
     when (cycleType) {
         CycleType.WEEKLY -> "Weekly"
-        CycleType.BIWEEKLY -> "Biweekly"
-        CycleType.MONTHLY -> "Monthly"
-        CycleType.QUARTERLY -> "Quarterly"
-        CycleType.BIANNUAL -> "Biannual"
+        CycleType.MONTHLY_DATE -> "Monthly"
+        CycleType.MONTHLY_RELATIVE -> "Monthly"
         CycleType.ANNUAL -> "Annual"
-        CycleType.CUSTOM -> "Custom"
+        CycleType.CUSTOM_DAYS -> "Custom"
     }
 }
 
 private val sampleAlarm = Alarm(
     title = "Morning Workout",
     cycleType = CycleType.WEEKLY,
-    scheduledTime = LocalTime.of(7, 0),
+    timeOfDay = LocalTime.of(7, 0),
+    schedule = Schedule.Weekly(daysOfWeek = listOf(1), interval = 1),
     nextFireDate = Instant.now(),
-    isPersistent = true
+    persistenceLevel = PersistenceLevel.FULL
 )
 
 @ChronirPreview
@@ -154,8 +154,9 @@ private fun AlarmFiringViewWithNotePreview() {
         AlarmFiringView(
             alarm = Alarm(
                 title = "Pay Rent",
-                cycleType = CycleType.MONTHLY,
-                scheduledTime = LocalTime.of(9, 0),
+                cycleType = CycleType.MONTHLY_DATE,
+                timeOfDay = LocalTime.of(9, 0),
+                schedule = Schedule.MonthlyDate(dayOfMonth = 1, interval = 1),
                 nextFireDate = Instant.now(),
                 note = "Transfer to landlord account"
             ),

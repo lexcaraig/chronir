@@ -24,7 +24,7 @@ Determine which platforms to test:
 
 **iOS:**
 ```bash
-cd Chronir-iOS && swift test 2>&1
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO 2>&1
 ```
 
 **Android:**
@@ -56,7 +56,7 @@ After applying fixes, re-run the full test suite for the affected platform(s):
 
 **iOS:**
 ```bash
-cd Chronir-iOS && swift test 2>&1
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO 2>&1
 ```
 
 **Android:**
@@ -73,9 +73,9 @@ After all tests pass, run the full quality gate to ensure fixes didn't break lin
 
 **iOS:**
 ```bash
-cd Chronir-iOS && swiftlint --fix     # Auto-format
-cd Chronir-iOS && swiftlint           # Lint
-cd Chronir-iOS && swift build         # Build
+cd chronir && swiftlint --fix     # Auto-format
+cd chronir && swiftlint           # Lint
+cd chronir && xcodebuild build -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO    # Build
 ```
 
 **Android:**

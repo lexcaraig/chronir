@@ -68,7 +68,7 @@ Chronir is a high-persistence alarm app designed for long-cycle recurring tasks 
 **iOS Project Structure:**
 
 ```
-Chronir-iOS/
+chronir/chronir/
 ├── App/
 │   ├── ChronirApp.swift
 │   ├── AppDelegate.swift

@@ -24,7 +24,7 @@ This runs Style Dictionary v5 to generate platform-specific token files from `de
 ### Step 2: Copy to iOS
 Copy generated Swift files to the iOS design system:
 ```bash
-cp design-tokens/build/ios/*.swift Chronir-iOS/Sources/DesignSystem/Tokens/
+cp design-tokens/build/ios/*.swift chronir/chronir/DesignSystem/Tokens/
 ```
 
 ### Step 3: Copy to Android
@@ -38,10 +38,10 @@ Run the full quality gate on both platforms to verify the synced tokens don't br
 
 **iOS (run sequentially):**
 ```bash
-cd Chronir-iOS && swiftlint --fix     # Auto-format
-cd Chronir-iOS && swiftlint           # Lint
-cd Chronir-iOS && swift test          # Unit tests
-cd Chronir-iOS && swift build         # Build
+cd chronir && swiftlint --fix     # Auto-format
+cd chronir && swiftlint           # Lint
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO     # Unit tests
+cd chronir && xcodebuild build -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO    # Build
 ```
 
 **Android (run sequentially):**

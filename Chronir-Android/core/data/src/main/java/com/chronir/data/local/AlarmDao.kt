@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AlarmDao {
 
-    @Query("SELECT * FROM alarms ORDER BY next_fire_date ASC")
+    @Query("SELECT * FROM alarms ORDER BY nextFireDate ASC")
     fun observeAll(): Flow<List<AlarmEntity>>
 
     @Query("SELECT * FROM alarms WHERE id = :id")
     suspend fun getById(id: String): AlarmEntity?
 
-    @Query("SELECT * FROM alarms WHERE is_enabled = 1 ORDER BY next_fire_date ASC")
+    @Query("SELECT * FROM alarms WHERE isEnabled = 1 ORDER BY nextFireDate ASC")
     suspend fun getEnabled(): List<AlarmEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

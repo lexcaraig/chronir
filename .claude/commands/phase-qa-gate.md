@@ -20,8 +20,8 @@ Run auto-format first, then lint on both platforms:
 
 **iOS:**
 ```bash
-cd Chronir-iOS && swiftlint --fix     # Auto-format
-cd Chronir-iOS && swiftlint           # Lint verification
+cd chronir && swiftlint --fix     # Auto-format
+cd chronir && swiftlint           # Lint verification
 ```
 
 **Android:**
@@ -37,7 +37,7 @@ Run unit tests on both platforms in parallel:
 
 **iOS:**
 ```bash
-cd Chronir-iOS && swift test
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO
 ```
 
 **Android:**
@@ -52,7 +52,7 @@ Run release builds on both platforms in parallel:
 
 **iOS:**
 ```bash
-cd Chronir-iOS && swift build -c release
+cd chronir && xcodebuild build -project chronir.xcodeproj -scheme chronir -configuration Release -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO
 ```
 
 **Android:**

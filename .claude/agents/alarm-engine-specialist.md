@@ -50,9 +50,9 @@ The app must detect manufacturer and surface specific guidance to whitelist the 
 
 - `docs/technical-spec.md` Section 4 — Alarm Engine architecture
 - `docs/data-schema.md` — Alarm entity definition, recurrence patterns
-- `Chronir-iOS/Sources/Core/Services/` — iOS alarm service
+- `chronir/chronir/Core/Services/` — iOS alarm service
 - `Chronir-Android/core/services/` — Android alarm service
-- `Chronir-iOS/Sources/Core/Utilities/` — DateCalculator
+- `chronir/chronir/Core/Utilities/` — DateCalculator
 - `Chronir-Android/core/model/` — Recurrence models
 
 ## Testing Requirements

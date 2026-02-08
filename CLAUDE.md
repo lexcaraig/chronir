@@ -45,8 +45,8 @@ iOS uses Liquid Glass (`.glassEffect()`); Android uses Material 3 + Dynamic Colo
 
 ```
 Chronir/
-├── Chronir-iOS/           # Swift Package (Package.swift)
-│   └── Sources/
+├── chronir/               # Xcode project (chronir.xcodeproj)
+│   └── chronir/
 │       ├── App/              # ChronirApp entry, Configuration (GoogleService-Info.plist)
 │       ├── DesignSystem/     # Tokens, Atoms, Molecules, Organisms, Templates
 │       ├── Features/         # AlarmList, AlarmDetail, AlarmCreation, AlarmFiring, Settings, Sharing, Paywall
@@ -83,22 +83,21 @@ Features are organized by screen: `AlarmList`, `AlarmDetail`, `AlarmCreation`, `
 
 ## Build & CI
 
-### iOS (Swift Package)
+### iOS (Xcode Project)
 
 ```bash
-cd Chronir-iOS
-
-# Resolve dependencies
-swift package resolve
+cd chronir
 
 # Lint
 swiftlint
 
-# Unit tests
-swift test
-
-# Build
-swift build -c release
+# Build (simulator)
+xcodebuild build \
+  -project chronir.xcodeproj \
+  -scheme chronir \
+  -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+  -skipMacroValidation \
+  CODE_SIGNING_ALLOWED=NO
 ```
 
 ### Android (Gradle multi-module)
@@ -141,7 +140,7 @@ PR triggers lint + tests; merge to main triggers release build.
 - **Android App:** `1:410553847054:android:c6ad3cea467ca862ec5b5f` (package: `com.chronir.android`)
 - **Firestore:** `(default)` database, region `nam5`
 - **Security Rules:** `firestore.rules` (keep in sync with `docs/technical-spec.md` Section 6.4)
-- **SDK configs:** `Chronir-iOS/Sources/App/Configuration/GoogleService-Info.plist`, `Chronir-Android/app/google-services.json` (both gitignored)
+- **SDK configs:** `chronir/chronir/App/Configuration/GoogleService-Info.plist`, `Chronir-Android/app/google-services.json` (both gitignored)
 
 ## Critical Implementation Notes
 
@@ -176,32 +175,32 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 
 ### Slash Commands
 
-| Command | Usage | Purpose |
-|---------|-------|---------|
-| `/implement-task` | `/implement-task S4-01` | Main orchestrator. Reads specs, plans, implements, tests, reviews, and commits a sprint task. |
-| `/sprint-kickoff` | `/sprint-kickoff 4` | Initialize a sprint: read roadmap, create branch, build task list, run baseline builds. |
-| `/phase-qa-gate` | `/phase-qa-gate 1` | Quality gate: lint, test, build, security review, QA plan cross-reference. Generates pass/fail report. |
-| `/implement-ios` | `/implement-ios Add ChronirButton atom` | iOS-focused workflow: implement in SwiftUI, lint, test, review. |
-| `/implement-android` | `/implement-android Add ChronirButton composable` | Android-focused workflow: implement in Compose, lint, test, review. |
-| `/sync-tokens` | `/sync-tokens` | Rebuild design tokens and copy to both platforms. |
-| `/build-all` | `/build-all` | Full quality verification (format, lint, test, build) across all platforms. |
-| `/fix-tests` | `/fix-tests ios` | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg. |
+| Command              | Usage                                             | Purpose                                                                                                |
+| -------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `/implement-task`    | `/implement-task S4-01`                           | Main orchestrator. Reads specs, plans, implements, tests, reviews, and commits a sprint task.          |
+| `/sprint-kickoff`    | `/sprint-kickoff 4`                               | Initialize a sprint: read roadmap, create branch, build task list, run baseline builds.                |
+| `/phase-qa-gate`     | `/phase-qa-gate 1`                                | Quality gate: lint, test, build, security review, QA plan cross-reference. Generates pass/fail report. |
+| `/implement-ios`     | `/implement-ios Add ChronirButton atom`           | iOS-focused workflow: implement in SwiftUI, lint, test, review.                                        |
+| `/implement-android` | `/implement-android Add ChronirButton composable` | Android-focused workflow: implement in Compose, lint, test, review.                                    |
+| `/sync-tokens`       | `/sync-tokens`                                    | Rebuild design tokens and copy to both platforms.                                                      |
+| `/build-all`         | `/build-all`                                      | Full quality verification (format, lint, test, build) across all platforms.                            |
+| `/fix-tests`         | `/fix-tests ios`                                  | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg.               |
 
 ### Custom Agents
 
-| Agent | Specialty |
-|-------|-----------|
-| `ios-developer` | SwiftUI, AlarmKit, SwiftData, SPM, iOS 26 APIs |
-| `android-developer` | Jetpack Compose, AlarmManager, Room, Hilt, Gradle |
+| Agent                     | Specialty                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| `ios-developer`           | SwiftUI, AlarmKit, SwiftData, SPM, iOS 26 APIs                                       |
+| `android-developer`       | Jetpack Compose, AlarmManager, Room, Hilt, Gradle                                    |
 | `alarm-engine-specialist` | Alarm scheduling reliability, DateCalculator, edge cases (DST, leap year, month-end) |
-| `firebase-architect` | Auth, Firestore rules, cloud sync, conflict resolution, FCM |
-| `design-system-builder` | Atomic Design, Style Dictionary, Chronir-prefixed components, tokens |
-| `qa-engineer` | Platform-specific test strategies, QA plan test IDs, persona tests, accessibility |
+| `firebase-architect`      | Auth, Firestore rules, cloud sync, conflict resolution, FCM                          |
+| `design-system-builder`   | Atomic Design, Style Dictionary, Chronir-prefixed components, tokens                 |
+| `qa-engineer`             | Platform-specific test strategies, QA plan test IDs, persona tests, accessibility    |
 
 ### Plugins
 
-| Plugin | Purpose |
-|--------|---------|
+| Plugin            | Purpose                                                                                                                                                                                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `code-simplifier` | Runs automatically after implementation in `/implement-task`, `/implement-ios`, `/implement-android`. Simplifies code for clarity and maintainability while preserving functionality. Also runs during `/phase-qa-gate` as a non-blocking quality audit. |
 
 ### Typical Sprint Flow
@@ -218,6 +217,7 @@ Claude Code maintains a persistent memory at `~/.claude/projects/.../memory/` th
 ### When to Record
 
 Record a learning whenever:
+
 - A build fails due to a preventable mistake
 - A wrong assumption leads to wasted work (e.g., branching from the wrong base)
 - A pattern or convention is discovered that isn't documented elsewhere

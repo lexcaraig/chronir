@@ -1,6 +1,6 @@
 # Build artifacts & derived data
-Chronir-iOS/.build/
-Chronir-iOS/DerivedData/
+chronir/.build/
+chronir/DerivedData/
 Chronir-Android/.gradle/
 Chronir-Android/build/
 Chronir-Android/app/build/
@@ -11,7 +11,7 @@ design-tokens/build/
 
 # Dependencies
 design-tokens/node_modules/
-Chronir-iOS/Pods/
+chronir/Pods/
 
 # IDE & OS
 .DS_Store
@@ -56,4 +56,4 @@ Chronir-Android/local.properties
 
 # Lock files (large, not useful for context)
 package-lock.json
-Chronir-iOS/Package.resolved
+chronir/chronir.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved

@@ -18,7 +18,7 @@ Three-tier token system: **Primitive → Semantic → Component**
 ### Pipeline
 - **Source:** `design-tokens/tokens/*.json` (color, spacing, radius, typography, animation)
 - **Processor:** Style Dictionary v5 (`design-tokens/config.js`)
-- **iOS output:** `design-tokens/build/ios/*.swift` → copied to `Chronir-iOS/Sources/DesignSystem/Tokens/`
+- **iOS output:** `design-tokens/build/ios/*.swift` → copied to `chronir/chronir/DesignSystem/Tokens/`
 - **Android output:** `design-tokens/build/android/*.kt` → copied to `Chronir-Android/core/designsystem/.../tokens/`
 
 ### Build Command
@@ -41,7 +41,7 @@ cd design-tokens && npm run build
 - `docs/design-system.md` — Complete design system specification
 - `design-tokens/tokens/` — Source token JSON files
 - `design-tokens/config.js` — Style Dictionary configuration
-- `Chronir-iOS/Sources/DesignSystem/` — iOS design system (Tokens, Atoms, Molecules, Organisms, Templates)
+- `chronir/chronir/DesignSystem/` — iOS design system (Tokens, Atoms, Molecules, Organisms, Templates)
 - `Chronir-Android/core/designsystem/` — Android design system
 
 ## Platform-Specific Styling
@@ -72,10 +72,10 @@ After every implementation — no exceptions — run the full quality gate on af
 
 **iOS:**
 ```bash
-cd Chronir-iOS && swiftlint --fix     # 1. Auto-format
-cd Chronir-iOS && swiftlint           # 2. Lint — zero warnings in changed files
-cd Chronir-iOS && swift test          # 3. Unit tests — all pass
-cd Chronir-iOS && swift build         # 4. Build — zero errors
+cd chronir && swiftlint --fix     # 1. Auto-format
+cd chronir && swiftlint           # 2. Lint — zero warnings in changed files
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO     # 3. Unit tests — all pass
+cd chronir && xcodebuild build -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO    # 4. Build — zero errors
 ```
 
 **Android:**

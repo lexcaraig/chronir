@@ -25,10 +25,10 @@ cd design-tokens && npm run build
 
 **iOS (run sequentially):**
 ```bash
-cd Chronir-iOS && swiftlint --fix     # Auto-format
-cd Chronir-iOS && swiftlint           # Lint
-cd Chronir-iOS && swift test          # Unit tests
-cd Chronir-iOS && swift build         # Build
+cd chronir && swiftlint --fix     # Auto-format
+cd chronir && swiftlint           # Lint
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO     # Unit tests
+cd chronir && xcodebuild build -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO    # Build
 ```
 
 **Android (run sequentially):**

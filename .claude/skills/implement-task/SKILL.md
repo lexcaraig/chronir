@@ -66,10 +66,10 @@ Run the full quality gate on all affected platforms. **Do not skip any step. Do 
 
 **iOS (run sequentially):**
 ```bash
-cd Chronir-iOS && swiftlint --fix     # Auto-format
-cd Chronir-iOS && swiftlint           # Lint — must be zero warnings in changed files
-cd Chronir-iOS && swift test          # Unit tests — must all pass
-cd Chronir-iOS && swift build         # Build — must compile with zero errors
+cd chronir && swiftlint --fix     # Auto-format
+cd chronir && swiftlint           # Lint — must be zero warnings in changed files
+cd chronir && xcodebuild test -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO     # Unit tests — must all pass
+cd chronir && xcodebuild build -project chronir.xcodeproj -scheme chronir -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' -skipMacroValidation CODE_SIGNING_ALLOWED=NO    # Build — must compile with zero errors
 ```
 
 **Android (run sequentially):**

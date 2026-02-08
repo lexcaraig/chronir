@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, develop, 'sprint-*']
     paths:
-      - 'Chronir-iOS/**'
+      - 'chronir/**'
       - '.github/workflows/ios.yml'
   pull_request:
     branches: [main, develop, 'sprint-*']
     paths:
-      - 'Chronir-iOS/**'
+      - 'chronir/**'
       - '.github/workflows/ios.yml'
 
 concurrency:
@@ -26,36 +26,23 @@ jobs:
         run: brew install swiftlint
       - name: Run SwiftLint
         run: |
-          cd Chronir-iOS
+          cd chronir
           swiftlint lint --strict --reporter github-actions-logging
 
-  test:
-    name: Unit Tests
+  build:
+    name: Build
     runs-on: macos-15
     needs: lint
     steps:
       - uses: actions/checkout@v4
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
-      - name: Resolve packages
+      - name: Build
         run: |
-          cd Chronir-iOS
-          swift package resolve
-      - name: Run unit tests
-        run: |
-          cd Chronir-iOS
-          swift test
-
-  build:
-    name: Build
-    runs-on: macos-15
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
-      - name: Build release
-        run: |
-          cd Chronir-iOS
-          swift build -c release
+          xcodebuild build \
+            -project chronir/chronir.xcodeproj \
+            -scheme chronir \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty || true

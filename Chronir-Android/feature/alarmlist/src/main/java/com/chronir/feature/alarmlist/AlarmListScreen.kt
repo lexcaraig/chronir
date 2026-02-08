@@ -12,6 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chronir.designsystem.organisms.AlarmListSection
 import com.chronir.designsystem.organisms.EmptyStateView
 import com.chronir.designsystem.templates.ModalSheetTemplate
@@ -19,6 +21,8 @@ import com.chronir.designsystem.templates.SingleColumnTemplate
 import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.model.Alarm
 import com.chronir.model.CycleType
+import com.chronir.model.PersistenceLevel
+import com.chronir.model.Schedule
 import java.time.Instant
 import java.time.LocalTime
 
@@ -26,11 +30,16 @@ import java.time.LocalTime
 @Composable
 fun AlarmListScreen(
     modifier: Modifier = Modifier,
-    onNavigateToCreation: (() -> Unit)? = null
+    onNavigateToCreation: (() -> Unit)? = null,
+    viewModel: AlarmListViewModel = hiltViewModel()
 ) {
     var showCreateSheet by remember { mutableStateOf(false) }
-    var enabledStates by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
-    val alarms = sampleAlarms
+    val alarms by viewModel.alarms.collectAsStateWithLifecycle()
+
+    // Build enabled states from the alarm list itself
+    val enabledStates = remember(alarms) {
+        alarms.associate { it.id to it.isEnabled }
+    }
 
     SingleColumnTemplate(
         title = "Alarms",
@@ -56,18 +65,19 @@ fun AlarmListScreen(
                 sectionTitle = "Upcoming",
                 alarms = alarms,
                 enabledStates = enabledStates,
-                onToggle = { alarm, newValue ->
-                    enabledStates = enabledStates + (alarm.id to newValue)
+                onToggle = { alarm, _ ->
+                    viewModel.toggleAlarm(alarm)
                 },
                 onClick = {},
-                onDelete = {}
+                onDelete = { alarm ->
+                    viewModel.deleteAlarm(alarm)
+                }
             )
         }
     }
 
     if (showCreateSheet) {
         ModalSheetTemplate(onDismiss = { showCreateSheet = false }) {
-            // AlarmCreationForm will be wired here in S3-06
             com.chronir.designsystem.atoms.ChronirText(
                 text = "Create Alarm (placeholder)",
                 style = com.chronir.designsystem.atoms.ChronirTextStyle.HeadlineTitle
@@ -76,25 +86,29 @@ fun AlarmListScreen(
     }
 }
 
+// Sample alarms kept for preview only
 private val sampleAlarms = listOf(
     Alarm(
         title = "Morning Workout",
         cycleType = CycleType.WEEKLY,
-        scheduledTime = LocalTime.of(7, 0),
+        timeOfDay = LocalTime.of(7, 0),
+        schedule = Schedule.Weekly(daysOfWeek = listOf(1), interval = 1),
         nextFireDate = Instant.now().plusSeconds(3600),
-        isPersistent = true,
+        persistenceLevel = PersistenceLevel.FULL,
         note = "Don't skip leg day"
     ),
     Alarm(
         title = "Pay Rent",
-        cycleType = CycleType.MONTHLY,
-        scheduledTime = LocalTime.of(9, 0),
+        cycleType = CycleType.MONTHLY_DATE,
+        timeOfDay = LocalTime.of(9, 0),
+        schedule = Schedule.MonthlyDate(dayOfMonth = 1, interval = 1),
         nextFireDate = Instant.now().minusSeconds(7200)
     ),
     Alarm(
         title = "Annual Checkup",
         cycleType = CycleType.ANNUAL,
-        scheduledTime = LocalTime.of(10, 0),
+        timeOfDay = LocalTime.of(10, 0),
+        schedule = Schedule.Annual(month = 3, dayOfMonth = 15, interval = 1),
         nextFireDate = Instant.now().plusSeconds(86400)
     )
 )
@@ -102,5 +116,15 @@ private val sampleAlarms = listOf(
 @Preview(showBackground = true)
 @Composable
 private fun AlarmListScreenPreview() {
-    AlarmListScreen()
+    // Preview uses static sample data since ViewModel requires Hilt
+    SingleColumnTemplate(title = "Alarms") {
+        AlarmListSection(
+            sectionTitle = "Upcoming",
+            alarms = sampleAlarms,
+            enabledStates = emptyMap(),
+            onToggle = { _, _ -> },
+            onClick = {},
+            onDelete = {}
+        )
+    }
 }
