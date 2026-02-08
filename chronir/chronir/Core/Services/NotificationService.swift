@@ -20,7 +20,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
     }
 
     func requestAuthorization() async throws -> Bool {
-        try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge, .criticalAlert])
+        try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
     }
 
     func registerCategories() {
@@ -102,7 +102,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         let content = UNMutableNotificationContent()
         content.title = "Snoozed Alarm"
         content.body = "Your alarm is firing again"
-        content.sound = .defaultCritical
+        content.sound = .default
         content.interruptionLevel = .timeSensitive
         content.categoryIdentifier = "ALARM_CATEGORY"
         content.userInfo = ["alarmID": alarmIDString]

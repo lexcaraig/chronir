@@ -36,6 +36,6 @@ final class PermissionManager: PermissionManaging {
 
     func requestNotificationPermission() async throws -> Bool {
         return try await UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .sound, .badge, .criticalAlert])
+            .requestAuthorization(options: [.alert, .sound, .badge])
     }
 }

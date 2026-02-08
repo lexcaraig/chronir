@@ -55,6 +55,7 @@ final class AlarmFiringViewModel {
         }
 
         alarm.snoozeCount += 1
+        alarm.nextFireDate = Date().addingTimeInterval(seconds)
 
         #if os(iOS)
         await scheduleSnoozeNotification(alarm: alarm, delay: seconds)
@@ -109,7 +110,7 @@ final class AlarmFiringViewModel {
         let content = UNMutableNotificationContent()
         content.title = alarm.title
         content.body = "Snoozed alarm firing again"
-        content.sound = .defaultCritical
+        content.sound = .default
         content.interruptionLevel = .timeSensitive
         content.categoryIdentifier = "ALARM_CATEGORY"
         content.userInfo = ["alarmID": alarm.id.uuidString]

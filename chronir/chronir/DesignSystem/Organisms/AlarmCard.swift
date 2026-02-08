@@ -35,23 +35,24 @@ struct AlarmCard: View {
     }
 
     private var countdownText: String? {
-        guard visualState == .active else { return nil }
+        guard visualState == .active || visualState == .snoozed else { return nil }
         let interval = alarm.nextFireDate.timeIntervalSince(Date())
         guard interval > 0 else { return nil }
 
+        let prefix = visualState == .snoozed ? "Fires in" : "Alarm in"
         let totalMinutes = Int(interval) / 60
         let hours = totalMinutes / 60
         let minutes = totalMinutes % 60
         let days = hours / 24
 
         if days > 0 {
-            return "Alarm in \(days)d \(hours % 24)h"
+            return "\(prefix) \(days)d \(hours % 24)h"
         } else if hours > 0 {
-            return "Alarm in \(hours)h \(minutes)m"
+            return "\(prefix) \(hours)h \(minutes)m"
         } else if minutes > 0 {
-            return "Alarm in \(minutes)m"
+            return "\(prefix) \(minutes)m"
         } else {
-            return "Alarm in <1m"
+            return "\(prefix) <1m"
         }
     }
 

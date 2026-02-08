@@ -81,6 +81,10 @@ Features are organized by screen: `AlarmList`, `AlarmDetail`, `AlarmCreation`, `
 - **Plus ($1.99/mo):** Unlimited alarms, attachments, cloud backup, custom snooze, widgets
 - **Premium ($3.99/mo):** Shared alarms, groups, push notifications, Live Activities
 
+## Test Devices
+
+- **iOS:** Physical device "lexpresswayyy" (not simulator). To reset UserDefaults for re-testing onboarding, delete and reinstall the app on device.
+
 ## Build & CI
 
 ### iOS (Xcode Project)

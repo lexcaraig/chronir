@@ -12,6 +12,7 @@ struct AlarmListView: View {
     @State private var showUpgradePrompt = false
     @State private var paywallViewModel = PaywallViewModel()
     private var firingCoordinator = AlarmFiringCoordinator.shared
+    private let alarmCheckTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         List {
@@ -136,6 +137,9 @@ struct AlarmListView: View {
         } message: { alarm in
             Text("Are you sure you want to delete \"\(alarm.title)\"?")
         }
+        .onReceive(alarmCheckTimer) { _ in
+            checkForFiringAlarms()
+        }
         .onChange(of: firingCoordinator.isFiring) {
             if firingCoordinator.isFiring {
                 showingCreateAlarm = false
@@ -151,7 +155,9 @@ struct AlarmListView: View {
                     Task {
                         do {
                             if isEnabled {
-                                alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
+                                if alarm.nextFireDate < Date() {
+                                    alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
+                                }
                                 try await AlarmScheduler.shared.scheduleAlarm(alarm)
                             } else {
                                 try await AlarmScheduler.shared.cancelAlarm(alarm)
@@ -165,9 +171,21 @@ struct AlarmListView: View {
         }
     }
 
+    private func checkForFiringAlarms() {
+        guard !firingCoordinator.isFiring else { return }
+        let now = Date()
+        for alarm in alarms {
+            let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
+            guard isEnabled, alarm.nextFireDate <= now else { continue }
+            firingCoordinator.presentAlarm(id: alarm.id)
+            break
+        }
+    }
+
     private func visualState(for alarm: Alarm) -> AlarmVisualState {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         if !isEnabled { return .inactive }
+        if alarm.snoozeCount > 0 { return .snoozed }
         if alarm.nextFireDate < Date() { return .overdue }
         return .active
     }

@@ -32,7 +32,7 @@ final class AlarmScheduler: AlarmScheduling {
         let content = UNMutableNotificationContent()
         content.title = alarm.title
         content.body = alarm.note ?? "Alarm"
-        content.sound = .defaultCritical
+        content.sound = .default
         content.interruptionLevel = .timeSensitive
         content.categoryIdentifier = "ALARM_CATEGORY"
         content.userInfo = ["alarmID": alarm.id.uuidString]

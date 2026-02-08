@@ -1,7 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct AlarmFiringView: View {
     let alarmID: UUID
+    @Environment(\.modelContext) private var modelContext
+    private let settings = UserSettings.shared
     @State private var viewModel = AlarmFiringViewModel()
     @State private var holdProgress: CGFloat = 0
     @State private var isHolding = false
@@ -18,9 +21,22 @@ struct AlarmFiringView: View {
             }
         }
         .task {
-            await viewModel.loadAlarm(id: alarmID)
-            viewModel.startFiring()
+            loadAlarmFromContext()
+            if viewModel.alarm == nil {
+                await viewModel.loadAlarm(id: alarmID)
+            }
+            if viewModel.alarm != nil {
+                viewModel.startFiring()
+            }
         }
+    }
+
+    private func loadAlarmFromContext() {
+        let targetID = alarmID
+        let descriptor = FetchDescriptor<Alarm>(
+            predicate: #Predicate<Alarm> { $0.id == targetID }
+        )
+        viewModel.alarm = try? modelContext.fetch(descriptor).first
     }
 
     @ViewBuilder
@@ -52,11 +68,13 @@ struct AlarmFiringView: View {
 
             Spacer()
 
-            SnoozeOptionBar { interval in
-                Task { await viewModel.snooze(interval: interval) }
+            if settings.snoozeEnabled {
+                SnoozeOptionBar { interval in
+                    Task { await viewModel.snooze(interval: interval) }
+                }
             }
 
-            dismissButton(for: alarm)
+            dismissButton
 
             Spacer()
         }
@@ -65,12 +83,10 @@ struct AlarmFiringView: View {
     }
 
     @ViewBuilder
-    private func dismissButton(for alarm: Alarm) -> some View {
-        switch alarm.dismissMethod {
-        case .hold3s:
+    private var dismissButton: some View {
+        if settings.slideToStopEnabled {
             holdToDismissButton
-        case .swipe, .solveMath:
-            // .solveMath deferred to Sprint 6 — fall through to simple tap
+        } else {
             ChronirButton("Mark as Done", style: .primary) {
                 Task { await viewModel.dismiss() }
             }

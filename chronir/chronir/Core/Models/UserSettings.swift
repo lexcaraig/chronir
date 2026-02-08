@@ -5,45 +5,42 @@ import Observation
 final class UserSettings {
     static let shared = UserSettings()
 
+    private static let defaults = UserDefaults.standard
+
     var snoozeEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "snoozeEnabled") }
-        set { UserDefaults.standard.set(newValue, forKey: "snoozeEnabled") }
+        didSet { Self.defaults.set(snoozeEnabled, forKey: "snoozeEnabled") }
     }
 
     var slideToStopEnabled: Bool {
-        get { UserDefaults.standard.bool(forKey: "slideToStopEnabled") }
-        set { UserDefaults.standard.set(newValue, forKey: "slideToStopEnabled") }
+        didSet { Self.defaults.set(slideToStopEnabled, forKey: "slideToStopEnabled") }
     }
 
     var selectedAlarmSound: String {
-        get { UserDefaults.standard.string(forKey: "selectedAlarmSound") ?? "alarm" }
-        set { UserDefaults.standard.set(newValue, forKey: "selectedAlarmSound") }
+        didSet { Self.defaults.set(selectedAlarmSound, forKey: "selectedAlarmSound") }
     }
 
     var timezoneMode: TimezoneMode {
-        get {
-            let raw = UserDefaults.standard.string(forKey: "timezoneMode") ?? TimezoneMode.floating.rawValue
-            return TimezoneMode(rawValue: raw) ?? .floating
-        }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: "timezoneMode") }
+        didSet { Self.defaults.set(timezoneMode.rawValue, forKey: "timezoneMode") }
     }
 
     var hasCompletedOnboarding: Bool {
-        get { UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") }
-        set { UserDefaults.standard.set(newValue, forKey: "hasCompletedOnboarding") }
+        didSet { Self.defaults.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding") }
     }
 
     private init() {
-        registerDefaults()
-    }
-
-    private func registerDefaults() {
-        UserDefaults.standard.register(defaults: [
+        Self.defaults.register(defaults: [
             "snoozeEnabled": true,
             "slideToStopEnabled": false,
             "selectedAlarmSound": "alarm",
             "timezoneMode": TimezoneMode.floating.rawValue,
             "hasCompletedOnboarding": false
         ])
+
+        snoozeEnabled = Self.defaults.bool(forKey: "snoozeEnabled")
+        slideToStopEnabled = Self.defaults.bool(forKey: "slideToStopEnabled")
+        selectedAlarmSound = Self.defaults.string(forKey: "selectedAlarmSound") ?? "alarm"
+        let raw = Self.defaults.string(forKey: "timezoneMode") ?? TimezoneMode.floating.rawValue
+        timezoneMode = TimezoneMode(rawValue: raw) ?? .floating
+        hasCompletedOnboarding = Self.defaults.bool(forKey: "hasCompletedOnboarding")
     }
 }
