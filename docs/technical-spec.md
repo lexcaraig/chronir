@@ -752,6 +752,19 @@ function calculateNextFireDate(alarm, fromDate = now()):
     - Keep full-screen alarm in background (return on snooze expiry)
 ```
 
+#### 5.3.1 Lock Screen Interaction (iOS — AlarmKit)
+
+When the alarm fires while the device is locked, AlarmKit presents a system-managed lock screen UI with two actions:
+
+- **"Slide to Stop"**: Dismisses the alarm. AlarmKit transitions the alarm state away from `.alerting`, and the app observer dismisses any in-app firing UI.
+- **"Snooze"**: Uses AlarmKit's built-in `.countdown` behavior with a fixed 1-hour `postAlert` duration. The alarm transitions to `.countdown` state, showing a "Snoozed: {title}" Live Activity on the lock screen. After the countdown expires, the alarm re-fires (returns to `.alerting`).
+
+**Key implementation details:**
+- `secondaryButtonBehavior: .countdown` — uses AlarmKit's native countdown rather than `.custom` (which would require a `LiveActivityIntent`).
+- `AlarmPresentation` is configured with three states: `.Alert` (firing), `.Countdown` (snoozed), `.Paused` (user-initiated pause).
+- The app observes `AlarmManager.alarmUpdates` and dismisses the full-screen `AlarmFiringView` when the alarm state leaves `.alerting` (i.e., user acted on lock screen). This prevents a redundant in-app firing UI after lock screen dismissal.
+- Lock screen snooze duration is fixed at 1 hour. In-app snooze offers full options (1 hour, 1 day, 1 week) via `SnoozeOptionBar`.
+
 ### 5.4 Persistence Guarantees
 
 | Scenario         | iOS Handling                           | Android Handling                         |

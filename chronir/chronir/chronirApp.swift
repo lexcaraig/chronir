@@ -39,14 +39,20 @@ struct ChronirApp: App {
                                 AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
                             }
                         case .countdown:
-                            // User pressed Snooze on lock screen — increment snooze count
+                            // User pressed Snooze on lock screen — dismiss in-app UI and track
+                            await MainActor.run {
+                                AlarmFiringCoordinator.shared.dismissFiring()
+                            }
                             if let repo = AlarmRepository.shared,
                                let model = try? await repo.fetch(by: alarm.id) {
                                 model.snoozeCount += 1
                                 try? await repo.update(model)
                             }
                         default:
-                            break
+                            // Alarm stopped or state cleared — dismiss if showing
+                            await MainActor.run {
+                                AlarmFiringCoordinator.shared.dismissFiring()
+                            }
                         }
                     }
                 }
