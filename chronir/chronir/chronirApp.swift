@@ -57,6 +57,25 @@ struct ChronirApp: App {
                     }
                 }
             }
+            .onChange(of: scenePhase) {
+                guard scenePhase == .active,
+                      coordinator.isFiring else { return }
+                // App resumed — check if the alarm is still alerting.
+                // alarmUpdates misses state changes while the app is suspended.
+                Task {
+                    let firingID = await coordinator.firingAlarmID
+                    guard let alarms = try? AlarmManager.shared.alarms else {
+                        await AlarmFiringCoordinator.shared.dismissFiring()
+                        return
+                    }
+                    let stillAlerting = alarms.contains {
+                        $0.id == firingID && $0.state == .alerting
+                    }
+                    if !stillAlerting {
+                        await AlarmFiringCoordinator.shared.dismissFiring()
+                    }
+                }
+            }
             .fullScreenCover(item: $coordinator.firingAlarmID) { alarmID in
                 AlarmFiringView(alarmID: alarmID)
                     .modelContainer(container)
