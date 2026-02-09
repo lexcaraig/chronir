@@ -9,7 +9,8 @@ struct AlarmCreationView: View {
     @State private var isPersistent = false
     @State private var note = ""
     @State private var selectedDays: Set<Int> = [2]
-    @State private var dayOfMonth = 1
+    @State private var daysOfMonth: Set<Int> = [1]
+    @State private var category: AlarmCategory?
     @State private var saveError: String?
     @Environment(\.dismiss) private var dismiss
 
@@ -26,7 +27,8 @@ struct AlarmCreationView: View {
                     isPersistent: $isPersistent,
                     note: $note,
                     selectedDays: $selectedDays,
-                    dayOfMonth: $dayOfMonth
+                    daysOfMonth: $daysOfMonth,
+                    category: $category
                 )
             }
         )
@@ -53,7 +55,7 @@ struct AlarmCreationView: View {
         case .weekly:
             schedule = .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: 1)
         case .monthlyDate:
-            schedule = .monthlyDate(dayOfMonth: dayOfMonth, interval: 1)
+            schedule = .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: 1)
         case .monthlyRelative:
             schedule = .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: 1)
         case .annual:
@@ -73,6 +75,7 @@ struct AlarmCreationView: View {
             timeOfDayMinute: minute,
             schedule: schedule,
             persistenceLevel: isPersistent ? .full : .notificationOnly,
+            category: category?.rawValue,
             note: note.isEmpty ? nil : note
         )
 

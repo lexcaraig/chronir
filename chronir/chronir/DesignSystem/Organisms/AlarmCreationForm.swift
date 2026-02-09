@@ -7,7 +7,8 @@ struct AlarmCreationForm: View {
     @Binding var isPersistent: Bool
     @Binding var note: String
     @Binding var selectedDays: Set<Int>
-    @Binding var dayOfMonth: Int
+    @Binding var daysOfMonth: Set<Int>
+    @Binding var category: AlarmCategory?
 
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
@@ -20,6 +21,8 @@ struct AlarmCreationForm: View {
             } else if cycleType == .monthlyDate {
                 monthlyDayPicker
             }
+
+            ChronirCategoryPicker(selection: $category)
 
             TimePickerField(label: "Time", selection: $scheduledTime)
 
@@ -46,11 +49,12 @@ struct AlarmCreationForm: View {
                             .font(TypographyTokens.labelSmall)
                             .foregroundStyle(selectedDays.contains(day) ? .white : ColorTokens.textSecondary)
                             .frame(width: 36, height: 36)
-                            .background(
+                            .glassEffect(
                                 selectedDays.contains(day)
-                                    ? ColorTokens.primary : ColorTokens.backgroundTertiary
+                                    ? GlassTokens.element.tint(ColorTokens.primary).interactive()
+                                    : GlassTokens.element,
+                                in: .circle
                             )
-                            .clipShape(Circle())
                     }
                 }
             }
@@ -59,16 +63,30 @@ struct AlarmCreationForm: View {
 
     private var monthlyDayPicker: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            ChronirText("Day of Month", style: .labelMedium, color: ColorTokens.textSecondary)
-            Picker("Day", selection: $dayOfMonth) {
+            ChronirText("Days of Month", style: .labelMedium, color: ColorTokens.textSecondary)
+            let columns = Array(repeating: GridItem(.flexible(), spacing: SpacingTokens.xs), count: 7)
+            LazyVGrid(columns: columns, spacing: SpacingTokens.xs) {
                 ForEach(1...31, id: \.self) { day in
-                    Text("\(day)").tag(day)
+                    Button {
+                        if daysOfMonth.contains(day) {
+                            if daysOfMonth.count > 1 { daysOfMonth.remove(day) }
+                        } else {
+                            daysOfMonth.insert(day)
+                        }
+                    } label: {
+                        Text("\(day)")
+                            .font(TypographyTokens.labelSmall)
+                            .foregroundStyle(daysOfMonth.contains(day) ? .white : ColorTokens.textSecondary)
+                            .frame(width: 36, height: 36)
+                            .glassEffect(
+                                daysOfMonth.contains(day)
+                                    ? GlassTokens.element.tint(ColorTokens.primary).interactive()
+                                    : GlassTokens.element,
+                                in: .circle
+                            )
+                    }
                 }
             }
-            #if os(iOS)
-            .pickerStyle(.wheel)
-            #endif
-            .frame(height: 100)
         }
     }
 
@@ -85,7 +103,8 @@ struct AlarmCreationForm: View {
     @Previewable @State var isPersistent = false
     @Previewable @State var note = ""
     @Previewable @State var selectedDays: Set<Int> = [2]
-    @Previewable @State var dayOfMonth = 1
+    @Previewable @State var daysOfMonth: Set<Int> = [1]
+    @Previewable @State var category: AlarmCategory?
 
     ScrollView {
         AlarmCreationForm(
@@ -95,7 +114,8 @@ struct AlarmCreationForm: View {
             isPersistent: $isPersistent,
             note: $note,
             selectedDays: $selectedDays,
-            dayOfMonth: $dayOfMonth
+            daysOfMonth: $daysOfMonth,
+            category: $category
         )
     }
     .background(ColorTokens.backgroundPrimary)

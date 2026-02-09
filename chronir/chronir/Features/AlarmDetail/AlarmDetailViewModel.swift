@@ -14,7 +14,8 @@ final class AlarmDetailViewModel {
     var isPersistent: Bool = false
     var note: String = ""
     var selectedDays: Set<Int> = [2]
-    var dayOfMonth: Int = 1
+    var daysOfMonth: Set<Int> = [1]
+    var category: AlarmCategory?
     var isLoading: Bool = false
     var errorMessage: String?
 
@@ -38,6 +39,7 @@ final class AlarmDetailViewModel {
             self.cycleType = alarm.cycleType
             self.isPersistent = alarm.persistenceLevel == .full
             self.note = alarm.note ?? ""
+            self.category = alarm.alarmCategory
 
             let cal = Calendar.current
             self.scheduledTime = cal.date(
@@ -47,8 +49,8 @@ final class AlarmDetailViewModel {
             switch alarm.schedule {
             case .weekly(let daysOfWeek, _):
                 self.selectedDays = Set(daysOfWeek)
-            case .monthlyDate(let day, _):
-                self.dayOfMonth = day
+            case .monthlyDate(let days, _):
+                self.daysOfMonth = Set(days)
             default:
                 break
             }
@@ -72,6 +74,7 @@ final class AlarmDetailViewModel {
         alarm.schedule = buildSchedule()
         alarm.persistenceLevel = isPersistent ? .full : .notificationOnly
         alarm.note = note.isEmpty ? nil : note
+        alarm.category = category?.rawValue
         alarm.updatedAt = Date()
         alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
 
@@ -119,7 +122,7 @@ final class AlarmDetailViewModel {
         case .weekly:
             return .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: 1)
         case .monthlyDate:
-            return .monthlyDate(dayOfMonth: dayOfMonth, interval: 1)
+            return .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: 1)
         case .monthlyRelative:
             return .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: 1)
         case .annual:

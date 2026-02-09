@@ -14,4 +14,15 @@ enum GlassTokens {
 
     /// Glass sheet corners (34pt) — used for glass-styled modal sheets
     static let sheetRadius: CGFloat = 34
+
+    // MARK: - Glass Variants
+
+    /// Navigation bars, tab bars, toolbar chrome
+    static let chrome = Glass.regular
+
+    /// Floating panels, popovers, modal overlays
+    static let surface = Glass.regular
+
+    /// Buttons, chips, text fields, interactive controls
+    static let element = Glass.regular
 }

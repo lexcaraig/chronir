@@ -911,6 +911,7 @@ service cloud.firestore {
 | Receive Shared Alarms  | Accept invites from Premium users (receiver-only)              |
 | Alarm Sounds           | 3 built-in sounds                                              |
 | Snooze                 | Default 9-minute snooze only                                   |
+| Category Tagging       | Assign categories (Home, Health, Finance, etc.) to alarms      |
 
 ### 7.2 Plus Tier ($1.99/month or $14.99/year)
 
@@ -926,6 +927,8 @@ Everything in Free, plus:
 | Extended Pre-Alarms    | Warnings at 7 days, 3 days, 24 hours before       |
 | Alarm Sounds           | Full library (15+ sounds)                         |
 | Widgets                | Lock screen widget (iOS), Glance widget (Android) |
+| Grouped List View      | Group alarms by category with collapsible sections |
+| Category Filters       | Filter alarm list by category                      |
 
 ### 7.3 Premium Tier ($3.99/month or $29.99/year)
 

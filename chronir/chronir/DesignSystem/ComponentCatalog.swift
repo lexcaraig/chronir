@@ -19,6 +19,7 @@ struct ComponentCatalog: View {
                 NavigationLink("SnoozeOptionBar") { CatalogSnoozeBarView() }
                 NavigationLink("LabeledTextField") { CatalogLabeledTextFieldView() }
                 NavigationLink("TimePickerField") { CatalogTimePickerFieldView() }
+                NavigationLink("ChronirCategoryPicker") { CatalogCategoryPickerView() }
             }
             .listRowBackground(ColorTokens.surfaceCard)
 
@@ -67,13 +68,15 @@ private struct CatalogTextView: View {
 
 private struct CatalogButtonView: View {
     var body: some View {
-        VStack(spacing: SpacingTokens.md) {
-            ChronirButton("Primary Action") {}
-            ChronirButton("Secondary", style: .secondary) {}
-            ChronirButton("Destructive", style: .destructive) {}
-            ChronirButton("Ghost Action", style: .ghost) {}
+        GlassEffectContainer {
+            VStack(spacing: SpacingTokens.md) {
+                ChronirButton("Primary Action") {}
+                ChronirButton("Secondary", style: .secondary) {}
+                ChronirButton("Destructive", style: .destructive) {}
+                ChronirButton("Ghost Action", style: .ghost) {}
+            }
+            .padding()
         }
-        .padding()
         .background(ColorTokens.backgroundPrimary)
         .navigationTitle("ChronirButton")
     }
@@ -165,10 +168,12 @@ private struct CatalogIntervalPickerView: View {
     @State private var selected: CycleType = .weekly
 
     var body: some View {
-        IntervalPicker(selection: $selected)
-            .padding()
-            .background(ColorTokens.backgroundPrimary)
-            .navigationTitle("IntervalPicker")
+        GlassEffectContainer {
+            IntervalPicker(selection: $selected)
+                .padding()
+        }
+        .background(ColorTokens.backgroundPrimary)
+        .navigationTitle("IntervalPicker")
     }
 }
 
@@ -222,7 +227,7 @@ private struct CatalogAlarmCardView: View {
                 AlarmCard(
                     alarm: Alarm(
                         title: "Inactive Card", cycleType: .monthlyDate,
-                        schedule: .monthlyDate(dayOfMonth: 1, interval: 1)
+                        schedule: .monthlyDate(daysOfMonth: [1], interval: 1)
                     ),
                     visualState: .inactive,
                     isEnabled: $enabled2
@@ -260,7 +265,7 @@ private struct CatalogAlarmListSectionView: View {
                     Alarm(title: "Workout", cycleType: .weekly, nextFireDate: Date().addingTimeInterval(3600)),
                     Alarm(
                         title: "Pay Rent", cycleType: .monthlyDate,
-                        schedule: .monthlyDate(dayOfMonth: 1, interval: 1),
+                        schedule: .monthlyDate(daysOfMonth: [1], interval: 1),
                         nextFireDate: Date().addingTimeInterval(-3600)
                     )
                 ],
@@ -299,7 +304,8 @@ private struct CatalogAlarmCreationFormView: View {
     @State private var isPersistent = false
     @State private var note = ""
     @State private var selectedDays: Set<Int> = [2]
-    @State private var dayOfMonth = 1
+    @State private var daysOfMonth: Set<Int> = [1]
+    @State private var category: AlarmCategory?
 
     var body: some View {
         ScrollView {
@@ -310,11 +316,25 @@ private struct CatalogAlarmCreationFormView: View {
                 isPersistent: $isPersistent,
                 note: $note,
                 selectedDays: $selectedDays,
-                dayOfMonth: $dayOfMonth
+                daysOfMonth: $daysOfMonth,
+                category: $category
             )
         }
         .background(ColorTokens.backgroundPrimary)
         .navigationTitle("AlarmCreationForm")
+    }
+}
+
+private struct CatalogCategoryPickerView: View {
+    @State private var selection: AlarmCategory? = .home
+
+    var body: some View {
+        GlassEffectContainer {
+            ChronirCategoryPicker(selection: $selection)
+                .padding()
+        }
+        .background(ColorTokens.backgroundPrimary)
+        .navigationTitle("ChronirCategoryPicker")
     }
 }
 

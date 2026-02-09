@@ -63,12 +63,10 @@ extension SingleColumnTemplate where FloatingAction == EmptyView {
                 action: {},
                 label: {
                     Image(systemName: "plus")
-                        .font(.title2)
+                        .font(.title2.weight(.semibold))
                         .foregroundStyle(.white)
                         .frame(width: 56, height: 56)
-                        .background(ColorTokens.primary)
-                        .clipShape(Circle())
-                        .shadow(radius: 4)
+                        .chronirGlassTintedCircle(tint: ColorTokens.primary)
                 }
             )
         }

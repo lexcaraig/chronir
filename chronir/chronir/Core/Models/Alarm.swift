@@ -34,6 +34,9 @@ final class Alarm: Identifiable {
     var colorTag: String?
     var iconName: String?
 
+    // MARK: - Organization
+    var category: String?
+
     // MARK: - Sync & Sharing
     var syncStatus: SyncStatus
     var ownerID: String?
@@ -68,6 +71,12 @@ final class Alarm: Identifiable {
         persistenceLevel == .full
     }
 
+    @Transient
+    var alarmCategory: AlarmCategory? {
+        get { category.flatMap { AlarmCategory(rawValue: $0) } }
+        set { category = newValue?.rawValue }
+    }
+
     // MARK: - Init
 
     init(
@@ -88,6 +97,7 @@ final class Alarm: Identifiable {
         preAlarmMinutes: Int = 0,
         colorTag: String? = nil,
         iconName: String? = nil,
+        category: String? = nil,
         syncStatus: SyncStatus = .localOnly,
         ownerID: String? = nil,
         sharedWith: [String] = [],
@@ -113,6 +123,7 @@ final class Alarm: Identifiable {
         self.preAlarmMinutes = preAlarmMinutes
         self.colorTag = colorTag
         self.iconName = iconName
+        self.category = category
         self.syncStatus = syncStatus
         self.ownerID = ownerID
         self.sharedWith = sharedWith

@@ -85,7 +85,7 @@ struct DateCalculatorTests {
         // Feb 1 at 10:00, alarm on 15th at 9:00 → Feb 15
         let from = date(2026, 2, 1, 10, 0)
         let alarm = makeAlarm(
-            schedule: .monthlyDate(dayOfMonth: 15, interval: 1),
+            schedule: .monthlyDate(daysOfMonth: [15], interval: 1),
             hour: 9, minute: 0
         )
         let next = calculator.calculateNextFireDate(for: alarm, from: from)
@@ -99,7 +99,7 @@ struct DateCalculatorTests {
         // Jan 31 at 10:00, alarm on 31st → Feb 28 (2026 is not leap year)
         let from = date(2026, 1, 31, 10, 0)
         let alarm = makeAlarm(
-            schedule: .monthlyDate(dayOfMonth: 31, interval: 1),
+            schedule: .monthlyDate(daysOfMonth: [31], interval: 1),
             hour: 9, minute: 0
         )
         let next = calculator.calculateNextFireDate(for: alarm, from: from)
@@ -112,13 +112,67 @@ struct DateCalculatorTests {
         // Feb 1 2028 (leap year), alarm on 29th → Feb 29
         let from = date(2028, 2, 1, 10, 0)
         let alarm = makeAlarm(
-            schedule: .monthlyDate(dayOfMonth: 29, interval: 1),
+            schedule: .monthlyDate(daysOfMonth: [29], interval: 1),
             hour: 9, minute: 0
         )
         let next = calculator.calculateNextFireDate(for: alarm, from: from)
         let components = calendar.dateComponents([.month, .day], from: next)
         #expect(components.month == 2)
         #expect(components.day == 29)
+    }
+
+    @Test func monthlyDateMultipleDaysPicksNextInMonth() {
+        // Feb 10 at 10:00, alarm on [5, 15, 25] → Feb 15
+        let from = date(2026, 2, 10, 10, 0)
+        let alarm = makeAlarm(
+            schedule: .monthlyDate(daysOfMonth: [5, 15, 25], interval: 1),
+            hour: 9, minute: 0
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        let components = calendar.dateComponents([.month, .day, .hour], from: next)
+        #expect(components.month == 2)
+        #expect(components.day == 15)
+        #expect(components.hour == 9)
+    }
+
+    @Test func monthlyDateMultipleDaysAllPassedThisMonth() {
+        // Feb 26 at 10:00, alarm on [5, 15, 25] → March 5
+        let from = date(2026, 2, 26, 10, 0)
+        let alarm = makeAlarm(
+            schedule: .monthlyDate(daysOfMonth: [5, 15, 25], interval: 1),
+            hour: 9, minute: 0
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        let components = calendar.dateComponents([.month, .day], from: next)
+        #expect(components.month == 3)
+        #expect(components.day == 5)
+    }
+
+    @Test func monthlyDateMultipleDaysWithMonthEndClamping() {
+        // Jan 30 at 10:00, alarm on [28, 31] → Jan 31
+        let from = date(2026, 1, 30, 10, 0)
+        let alarm = makeAlarm(
+            schedule: .monthlyDate(daysOfMonth: [28, 31], interval: 1),
+            hour: 9, minute: 0
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        let components = calendar.dateComponents([.month, .day], from: next)
+        #expect(components.month == 1)
+        #expect(components.day == 31)
+    }
+
+    @Test func monthlyDateSameDayTimeNotPassed() {
+        // Feb 15 at 8:00, alarm on [15] at 9:00 → Feb 15 9:00
+        let from = date(2026, 2, 15, 8, 0)
+        let alarm = makeAlarm(
+            schedule: .monthlyDate(daysOfMonth: [15], interval: 1),
+            hour: 9, minute: 0
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        let components = calendar.dateComponents([.month, .day, .hour], from: next)
+        #expect(components.month == 2)
+        #expect(components.day == 15)
+        #expect(components.hour == 9)
     }
 
     // MARK: - Monthly (relative)

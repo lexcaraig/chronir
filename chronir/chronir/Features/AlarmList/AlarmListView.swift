@@ -10,11 +10,14 @@ struct AlarmListView: View {
     @State private var selectedAlarmID: UUID?
     @State private var alarmToDelete: Alarm?
     @State private var showUpgradePrompt = false
+    @State private var isGroupedByCategory = false
+    @State private var selectedCategoryFilter: AlarmCategory?
     @State private var paywallViewModel = PaywallViewModel()
     private var firingCoordinator = AlarmFiringCoordinator.shared
     private let alarmCheckTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
+        ZStack(alignment: .bottom) {
         List {
             if alarms.isEmpty {
                 EmptyStateView(onCreateAlarm: { requestCreateAlarm() })
@@ -22,59 +25,75 @@ struct AlarmListView: View {
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets())
             } else {
-                Section {
-                    ForEach(alarms) { alarm in
-                        AlarmCard(
-                            alarm: alarm,
-                            visualState: visualState(for: alarm),
-                            isEnabled: enabledBinding(for: alarm)
-                        )
-                        .contentShape(Rectangle())
-                        .onTapGesture { selectedAlarmID = alarm.id }
+                if !paywallViewModel.isFreeTier && !activeCategories.isEmpty {
+                    Section {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            GlassEffectContainer {
+                                HStack(spacing: SpacingTokens.xs) {
+                                    filterChip(label: "All", isSelected: selectedCategoryFilter == nil) {
+                                        selectedCategoryFilter = nil
+                                    }
+                                    ForEach(activeCategories) { cat in
+                                        filterChip(
+                                            label: cat.displayName,
+                                            icon: cat.iconName,
+                                            color: cat.color,
+                                            isSelected: selectedCategoryFilter == cat
+                                        ) {
+                                            selectedCategoryFilter = selectedCategoryFilter == cat ? nil : cat
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal, SpacingTokens.md)
+                            }
+                        }
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(
-                            top: SpacingTokens.xxs, leading: SpacingTokens.md,
-                            bottom: SpacingTokens.xxs, trailing: SpacingTokens.md
-                        ))
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) {
-                                alarmToDelete = alarm
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                        .listRowInsets(EdgeInsets())
+                    }
+                }
+
+                if isGroupedByCategory && !paywallViewModel.isFreeTier {
+                    ForEach(groupedAlarms, id: \.category) { group in
+                        Section {
+                            ForEach(group.alarms) { alarm in
+                                alarmRow(alarm)
                             }
-                            Button {
-                                selectedAlarmID = alarm.id
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
+                        } header: {
+                            HStack(spacing: SpacingTokens.xs) {
+                                if let cat = group.category {
+                                    Image(systemName: cat.iconName)
+                                        .foregroundStyle(cat.color)
+                                    ChronirText(
+                                        cat.displayName.uppercased(),
+                                        style: .labelLarge,
+                                        color: ColorTokens.textSecondary
+                                    )
+                                } else {
+                                    ChronirText(
+                                        "UNCATEGORIZED",
+                                        style: .labelLarge,
+                                        color: ColorTokens.textSecondary
+                                    )
+                                }
+                                ChronirBadge("\(group.alarms.count)", color: ColorTokens.backgroundTertiary)
                             }
-                            .tint(ColorTokens.info)
-                        }
-                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                            Button {
-                                let current = enabledStates[alarm.id] ?? alarm.isEnabled
-                                enabledStates[alarm.id] = !current
-                            } label: {
-                                let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-                                Label(
-                                    isEnabled ? "Disable" : "Enable",
-                                    systemImage: isEnabled ? "bell.slash" : "bell"
-                                )
-                            }
-                            .tint(
-                            enabledStates[alarm.id] ?? alarm.isEnabled
-                            ? ColorTokens.textSecondary : ColorTokens.success
-                        )
                         }
                     }
-                } header: {
-                    HStack(spacing: SpacingTokens.xs) {
-                        ChronirText(
-                            "UPCOMING",
-                            style: .labelLarge,
-                            color: ColorTokens.textSecondary
-                        )
-                        ChronirBadge("\(alarms.count)", color: ColorTokens.backgroundTertiary)
+                } else {
+                    Section {
+                        ForEach(filteredAlarms) { alarm in
+                            alarmRow(alarm)
+                        }
+                    } header: {
+                        HStack(spacing: SpacingTokens.xs) {
+                            ChronirText(
+                                "UPCOMING",
+                                style: .labelLarge,
+                                color: ColorTokens.textSecondary
+                            )
+                            ChronirBadge("\(filteredAlarms.count)", color: ColorTokens.backgroundTertiary)
+                        }
                     }
                 }
             }
@@ -88,20 +107,21 @@ struct AlarmListView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingSettings = true
-                } label: {
-                    Image(systemName: "gear")
-                        .foregroundStyle(ColorTokens.textSecondary)
-                }
-            }
-            ToolbarItem(placement: .bottomBar) {
-                Button {
-                    requestCreateAlarm()
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 36))
-                        .foregroundStyle(ColorTokens.primary)
+                HStack(spacing: SpacingTokens.sm) {
+                    if !paywallViewModel.isFreeTier {
+                        Button {
+                            isGroupedByCategory.toggle()
+                        } label: {
+                            Image(systemName: isGroupedByCategory ? "list.bullet" : "rectangle.3.group")
+                                .foregroundStyle(ColorTokens.textSecondary)
+                        }
+                    }
+                    Button {
+                        showingSettings = true
+                    } label: {
+                        Image(systemName: "gear")
+                            .foregroundStyle(ColorTokens.textSecondary)
+                    }
                 }
             }
         }
@@ -169,6 +189,20 @@ struct AlarmListView: View {
                 }
             }
         }
+
+        // FAB overlay
+        Button {
+            requestCreateAlarm()
+        } label: {
+            Image(systemName: "plus")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.white)
+                .frame(width: 56, height: 56)
+                .chronirGlassTintedCircle(tint: ColorTokens.primary)
+        }
+        .padding(.bottom, SpacingTokens.lg)
+
+        } // ZStack
     }
 
     private func checkForFiringAlarms() {
@@ -195,6 +229,105 @@ struct AlarmListView: View {
             get: { enabledStates[alarm.id] ?? alarm.isEnabled },
             set: { enabledStates[alarm.id] = $0 }
         )
+    }
+
+    private func alarmRow(_ alarm: Alarm) -> some View {
+        AlarmCard(
+            alarm: alarm,
+            visualState: visualState(for: alarm),
+            isEnabled: enabledBinding(for: alarm)
+        )
+        .contentShape(Rectangle())
+        .onTapGesture { selectedAlarmID = alarm.id }
+        .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(
+            top: SpacingTokens.xxs, leading: SpacingTokens.md,
+            bottom: SpacingTokens.xxs, trailing: SpacingTokens.md
+        ))
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                alarmToDelete = alarm
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+            Button {
+                selectedAlarmID = alarm.id
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(ColorTokens.info)
+        }
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                let current = enabledStates[alarm.id] ?? alarm.isEnabled
+                enabledStates[alarm.id] = !current
+            } label: {
+                let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
+                Label(
+                    isEnabled ? "Disable" : "Enable",
+                    systemImage: isEnabled ? "bell.slash" : "bell"
+                )
+            }
+            .tint(
+                enabledStates[alarm.id] ?? alarm.isEnabled
+                    ? ColorTokens.textSecondary : ColorTokens.success
+            )
+        }
+    }
+
+    private func filterChip(
+        label: String,
+        icon: String? = nil,
+        color: Color = ColorTokens.primary,
+        isSelected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: SpacingTokens.xxs) {
+                if let icon {
+                    Image(systemName: icon)
+                        .font(TypographyTokens.labelSmall)
+                }
+                Text(label)
+                    .font(TypographyTokens.labelLarge)
+            }
+            .foregroundStyle(isSelected ? .white : ColorTokens.textSecondary)
+            .padding(.horizontal, SpacingTokens.md)
+            .padding(.vertical, SpacingTokens.sm)
+            .glassEffect(
+                isSelected
+                    ? GlassTokens.element.tint(color).interactive()
+                    : GlassTokens.element,
+                in: .capsule
+            )
+        }
+    }
+
+    private var filteredAlarms: [Alarm] {
+        guard let filter = selectedCategoryFilter else { return alarms }
+        return alarms.filter { $0.alarmCategory == filter }
+    }
+
+    private var activeCategories: [AlarmCategory] {
+        let cats = Set(alarms.compactMap(\.alarmCategory))
+        return AlarmCategory.allCases.filter { cats.contains($0) }
+    }
+
+    private var groupedAlarms: [(category: AlarmCategory?, alarms: [Alarm])] {
+        let source = filteredAlarms
+        var groups: [(category: AlarmCategory?, alarms: [Alarm])] = []
+        let categorized = Dictionary(grouping: source.filter { $0.alarmCategory != nil }) { $0.alarmCategory! }
+        for cat in AlarmCategory.allCases {
+            if let group = categorized[cat], !group.isEmpty {
+                groups.append((category: cat, alarms: group))
+            }
+        }
+        let uncategorized = source.filter { $0.alarmCategory == nil }
+        if !uncategorized.isEmpty {
+            groups.append((category: nil, alarms: uncategorized))
+        }
+        return groups
     }
 
     private func requestCreateAlarm() {

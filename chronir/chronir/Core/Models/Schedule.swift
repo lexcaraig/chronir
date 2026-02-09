@@ -2,7 +2,7 @@ import Foundation
 
 enum Schedule: Codable, Hashable {
     case weekly(daysOfWeek: [Int], interval: Int)
-    case monthlyDate(dayOfMonth: Int, interval: Int)
+    case monthlyDate(daysOfMonth: [Int], interval: Int)
     case monthlyRelative(weekOfMonth: Int, dayOfWeek: Int, interval: Int)
     case annual(month: Int, dayOfMonth: Int, interval: Int)
     case customDays(intervalDays: Int, startDate: Date)
@@ -21,7 +21,7 @@ enum Schedule: Codable, Hashable {
 
     private enum CodingKeys: String, CodingKey {
         case type
-        case daysOfWeek, interval, dayOfMonth, weekOfMonth, dayOfWeek, month, intervalDays, startDate
+        case daysOfWeek, interval, dayOfMonth, daysOfMonth, weekOfMonth, dayOfWeek, month, intervalDays, startDate
     }
 
     private enum ScheduleType: String, Codable {
@@ -35,9 +35,9 @@ enum Schedule: Codable, Hashable {
             try container.encode(ScheduleType.weekly, forKey: .type)
             try container.encode(daysOfWeek, forKey: .daysOfWeek)
             try container.encode(interval, forKey: .interval)
-        case .monthlyDate(let dayOfMonth, let interval):
+        case .monthlyDate(let daysOfMonth, let interval):
             try container.encode(ScheduleType.monthlyDate, forKey: .type)
-            try container.encode(dayOfMonth, forKey: .dayOfMonth)
+            try container.encode(daysOfMonth, forKey: .daysOfMonth)
             try container.encode(interval, forKey: .interval)
         case .monthlyRelative(let weekOfMonth, let dayOfWeek, let interval):
             try container.encode(ScheduleType.monthlyRelative, forKey: .type)
@@ -65,9 +65,13 @@ enum Schedule: Codable, Hashable {
             let interval = try container.decode(Int.self, forKey: .interval)
             self = .weekly(daysOfWeek: daysOfWeek, interval: interval)
         case .monthlyDate:
-            let dayOfMonth = try container.decode(Int.self, forKey: .dayOfMonth)
             let interval = try container.decode(Int.self, forKey: .interval)
-            self = .monthlyDate(dayOfMonth: dayOfMonth, interval: interval)
+            if let daysOfMonth = try? container.decode([Int].self, forKey: .daysOfMonth) {
+                self = .monthlyDate(daysOfMonth: daysOfMonth, interval: interval)
+            } else {
+                let dayOfMonth = try container.decode(Int.self, forKey: .dayOfMonth)
+                self = .monthlyDate(daysOfMonth: [dayOfMonth], interval: interval)
+            }
         case .monthlyRelative:
             let weekOfMonth = try container.decode(Int.self, forKey: .weekOfMonth)
             let dayOfWeek = try container.decode(Int.self, forKey: .dayOfWeek)

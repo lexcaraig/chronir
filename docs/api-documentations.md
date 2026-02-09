@@ -286,7 +286,7 @@ interface AlarmSchedule {
 	daysOfWeek: number[] | null; // [1,3,5] = Mon,Wed,Fri (ISO)
 
 	// Monthly
-	dayOfMonth: number | null; // 1-31, 0 = last day
+	daysOfMonth: number[] | null; // [1, 15] = 1st and 15th. If month lacks a day, fires on last day.
 	monthlyType: 'fixed' | 'relative' | null;
 	relativeWeek: number | null; // 1-5 (5 = last)
 	relativeDayOfWeek: number | null; // 1=Mon, 7=Sun
@@ -424,7 +424,7 @@ Operation: add()
 	"note": "Size: 20x25x1 from Home Depot",
 	"schedule": {
 		"type": "monthly",
-		"dayOfMonth": 1,
+		"daysOfMonth": [1],
 		"monthlyType": "fixed",
 		"timeOfDay": "09:00",
 		"timezone": "Asia/Manila",
@@ -543,7 +543,7 @@ Function: computeNextFireDate(schedule: AlarmSchedule, fromDate: Date) → Date
 | Type                 | Computation                                                       |
 | -------------------- | ----------------------------------------------------------------- |
 | `weekly`             | Next matching day of week at `timeOfDay`                          |
-| `monthly` (fixed)    | Same `dayOfMonth` next month. If day > month length, use last day |
+| `monthly` (fixed)    | Next matching day from `daysOfMonth` array. If day > month length, use last day. If all days passed this month, use first day in next interval month |
 | `monthly` (relative) | Nth `dayOfWeek` of next month (e.g., "first Monday")              |
 | `annual`             | Same `month` + `day` next year                                    |
 | `custom`             | Current date + `intervalDays`                                     |
@@ -551,7 +551,7 @@ Function: computeNextFireDate(schedule: AlarmSchedule, fromDate: Date) → Date
 **Edge Cases:**
 
 - Feb 29 annual alarms → Fire on Feb 28 in non-leap years
-- 31st monthly alarms → Fire on last day of month (28/29/30)
+- 31st monthly alarms → Fire on last day of month (28/29/30). Multi-day arrays are each clamped independently
 - Timezone changes during DST → Use stored IANA timezone, not device offset
 - Past `endDate` → Set `isActive = false`, do not schedule
 

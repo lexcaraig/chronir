@@ -59,7 +59,7 @@ struct AlarmListSection: View {
         Alarm(
             title: "Pay Rent",
             cycleType: .monthlyDate,
-            schedule: .monthlyDate(dayOfMonth: 1, interval: 1),
+            schedule: .monthlyDate(daysOfMonth: [1], interval: 1),
             nextFireDate: Date().addingTimeInterval(-3600)
         ),
         Alarm(

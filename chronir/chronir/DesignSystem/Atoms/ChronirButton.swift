@@ -30,17 +30,7 @@ struct ChronirButton: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, SpacingTokens.md)
                 .padding(.horizontal, SpacingTokens.lg)
-                .background(backgroundColor)
-                .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
-        }
-    }
-
-    private var backgroundColor: Color {
-        switch style {
-        case .primary: return ColorTokens.primary
-        case .secondary: return ColorTokens.backgroundTertiary
-        case .destructive: return ColorTokens.error
-        case .ghost: return .clear
+                .modifier(GlassButtonModifier(style: style))
         }
     }
 
@@ -50,6 +40,23 @@ struct ChronirButton: View {
         case .secondary: return ColorTokens.textPrimary
         case .destructive: return .white
         case .ghost: return ColorTokens.primary
+        }
+    }
+}
+
+private struct GlassButtonModifier: ViewModifier {
+    let style: ChronirButtonStyle
+
+    func body(content: Content) -> some View {
+        switch style {
+        case .primary:
+            content.chronirGlassButton(tint: ColorTokens.primary)
+        case .secondary:
+            content.chronirGlassButton()
+        case .destructive:
+            content.chronirGlassButton(tint: ColorTokens.error)
+        case .ghost:
+            content
         }
     }
 }

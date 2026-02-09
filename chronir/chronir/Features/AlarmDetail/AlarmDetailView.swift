@@ -21,7 +21,8 @@ struct AlarmDetailView: View {
                         isPersistent: $viewModel.isPersistent,
                         note: $viewModel.note,
                         selectedDays: $viewModel.selectedDays,
-                        dayOfMonth: $viewModel.dayOfMonth
+                        daysOfMonth: $viewModel.daysOfMonth,
+                        category: $viewModel.category
                     )
 
                     Button(role: .destructive) {

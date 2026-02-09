@@ -137,7 +137,7 @@ This is the **living development task list** for Chronir. Each epic contains use
 - [ ] Select time (hour/minute picker, platform-native)
 - [ ] Select interval: Weekly, Monthly, or Annual
 - [ ] Weekly: pick day(s) of week
-- [ ] Monthly: pick day of month (1–31) or relative ("last Friday", "first Monday")
+- [ ] Monthly: pick one or more days of month (1–31) via multi-select grid, or relative ("last Friday", "first Monday")
 - [ ] Annual: pick month + day
 - [ ] Alarm saved to local database
 - [ ] Next fire date calculated and scheduled with OS alarm API
@@ -321,6 +321,7 @@ This is the **living development task list** for Chronir. Each epic contains use
 - [ ] Search bar at top of alarm list (expandable)
 - [ ] Real-time filtering as user types
 - [ ] Filter chips: All, Weekly, Monthly, Annual
+- [ ] Category filter chips: show categories that have alarms, filter list by selected category
 - [ ] Results highlight matching text in alarm title
 
 ---

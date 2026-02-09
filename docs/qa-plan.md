@@ -130,6 +130,8 @@ Every test scenario traces back to a defined user persona to ensure real-world c
 | ID    | Scenario                       | Steps                                                          | Expected Result                                                  | Priority |
 | ----- | ------------------------------ | -------------------------------------------------------------- | ---------------------------------------------------------------- | -------- |
 | SC-01 | Create first alarm             | Open app → Tap + → Set "Pay Rent" monthly on 1st at 9am → Save | Alarm appears in list, next fire date shown correctly            | P0       |
+| SC-01a| Multi-day monthly alarm        | Create monthly alarm → Select 1st and 15th in day grid → Save  | Alarm fires on next matching day (1st or 15th), both days shown | P0       |
+| SC-01b| Category tagging (free)        | Create alarm → Select "Home" category → Save                   | Category badge shows on alarm card, category persisted on edit  | P1       |
 | SC-02 | Create second alarm            | Create "Renew Gym" annually on March 15 → Save                 | Two alarms in list, both showing correct next dates              | P0       |
 | SC-03 | Hit free limit                 | Attempt to create third alarm                                  | Upgrade prompt displayed; third alarm NOT created                | P1       |
 | SC-04 | Alarm fires while phone locked | Wait for alarm time with screen off                            | Full-screen alarm UI appears with sound, even during DND         | P0       |
@@ -150,6 +152,8 @@ Every test scenario traces back to a defined user persona to ensure real-world c
 | DM-04 | Stress: 12 active alarms   | Create 12 alarms with various intervals              | All 12 schedule correctly, no performance degradation    | P1       |
 | DM-05 | Cloud backup after upgrade | Enable cloud backup → Kill app → Reinstall → Restore | All 12 alarms restored with photos and notes intact      | P0       |
 | DM-06 | Completion history         | Dismiss 3 alarms over multiple days → Open history   | All 3 completions shown with correct timestamps          | P2       |
+| DM-07 | Grouped list view (Plus)   | Assign categories to alarms → Tap group toggle       | Alarms grouped by category with section headers          | P1       |
+| DM-08 | Category filter (Plus)     | Tap "Home" filter chip in alarm list                 | Only alarms with Home category shown; others hidden      | P1       |
 | DM-07 | Custom snooze (1 day)      | Alarm fires → Snooze 1 day                           | Alarm fires again exactly 24 hours later                 | P1       |
 | DM-08 | Custom snooze (1 week)     | Alarm fires → Snooze 1 week                          | Alarm fires again exactly 7 days later                   | P1       |
 

@@ -124,7 +124,7 @@ The core entity. Represents a single recurring alarm with its schedule configura
 | `dismiss_method`    | Enum          | ✓        | `swipe`             | `swipe`, `hold_3s`, `solve_math`                                          |
 | `color_tag`         | String(7)     | ✗        | null                | Hex color for visual grouping. E.g., `#3B82F6`                            |
 | `icon_name`         | String(50)    | ✗        | null                | SF Symbol (iOS) / Material Icon (Android) name                            |
-| `category`          | String(50)    | ✗        | null                | User-defined label. E.g., "Home", "Health", "Vehicle"                     |
+| `category`          | String(50)    | ✗        | null                | Predefined category. One of: `home`, `health`, `finance`, `vehicle`, `work`, `personal`, `pets`, `subscriptions`. Client uses `AlarmCategory` enum. |
 | `sort_order`        | Integer       | ✓        | 0                   | Manual sort position in alarm list                                        |
 | `next_fire_date`    | DateTime      | ✓        | computed            | Next scheduled fire date (UTC). Recomputed on each completion/snooze.     |
 | `cloud_id`          | String(100)   | ✗        | null                | Firestore document ID if synced (Plus+)                                   |
@@ -154,10 +154,12 @@ The `schedule` field is a structured object that defines when the alarm repeats.
 ```json
 {
 	"type": "monthly_date",
-	"day_of_month": 15, // 1-31. If month lacks day, fires on last day.
+	"days_of_month": [1, 15], // Array of 1-31. If month lacks a day, fires on last day.
 	"interval": 1 // Every N months. 1=monthly, 3=quarterly, 6=semi-annual
 }
 ```
+
+> **Backward compatibility:** Legacy data using `"day_of_month": 15` (single Int) is automatically migrated to `"days_of_month": [15]` on decode.
 
 **Monthly (relative):**
 
@@ -660,6 +662,14 @@ pending | accepted | declined | expired
 ```
 email | link | contact
 ```
+
+### 5.11 `AlarmCategory`
+
+```
+home | health | finance | vehicle | work | personal | pets | subscriptions
+```
+
+Each category has a predefined display name, SF Symbol icon, and accent color on the client side. Stored as the raw string value. Grouped list view and category filters are Plus tier features.
 
 ---
 

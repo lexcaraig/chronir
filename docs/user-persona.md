@@ -82,12 +82,12 @@ Sarah is budget-conscious and skeptical of paid apps. She missed her car registr
 
 #### Chronir Usage Scenario
 
-Sarah downloads Chronir, creates two alarms in under 90 seconds (no account needed), and forgets about it until the 1st of the month. The alarm fires with full-screen persistence at 9 AM. She pays rent, dismisses the alarm, and returns to her day. She tells her roommate about the app.
+Sarah downloads Chronir, creates two alarms in under 90 seconds (no account needed), and forgets about it until the 1st of the month. She tags "Pay Rent" as Finance and "Car Registration" as Vehicle — the category badges on each card make her two-alarm list feel organized even without upgrading. The alarm fires with full-screen persistence at 9 AM. She pays rent, dismisses the alarm, and returns to her day. She tells her roommate about the app.
 
 #### Key Alarms
 
-- "Pay Rent" — 1st of every month, 9:00 AM
-- "Car Registration" — March 1st, annually
+- "Pay Rent" — 1st of every month, 9:00 AM · `Finance`
+- "Car Registration" — March 1st, annually · `Vehicle`
 
 #### Design Implications
 
@@ -135,15 +135,16 @@ David bought his first home two years ago and quickly realized how many recurrin
 
 #### Chronir Usage Scenario
 
-David upgrades to Plus after creating his 3rd alarm attempt. He spends 20 minutes one Saturday creating all 12 alarms, attaching photos of each filter/product from his phone gallery. When HVAC filter month arrives, the pre-alarm fires 24 hours early. He checks the attached photo, orders the right filter on Amazon, and replaces it the next day. He marks it done. His wife checks the app and sees it is confirmed.
+David upgrades to Plus after creating his 3rd alarm attempt. He spends 20 minutes one Saturday creating all 12 alarms, tagging each with a category — Home for maintenance tasks, Vehicle for the oil change, Health for the smoke detectors. He attaches photos of each filter/product from his phone gallery. With 12 alarms, he taps the group toggle to switch to the categorized view — now his Home tasks are grouped together, Vehicle separate. He taps the "Home" filter chip to focus on just household maintenance. When HVAC filter month arrives, the pre-alarm fires 24 hours early. He checks the attached photo, orders the right filter on Amazon, and replaces it the next day. He marks it done. His wife checks the app and sees it is confirmed.
 
 #### Key Alarms
 
-- "HVAC Filter" — Monthly, with product photo
-- "Water Filter" — Every 6 months
-- "Gutter Cleaning" — April & October
-- "Smoke Detector Batteries" — Annually, March
-- "Pest Control Renewal" — Annually, January
+- "HVAC Filter" — Monthly, with product photo · `Home`
+- "Water Filter" — Every 6 months · `Home`
+- "Gutter Cleaning" — April & October · `Home`
+- "Smoke Detector Batteries" — Annually, March · `Health`
+- "Pest Control Renewal" — Annually, January · `Home`
+- "Oil Change — Truck" — Every 5 months · `Vehicle`
 
 #### Design Implications
 
@@ -151,6 +152,7 @@ David upgrades to Plus after creating his 3rd alarm attempt. He spends 20 minute
 - Pre-alarm notification needs clear visual distinction from the alarm itself
 - Completion history must be scannable (last 12 months at a glance)
 - Upgrade path from Free should feel earned, not forced
+- Grouped list view and category filters must justify the upgrade for users with 5+ alarms
 - Android OEM battery optimization guidance (Samsung-specific)
 
 ---
@@ -192,15 +194,15 @@ Priya runs her own design studio and handles all administrative tasks solo. Quar
 
 #### Chronir Usage Scenario
 
-Q1 estimated taxes are due April 15. Chronir fires a pre-alarm on April 14. Priya opens the alarm, sees her note: "$2,340 | IRS Direct Pay: [link] | State: [link]". She pays both, marks the alarm done. The alarm auto-schedules Q2 for June 15. She checks completion history in December to verify all four quarters were paid for her CPA.
+Priya tags all her alarms with Finance or Work categories, then uses the category filter to focus on just Finance when reviewing upcoming deadlines. She also creates a "Send Invoices" alarm set to fire on the 1st and 15th of every month using the multi-day monthly picker — two billing cycles, one alarm. Q1 estimated taxes are due April 15. Chronir fires a pre-alarm on April 14. Priya opens the alarm, sees her note: "$2,340 | IRS Direct Pay: [link] | State: [link]". She pays both, marks the alarm done. The alarm auto-schedules Q2 for June 15. She checks completion history in December to verify all four quarters were paid for her CPA.
 
 #### Key Alarms
 
-- "Estimated Taxes (Federal)" — Quarterly: Jan 15, Apr 15, Jun 15, Sep 15
-- "Estimated Taxes (State)" — Same quarterly schedule
-- "Business License Renewal" — Annually, February 1
-- "Liability Insurance Premium" — Bi-annually
-- "1099 Contractor Deadline" — Annually, January 31
+- "Estimated Taxes (Federal)" — Quarterly: Jan 15, Apr 15, Jun 15, Sep 15 · `Finance`
+- "Estimated Taxes (State)" — Same quarterly schedule · `Finance`
+- "Business License Renewal" — Annually, February 1 · `Work`
+- "Liability Insurance Premium" — Bi-annually · `Finance`
+- "1099 Contractor Deadline" — Annually, January 31 · `Finance`
 
 #### Design Implications
 
@@ -253,11 +255,11 @@ Jorge creates a Premium household group and invites Maria. They set up 15 shared
 
 #### Key Alarms
 
-- "Mortgage Payment" — 1st of month (shared, high persistence)
-- "Emma Piano Lessons" — Monthly, assigned to Jorge
-- "Car Insurance" — Bi-annually (shared)
-- "Oil Change — Honda" — Every 5 months (assigned to Maria)
-- "Soccer Registration" — Annually, August (shared)
+- "Mortgage Payment" — 1st of month (shared, high persistence) · `Finance`
+- "Emma Piano Lessons" — Monthly, assigned to Jorge · `Personal`
+- "Car Insurance" — Bi-annually (shared) · `Vehicle`
+- "Oil Change — Honda" — Every 5 months (assigned to Maria) · `Vehicle`
+- "Soccer Registration" — Annually, August (shared) · `Personal`
 
 #### Design Implications
 
@@ -306,15 +308,15 @@ Tom has two dogs (Max and Bella) and a cat (Whiskers), each on different medicat
 
 #### Chronir Usage Scenario
 
-Tom creates 7 alarms: monthly heartworm for each dog, bi-monthly flea treatment for all three, and annual vet checkups. Each alarm has a photo of the medication box with dosage circled. When the alarm fires, the full-screen display shows "Max — Heartworm" with the photo. Tom administers the medication, taps "Done". He checks history to confirm Bella also got hers last week.
+Tom creates 7 alarms, tagging all of them with the Pets category. Monthly heartworm for each dog, bi-monthly flea treatment for all three, and annual vet checkups. Each alarm has a photo of the medication box with dosage circled. He switches to the grouped list view — all his alarms appear under a single "Pets" section header, keeping his list tidy. When the alarm fires, the full-screen display shows "Max — Heartworm" with the photo and a Pets badge. Tom administers the medication, taps "Done". He checks history to confirm Bella also got hers last week.
 
 #### Key Alarms
 
-- "Max — Heartworm" — 1st of every month
-- "Bella — Heartworm" — 1st of every month
-- "All Pets — Flea Treatment" — Every 2 months
-- "Max — Vet Checkup" — Annually, June
-- "Bella — Vet Checkup" — Annually, September
+- "Max — Heartworm" — 1st of every month · `Pets`
+- "Bella — Heartworm" — 1st of every month · `Pets`
+- "All Pets — Flea Treatment" — Every 2 months · `Pets`
+- "Max — Vet Checkup" — Annually, June · `Pets`
+- "Bella — Vet Checkup" — Annually, September · `Pets`
 
 #### Design Implications
 
@@ -363,15 +365,15 @@ Rachel manages 15 rental properties with a team of 3 maintenance workers. Annual
 
 #### Chronir Usage Scenario
 
-Rachel creates a "Properties" group with her 3 maintenance workers. She creates 60+ alarms organized by property. "Unit 4B — HVAC Service" is assigned to Mike with notes containing the tenant's phone number and access code. When the alarm fires on Mike's phone, he contacts the tenant, performs the service, and marks done. Rachel sees the completion logged with timestamp. During annual audits, she exports the completion history as proof of maintenance compliance.
+Rachel creates a "Properties" group with her 3 maintenance workers. She creates 60+ alarms organized by property, tagging each by type — Home for general maintenance, Vehicle for fleet servicing, Subscriptions for vendor contracts. With 60+ alarms, the grouped list view is essential: she taps the category filter to see only Home-tagged maintenance tasks, then switches to Subscriptions to review upcoming vendor renewals. "Unit 4B — HVAC Service" is assigned to Mike with notes containing the tenant's phone number and access code. When the alarm fires on Mike's phone, he contacts the tenant, performs the service, and marks done. Rachel sees the completion logged with timestamp. During annual audits, she exports the completion history as proof of maintenance compliance.
 
 #### Key Alarms
 
-- "Unit 4B — HVAC Service" — Bi-annually, assigned to Mike
-- "All Units — Fire Inspection" — Annually, March (shared team)
-- "Unit 12A — Lease Renewal" — 11 months into lease (pre-alarm 30 days)
-- "Common Areas — Pest Control" — Quarterly
-- "Unit 7C — Smoke Detector Check" — Annually
+- "Unit 4B — HVAC Service" — Bi-annually, assigned to Mike · `Home`
+- "All Units — Fire Inspection" — Annually, March (shared team) · `Home`
+- "Unit 12A — Lease Renewal" — 11 months into lease (pre-alarm 30 days) · `Subscriptions`
+- "Common Areas — Pest Control" — Quarterly · `Home`
+- "Unit 7C — Smoke Detector Check" — Annually · `Home`
 
 #### Design Implications
 
@@ -424,11 +426,11 @@ James creates a "Kids" Premium group, invites Lisa. They set up 10 shared alarms
 
 #### Key Alarms
 
-- "Piano Lessons — Emma" — Monthly, assigned to James
-- "Soccer Registration" — Annually, Aug 1, assigned to Lisa
-- "Dentist Checkup — Both Kids" — Every 6 months (shared)
-- "School Supply Fee" — Annually, August (shared)
-- "Summer Camp Deposit" — Annually, February (shared)
+- "Piano Lessons — Emma" — Monthly, assigned to James · `Personal`
+- "Soccer Registration" — Annually, Aug 1, assigned to Lisa · `Personal`
+- "Dentist Checkup — Both Kids" — Every 6 months (shared) · `Health`
+- "School Supply Fee" — Annually, August (shared) · `Finance`
+- "Summer Camp Deposit" — Annually, February (shared) · `Finance`
 
 #### Design Implications
 

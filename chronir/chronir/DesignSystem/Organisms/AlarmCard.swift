@@ -68,6 +68,9 @@ struct AlarmCard: View {
                     )
                     HStack(spacing: SpacingTokens.xs) {
                         ChronirBadge(cycleType: alarm.cycleType)
+                        if let cat = alarm.alarmCategory {
+                            ChronirBadge(cat.displayName, color: cat.color)
+                        }
                         if let badge = visualState.statusBadge {
                             ChronirBadge(badge.text, color: badge.color)
                         }
@@ -125,7 +128,7 @@ private extension AlarmCard {
         Alarm(
             title: "Pay Rent",
             cycleType: .monthlyDate,
-            schedule: .monthlyDate(dayOfMonth: 1, interval: 1)
+            schedule: .monthlyDate(daysOfMonth: [1], interval: 1)
         )
     }
 }

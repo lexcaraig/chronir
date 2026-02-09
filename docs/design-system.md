@@ -432,6 +432,16 @@ Displays relative time until next alarm fires.
 | targetDate | DateTime       | required | Next fire date                                     |
 | style      | CountdownStyle | .compact | .compact ("6h 32m"), .full ("6 hours, 32 minutes") |
 
+#### ChronirCategoryPicker
+
+Horizontal scrollable capsule buttons for selecting an alarm category.
+
+| Property  | Type            | Default  | Description              |
+| --------- | --------------- | -------- | ------------------------ |
+| selection | AlarmCategory?  | required | Currently selected category (nil = none) |
+
+Shows "None" option plus all `AlarmCategory` cases. Each capsule displays the category's SF Symbol icon and display name. Selected state uses the category's accent color; unselected uses `backgroundTertiary`.
+
 ---
 
 ### 5.3 Organisms
@@ -453,7 +463,7 @@ The primary list item displaying a single alarm with all relevant information.
 ┌─────────────────────────────────────────┐
 │  [AlarmIcon]  7:00 AM          [Toggle] │
 │               Pay Rent                  │
-│  [ChronirBadge: Monthly]   Alarm in 6h   │
+│  [Badge: Monthly] [Badge: Finance]  6h  │
 └─────────────────────────────────────────┘
 ```
 
@@ -795,7 +805,8 @@ chronir/chronir/
 │   ├── Molecules/
 │   │   ├── TimePickerField.swift
 │   │   ├── AlarmToggleRow.swift
-│   │   └── CycleTypeSelector.swift
+│   │   ├── CycleTypeSelector.swift
+│   │   └── ChronirCategoryPicker.swift
 │   ├── Organisms/
 │   │   ├── AlarmCard.swift
 │   │   ├── AlarmListHeader.swift

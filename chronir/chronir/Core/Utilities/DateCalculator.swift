@@ -18,9 +18,9 @@ struct DateCalculator: Sendable {
                 from: date, daysOfWeek: daysOfWeek,
                 interval: interval, hour: hour, minute: minute
             )
-        case .monthlyDate(let dayOfMonth, let interval):
+        case .monthlyDate(let daysOfMonth, let interval):
             return nextMonthlyDate(
-                from: date, dayOfMonth: dayOfMonth,
+                from: date, daysOfMonth: daysOfMonth,
                 interval: interval, hour: hour, minute: minute
             )
         case .monthlyRelative(let weekOfMonth, let dayOfWeek, let interval):
@@ -88,32 +88,38 @@ struct DateCalculator: Sendable {
     // MARK: - Monthly (by date)
 
     private func nextMonthlyDate(
-        from date: Date, dayOfMonth: Int,
+        from date: Date, daysOfMonth: [Int],
         interval: Int, hour: Int, minute: Int
     ) -> Date {
+        guard !daysOfMonth.isEmpty else { return date }
+
+        let sortedDays = daysOfMonth.sorted()
         let currentMonth = calendar.component(.month, from: date)
         let currentYear = calendar.component(.year, from: date)
 
-        // Try this month
-        let clampedDay = clampDay(
-            dayOfMonth, month: currentMonth, year: currentYear
-        )
-        if let candidate = calendar.date(from: DateComponents(
-            year: currentYear, month: currentMonth,
-            day: clampedDay, hour: hour, minute: minute
-        )),
-           candidate > date {
-            return candidate
+        // Try to find a matching day this month
+        for day in sortedDays {
+            let clampedDay = clampDay(
+                day, month: currentMonth, year: currentYear
+            )
+            if let candidate = calendar.date(from: DateComponents(
+                year: currentYear, month: currentMonth,
+                day: clampedDay, hour: hour, minute: minute
+            )),
+               candidate > date {
+                return candidate
+            }
         }
 
-        // Move forward by interval months
+        // No match this month — advance by interval months, pick first sorted day
         guard let nextDate = calendar.date(
             byAdding: .month, value: interval, to: date
         ) else { return date }
         let nextMonth = calendar.component(.month, from: nextDate)
         let nextYear = calendar.component(.year, from: nextDate)
+        let firstDay = sortedDays[0]
         let nextClampedDay = clampDay(
-            dayOfMonth, month: nextMonth, year: nextYear
+            firstDay, month: nextMonth, year: nextYear
         )
 
         return calendar.date(from: DateComponents(

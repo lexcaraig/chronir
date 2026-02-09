@@ -12,8 +12,7 @@ struct LabeledTextField: View {
                 .font(TypographyTokens.bodyMedium)
                 .foregroundStyle(ColorTokens.textPrimary)
                 .padding(SpacingTokens.md)
-                .background(ColorTokens.backgroundTertiary)
-                .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
+                .glassEffect(GlassTokens.element, in: .rect(cornerRadius: RadiusTokens.sm))
         }
     }
 }

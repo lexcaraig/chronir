@@ -10,7 +10,8 @@ final class AlarmCreationViewModel {
     var isPersistent: Bool = false
     var note: String = ""
     var selectedDays: Set<Int> = [2] // Monday (ISO)
-    var dayOfMonth: Int = 1
+    var daysOfMonth: Set<Int> = [1]
+    var category: AlarmCategory?
     var isLoading: Bool = false
     var errorMessage: String?
 
@@ -33,6 +34,7 @@ final class AlarmCreationViewModel {
             timeOfDayMinute: minute,
             schedule: schedule,
             persistenceLevel: isPersistent ? .full : .notificationOnly,
+            category: category?.rawValue,
             note: note.isEmpty ? nil : note
         )
 
@@ -56,7 +58,7 @@ final class AlarmCreationViewModel {
         case .weekly:
             return .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: 1)
         case .monthlyDate:
-            return .monthlyDate(dayOfMonth: dayOfMonth, interval: 1)
+            return .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: 1)
         case .monthlyRelative:
             return .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: 1)
         case .annual:

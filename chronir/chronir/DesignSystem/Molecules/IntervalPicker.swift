@@ -27,8 +27,12 @@ struct IntervalPicker: View {
                         )
                         .padding(.horizontal, SpacingTokens.md)
                         .padding(.vertical, SpacingTokens.sm)
-                        .background(selection == option ? ColorTokens.primary : ColorTokens.backgroundTertiary)
-                        .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
+                        .glassEffect(
+                            selection == option
+                                ? GlassTokens.element.tint(ColorTokens.primary).interactive()
+                                : GlassTokens.element,
+                            in: .capsule
+                        )
                     }
                 }
             }

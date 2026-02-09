@@ -59,6 +59,23 @@ struct DynamicTypePreview<Content: View>: View {
     }
 }
 
+/// Wraps content in a GlassEffectContainer with dark background for glass previews.
+struct GlassPreview<Content: View>: View {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        GlassEffectContainer {
+            content
+        }
+        .preferredColorScheme(.dark)
+        .background(ColorTokens.backgroundPrimary)
+    }
+}
+
 /// Wraps content for component state matrix (useful for buttons, toggles, etc.)
 struct StateMatrixPreview<Content: View>: View {
     let content: Content
