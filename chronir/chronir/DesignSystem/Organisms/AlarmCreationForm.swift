@@ -3,7 +3,7 @@ import SwiftUI
 struct AlarmCreationForm: View {
     @Binding var title: String
     @Binding var cycleType: CycleType
-    @Binding var scheduledTime: Date
+    @Binding var timesOfDay: [TimeOfDay]
     @Binding var isPersistent: Bool
     @Binding var note: String
     @Binding var selectedDays: Set<Int>
@@ -24,7 +24,7 @@ struct AlarmCreationForm: View {
 
             ChronirCategoryPicker(selection: $category)
 
-            TimePickerField(label: "Time", selection: $scheduledTime)
+            TimesOfDayPicker(times: $timesOfDay)
 
             ChronirToggle(label: "Persistent (requires dismissal)", isOn: $isPersistent)
 
@@ -99,7 +99,7 @@ struct AlarmCreationForm: View {
 #Preview {
     @Previewable @State var title = ""
     @Previewable @State var cycleType = CycleType.weekly
-    @Previewable @State var time = Date()
+    @Previewable @State var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
     @Previewable @State var isPersistent = false
     @Previewable @State var note = ""
     @Previewable @State var selectedDays: Set<Int> = [2]
@@ -110,7 +110,7 @@ struct AlarmCreationForm: View {
         AlarmCreationForm(
             title: $title,
             cycleType: $cycleType,
-            scheduledTime: $time,
+            timesOfDay: $timesOfDay,
             isPersistent: $isPersistent,
             note: $note,
             selectedDays: $selectedDays,

@@ -13,6 +13,7 @@ final class Alarm: Identifiable {
     var cycleType: CycleType
     var timeOfDayHour: Int
     var timeOfDayMinute: Int
+    var timesOfDayData: Data?
     var scheduleData: Data
     var nextFireDate: Date
     var lastFiredDate: Date?
@@ -61,9 +62,45 @@ final class Alarm: Identifiable {
     }
 
     @Transient
+    var timesOfDay: [TimeOfDay] {
+        get {
+            guard let data = timesOfDayData,
+                  let decoded = try? JSONDecoder().decode([TimeOfDay].self, from: data),
+                  !decoded.isEmpty else {
+                return [TimeOfDay(hour: timeOfDayHour, minute: timeOfDayMinute)]
+            }
+            return decoded.sorted()
+        }
+        set {
+            let sorted = newValue.sorted()
+            timesOfDayData = try? JSONEncoder().encode(sorted)
+            if let first = sorted.first {
+                timeOfDayHour = first.hour
+                timeOfDayMinute = first.minute
+            }
+        }
+    }
+
+    @Transient
+    var hasMultipleTimes: Bool {
+        timesOfDay.count > 1
+    }
+
+    @Transient
     var scheduledTime: Date {
+        let now = Date()
         let cal = Calendar.current
-        return cal.date(from: DateComponents(hour: timeOfDayHour, minute: timeOfDayMinute)) ?? Date()
+        let times = timesOfDay
+        // Find the next upcoming time today
+        for time in times {
+            if let candidate = cal.date(from: DateComponents(hour: time.hour, minute: time.minute)),
+               candidate > now {
+                return candidate
+            }
+        }
+        // All times passed today — return the first time (for display)
+        let first = times.first ?? TimeOfDay(hour: timeOfDayHour, minute: timeOfDayMinute)
+        return cal.date(from: DateComponents(hour: first.hour, minute: first.minute)) ?? Date()
     }
 
     @Transient
@@ -85,6 +122,7 @@ final class Alarm: Identifiable {
         cycleType: CycleType = .weekly,
         timeOfDayHour: Int = 8,
         timeOfDayMinute: Int = 0,
+        timesOfDay: [TimeOfDay]? = nil,
         schedule: Schedule = .weekly(daysOfWeek: [2], interval: 1),
         nextFireDate: Date = Date(),
         lastFiredDate: Date? = nil,
@@ -108,8 +146,16 @@ final class Alarm: Identifiable {
         self.id = id
         self.title = title
         self.cycleType = cycleType
-        self.timeOfDayHour = timeOfDayHour
-        self.timeOfDayMinute = timeOfDayMinute
+        if let times = timesOfDay, !times.isEmpty {
+            let sorted = times.sorted()
+            self.timeOfDayHour = sorted[0].hour
+            self.timeOfDayMinute = sorted[0].minute
+            self.timesOfDayData = try? JSONEncoder().encode(sorted)
+        } else {
+            self.timeOfDayHour = timeOfDayHour
+            self.timeOfDayMinute = timeOfDayMinute
+            self.timesOfDayData = nil
+        }
         // swiftlint:disable:next force_try
         self.scheduleData = try! JSONEncoder().encode(schedule)
         self.nextFireDate = nextFireDate

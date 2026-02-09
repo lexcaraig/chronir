@@ -88,12 +88,24 @@ struct AlarmCard: View {
                         time: alarm.scheduledTime,
                         countdownText: countdownText
                     )
+                    if alarm.hasMultipleTimes {
+                        ChronirBadge(
+                            "+\(alarm.timesOfDay.count - 1)",
+                            color: ColorTokens.backgroundTertiary
+                        )
+                    }
                 } else {
                     ChronirText(
                         alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
                         style: .headlineTime,
                         color: ColorTokens.textDisabled
                     )
+                    if alarm.hasMultipleTimes {
+                        ChronirBadge(
+                            "+\(alarm.timesOfDay.count - 1)",
+                            color: ColorTokens.backgroundTertiary
+                        )
+                    }
                 }
                 Spacer()
                 if alarm.isPersistent {

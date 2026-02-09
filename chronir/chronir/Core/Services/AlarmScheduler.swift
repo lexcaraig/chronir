@@ -24,58 +24,80 @@ final class AlarmScheduler: AlarmScheduling {
     }
 
     func scheduleAlarm(_ alarm: Alarm) async throws {
-        // Ensure authorization before scheduling
         if alarmManager.authorizationState != .authorized {
             let state = try await alarmManager.requestAuthorization()
             guard state == .authorized else { return }
         }
 
+        let snoozeDuration = AlarmKit.Alarm.CountdownDuration(
+            preAlert: nil,
+            postAlert: 3600 // 1-hour snooze
+        )
+
+        let fireDates = dateCalculator.calculateNextFireDates(for: alarm, from: Date())
+        let ids = alarmIDs(for: alarm)
+
+        for (index, fireDate) in fireDates.enumerated() where index < ids.count {
+            _ = try await alarmManager.schedule(
+                id: ids[index],
+                configuration: .init(
+                    countdownDuration: snoozeDuration,
+                    schedule: .fixed(fireDate),
+                    attributes: buildAttributes(for: alarm)
+                )
+            )
+        }
+    }
+
+    private func buildAttributes(for alarm: Alarm) -> AlarmAttributes<AlarmMetadataPayload> {
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: alarm.title),
-            stopButton: AlarmButton(
-                text: "Done",
-                textColor: .white,
-                systemImageName: "checkmark.circle"
-            ),
-            secondaryButton: AlarmButton(
-                text: "Snooze",
-                textColor: .white,
-                systemImageName: "zzz"
-            ),
-            secondaryButtonBehavior: .custom
+            stopButton: AlarmButton(text: "Done", textColor: .white, systemImageName: "checkmark.circle"),
+            secondaryButton: AlarmButton(text: "Snooze", textColor: .white, systemImageName: "zzz"),
+            secondaryButtonBehavior: .countdown
         )
 
-        let metadata = AlarmMetadataPayload(
-            alarmID: alarm.id.uuidString,
-            title: alarm.title
+        let countdown = AlarmPresentation.Countdown(
+            title: LocalizedStringResource(stringLiteral: "Snoozed: \(alarm.title)")
         )
 
-        let attributes = AlarmAttributes(
-            presentation: AlarmPresentation(alert: alert),
-            metadata: metadata,
+        let paused = AlarmPresentation.Paused(
+            title: LocalizedStringResource(stringLiteral: "Paused: \(alarm.title)"),
+            resumeButton: AlarmButton(text: "Resume", textColor: .white, systemImageName: "play.circle")
+        )
+
+        return AlarmAttributes(
+            presentation: AlarmPresentation(alert: alert, countdown: countdown, paused: paused),
+            metadata: AlarmMetadataPayload(alarmID: alarm.id.uuidString, title: alarm.title),
             tintColor: ColorTokens.primary
-        )
-
-        let schedule = AlarmKit.Alarm.Schedule.fixed(alarm.nextFireDate)
-
-        _ = try await alarmManager.schedule(
-            id: alarm.id,
-            configuration: .alarm(
-                schedule: schedule,
-                attributes: attributes
-            )
         )
     }
 
     func cancelAlarm(_ alarm: Alarm) async throws {
-        try AlarmManager.shared.cancel(id: alarm.id)
+        for id in alarmIDs(for: alarm) {
+            try? AlarmManager.shared.cancel(id: id)
+        }
     }
 
     func rescheduleAllAlarms() async throws {
         let alarms = try await repository.fetchEnabled()
         for alarm in alarms {
+            try await cancelAlarm(alarm)
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
             try await scheduleAlarm(alarm)
+        }
+    }
+
+    // MARK: - Multi-time ID Derivation
+
+    private func alarmIDs(for alarm: Alarm) -> [UUID] {
+        let times = alarm.timesOfDay
+        guard times.count > 1 else { return [alarm.id] }
+        return times.indices.map { index in
+            if index == 0 { return alarm.id }
+            var bytes = alarm.id.uuid
+            bytes.15 = UInt8(truncatingIfNeeded: Int(bytes.15) &+ index)
+            return UUID(uuid: bytes)
         }
     }
 }

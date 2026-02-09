@@ -293,6 +293,78 @@ struct DateCalculatorTests {
         #expect(!calculator.isDSTTransition(on: normal, in: tz))
     }
 
+    // MARK: - Multiple Times Per Day
+
+    @Test func multipleTimesPicksEarliestNextFire() {
+        // 10:00 AM, alarm with times [9:00, 12:00, 17:00] → next is 12:00
+        let from = date(2026, 2, 4, 10, 0) // Wednesday
+        let alarm = makeAlarm(
+            schedule: .weekly(daysOfWeek: [4], interval: 1), // Wednesday
+            timesOfDay: [
+                TimeOfDay(hour: 9, minute: 0),
+                TimeOfDay(hour: 12, minute: 0),
+                TimeOfDay(hour: 17, minute: 0)
+            ]
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        let components = calendar.dateComponents([.hour, .minute], from: next)
+        #expect(components.hour == 12)
+        #expect(components.minute == 0)
+    }
+
+    @Test func multipleTimesAllPassedToday() {
+        // 13:00, alarm with times [9:00, 12:00] on Wednesday → next Wednesday 9:00
+        let from = date(2026, 2, 4, 13, 0) // Wednesday
+        let alarm = makeAlarm(
+            schedule: .weekly(daysOfWeek: [4], interval: 1),
+            timesOfDay: [
+                TimeOfDay(hour: 9, minute: 0),
+                TimeOfDay(hour: 12, minute: 0)
+            ]
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        #expect(next > from)
+        let components = calendar.dateComponents([.weekday, .hour], from: next)
+        #expect(components.weekday == 4)
+        #expect(components.hour == 9)
+    }
+
+    @Test func multipleTimesNextFireDatesReturnsAll() {
+        let from = date(2026, 2, 4, 10, 0) // Wednesday
+        let alarm = makeAlarm(
+            schedule: .weekly(daysOfWeek: [4], interval: 1),
+            timesOfDay: [
+                TimeOfDay(hour: 9, minute: 0),
+                TimeOfDay(hour: 12, minute: 0),
+                TimeOfDay(hour: 17, minute: 0)
+            ]
+        )
+        let dates = calculator.calculateNextFireDates(for: alarm, from: from)
+        #expect(dates.count == 3)
+        // Should be sorted
+        #expect(dates[0] < dates[1])
+        #expect(dates[1] < dates[2])
+    }
+
+    @Test func singleTimeBackwardCompat() {
+        // Single-time alarm should produce same result as before
+        let from = date(2026, 2, 4, 10, 0) // Wednesday
+        let alarmLegacy = Alarm(
+            title: "Test",
+            cycleType: .weekly,
+            timeOfDayHour: 9,
+            timeOfDayMinute: 30,
+            schedule: .weekly(daysOfWeek: [6], interval: 1)
+        )
+        let alarmMulti = makeAlarm(
+            schedule: .weekly(daysOfWeek: [6], interval: 1),
+            timesOfDay: [TimeOfDay(hour: 9, minute: 30)]
+        )
+        let nextLegacy = calculator.calculateNextFireDate(for: alarmLegacy, from: from)
+        let nextMulti = calculator.calculateNextFireDate(for: alarmMulti, from: from)
+        #expect(nextLegacy == nextMulti)
+    }
+
     // MARK: - Factory
 
     private func makeAlarm(
@@ -303,6 +375,17 @@ struct DateCalculatorTests {
             cycleType: schedule.cycleType,
             timeOfDayHour: hour,
             timeOfDayMinute: minute,
+            schedule: schedule
+        )
+    }
+
+    private func makeAlarm(
+        schedule: Schedule, timesOfDay: [TimeOfDay]
+    ) -> Alarm {
+        Alarm(
+            title: "Test",
+            cycleType: schedule.cycleType,
+            timesOfDay: timesOfDay,
             schedule: schedule
         )
     }

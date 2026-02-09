@@ -19,6 +19,7 @@ struct ComponentCatalog: View {
                 NavigationLink("SnoozeOptionBar") { CatalogSnoozeBarView() }
                 NavigationLink("LabeledTextField") { CatalogLabeledTextFieldView() }
                 NavigationLink("TimePickerField") { CatalogTimePickerFieldView() }
+                NavigationLink("TimesOfDayPicker") { CatalogTimesOfDayPickerView() }
                 NavigationLink("ChronirCategoryPicker") { CatalogCategoryPickerView() }
             }
             .listRowBackground(ColorTokens.surfaceCard)
@@ -208,6 +209,21 @@ private struct CatalogTimePickerFieldView: View {
     }
 }
 
+private struct CatalogTimesOfDayPickerView: View {
+    @State private var times: [TimeOfDay] = [
+        TimeOfDay(hour: 9, minute: 0),
+        TimeOfDay(hour: 12, minute: 0),
+        TimeOfDay(hour: 17, minute: 0)
+    ]
+
+    var body: some View {
+        TimesOfDayPicker(times: $times)
+            .padding()
+            .background(ColorTokens.backgroundPrimary)
+            .navigationTitle("TimesOfDayPicker")
+    }
+}
+
 // MARK: - Organism Catalog Views
 
 private struct CatalogAlarmCardView: View {
@@ -300,7 +316,7 @@ private struct CatalogAlarmFiringOverlayView: View {
 private struct CatalogAlarmCreationFormView: View {
     @State private var title = ""
     @State private var cycleType = CycleType.weekly
-    @State private var time = Date()
+    @State private var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
     @State private var isPersistent = false
     @State private var note = ""
     @State private var selectedDays: Set<Int> = [2]
@@ -312,7 +328,7 @@ private struct CatalogAlarmCreationFormView: View {
             AlarmCreationForm(
                 title: $title,
                 cycleType: $cycleType,
-                scheduledTime: $time,
+                timesOfDay: $timesOfDay,
                 isPersistent: $isPersistent,
                 note: $note,
                 selectedDays: $selectedDays,

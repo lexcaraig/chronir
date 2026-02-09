@@ -5,7 +5,7 @@ struct AlarmCreationView: View {
     let modelContext: ModelContext
     @State private var title = ""
     @State private var cycleType: CycleType = .weekly
-    @State private var scheduledTime = Date()
+    @State private var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
     @State private var isPersistent = false
     @State private var note = ""
     @State private var selectedDays: Set<Int> = [2]
@@ -23,7 +23,7 @@ struct AlarmCreationView: View {
                 AlarmCreationForm(
                     title: $title,
                     cycleType: $cycleType,
-                    scheduledTime: $scheduledTime,
+                    timesOfDay: $timesOfDay,
                     isPersistent: $isPersistent,
                     note: $note,
                     selectedDays: $selectedDays,
@@ -47,8 +47,6 @@ struct AlarmCreationView: View {
         }
 
         let calendar = Calendar.current
-        let hour = calendar.component(.hour, from: scheduledTime)
-        let minute = calendar.component(.minute, from: scheduledTime)
 
         let schedule: Schedule
         switch cycleType {
@@ -59,9 +57,10 @@ struct AlarmCreationView: View {
         case .monthlyRelative:
             schedule = .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: 1)
         case .annual:
+            let now = Date()
             schedule = .annual(
-                month: calendar.component(.month, from: scheduledTime),
-                dayOfMonth: calendar.component(.day, from: scheduledTime),
+                month: calendar.component(.month, from: now),
+                dayOfMonth: calendar.component(.day, from: now),
                 interval: 1
             )
         case .customDays:
@@ -71,8 +70,7 @@ struct AlarmCreationView: View {
         let alarm = Alarm(
             title: trimmedTitle,
             cycleType: cycleType,
-            timeOfDayHour: hour,
-            timeOfDayMinute: minute,
+            timesOfDay: timesOfDay,
             schedule: schedule,
             persistenceLevel: isPersistent ? .full : .notificationOnly,
             category: category?.rawValue,

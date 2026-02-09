@@ -10,7 +10,7 @@ final class AlarmDetailViewModel {
     var alarm: Alarm?
     var title: String = ""
     var cycleType: CycleType = .weekly
-    var scheduledTime: Date = Date()
+    var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
     var isPersistent: Bool = false
     var note: String = ""
     var selectedDays: Set<Int> = [2]
@@ -40,11 +40,7 @@ final class AlarmDetailViewModel {
             self.isPersistent = alarm.persistenceLevel == .full
             self.note = alarm.note ?? ""
             self.category = alarm.alarmCategory
-
-            let cal = Calendar.current
-            self.scheduledTime = cal.date(
-                from: DateComponents(hour: alarm.timeOfDayHour, minute: alarm.timeOfDayMinute)
-            ) ?? Date()
+            self.timesOfDay = alarm.timesOfDay
 
             switch alarm.schedule {
             case .weekly(let daysOfWeek, _):
@@ -63,14 +59,9 @@ final class AlarmDetailViewModel {
         guard let alarm else { return }
         guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
 
-        let calendar = Calendar.current
-        let hour = calendar.component(.hour, from: scheduledTime)
-        let minute = calendar.component(.minute, from: scheduledTime)
-
         alarm.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
         alarm.cycleType = cycleType
-        alarm.timeOfDayHour = hour
-        alarm.timeOfDayMinute = minute
+        alarm.timesOfDay = timesOfDay
         alarm.schedule = buildSchedule()
         alarm.persistenceLevel = isPersistent ? .full : .notificationOnly
         alarm.note = note.isEmpty ? nil : note
@@ -126,10 +117,11 @@ final class AlarmDetailViewModel {
         case .monthlyRelative:
             return .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: 1)
         case .annual:
+            let now = Date()
             let cal = Calendar.current
             return .annual(
-                month: cal.component(.month, from: scheduledTime),
-                dayOfMonth: cal.component(.day, from: scheduledTime),
+                month: cal.component(.month, from: now),
+                dayOfMonth: cal.component(.day, from: now),
                 interval: 1
             )
         case .customDays:

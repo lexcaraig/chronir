@@ -8,10 +8,33 @@ struct DateCalculator: Sendable {
     }
 
     func calculateNextFireDate(for alarm: Alarm, from date: Date) -> Date {
-        let schedule = alarm.schedule
-        let hour = alarm.timeOfDayHour
-        let minute = alarm.timeOfDayMinute
+        let times = alarm.timesOfDay.sorted()
+        var earliest: Date?
+        for time in times {
+            let candidate = nextFireDateForSchedule(
+                alarm.schedule, from: date,
+                hour: time.hour, minute: time.minute
+            )
+            if earliest == nil || candidate < earliest! {
+                earliest = candidate
+            }
+        }
+        return earliest ?? date
+    }
 
+    func calculateNextFireDates(for alarm: Alarm, from date: Date) -> [Date] {
+        alarm.timesOfDay.sorted().map { time in
+            nextFireDateForSchedule(
+                alarm.schedule, from: date,
+                hour: time.hour, minute: time.minute
+            )
+        }.sorted()
+    }
+
+    private func nextFireDateForSchedule(
+        _ schedule: Schedule, from date: Date,
+        hour: Int, minute: Int
+    ) -> Date {
         switch schedule {
         case .weekly(let daysOfWeek, let interval):
             return nextWeekly(

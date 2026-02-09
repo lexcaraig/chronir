@@ -32,9 +32,21 @@ struct ChronirApp: App {
             }
             .task {
                 for await alarms in AlarmManager.shared.alarmUpdates {
-                    for alarm in alarms where alarm.state == .alerting {
-                        await MainActor.run {
-                            AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
+                    for alarm in alarms {
+                        switch alarm.state {
+                        case .alerting:
+                            await MainActor.run {
+                                AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
+                            }
+                        case .countdown:
+                            // User pressed Snooze on lock screen — increment snooze count
+                            if let repo = AlarmRepository.shared,
+                               let model = try? await repo.fetch(by: alarm.id) {
+                                model.snoozeCount += 1
+                                try? await repo.update(model)
+                            }
+                        default:
+                            break
                         }
                     }
                 }
