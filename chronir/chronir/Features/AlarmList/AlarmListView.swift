@@ -12,6 +12,7 @@ struct AlarmListView: View {
     @State private var showUpgradePrompt = false
     @State private var isGroupedByCategory = false
     @State private var selectedCategoryFilter: AlarmCategory?
+    @State private var selectedCategory: AlarmCategory?
     @State private var paywallViewModel = PaywallViewModel()
     private var firingCoordinator = AlarmFiringCoordinator.shared
     private let alarmCheckTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -54,45 +55,47 @@ struct AlarmListView: View {
                 }
 
                 if isGroupedByCategory && !paywallViewModel.isFreeTier {
-                    ForEach(groupedAlarms, id: \.category) { group in
-                        Section {
-                            ForEach(group.alarms) { alarm in
-                                alarmRow(alarm)
-                            }
-                        } header: {
-                            HStack(spacing: SpacingTokens.xs) {
-                                if let cat = group.category {
-                                    Image(systemName: cat.iconName)
-                                        .foregroundStyle(cat.color)
-                                    ChronirText(
-                                        cat.displayName.uppercased(),
-                                        style: .labelLarge,
-                                        color: ColorTokens.textSecondary
-                                    )
-                                } else {
-                                    ChronirText(
-                                        "UNCATEGORIZED",
-                                        style: .labelLarge,
-                                        color: ColorTokens.textSecondary
-                                    )
-                                }
-                                ChronirBadge("\(group.alarms.count)", color: ColorTokens.backgroundTertiary)
-                            }
+                    // Full section-header grouping with smart collapse
+                    ForEach(smartGroupedItems, id: \.id) { item in
+                        switch item {
+                        case .grouped(let category, let alarms):
+                            CategoryGroupCard(
+                                category: category,
+                                alarms: alarms,
+                                enabledStates: enabledStates
+                            )
+                            .contentShape(Rectangle())
+                            .onTapGesture { selectedCategory = category }
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(
+                                top: SpacingTokens.xxs, leading: SpacingTokens.md,
+                                bottom: SpacingTokens.xxs, trailing: SpacingTokens.md
+                            ))
+                        case .individual(let alarm):
+                            alarmRow(alarm)
                         }
                     }
                 } else {
-                    Section {
-                        ForEach(filteredAlarms) { alarm in
-                            alarmRow(alarm)
-                        }
-                    } header: {
-                        HStack(spacing: SpacingTokens.xs) {
-                            ChronirText(
-                                "UPCOMING",
-                                style: .labelLarge,
-                                color: ColorTokens.textSecondary
+                    // Default view: auto-collapse categories with 2+ alarms
+                    ForEach(smartGroupedItems, id: \.id) { item in
+                        switch item {
+                        case .grouped(let category, let alarms):
+                            CategoryGroupCard(
+                                category: category,
+                                alarms: alarms,
+                                enabledStates: enabledStates
                             )
-                            ChronirBadge("\(filteredAlarms.count)", color: ColorTokens.backgroundTertiary)
+                            .contentShape(Rectangle())
+                            .onTapGesture { selectedCategory = category }
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(
+                                top: SpacingTokens.xxs, leading: SpacingTokens.md,
+                                bottom: SpacingTokens.xxs, trailing: SpacingTokens.md
+                            ))
+                        case .individual(let alarm):
+                            alarmRow(alarm)
                         }
                     }
                 }
@@ -104,6 +107,9 @@ struct AlarmListView: View {
         .navigationTitle("Alarms")
         .navigationDestination(item: $selectedAlarmID) { alarmID in
             AlarmDetailView(alarmID: alarmID)
+        }
+        .navigationDestination(item: $selectedCategory) { category in
+            CategoryDetailView(category: category)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -314,20 +320,40 @@ struct AlarmListView: View {
         return AlarmCategory.allCases.filter { cats.contains($0) }
     }
 
-    private var groupedAlarms: [(category: AlarmCategory?, alarms: [Alarm])] {
-        let source = filteredAlarms
-        var groups: [(category: AlarmCategory?, alarms: [Alarm])] = []
-        let categorized = Dictionary(grouping: source.filter { $0.alarmCategory != nil }) { $0.alarmCategory! }
-        for cat in AlarmCategory.allCases {
-            if let group = categorized[cat], !group.isEmpty {
-                groups.append((category: cat, alarms: group))
+    private enum SmartListItem: Identifiable {
+        case grouped(AlarmCategory, [Alarm])
+        case individual(Alarm)
+
+        var id: String {
+            switch self {
+            case .grouped(let category, _): return "group-\(category.rawValue)"
+            case .individual(let alarm): return "alarm-\(alarm.id.uuidString)"
             }
         }
-        let uncategorized = source.filter { $0.alarmCategory == nil }
-        if !uncategorized.isEmpty {
-            groups.append((category: nil, alarms: uncategorized))
+    }
+
+    private var smartGroupedItems: [SmartListItem] {
+        let source = filteredAlarms
+        let categorized = Dictionary(grouping: source) { $0.alarmCategory }
+        var items: [SmartListItem] = []
+
+        for cat in AlarmCategory.allCases {
+            guard let alarms = categorized[cat], !alarms.isEmpty else { continue }
+            if alarms.count >= 2 {
+                items.append(.grouped(cat, alarms))
+            } else {
+                items.append(.individual(alarms[0]))
+            }
         }
-        return groups
+
+        // Uncategorized alarms are always individual
+        if let uncategorized = categorized[nil] {
+            for alarm in uncategorized {
+                items.append(.individual(alarm))
+            }
+        }
+
+        return items
     }
 
     private func requestCreateAlarm() {
