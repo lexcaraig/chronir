@@ -1,11 +1,13 @@
 import SwiftUI
 import SwiftData
+import AlarmKit
 
 @main
 struct ChronirApp: App {
     let container: ModelContainer
     @State private var coordinator = AlarmFiringCoordinator.shared
     @Bindable private var settings = UserSettings.shared
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         do {
@@ -23,13 +25,19 @@ struct ChronirApp: App {
             }
             .tint(ColorTokens.primary)
             .modelContainer(container)
-            .onAppear {
-                NotificationService.shared.registerCategories()
-            }
             .task {
                 guard settings.hasCompletedOnboarding else { return }
-                _ = try? await PermissionManager.shared.requestNotificationPermission()
+                _ = await PermissionManager.shared.requestAlarmPermission()
                 try? await AlarmScheduler.shared.rescheduleAllAlarms()
+            }
+            .task {
+                for await alarms in AlarmManager.shared.alarmUpdates {
+                    for alarm in alarms where alarm.state == .alerting {
+                        await MainActor.run {
+                            AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
+                        }
+                    }
+                }
             }
             .fullScreenCover(item: $coordinator.firingAlarmID) { alarmID in
                 AlarmFiringView(alarmID: alarmID)

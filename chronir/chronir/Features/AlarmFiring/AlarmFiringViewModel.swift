@@ -1,8 +1,6 @@
 import Foundation
 import Observation
-#if canImport(UserNotifications)
-import UserNotifications
-#endif
+import AlarmKit
 
 @Observable
 final class AlarmFiringViewModel {
@@ -54,12 +52,12 @@ final class AlarmFiringViewModel {
         case .oneWeek: 604800
         }
 
+        try? AlarmManager.shared.stop(id: alarm.id)
+
         alarm.snoozeCount += 1
         alarm.nextFireDate = Date().addingTimeInterval(seconds)
 
-        #if os(iOS)
-        await scheduleSnoozeNotification(alarm: alarm, delay: seconds)
-        #endif
+        try? await scheduler.scheduleAlarm(alarm)
 
         saveCompletionRecord(alarmID: alarm.id, action: .snoozed)
 
@@ -80,6 +78,8 @@ final class AlarmFiringViewModel {
 
     func dismiss() async {
         guard let alarm else { return }
+
+        try? AlarmManager.shared.stop(id: alarm.id)
 
         alarm.lastFiredDate = Date()
         alarm.snoozeCount = 0
@@ -104,27 +104,6 @@ final class AlarmFiringViewModel {
     }
 
     // MARK: - Private
-
-    #if os(iOS)
-    private func scheduleSnoozeNotification(alarm: Alarm, delay: TimeInterval) async {
-        let content = UNMutableNotificationContent()
-        content.title = alarm.title
-        content.body = "Snoozed alarm firing again"
-        content.sound = .default
-        content.interruptionLevel = .timeSensitive
-        content.categoryIdentifier = "ALARM_CATEGORY"
-        content.userInfo = ["alarmID": alarm.id.uuidString]
-
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: delay, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: "\(alarm.id.uuidString)_snooze",
-            content: content,
-            trigger: trigger
-        )
-
-        try? await UNUserNotificationCenter.current().add(request)
-    }
-    #endif
 
     private func saveCompletionRecord(alarmID: UUID, action: CompletionAction) {
         let record = CompletionRecord(alarmID: alarmID, action: action)

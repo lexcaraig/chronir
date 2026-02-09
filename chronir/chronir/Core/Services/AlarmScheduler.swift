@@ -1,9 +1,6 @@
 import Foundation
-#if canImport(UserNotifications)
-import UserNotifications
-#endif
-
-// TODO: Replace with AlarmKit when Xcode 18/iOS 26 is available
+@preconcurrency import AlarmKit
+import SwiftUI
 
 protocol AlarmScheduling: Sendable {
     func scheduleAlarm(_ alarm: Alarm) async throws
@@ -16,6 +13,7 @@ final class AlarmScheduler: AlarmScheduling {
 
     private let repository: AlarmRepositoryProtocol
     private let dateCalculator: DateCalculator
+    private let alarmManager = AlarmManager.shared
 
     init(
         repository: AlarmRepositoryProtocol = AlarmRepository.shared,
@@ -26,51 +24,58 @@ final class AlarmScheduler: AlarmScheduling {
     }
 
     func scheduleAlarm(_ alarm: Alarm) async throws {
-        #if os(iOS)
-        let center = UNUserNotificationCenter.current()
+        // Ensure authorization before scheduling
+        if alarmManager.authorizationState != .authorized {
+            let state = try await alarmManager.requestAuthorization()
+            guard state == .authorized else { return }
+        }
 
-        let content = UNMutableNotificationContent()
-        content.title = alarm.title
-        content.body = alarm.note ?? "Alarm"
-        content.sound = .default
-        content.interruptionLevel = .timeSensitive
-        content.categoryIdentifier = "ALARM_CATEGORY"
-        content.userInfo = ["alarmID": alarm.id.uuidString]
-
-        let components = Calendar.current.dateComponents(
-            [.year, .month, .day, .hour, .minute],
-            from: alarm.nextFireDate
-        )
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-
-        let request = UNNotificationRequest(
-            identifier: alarm.id.uuidString,
-            content: content,
-            trigger: trigger
+        let alert = AlarmPresentation.Alert(
+            title: LocalizedStringResource(stringLiteral: alarm.title),
+            stopButton: AlarmButton(
+                text: "Done",
+                textColor: .white,
+                systemImageName: "checkmark.circle"
+            ),
+            secondaryButton: AlarmButton(
+                text: "Snooze",
+                textColor: .white,
+                systemImageName: "zzz"
+            ),
+            secondaryButtonBehavior: .custom
         )
 
-        try await center.add(request)
-        #endif
+        let metadata = AlarmMetadataPayload(
+            alarmID: alarm.id.uuidString,
+            title: alarm.title
+        )
+
+        let attributes = AlarmAttributes(
+            presentation: AlarmPresentation(alert: alert),
+            metadata: metadata,
+            tintColor: ColorTokens.primary
+        )
+
+        let schedule = AlarmKit.Alarm.Schedule.fixed(alarm.nextFireDate)
+
+        _ = try await alarmManager.schedule(
+            id: alarm.id,
+            configuration: .alarm(
+                schedule: schedule,
+                attributes: attributes
+            )
+        )
     }
 
     func cancelAlarm(_ alarm: Alarm) async throws {
-        #if os(iOS)
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [alarm.id.uuidString])
-        center.removeDeliveredNotifications(withIdentifiers: [alarm.id.uuidString])
-        #endif
+        try AlarmManager.shared.cancel(id: alarm.id)
     }
 
     func rescheduleAllAlarms() async throws {
-        #if os(iOS)
-        let center = UNUserNotificationCenter.current()
-        center.removeAllPendingNotificationRequests()
-
         let alarms = try await repository.fetchEnabled()
         for alarm in alarms {
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
             try await scheduleAlarm(alarm)
         }
-        #endif
     }
 }

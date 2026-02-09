@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import AlarmKit
 
 enum PermissionStatus {
     case notDetermined
@@ -11,6 +12,7 @@ enum PermissionStatus {
 protocol PermissionManaging: Sendable {
     func notificationPermissionStatus() async -> PermissionStatus
     func requestNotificationPermission() async throws -> Bool
+    func requestAlarmPermission() async -> Bool
 }
 
 final class PermissionManager: PermissionManaging {
@@ -37,5 +39,18 @@ final class PermissionManager: PermissionManaging {
     func requestNotificationPermission() async throws -> Bool {
         return try await UNUserNotificationCenter.current()
             .requestAuthorization(options: [.alert, .sound, .badge])
+    }
+
+    func requestAlarmPermission() async -> Bool {
+        if AlarmManager.shared.authorizationState == .authorized {
+            return true
+        }
+
+        do {
+            let state = try await AlarmManager.shared.requestAuthorization()
+            return state == .authorized
+        } catch {
+            return false
+        }
     }
 }

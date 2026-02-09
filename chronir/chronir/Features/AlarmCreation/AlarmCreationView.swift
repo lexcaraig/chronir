@@ -85,7 +85,7 @@ struct AlarmCreationView: View {
             // Schedule the notification
             Task {
                 do {
-                    _ = try await PermissionManager.shared.requestNotificationPermission()
+                    _ = await PermissionManager.shared.requestAlarmPermission()
                     try await AlarmScheduler.shared.scheduleAlarm(alarm)
                 } catch {
                     print("Failed to schedule notification: \(error)")

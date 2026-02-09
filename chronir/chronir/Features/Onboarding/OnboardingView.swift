@@ -93,9 +93,9 @@ struct OnboardingView: View {
                     settings.hasCompletedOnboarding = true
                 }
             } else {
-                ChronirButton("Enable Notifications") {
+                ChronirButton("Enable Alarms") {
                     Task {
-                        let granted = (try? await PermissionManager.shared.requestNotificationPermission()) ?? false
+                        let granted = await PermissionManager.shared.requestAlarmPermission()
                         permissionGranted = granted
                         if granted {
                             settings.hasCompletedOnboarding = true
