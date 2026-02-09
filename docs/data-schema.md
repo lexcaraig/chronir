@@ -110,7 +110,8 @@ The core entity. Represents a single recurring alarm with its schedule configura
 | `note`              | String(2000)  | ✗        | null                | Optional description or instructions                                      |
 | `cycle_type`        | Enum          | ✓        | —                   | `weekly`, `monthly`, `annual`, `custom`                                   |
 | `schedule`          | JSON/Embedded | ✓        | —                   | Recurrence configuration (see §3.1.1)                                     |
-| `time_of_day`       | Time          | ✓        | 09:00               | Hour:Minute the alarm fires                                               |
+| `time_of_day`       | Time          | ✓        | 09:00               | Hour:Minute the alarm fires (legacy single time)                          |
+| `times_of_day`      | JSON Array    | ✗        | null                | Array of `{hour, minute}` objects. Max 5. If null, falls back to `time_of_day` |
 | `timezone`          | String(50)    | ✓        | device TZ           | IANA timezone. E.g., `America/New_York`                                   |
 | `timezone_mode`     | Enum          | ✓        | `fixed`             | `fixed` (always fires at set TZ) or `floating` (adjusts to current TZ)    |
 | `is_enabled`        | Boolean       | ✓        | true                | Master on/off toggle                                                      |
@@ -358,7 +359,8 @@ Mirror of local alarms for cloud backup and cross-device sync (Plus+). Subcollec
 | `note`              | String          | ✗        | Description                                        |
 | `cycle_type`        | String          | ✓        | Enum as string                                     |
 | `schedule`          | Map             | ✓        | Recurrence config (same structure as local §3.1.1) |
-| `time_of_day`       | String          | ✓        | "HH:mm" format                                     |
+| `time_of_day`       | String          | ✓        | "HH:mm" format (legacy single time)                |
+| `times_of_day`      | Array\<Map\>    | ✗        | Array of `{hour, minute}`. Max 5. Null = single time |
 | `timezone`          | String          | ✓        | IANA timezone                                      |
 | `timezone_mode`     | String          | ✓        | `fixed` or `floating`                              |
 | `is_enabled`        | Boolean         | ✓        | Active toggle                                      |
@@ -481,7 +483,8 @@ Alarms shared within a group. Each member creates a local mirror of this alarm o
 | `note`                   | String          | ✗        | Description                                          |
 | `cycle_type`             | String          | ✓        |                                                      |
 | `schedule`               | Map             | ✓        | Recurrence config                                    |
-| `time_of_day`            | String          | ✓        | "HH:mm"                                              |
+| `time_of_day`            | String          | ✓        | "HH:mm" (legacy single time)                         |
+| `times_of_day`           | Array\<Map\>    | ✗        | Array of `{hour, minute}`. Max 5                     |
 | `timezone`               | String          | ✓        | IANA timezone                                        |
 | `timezone_mode`          | String          | ✓        |                                                      |
 | `persistence_level`      | String          | ✓        |                                                      |
@@ -888,7 +891,8 @@ class Alarm {
     var note: String?
     var cycleType: String          // Enum stored as String
     var scheduleJSON: Data         // Codable Schedule struct → JSON
-    var timeOfDay: Date            // Time component only
+    var timeOfDay: Date            // Time component only (legacy single time)
+    var timesOfDayData: Data?      // JSON-encoded [TimeOfDay] array. Max 5. Nil = single time
     var timezone: String
     var timezoneMode: String
     var isEnabled: Bool
@@ -919,7 +923,8 @@ data class AlarmEntity(
     val note: String?,
     val cycleType: String,
     val scheduleJson: String,          // JSON string
-    val timeOfDay: String,             // "HH:mm"
+    val timeOfDay: String,             // "HH:mm" (legacy single time)
+    val timesOfDay: String?,           // JSON array of {hour, minute}. Max 5. Null = single time
     val timezone: String,
     val timezoneMode: String,
     val isEnabled: Boolean,

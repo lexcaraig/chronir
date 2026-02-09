@@ -411,6 +411,25 @@ Combined time display and interactive picker trigger.
 - iOS: Native wheel picker in bottom sheet with Liquid Glass modal transition (`matchedTransitionSource()`)
 - Android: Material 3 TimePicker dialog
 
+#### TimesOfDayPicker
+
+Horizontal scrollable capsule chip picker for selecting multiple times per alarm (max 5).
+
+| Property | Type         | Default  | Description               |
+| -------- | ------------ | -------- | ------------------------- |
+| times    | [TimeOfDay]  | required | Current selected times    |
+
+**Behavior:**
+- Tapping a chip opens a wheel DatePicker sheet to edit that time
+- "+" button adds a new time (up to 5 max)
+- "x" button on each chip removes that time (minimum 1 required)
+- Deduplication prevents duplicate times
+- Chips auto-sort chronologically
+
+**Platform behavior:**
+- iOS: Capsule chips with `.glassEffect()` and `ColorTokens.primary` tint. Native wheel picker in `.medium` detent sheet.
+- Android: Material 3 chip group with `TimePicker` dialog.
+
 #### AlarmToggleRow
 
 Inline alarm enable/disable control with label.

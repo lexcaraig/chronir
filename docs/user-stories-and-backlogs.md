@@ -134,7 +134,7 @@ This is the **living development task list** for Chronir. Each epic contains use
 
 - [ ] Tap "+" FAB or add button to open alarm creation flow
 - [ ] Set alarm title (required, max 100 characters)
-- [ ] Select time (hour/minute picker, platform-native)
+- [ ] Select one or more times per day (max 5) via capsule chip picker (TimesOfDayPicker)
 - [ ] Select interval: Weekly, Monthly, or Annual
 - [ ] Weekly: pick day(s) of week
 - [ ] Monthly: pick one or more days of month (1–31) via multi-select grid, or relative ("last Friday", "first Monday")

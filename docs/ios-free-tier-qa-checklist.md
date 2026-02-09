@@ -38,19 +38,21 @@
 
 ## 3. Create Alarm — Weekly
 
-| #    | Step                              | Expected Result                                           | Pass? |
-| ---- | --------------------------------- | --------------------------------------------------------- | ----- |
-| 3.1  | Tap + button                      | AlarmCreationView opens as modal sheet                    | PASS  |
-| 3.2  | Leave name empty, tap Save        | Error alert: title is required                            | PASS  |
-| 3.3  | Enter name "Rent Reminder"        | Text field shows entered name                             | PASS  |
-| 3.4  | Cycle type defaults to Weekly     | Weekly button is selected/highlighted                     | PASS  |
-| 3.5  | Tap Monday and Friday day buttons | Mon and Fri are visually selected                         | PASS  |
-| 3.6  | Set time to 9:00 AM               | Time picker defaults to current time, can be changed      | PASS  |
-| 3.7  | Toggle "Persistent" ON            | Toggle turns on                                           | PASS  |
-| 3.8  | Enter note "Pay landlord"         | Note text field populated (optional field visible)        | PASS  |
-| 3.9  | Tap Save                          | Modal dismisses, alarm appears in list                    | PASS  |
-| 3.10 | Verify alarm card                 | Shows "Rent Reminder", 9:00 AM, "Weekly" badge, countdown | PASS  |
-| 3.11 | Verify toggle on card             | Toggle is ON (enabled)                                    | PASS  |
+| #    | Step                              | Expected Result                                                    | Pass? |
+| ---- | --------------------------------- | ------------------------------------------------------------------ | ----- |
+| 3.1  | Tap + button                      | AlarmCreationView opens as modal sheet                             | PASS  |
+| 3.2  | Leave name empty, tap Save        | Error alert: title is required                                     | PASS  |
+| 3.3  | Enter name "Rent Reminder"        | Text field shows entered name                                      | PASS  |
+| 3.4  | Cycle type defaults to Weekly     | Weekly button is selected/highlighted                              | PASS  |
+| 3.5  | Tap Monday and Friday day buttons | Mon and Fri are visually selected                                  | PASS  |
+| 3.6  | Set time to 9:00 AM               | TimesOfDayPicker shows capsule chips, tap to edit via wheel picker | PASS  |
+| 3.6a | Tap "+" to add second time 12 PM  | Second chip appears, sorted chronologically                        |       |
+| 3.6b | Tap "x" to remove 12 PM chip      | Chip removed, single 9:00 AM chip remains                          |       |
+| 3.7  | Toggle "Persistent" ON            | Toggle turns on                                                    | PASS  |
+| 3.8  | Enter note "Pay landlord"         | Note text field populated (optional field visible)                 | PASS  |
+| 3.9  | Tap Save                          | Modal dismisses, alarm appears in list                             | PASS  |
+| 3.10 | Verify alarm card                 | Shows "Rent Reminder", 9:00 AM, "Weekly" badge, countdown          | PASS  |
+| 3.11 | Verify toggle on card             | Toggle is ON (enabled)                                             | PASS  |
 
 ---
 
@@ -82,14 +84,15 @@
 
 ## 6. Edit Alarm
 
-| #   | Step                                     | Expected Result                                 | Pass? |
-| --- | ---------------------------------------- | ----------------------------------------------- | ----- |
-| 6.1 | Tap an alarm card in the list            | AlarmDetailView opens with all fields populated | PASS  |
-| 6.2 | Change title to "Updated Alarm"          | Title field updates                             | PASS  |
-| 6.3 | Change cycle type from Weekly to Monthly | Schedule fields update (day picker appears)     | PASS  |
-| 6.4 | Change time to 11:30 AM                  | Time picker updates                             | PASS  |
-| 6.5 | Tap Save                                 | Returns to list, card shows updated info        | PASS  |
-| 6.6 | Verify countdown recalculated            | Countdown reflects new schedule and time        | PASS  |
+| #    | Step                                     | Expected Result                                 | Pass? |
+| ---- | ---------------------------------------- | ----------------------------------------------- | ----- |
+| 6.1  | Tap an alarm card in the list            | AlarmDetailView opens with all fields populated | PASS  |
+| 6.2  | Change title to "Updated Alarm"          | Title field updates                             | PASS  |
+| 6.3  | Change cycle type from Weekly to Monthly | Schedule fields update (day picker appears)     | PASS  |
+| 6.4  | Change time to 11:30 AM                  | TimesOfDayPicker chip updates                   | PASS  |
+| 6.4a | Add a second time (3:00 PM)              | Two chips visible, AlarmCard shows "+1" badge   |       |
+| 6.5  | Tap Save                                 | Returns to list, card shows updated info        | PASS  |
+| 6.6  | Verify countdown recalculated            | Countdown reflects new schedule and time        | PASS  |
 
 ---
 
@@ -188,13 +191,16 @@
 
 > These are covered by unit tests (22 passing), but can be spot-checked manually.
 
-| #    | Scenario                                          | Expected Result                      | Pass? |
-| ---- | ------------------------------------------------- | ------------------------------------ | ----- |
-| 12.1 | Monthly alarm on 31st (current month has 30 days) | Fires on 30th (last day)             | PASS (unit test) |
-| 12.2 | Monthly alarm on 31st in February                 | Fires on 28th (or 29th in leap year) | PASS (unit test) |
-| 12.3 | Annual alarm on Feb 29 in non-leap year           | Fires on Feb 28                      | PASS (unit test) |
-| 12.4 | Weekly alarm — today's day, time already passed   | Schedules for next week              | PASS (unit test) |
-| 12.5 | Weekly alarm — today's day, time NOT yet passed   | Schedules for today                  | PASS (unit test) |
+| #    | Scenario                                          | Expected Result                        | Pass?            |
+| ---- | ------------------------------------------------- | -------------------------------------- | ---------------- |
+| 12.1 | Monthly alarm on 31st (current month has 30 days) | Fires on 30th (last day)               | PASS (unit test) |
+| 12.2 | Monthly alarm on 31st in February                 | Fires on 28th (or 29th in leap year)   | PASS (unit test) |
+| 12.3 | Annual alarm on Feb 29 in non-leap year           | Fires on Feb 28                        | PASS (unit test) |
+| 12.4 | Weekly alarm — today's day, time already passed   | Schedules for next week                | PASS (unit test) |
+| 12.5 | Weekly alarm — today's day, time NOT yet passed   | Schedules for today                    | PASS (unit test) |
+| 12.6 | Multi-time alarm: 3 times, 1 passed today         | Next fire = earliest unpassed time     | PASS (unit test) |
+| 12.7 | Multi-time alarm: all times passed today          | Next fire = first time next occurrence | PASS (unit test) |
+| 12.8 | Single-time alarm backward compat                 | Same result as legacy single-time      | PASS (unit test) |
 
 ---
 
@@ -214,40 +220,40 @@
 
 ## 14. Notification Behavior
 
-| #    | Step                             | Expected Result                      | Pass?                                |
-| ---- | -------------------------------- | ------------------------------------ | ------------------------------------ |
-| 14.1 | Create alarm, background the app | Notification fires at scheduled time | PASS                                 |
-| 14.2 | Tap notification                 | App opens to firing screen           | PASS (fixed: load from modelContext) |
-| 14.3 | Delete alarm                     | Pending notification cancelled       | PASS (deleted alarm, no notification fired) |
-| 14.4 | Disable alarm toggle             | Pending notification cancelled       | PASS (disabled alarm, no notification fired) |
+| #    | Step                             | Expected Result                      | Pass?                                                          |
+| ---- | -------------------------------- | ------------------------------------ | -------------------------------------------------------------- |
+| 14.1 | Create alarm, background the app | Notification fires at scheduled time | PASS                                                           |
+| 14.2 | Tap notification                 | App opens to firing screen           | PASS (fixed: load from modelContext)                           |
+| 14.3 | Delete alarm                     | Pending notification cancelled       | PASS (deleted alarm, no notification fired)                    |
+| 14.4 | Disable alarm toggle             | Pending notification cancelled       | PASS (disabled alarm, no notification fired)                   |
 | 14.5 | Re-enable alarm toggle           | Notification rescheduled             | PASS (re-enabled recalculates nextFireDate to next occurrence) |
 
 ---
 
 ## Test Summary
 
-| Category       | Total Tests | Passed | Failed | Notes                                        |
-| -------------- | ----------- | ------ | ------ | -------------------------------------------- |
-| Onboarding     | 11          | 11     | 0      | All passed incl. Skip for now                |
-| Empty State    | 2           | 2      | 0      |                                              |
-| Create Alarm   | 11          | 9      | 0      | 3.2-3.11 tested on device                    |
-| Create Monthly | 7           | 7      | 0      | "Salary day" monthly alarm created on device |
-| Tier Gating    | 5           | 5      | 0      | All passed incl. delete+re-create            |
-| Edit Alarm     | 6           | 6      | 0      | All tested (swipe edit + field changes)      |
-| Delete Alarm   | 4           | 4      | 0      | Swipe right → delete confirmed               |
-| Toggle         | 4           | 4      | 0      | Swipe left + toggle switch both work         |
-| Alarm Firing   | 12          | 12     | 0      | All passed including hold-to-dismiss         |
-| Settings       | 14          | 14     | 0      | All passed                                   |
-| Persistence    | 3           | 3      | 0      |                                              |
-| Edge Cases     | 5           | 5      | 0      | All covered by 22 unit tests                 |
-| Visual/UI      | 7           | 7      | 0      | All confirmed from device screenshots        |
-| Notifications  | 5           | 5      | 0      | All passed                                   |
-| **TOTAL**      | **96**      | **96** | **0**  |                                              |
+| Category       | Total Tests | Passed | Failed | Notes                                          |
+| -------------- | ----------- | ------ | ------ | ---------------------------------------------- | --- |
+| Onboarding     | 11          | 11     | 0      | All passed incl. Skip for now                  |
+| Empty State    | 2           | 2      | 0      |                                                |
+| Create Alarm   | 13          | 9      | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested |
+| Create Monthly | 7           | 7      | 0      | "Salary day" monthly alarm created on device   |
+| Tier Gating    | 5           | 5      | 0      | All passed incl. delete+re-create              |
+| Edit Alarm     | 7           | 6      | 0      | 6.4a multi-time edit untested                  |
+| Delete Alarm   | 4           | 4      | 0      | Swipe right → delete confirmed                 |
+| Toggle         | 4           | 4      | 0      | Swipe left + toggle switch both work           |
+| Alarm Firing   | 12          | 12     | 0      | All passed including hold-to-dismiss           |
+| Settings       | 14          | 14     | 0      | All passed                                     |
+| Persistence    | 3           | 3      | 0      |                                                |
+| Edge Cases     | 8           | 8      | 0      | All covered by 26 unit tests                   |
+| Visual/UI      | 7           | 7      | 0      | All confirmed from device screenshots          |
+| Notifications  | 5           | 5      | 0      | All passed                                     |
+| **TOTAL**      | **102**     | **96** | **0**  | 6 new multi-time tests pending manual QA       |     |
 
 ---
 
 ## Unit Test Baseline
 
-- **DateCalculatorTests:** 16 tests (all passing)
+- **DateCalculatorTests:** 20 tests (all passing) — includes 4 multi-time tests
 - **TimezoneHandlerTests:** 6 tests (all passing)
-- **Total automated:** 22 tests passing
+- **Total automated:** 26 tests passing

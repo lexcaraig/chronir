@@ -194,7 +194,7 @@ Priya runs her own design studio and handles all administrative tasks solo. Quar
 
 #### Chronir Usage Scenario
 
-Priya tags all her alarms with Finance or Work categories, then uses the category filter to focus on just Finance when reviewing upcoming deadlines. She also creates a "Send Invoices" alarm set to fire on the 1st and 15th of every month using the multi-day monthly picker — two billing cycles, one alarm. Q1 estimated taxes are due April 15. Chronir fires a pre-alarm on April 14. Priya opens the alarm, sees her note: "$2,340 | IRS Direct Pay: [link] | State: [link]". She pays both, marks the alarm done. The alarm auto-schedules Q2 for June 15. She checks completion history in December to verify all four quarters were paid for her CPA.
+Priya tags all her alarms with Finance or Work categories, then uses the category filter to focus on just Finance when reviewing upcoming deadlines. She creates a "Send Invoices" alarm set to fire on the 1st and 15th of every month using the multi-day monthly picker — two billing cycles, one alarm. For invoice follow-ups, she sets multiple times per day (9 AM, 12 PM, 5 PM) so she gets three reminder nudges on each billing day. Q1 estimated taxes are due April 15. Chronir fires a pre-alarm on April 14. Priya opens the alarm, sees her note: "$2,340 | IRS Direct Pay: [link] | State: [link]". She pays both, marks the alarm done. The alarm auto-schedules Q2 for June 15. She checks completion history in December to verify all four quarters were paid for her CPA.
 
 #### Key Alarms
 

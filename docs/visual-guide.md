@@ -389,8 +389,8 @@ AlarmListHeader       │ HeadlineText, Badge       │ Section header
                       │ ActionRow                 │ "Upcoming (3)"
 ─────────────────────────────────────────────────────────────────
 AlarmCreationForm     │ LabeledTextField          │ Full alarm
-                      │ TimePickerField           │ creation form
-                      │ DatePickerField           │
+                      │ TimesOfDayPicker          │ creation form
+                      │ DatePickerField           │ (multi-time chips)
                       │ ChronirSelector             │
 ─────────────────────────────────────────────────────────────────
 FiringControls        │ PrimaryButton (Snooze)    │ Alarm dismiss
@@ -644,7 +644,7 @@ Element                 │ Atomic Level  │ Component Name
 Sheet Handle            │ Atom          │ SheetHandle
 Sheet Header            │ Molecule      │ SheetHeader
 Title Field             │ Molecule      │ LabeledTextField
-Time Picker             │ Molecule      │ TimePickerField
+Times Picker            │ Molecule      │ TimesOfDayPicker (multi-time chips)
 Cycle Selector          │ Organism      │ ChronirSelector
 Day Picker (monthly)    │ Molecule      │ MonthlyDayGrid (7-col multi-select)
 Category Picker         │ Molecule      │ ChronirCategoryPicker
