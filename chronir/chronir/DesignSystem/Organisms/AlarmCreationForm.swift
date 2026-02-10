@@ -114,6 +114,7 @@ struct AlarmCreationForm: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .fixedSize()
 
                 Picker("Day", selection: $annualDay) {
                     ForEach(1...daysInSelectedMonth, id: \.self) { day in
@@ -121,6 +122,7 @@ struct AlarmCreationForm: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .fixedSize()
 
                 Picker("Year", selection: $annualYear) {
                     ForEach(currentYear...currentYear + 30, id: \.self) { year in
@@ -128,6 +130,7 @@ struct AlarmCreationForm: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .fixedSize()
 
                 Spacer()
             }
@@ -160,6 +163,7 @@ struct AlarmCreationForm: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .fixedSize()
 
                 Picker("Year", selection: $startYear) {
                     ForEach(currentYear...currentYear + 10, id: \.self) { year in
@@ -167,6 +171,7 @@ struct AlarmCreationForm: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .fixedSize()
 
                 Spacer()
             }
