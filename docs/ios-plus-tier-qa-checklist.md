@@ -40,12 +40,13 @@
 
 | #   | Step                                  | Expected Result                                                                 | Pass? |
 | --- | ------------------------------------- | ------------------------------------------------------------------------------- | ----- |
-| 3.1 | Purchase Plus, create 5 alarms        | All 5 alarms active                                                             |       |
-| 3.2 | Let subscription expire (accelerated) | Tier downgrades to Free                                                         |       |
-| 3.3 | Verify alarm states                   | Only oldest 2 alarms remain enabled, newest 3 disabled                          |       |
-| 3.4 | Verify downgrade banner               | Banner: "Your subscription has ended. Only your 2 oldest alarms remain active." |       |
-| 3.5 | Tap + button                          | Paywall appears (back at 2-alarm limit)                                         |       |
-| 3.6 | Re-subscribe                          | All 5 alarms re-enabled, banner disappears                                      |       |
+| 3.1 | Purchase Plus, create 5 alarms        | All 5 alarms active                                                             | PASS  |
+| 3.2 | Let subscription expire (accelerated) | Tier downgrades to Free                                                         | PASS  |
+| 3.3 | Verify alarm states                   | Only oldest 2 alarms remain enabled, newest 3 disabled                          | PASS  |
+| 3.4 | Verify downgrade banner               | Banner: "Your subscription has ended. Only your 2 oldest alarms remain active." | PASS  |
+| 3.5 | Tap + button                          | Paywall appears (back at 2-alarm limit)                                         | PASS  |
+| 3.6 | Tap/swipe disabled alarm              | Paywall appears (cannot re-enable beyond limit)                                 | PASS  |
+| 3.7 | Re-subscribe                          | All alarms re-enabled, banner disappears                                        |       |
 
 ---
 
@@ -234,9 +235,9 @@
 
 | Category                    | Total Tests | Passed | Failed | Notes |
 | --------------------------- | ----------- | ------ | ------ | ----- |
-| Purchase Flow               | 7           |        |        |       |
+| Purchase Flow               | 7           | 7      | 0      |       |
 | Restore Purchases           | 4           |        |        |       |
-| Expiry & Downgrade          | 6           |        |        |       |
+| Expiry & Downgrade          | 7           | 6      | 0      | 3.7 untested |
 | Alarm Limit Gating          | 5           |        |        |       |
 | Subscription Management     | 5           |        |        |       |
 | Paywall UI                  | 6           |        |        |       |
@@ -250,7 +251,7 @@
 | Layout Toggle               | 5           |        |        |       |
 | Settings Subscription       | 3           |        |        |       |
 | Edge Cases                  | 8           |        |        |       |
-| **TOTAL**                   | **107**     |        |        |       |
+| **TOTAL**                   | **108**     | **13** | **0**  |       |
 
 ---
 
