@@ -31,6 +31,9 @@ final class Alarm: Identifiable {
     var dismissMethod: DismissMethod
     var preAlarmMinutes: Int
 
+    // MARK: - Attachments
+    var photoFileName: String?
+
     // MARK: - Appearance
     var colorTag: String?
     var iconName: String?

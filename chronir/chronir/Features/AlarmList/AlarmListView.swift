@@ -19,6 +19,30 @@ struct AlarmListView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
         List {
+            if paywallViewModel.isFreeTier && alarms.count > (paywallViewModel.alarmLimit ?? Int.max) {
+                Section {
+                    HStack(spacing: SpacingTokens.sm) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(ColorTokens.warning)
+                        ChronirText(
+                            "Your subscription has ended. Only your 2 oldest alarms remain active.",
+                            style: .bodySmall,
+                            color: ColorTokens.warning
+                        )
+                    }
+                    .padding(SpacingTokens.md)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(ColorTokens.warning.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(
+                        top: SpacingTokens.xs, leading: SpacingTokens.md,
+                        bottom: SpacingTokens.xs, trailing: SpacingTokens.md
+                    ))
+                }
+            }
+
             if alarms.isEmpty {
                 EmptyStateView(onCreateAlarm: { requestCreateAlarm() })
                     .listRowSeparator(.hidden)
@@ -132,7 +156,7 @@ struct AlarmListView: View {
         .sheet(isPresented: $showingCreateAlarm) {
             AlarmCreationView(modelContext: modelContext)
         }
-        .sheet(isPresented: $showUpgradePrompt) {
+        .fullScreenCover(isPresented: $showUpgradePrompt) {
             PaywallView()
         }
         .navigationDestination(for: String.self) { destination in

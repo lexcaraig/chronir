@@ -54,8 +54,19 @@ struct AlarmFiringView: View {
 
             ChronirBadge(cycleType: alarm.cycleType)
 
+            if let photo = PhotoStorageService.loadPhoto(for: alarm.id) {
+                Image(uiImage: photo)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 160)
+                    .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+                    .padding(.horizontal, SpacingTokens.lg)
+            }
+
             if let note = alarm.note, !note.isEmpty {
                 ChronirText(note, style: .bodySecondary, color: ColorTokens.firingForeground.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, SpacingTokens.lg)
             }
 
             if alarm.snoozeCount > 0 {

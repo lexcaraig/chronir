@@ -1,6 +1,9 @@
 import Foundation
 import Observation
 import SwiftData
+#if canImport(UIKit)
+import UIKit
+#endif
 #if canImport(UserNotifications)
 import UserNotifications
 #endif
@@ -16,6 +19,8 @@ final class AlarmDetailViewModel {
     var selectedDays: Set<Int> = [2]
     var daysOfMonth: Set<Int> = [1]
     var category: AlarmCategory?
+    var selectedImage: UIImage?
+    var removePhoto = false
     var isLoading: Bool = false
     var errorMessage: String?
 
@@ -41,6 +46,11 @@ final class AlarmDetailViewModel {
             self.note = alarm.note ?? ""
             self.category = alarm.alarmCategory
             self.timesOfDay = alarm.timesOfDay
+            #if os(iOS)
+            if alarm.photoFileName != nil {
+                self.selectedImage = PhotoStorageService.loadPhoto(for: alarm.id)
+            }
+            #endif
 
             switch alarm.schedule {
             case .weekly(let daysOfWeek, _):
@@ -69,6 +79,15 @@ final class AlarmDetailViewModel {
         alarm.updatedAt = Date()
         alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
 
+        #if os(iOS)
+        if removePhoto {
+            PhotoStorageService.deletePhoto(for: alarm.id)
+            alarm.photoFileName = nil
+        } else if let selectedImage {
+            alarm.photoFileName = PhotoStorageService.savePhoto(selectedImage, for: alarm.id)
+        }
+        #endif
+
         do {
             try context.save()
             // Reschedule the notification
@@ -90,6 +109,8 @@ final class AlarmDetailViewModel {
 
     func deleteAlarm(context: ModelContext) {
         guard let alarm else { return }
+        // Clean up photo file
+        PhotoStorageService.deletePhoto(for: alarm.id)
         // Capture ID before deletion — accessing SwiftData object after delete crashes
         let alarmIDString = alarm.id.uuidString
         context.delete(alarm)

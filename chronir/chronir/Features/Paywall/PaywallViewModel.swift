@@ -1,11 +1,24 @@
 import Foundation
 import Observation
+import StoreKit
 
 @Observable
 final class PaywallViewModel {
-    var currentTier: SubscriptionTier = .free
-    var isLoading: Bool = false
-    var errorMessage: String?
+    private let subscriptionService = SubscriptionService.shared
+
+    var currentTier: SubscriptionTier {
+        subscriptionService.currentTier
+    }
+
+    var isLoading: Bool {
+        get { subscriptionService.isLoading }
+        set { subscriptionService.isLoading = newValue }
+    }
+
+    var errorMessage: String? {
+        get { subscriptionService.errorMessage }
+        set { subscriptionService.errorMessage = newValue }
+    }
 
     var isFreeTier: Bool {
         currentTier.isFreeTier
@@ -15,20 +28,35 @@ final class PaywallViewModel {
         currentTier.alarmLimit
     }
 
+    var products: [Product] {
+        subscriptionService.products
+    }
+
     func canCreateAlarm(currentCount: Int) -> Bool {
         guard let limit = alarmLimit else { return true }
         return currentCount < limit
     }
 
     func loadSubscriptionStatus() async {
-        // TODO: StoreKit 2 integration (Sprint 8)
+        await subscriptionService.loadProducts()
+        await subscriptionService.updateSubscriptionStatus()
     }
 
-    func purchase(tier: SubscriptionTier) async {
-        // TODO: StoreKit 2 integration (Sprint 8)
+    func purchase(_ product: Product) async {
+        do {
+            try await subscriptionService.purchase(product)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     func restorePurchases() async {
-        // TODO: StoreKit 2 integration (Sprint 8)
+        await subscriptionService.restorePurchases()
     }
+
+    // Convenience accessors
+    var plusMonthly: Product? { subscriptionService.plusMonthly }
+    var plusAnnual: Product? { subscriptionService.plusAnnual }
+    var premiumMonthly: Product? { subscriptionService.premiumMonthly }
+    var premiumAnnual: Product? { subscriptionService.premiumAnnual }
 }

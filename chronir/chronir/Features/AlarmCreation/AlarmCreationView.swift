@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 struct AlarmCreationView: View {
     let modelContext: ModelContext
@@ -14,6 +15,8 @@ struct AlarmCreationView: View {
     @State private var category: AlarmCategory?
     @State private var saveError: String?
     @State private var conflictWarning: String?
+    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var selectedImage: UIImage?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -32,6 +35,10 @@ struct AlarmCreationView: View {
                     daysOfMonth: $daysOfMonth,
                     category: $category
                 )
+
+                photoSection
+                    .padding(.horizontal, SpacingTokens.lg)
+
                 if let conflictWarning {
                     HStack(spacing: SpacingTokens.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
@@ -53,6 +60,55 @@ struct AlarmCreationView: View {
         }
         .onChange(of: category) {
             conflictWarning = nil
+        }
+    }
+
+    private var photoSection: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.sm) {
+            ChronirText("Photo (optional)", style: .labelMedium, color: ColorTokens.textSecondary)
+
+            if let selectedImage {
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: selectedImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+
+                    Button {
+                        self.selectedImage = nil
+                        selectedPhotoItem = nil
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white, .black.opacity(0.5))
+                    }
+                    .padding(SpacingTokens.xs)
+                }
+            }
+
+            PhotosPicker(
+                selection: $selectedPhotoItem,
+                matching: .images,
+                photoLibrary: .shared()
+            ) {
+                HStack(spacing: SpacingTokens.sm) {
+                    Image(systemName: "photo.badge.plus")
+                    ChronirText(
+                        selectedImage == nil ? "Add Photo" : "Change Photo",
+                        style: .bodyMedium,
+                        color: ColorTokens.primary
+                    )
+                }
+            }
+            .onChange(of: selectedPhotoItem) {
+                Task {
+                    if let data = try? await selectedPhotoItem?.loadTransferable(type: Data.self),
+                       let image = UIImage(data: data) {
+                        selectedImage = image
+                    }
+                }
+            }
         }
     }
 
@@ -109,6 +165,10 @@ struct AlarmCreationView: View {
                 conflictWarning = "\(names) also fire\(conflicts.count == 1 ? "s" : "") on the same day."
                 return
             }
+        }
+
+        if let selectedImage {
+            alarm.photoFileName = PhotoStorageService.savePhoto(selectedImage, for: alarm.id)
         }
 
         modelContext.insert(alarm)

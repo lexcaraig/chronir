@@ -121,21 +121,41 @@ struct SettingsView: View {
         .listRowBackground(ColorTokens.surfaceCard)
     }
 
-    // MARK: - Backup
+    // MARK: - Subscription & Data
 
     private var backupSection: some View {
         Section {
+            NavigationLink(destination: SubscriptionManagementView()) {
+                HStack {
+                    ChronirText("Subscription", style: .bodyPrimary)
+                    Spacer()
+                    ChronirBadge(
+                        SubscriptionService.shared.currentTier.displayName,
+                        color: tierBadgeColor
+                    )
+                }
+            }
+
             NavigationLink(destination: LocalBackupInfoView()) {
                 HStack {
                     ChronirText("Backup & Sync", style: .bodyPrimary)
                     Spacer()
-                    ChronirBadge("Free", color: ColorTokens.textSecondary)
+                    ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
                 }
             }
         } header: {
             ChronirText("Data", style: .labelLarge, color: ColorTokens.textSecondary)
         }
         .listRowBackground(ColorTokens.surfaceCard)
+    }
+
+    private var tierBadgeColor: Color {
+        switch SubscriptionService.shared.currentTier {
+        case .free: return ColorTokens.textSecondary
+        case .plus: return ColorTokens.primary
+        case .premium: return ColorTokens.warning
+        case .family: return ColorTokens.success
+        }
     }
 
     // MARK: - Developer

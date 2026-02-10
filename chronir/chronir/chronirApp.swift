@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AlarmKit
+import StoreKit
 
 @main
 struct ChronirApp: App {
@@ -40,6 +41,10 @@ struct ChronirApp: App {
                 }
             }
             .modelContainer(container)
+            .task {
+                SubscriptionService.shared.listenForTransactions()
+                await SubscriptionService.shared.updateSubscriptionStatus()
+            }
             .task {
                 guard settings.hasCompletedOnboarding else { return }
                 _ = await PermissionManager.shared.requestAlarmPermission()

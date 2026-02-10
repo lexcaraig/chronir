@@ -1,0 +1,195 @@
+{
+  "identifier" : "4EE3AF28-90B8-4D1A-BCE4-1C6F67DCFB56",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6738054966",
+    "_developerTeamID" : "XXXXXXXXXX",
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ],
+    "_timeRate" : 6
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21927029",
+      "localizations" : [
+        {
+          "description" : "Chronir Pro",
+          "displayName" : "Chronir Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Chronir Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "39.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6758986860",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Shared alarms, groups, Live Activities. Save 15%.",
+              "displayName" : "Chronir Premium (Annual)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.chronir.premium.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Chronir Premium Annual",
+          "subscriptionGroupID" : "21927029",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "3.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6758986861",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Shared alarms, groups, and Live Activities.",
+              "displayName" : "Chronir Premium",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.chronir.premium.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Chronir Premium Monthly",
+          "subscriptionGroupID" : "21927029",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "19.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6758986862",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited alarms, cloud backup, widgets. Save 15%.",
+              "displayName" : "Chronir Plus (Annual)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.chronir.plus.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Chronir Plus Annual",
+          "subscriptionGroupID" : "21927029",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "1.99",
+          "familyShareable" : false,
+          "groupNumber" : 4,
+          "internalID" : "6758986863",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Unlimited alarms, cloud backup, and widgets.",
+              "displayName" : "Chronir Plus",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.chronir.plus.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Chronir Plus Monthly",
+          "subscriptionGroupID" : "21927029",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
