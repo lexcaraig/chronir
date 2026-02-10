@@ -9,6 +9,8 @@ struct AlarmCreationForm: View {
     @Binding var note: String
     @Binding var selectedDays: Set<Int>
     @Binding var daysOfMonth: Set<Int>
+    @Binding var annualMonth: Int
+    @Binding var annualDay: Int
     @Binding var category: AlarmCategory?
 
     var body: some View {
@@ -21,6 +23,8 @@ struct AlarmCreationForm: View {
                 weeklyDayPicker
             } else if cycleType == .monthlyDate {
                 monthlyDayPicker
+            } else if cycleType == .annual {
+                annualDatePicker
             }
 
             repeatIntervalPicker
@@ -93,6 +97,39 @@ struct AlarmCreationForm: View {
         }
     }
 
+    private var annualDatePicker: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            ChronirText("Date", style: .labelMedium, color: ColorTokens.textSecondary)
+            HStack(spacing: SpacingTokens.sm) {
+                Picker("Month", selection: $annualMonth) {
+                    ForEach(1...12, id: \.self) { month in
+                        Text(Calendar.current.monthSymbols[month - 1]).tag(month)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Picker("Day", selection: $annualDay) {
+                    ForEach(1...daysInSelectedMonth, id: \.self) { day in
+                        Text("\(day)").tag(day)
+                    }
+                }
+                .pickerStyle(.menu)
+            }
+        }
+    }
+
+    private var daysInSelectedMonth: Int {
+        let cal = Calendar.current
+        var components = DateComponents()
+        components.month = annualMonth
+        components.year = cal.component(.year, from: Date())
+        guard let date = cal.date(from: components),
+              let range = cal.range(of: .day, in: .month, for: date) else {
+            return 31
+        }
+        return range.count
+    }
+
     private var repeatIntervalPicker: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Repeat Every", style: .labelMedium, color: ColorTokens.textSecondary)
@@ -135,6 +172,8 @@ struct AlarmCreationForm: View {
     @Previewable @State var note = ""
     @Previewable @State var selectedDays: Set<Int> = [2]
     @Previewable @State var daysOfMonth: Set<Int> = [1]
+    @Previewable @State var annualMonth = Calendar.current.component(.month, from: Date())
+    @Previewable @State var annualDay = Calendar.current.component(.day, from: Date())
     @Previewable @State var category: AlarmCategory?
 
     ScrollView {
@@ -147,6 +186,8 @@ struct AlarmCreationForm: View {
             note: $note,
             selectedDays: $selectedDays,
             daysOfMonth: $daysOfMonth,
+            annualMonth: $annualMonth,
+            annualDay: $annualDay,
             category: $category
         )
     }

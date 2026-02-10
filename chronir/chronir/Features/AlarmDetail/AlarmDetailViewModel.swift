@@ -19,6 +19,8 @@ final class AlarmDetailViewModel {
     var note: String = ""
     var selectedDays: Set<Int> = [2]
     var daysOfMonth: Set<Int> = [1]
+    var annualMonth: Int = Calendar.current.component(.month, from: Date())
+    var annualDay: Int = Calendar.current.component(.day, from: Date())
     var category: AlarmCategory?
     var selectedImage: UIImage?
     var removePhoto = false
@@ -62,7 +64,9 @@ final class AlarmDetailViewModel {
                 self.repeatInterval = interval
             case .monthlyRelative(_, _, let interval):
                 self.repeatInterval = interval
-            case .annual(_, _, let interval):
+            case .annual(let month, let dayOfMonth, let interval):
+                self.annualMonth = month
+                self.annualDay = dayOfMonth
                 self.repeatInterval = interval
             case .customDays(let intervalDays, _):
                 self.repeatInterval = intervalDays
@@ -145,11 +149,9 @@ final class AlarmDetailViewModel {
         case .monthlyRelative:
             return .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: repeatInterval)
         case .annual:
-            let now = Date()
-            let cal = Calendar.current
             return .annual(
-                month: cal.component(.month, from: now),
-                dayOfMonth: cal.component(.day, from: now),
+                month: annualMonth,
+                dayOfMonth: annualDay,
                 interval: repeatInterval
             )
         case .customDays:

@@ -12,6 +12,8 @@ final class AlarmCreationViewModel {
     var note: String = ""
     var selectedDays: Set<Int> = [2] // Monday (ISO)
     var daysOfMonth: Set<Int> = [1]
+    var annualMonth: Int = Calendar.current.component(.month, from: Date())
+    var annualDay: Int = Calendar.current.component(.day, from: Date())
     var category: AlarmCategory?
     var isLoading: Bool = false
     var errorMessage: String?
@@ -58,11 +60,9 @@ final class AlarmCreationViewModel {
         case .monthlyRelative:
             return .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: repeatInterval)
         case .annual:
-            let now = Date()
-            let cal = Calendar.current
             return .annual(
-                month: cal.component(.month, from: now),
-                dayOfMonth: cal.component(.day, from: now),
+                month: annualMonth,
+                dayOfMonth: annualDay,
                 interval: repeatInterval
             )
         case .customDays:

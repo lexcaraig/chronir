@@ -25,6 +25,8 @@ struct AlarmDetailView: View {
                         note: $viewModel.note,
                         selectedDays: $viewModel.selectedDays,
                         daysOfMonth: $viewModel.daysOfMonth,
+                        annualMonth: $viewModel.annualMonth,
+                        annualDay: $viewModel.annualDay,
                         category: $viewModel.category
                     )
 

@@ -13,6 +13,8 @@ struct AlarmCreationView: View {
     @State private var note = ""
     @State private var selectedDays: Set<Int> = [2]
     @State private var daysOfMonth: Set<Int> = [1]
+    @State private var annualMonth: Int = Calendar.current.component(.month, from: Date())
+    @State private var annualDay: Int = Calendar.current.component(.day, from: Date())
     @State private var category: AlarmCategory?
     @State private var saveError: String?
     @State private var conflictWarning: String?
@@ -35,6 +37,8 @@ struct AlarmCreationView: View {
                     note: $note,
                     selectedDays: $selectedDays,
                     daysOfMonth: $daysOfMonth,
+                    annualMonth: $annualMonth,
+                    annualDay: $annualDay,
                     category: $category
                 )
 
@@ -135,10 +139,9 @@ struct AlarmCreationView: View {
         case .monthlyRelative:
             schedule = .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: repeatInterval)
         case .annual:
-            let now = Date()
             schedule = .annual(
-                month: calendar.component(.month, from: now),
-                dayOfMonth: calendar.component(.day, from: now),
+                month: annualMonth,
+                dayOfMonth: annualDay,
                 interval: repeatInterval
             )
         case .customDays:
