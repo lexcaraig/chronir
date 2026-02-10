@@ -150,15 +150,15 @@
 
 ### 9D. Lock Screen Actions (AlarmKit)
 
-| #    | Step                                              | Expected Result                                                                  | Pass? |
-| ---- | ------------------------------------------------- | -------------------------------------------------------------------------------- | ----- |
-| 9D.1 | Trigger alarm while device is locked              | AlarmKit lock screen UI appears with "Slide to Stop" and "Snooze" buttons        | PASS  |
-| 9D.2 | Tap "Snooze" on lock screen                       | Alarm enters countdown state, Live Activity shows "Snoozed: {title}" with timer  | PASS  |
-| 9D.3 | After lock screen snooze, open app                | Full-screen AlarmFiringView does NOT appear (already handled on lock screen)      | PASS  |
-| 9D.4 | Verify snooze count after lock screen snooze      | snoozeCount incremented, "Snoozed" badge visible on alarm card                   | PASS  |
-| 9D.5 | Wait for 1-hour countdown to expire               | Alarm re-fires (transitions back to .alerting)                                   |       |
-| 9D.6 | "Slide to Stop" on lock screen                    | Alarm dismissed, no in-app firing UI shown when app opens                        | PASS  |
-| 9D.7 | Trigger alarm, act on lock screen, then open app  | App shows alarm list (not firing screen) — lock screen action respected           | PASS  |
+| #    | Step                                             | Expected Result                                                                 | Pass? |
+| ---- | ------------------------------------------------ | ------------------------------------------------------------------------------- | ----- |
+| 9D.1 | Trigger alarm while device is locked             | AlarmKit lock screen UI appears with "Slide to Stop" and "Snooze" buttons       | PASS  |
+| 9D.2 | Tap "Snooze" on lock screen                      | Alarm enters countdown state, Live Activity shows "Snoozed: {title}" with timer | PASS  |
+| 9D.3 | After lock screen snooze, open app               | Full-screen AlarmFiringView does NOT appear (already handled on lock screen)    | PASS  |
+| 9D.4 | Verify snooze count after lock screen snooze     | snoozeCount incremented, "Snoozed" badge visible on alarm card                  | PASS  |
+| 9D.5 | Wait for 1-hour countdown to expire              | Alarm re-fires (transitions back to .alerting)                                  |       |
+| 9D.6 | "Slide to Stop" on lock screen                   | Alarm dismissed, no in-app firing UI shown when app opens                       | PASS  |
+| 9D.7 | Trigger alarm, act on lock screen, then open app | App shows alarm list (not firing screen) — lock screen action respected         | PASS  |
 
 ---
 
@@ -244,24 +244,24 @@
 
 ## Test Summary
 
-| Category       | Total Tests | Passed | Failed | Notes                                          |
-| -------------- | ----------- | ------ | ------ | ---------------------------------------------- |
-| Onboarding     | 11          | 11     | 0      | All passed incl. Skip for now                  |
-| Empty State    | 2           | 2      | 0      |                                                |
-| Create Alarm   | 13          | 9      | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested |
-| Create Monthly | 7           | 7      | 0      | "Salary day" monthly alarm created on device   |
-| Tier Gating    | 5           | 5      | 0      | All passed incl. delete+re-create              |
-| Edit Alarm     | 7           | 6      | 0      | 6.4a multi-time edit untested                  |
-| Delete Alarm   | 4           | 4      | 0      | Swipe right → delete confirmed                 |
-| Toggle         | 4           | 4      | 0      | Swipe left + toggle switch both work           |
-| Alarm Firing   | 12          | 12     | 0      | All passed including hold-to-dismiss           |
-| Lock Screen    | 7           | 6      | 0      | 9D.5 (1hr re-fire) untested — requires wait   |
-| Settings       | 14          | 14     | 0      | All passed                                     |
-| Persistence    | 3           | 3      | 0      |                                                |
-| Edge Cases     | 8           | 8      | 0      | All covered by 26 unit tests                   |
-| Visual/UI      | 7           | 7      | 0      | All confirmed from device screenshots          |
-| Notifications  | 5           | 5      | 0      | All passed                                     |
-| **TOTAL**      | **109**     | **102**| **0**  | 7 tests pending: 6 multi-time + 1 lock screen re-fire |
+| Category       | Total Tests | Passed  | Failed | Notes                                                 |
+| -------------- | ----------- | ------- | ------ | ----------------------------------------------------- |
+| Onboarding     | 11          | 11      | 0      | All passed incl. Skip for now                         |
+| Empty State    | 2           | 2       | 0      |                                                       |
+| Create Alarm   | 13          | 9       | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested        |
+| Create Monthly | 7           | 7       | 0      | "Salary day" monthly alarm created on device          |
+| Tier Gating    | 5           | 5       | 0      | All passed incl. delete+re-create                     |
+| Edit Alarm     | 7           | 6       | 0      | 6.4a multi-time edit untested                         |
+| Delete Alarm   | 4           | 4       | 0      | Swipe right → delete confirmed                        |
+| Toggle         | 4           | 4       | 0      | Swipe left + toggle switch both work                  |
+| Alarm Firing   | 12          | 12      | 0      | All passed including hold-to-dismiss                  |
+| Lock Screen    | 7           | 6       | 0      | 9D.5 (1hr re-fire) untested — requires wait           |
+| Settings       | 14          | 14      | 0      | All passed                                            |
+| Persistence    | 3           | 3       | 0      |                                                       |
+| Edge Cases     | 8           | 8       | 0      | All covered by 26 unit tests                          |
+| Visual/UI      | 7           | 7       | 0      | All confirmed from device screenshots                 |
+| Notifications  | 5           | 5       | 0      | All passed                                            |
+| **TOTAL**      | **109**     | **102** | **0**  | 7 tests pending: 6 multi-time + 1 lock screen re-fire |
 
 ---
 

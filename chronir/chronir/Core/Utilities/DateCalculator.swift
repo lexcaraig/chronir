@@ -74,38 +74,46 @@ struct DateCalculator: Sendable {
         guard !daysOfWeek.isEmpty else { return date }
 
         let currentWeekday = calendar.component(.weekday, from: date)
-        let sortedDays = daysOfWeek.sorted()
 
-        // Try to find a day later this week (or today if time hasn't passed)
-        for day in sortedDays {
-            if day > currentWeekday {
-                if let candidate = dateBySettingWeekday(
-                    day, from: date, hour: hour, minute: minute
-                ) {
-                    return candidate
-                }
-            } else if day == currentWeekday {
+        // Check each target day this week using modular distance
+        // This correctly handles Sunday (1) being later than Tuesday (3)
+        // in a Mon-first week by computing actual days-until.
+        var candidates: [Date] = []
+        for day in daysOfWeek {
+            let daysUntil = (day - currentWeekday + 7) % 7
+            if daysUntil == 0 {
+                // Same weekday — only valid if time hasn't passed
                 let candidate = setTime(on: date, hour: hour, minute: minute)
                 if candidate > date {
-                    return candidate
+                    candidates.append(candidate)
+                }
+            } else {
+                if let targetDate = calendar.date(byAdding: .day, value: daysUntil, to: date) {
+                    candidates.append(setTime(on: targetDate, hour: hour, minute: minute))
                 }
             }
         }
 
-        // Next week's first matching day (accounting for biweekly+ intervals)
-        let weeksToAdd = interval
-        guard let nextWeekStart = calendar.date(
-            byAdding: .weekOfYear, value: weeksToAdd,
-            to: startOfWeek(for: date)
-        ),
-              let firstDay = sortedDays.first,
-              let result = dateBySettingWeekday(
-                  firstDay, from: nextWeekStart,
-                  hour: hour, minute: minute
-              ) else {
-            return date
+        if let earliest = candidates.min() {
+            return earliest
         }
-        return result
+
+        // No match this week — advance by interval weeks from start of current week
+        guard let nextWeekStart = calendar.date(
+            byAdding: .weekOfYear, value: interval,
+            to: startOfWeek(for: date)
+        ) else { return date }
+
+        // Find the earliest matching day in that future week
+        var futureCandidates: [Date] = []
+        for day in daysOfWeek {
+            let nextWeekStartWeekday = calendar.component(.weekday, from: nextWeekStart)
+            let daysUntil = (day - nextWeekStartWeekday + 7) % 7
+            if let targetDate = calendar.date(byAdding: .day, value: daysUntil, to: nextWeekStart) {
+                futureCandidates.append(setTime(on: targetDate, hour: hour, minute: minute))
+            }
+        }
+        return futureCandidates.min() ?? date
     }
 
     // MARK: - Monthly (by date)
@@ -134,10 +142,14 @@ struct DateCalculator: Sendable {
             }
         }
 
-        // No match this month — advance by interval months, pick first sorted day
-        guard let nextDate = calendar.date(
-            byAdding: .month, value: interval, to: date
-        ) else { return date }
+        // No match this month — advance by interval months from 1st of current month
+        // (avoids month-end overflow when adding months from e.g. the 31st)
+        guard let firstOfMonth = calendar.date(from: DateComponents(
+            year: currentYear, month: currentMonth, day: 1
+        )),
+              let nextDate = calendar.date(
+                  byAdding: .month, value: interval, to: firstOfMonth
+              ) else { return date }
         let nextMonth = calendar.component(.month, from: nextDate)
         let nextYear = calendar.component(.year, from: nextDate)
         let firstDay = sortedDays[0]
@@ -233,9 +245,13 @@ struct DateCalculator: Sendable {
         ).day ?? 0
         let cyclesPassed = daysSinceStart >= 0
             ? daysSinceStart / intervalDays : 0
-        let nextCycleDay = startDay.addingTimeInterval(
-            Double((cyclesPassed + 1) * intervalDays) * 86400
-        )
+
+        // Use Calendar arithmetic instead of TimeInterval * 86400
+        // to correctly handle DST transitions (23h or 25h days).
+        let totalDaysToNext = (cyclesPassed + 1) * intervalDays
+        guard let nextCycleDay = calendar.date(
+            byAdding: .day, value: totalDaysToNext, to: startDay
+        ) else { return date }
 
         let candidate = setTime(
             on: nextCycleDay, hour: hour, minute: minute
@@ -243,11 +259,11 @@ struct DateCalculator: Sendable {
         if candidate > date {
             return candidate
         }
+        guard let followingCycleDay = calendar.date(
+            byAdding: .day, value: intervalDays, to: nextCycleDay
+        ) else { return date }
         return setTime(
-            on: nextCycleDay.addingTimeInterval(
-                Double(intervalDays) * 86400
-            ),
-            hour: hour, minute: minute
+            on: followingCycleDay, hour: hour, minute: minute
         )
     }
 
@@ -263,17 +279,6 @@ struct DateCalculator: Sendable {
         )
         let nextOffset = timeZone.daylightSavingTimeOffset(for: nextDay)
         return currentOffset != nextOffset
-    }
-
-    func adjustedForMonthEndOverflow(
-        date: Date, targetDay: Int
-    ) -> Date {
-        let month = calendar.component(.month, from: date)
-        let year = calendar.component(.year, from: date)
-        let clamped = clampDay(targetDay, month: month, year: year)
-        return calendar.date(
-            bySetting: .day, value: clamped, of: date
-        ) ?? date
     }
 
     private func setTime(
@@ -315,19 +320,6 @@ struct DateCalculator: Sendable {
             [.yearForWeekOfYear, .weekOfYear], from: date
         )
         return cal.date(from: components) ?? date
-    }
-
-    private func dateBySettingWeekday(
-        _ weekday: Int, from date: Date,
-        hour: Int, minute: Int
-    ) -> Date? {
-        let currentWeekday = calendar.component(.weekday, from: date)
-        let daysToAdd = (weekday - currentWeekday + 7) % 7
-        guard let targetDate = calendar.date(
-            byAdding: .day,
-            value: daysToAdd == 0 ? 7 : daysToAdd, to: date
-        ) else { return nil }
-        return setTime(on: targetDate, hour: hour, minute: minute)
     }
 
     // swiftlint:disable:next function_parameter_count

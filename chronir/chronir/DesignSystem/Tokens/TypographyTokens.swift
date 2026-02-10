@@ -41,7 +41,7 @@ enum TypographyTokens {
     // MARK: - Spec-Aligned Aliases (design-system.md Section 3.3)
 
     static let displayAlarm = displayLarge          // 120pt firing screen time
-    static let headlineTime = headlineLarge          // 32pt alarm card time
+    static let headlineTime = headlineSmall           // 24pt alarm card time
     static let headlineTitle = headlineSmall          // 24pt screen titles
     static let bodyPrimary = bodyLarge               // 16pt labels, descriptions
     static let bodySecondary = bodyMedium             // 14pt metadata

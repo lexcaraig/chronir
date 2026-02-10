@@ -26,6 +26,7 @@ struct ComponentCatalog: View {
 
             Section("Organisms") {
                 NavigationLink("AlarmCard") { CatalogAlarmCardView() }
+                NavigationLink("CategoryGroupCard") { CatalogCategoryGroupCardView() }
                 NavigationLink("AlarmListSection") { CatalogAlarmListSectionView() }
                 NavigationLink("EmptyStateView") { CatalogEmptyStateView() }
                 NavigationLink("AlarmFiringOverlay") { CatalogAlarmFiringOverlayView() }
@@ -234,39 +235,73 @@ private struct CatalogAlarmCardView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: SpacingTokens.md) {
-                AlarmCard(
-                    alarm: Alarm(title: "Active Card", cycleType: .weekly, persistenceLevel: .full),
-                    visualState: .active,
-                    isEnabled: $enabled1
-                )
-                AlarmCard(
-                    alarm: Alarm(
-                        title: "Inactive Card", cycleType: .monthlyDate,
-                        schedule: .monthlyDate(daysOfMonth: [1], interval: 1)
-                    ),
-                    visualState: .inactive,
-                    isEnabled: $enabled2
-                )
-                AlarmCard(
-                    alarm: Alarm(title: "Snoozed Card", cycleType: .weekly),
-                    visualState: .snoozed,
-                    isEnabled: $enabled3
-                )
-                AlarmCard(
-                    alarm: Alarm(
-                        title: "Overdue Card", cycleType: .annual,
-                        schedule: .annual(month: 1, dayOfMonth: 1, interval: 1),
-                        nextFireDate: Date().addingTimeInterval(-3600)
-                    ),
-                    visualState: .overdue,
-                    isEnabled: $enabled4
-                )
+            GlassEffectContainer {
+                VStack(spacing: SpacingTokens.md) {
+                    AlarmCard(
+                        alarm: Alarm(title: "Active Card", cycleType: .weekly, persistenceLevel: .full),
+                        visualState: .active,
+                        isEnabled: $enabled1
+                    )
+                    AlarmCard(
+                        alarm: Alarm(
+                            title: "Inactive Card", cycleType: .monthlyDate,
+                            schedule: .monthlyDate(daysOfMonth: [1], interval: 1)
+                        ),
+                        visualState: .inactive,
+                        isEnabled: $enabled2
+                    )
+                    AlarmCard(
+                        alarm: Alarm(title: "Snoozed Card", cycleType: .weekly),
+                        visualState: .snoozed,
+                        isEnabled: $enabled3
+                    )
+                    AlarmCard(
+                        alarm: Alarm(
+                            title: "Overdue Card", cycleType: .annual,
+                            schedule: .annual(month: 1, dayOfMonth: 1, interval: 1),
+                            nextFireDate: Date().addingTimeInterval(-3600)
+                        ),
+                        visualState: .overdue,
+                        isEnabled: $enabled4
+                    )
+                }
+                .padding()
             }
-            .padding()
         }
         .background(ColorTokens.backgroundPrimary)
         .navigationTitle("AlarmCard")
+    }
+}
+
+private struct CatalogCategoryGroupCardView: View {
+    var body: some View {
+        ScrollView {
+            GlassEffectContainer {
+                VStack(spacing: SpacingTokens.md) {
+                    CategoryGroupCard(
+                        category: .finance,
+                        alarms: [
+                            Alarm(title: "Pay Rent", cycleType: .monthlyDate, category: "finance"),
+                            Alarm(title: "Credit Card Bill", cycleType: .monthlyDate, category: "finance")
+                        ],
+                        enabledStates: [:]
+                    )
+                    CategoryGroupCard(
+                        category: .health,
+                        alarms: [
+                            Alarm(title: "Annual Checkup", cycleType: .annual, category: "health"),
+                            Alarm(title: "Dentist", cycleType: .annual, category: "health"),
+                            Alarm(title: "Eye Exam", cycleType: .annual, category: "health"),
+                            Alarm(title: "Flu Shot", cycleType: .annual, category: "health")
+                        ],
+                        enabledStates: [:]
+                    )
+                }
+                .padding()
+            }
+        }
+        .background(ColorTokens.backgroundPrimary)
+        .navigationTitle("CategoryGroupCard")
     }
 }
 

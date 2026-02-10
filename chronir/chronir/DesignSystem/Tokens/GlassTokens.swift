@@ -3,8 +3,8 @@ import SwiftUI
 // iOS Liquid Glass tokens — iOS 26+ only
 // See docs/design-system.md Section 3.7 and Section 7.1 for full spec
 //
-// DO apply glass: toolbars, floating buttons, modal overlays, navigation chrome
-// DON'T apply glass: alarm cards, list rows, firing screen
+// DO apply glass: toolbars, floating buttons, modal overlays, navigation chrome, alarm cards
+// DON'T apply glass: list rows, firing screen
 
 enum GlassTokens {
     // MARK: - Glass Radii
@@ -25,4 +25,7 @@ enum GlassTokens {
 
     /// Buttons, chips, text fields, interactive controls
     static let element = Glass.regular
+
+    /// Alarm cards — frosted glass over wallpaper or dark background
+    static let card = Glass.regular
 }

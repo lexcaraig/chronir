@@ -63,10 +63,10 @@ struct AlarmCard: View {
                 VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
                     ChronirText(
                         alarm.title,
-                        style: .titleMedium,
+                        style: .titleSmall,
                         color: visualState == .inactive ? ColorTokens.textDisabled : ColorTokens.textPrimary
                     )
-                    HStack(spacing: SpacingTokens.xs) {
+                    HStack(spacing: SpacingTokens.xxs) {
                         ChronirBadge(cycleType: alarm.cycleType)
                         if let cat = alarm.alarmCategory {
                             ChronirBadge(cat.displayName, color: cat.color)
@@ -82,7 +82,7 @@ struct AlarmCard: View {
                     .labelsHidden()
             }
 
-            HStack {
+            HStack(alignment: .firstTextBaseline) {
                 if visualState != .inactive {
                     AlarmTimeDisplay(
                         time: alarm.scheduledTime,
@@ -114,10 +114,9 @@ struct AlarmCard: View {
             }
         }
         .padding(SpacingTokens.cardPadding)
-        .background(ColorTokens.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+        .chronirGlassCard()
         .overlay(
-            RoundedRectangle(cornerRadius: RadiusTokens.md)
+            RoundedRectangle(cornerRadius: GlassTokens.cardRadius)
                 .stroke(visualState.accentColor ?? .clear, lineWidth: visualState.accentColor != nil ? 2 : 0)
         )
         .opacity(textOpacity)

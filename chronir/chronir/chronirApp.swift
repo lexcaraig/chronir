@@ -8,6 +8,7 @@ struct ChronirApp: App {
     @State private var coordinator = AlarmFiringCoordinator.shared
     @Bindable private var settings = UserSettings.shared
     @Environment(\.scenePhase) private var scenePhase
+    @State private var showSplash = true
 
     init() {
         do {
@@ -20,10 +21,24 @@ struct ChronirApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                AlarmListView()
+            ZStack {
+                NavigationStack {
+                    AlarmListView()
+                }
+
+                if showSplash {
+                    SplashView()
+                        .transition(.opacity)
+                        .zIndex(1)
+                }
             }
             .tint(ColorTokens.primary)
+            .task {
+                try? await Task.sleep(for: .seconds(2))
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    showSplash = false
+                }
+            }
             .modelContainer(container)
             .task {
                 guard settings.hasCompletedOnboarding else { return }

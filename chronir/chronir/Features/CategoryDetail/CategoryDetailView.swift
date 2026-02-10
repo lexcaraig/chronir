@@ -42,8 +42,7 @@ struct CategoryDetailView: View {
             }
         }
         .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .background(ColorTokens.backgroundPrimary)
+        .chronirWallpaperBackground()
         .navigationTitle(category.displayName)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.large)

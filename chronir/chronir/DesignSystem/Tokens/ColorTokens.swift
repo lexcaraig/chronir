@@ -80,6 +80,18 @@ enum ColorTokens {
     static let buttonSnooze = amber500
     static let buttonDismiss = green500
     static let buttonDestructive = red500
+
+    // MARK: - Background Gradient
+
+    static let gradientStart = Color(hex: 0x1A0533)
+    static let gradientMid = Color(hex: 0x3D1444)
+    static let gradientEnd = Color(hex: 0x6B2030)
+
+    static let backgroundGradient = LinearGradient(
+        colors: [gradientStart, gradientMid, gradientEnd],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }
 
 // MARK: - Color Hex Initializer

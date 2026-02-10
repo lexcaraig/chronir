@@ -5,13 +5,11 @@ struct AlarmTimeDisplay: View {
     var countdownText: String?
 
     var body: some View {
-        VStack(spacing: SpacingTokens.xs) {
-            HStack(alignment: .firstTextBaseline, spacing: SpacingTokens.xs) {
-                ChronirText(
-                    time.formatted(date: .omitted, time: .shortened),
-                    style: .headlineTime
-                )
-            }
+        HStack(alignment: .firstTextBaseline, spacing: SpacingTokens.xs) {
+            ChronirText(
+                time.formatted(date: .omitted, time: .shortened),
+                style: .headlineTime
+            )
 
             if let countdown = countdownText {
                 ChronirText(

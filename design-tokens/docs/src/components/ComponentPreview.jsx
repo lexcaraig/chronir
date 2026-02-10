@@ -135,7 +135,6 @@ function AlarmCardPreview({ title, cycleType, time, countdown, state, persistent
       padding: t.md,
       opacity: isInactive ? 0.5 : 1,
       border: `2px solid ${borderColor}`,
-      minWidth: 260,
       display: 'flex',
       flexDirection: 'column',
       gap: t.sm,
@@ -144,12 +143,12 @@ function AlarmCardPreview({ title, cycleType, time, countdown, state, persistent
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: t.xxs }}>
           <div style={{
-            fontSize: 16, fontWeight: 600, lineHeight: 1.3,
+            fontSize: 14, fontWeight: 500, lineHeight: 1.3,
             color: isInactive ? t.textDisabled : t.textPrimary,
           }}>
             {title}
           </div>
-          <div style={{ display: 'flex', gap: t.xs, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: t.xxs, alignItems: 'center' }}>
             <Badge text={cycleType} color={badgeColor} />
             {isSnoozed && <Badge text="Snoozed" color={t.warning} />}
             {isOverdue && <Badge text="Missed" color={t.error} />}
@@ -158,17 +157,17 @@ function AlarmCardPreview({ title, cycleType, time, countdown, state, persistent
         <Toggle on={!isInactive} />
       </div>
 
-      {/* Row 2: Time + countdown (left) | Persistent badge (right) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        <div>
+      {/* Row 2: Time + countdown inline (left) | Persistent badge (right) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: t.xs }}>
           <div style={{
-            fontSize: 32, fontWeight: 600, lineHeight: 1.2,
+            fontSize: 24, fontWeight: 600, lineHeight: 1,
             color: isInactive ? t.textDisabled : t.textPrimary,
           }}>
             {time}
           </div>
           {countdown && !isInactive && (
-            <div style={{ fontSize: 14, fontWeight: 500, color: t.textSecondary, marginTop: 2 }}>
+            <div style={{ fontSize: 12, fontWeight: 500, color: t.textSecondary }}>
               {countdownPrefix} {countdown}
             </div>
           )}
@@ -184,21 +183,21 @@ function AlarmCardPreview({ title, cycleType, time, countdown, state, persistent
 const alarmCardSpecs = [
   { element: 'Card', property: 'background', token: 'color.surface.card', value: t.surfaceCard, placement: 'Root container', layer: 'Base' },
   { element: 'Card', property: 'border-radius', token: 'radius.md', value: `${t.radiusMd}px` },
-  { element: 'Card', property: 'padding', token: 'spacing.md', value: `${t.md}px` },
+  { element: 'Card', property: 'padding', token: 'spacing.cardPadding', value: `${t.md}px` },
   { element: 'Card', property: 'layout', token: '—', value: 'VStack', placement: 'Column, 2 rows', layer: 'Base' },
   { element: 'Card', property: 'row gap', token: 'spacing.sm', value: `${t.sm}px` },
   { element: 'Card (snoozed)', property: 'border', token: 'color.warning', value: `2px solid ${t.warning}` },
   { element: 'Card (overdue)', property: 'border', token: 'color.error', value: `2px solid ${t.error}` },
   { element: 'Card (inactive)', property: 'opacity', token: '—', value: '0.5' },
   { element: 'Row 1', property: 'layout', token: '—', value: 'HStack, space-between', placement: 'Top row', layer: 'Content' },
-  { element: 'Title', property: 'font-size', token: 'typography.titleMedium', value: '16px', placement: 'Row 1, left top' },
-  { element: 'Title', property: 'font-weight', token: 'typography.titleMedium', value: '600 (semibold)' },
+  { element: 'Title', property: 'font-size', token: 'typography.titleSmall', value: '16px (medium weight)', placement: 'Row 1, left top' },
+  { element: 'Title', property: 'font-weight', token: 'typography.titleSmall', value: '500 (medium)' },
   { element: 'Title', property: 'color', token: 'color.text.primary', value: t.textPrimary },
   { element: 'Title', property: 'line-height', token: '—', value: '1.3' },
   { element: 'Title (inactive)', property: 'color', token: 'color.text.disabled', value: t.textDisabled },
   { element: 'Title → Badge gap', property: 'gap', token: 'spacing.xxs', value: `${t.xxs}px` },
   { element: 'Badge row', property: 'layout', token: '—', value: 'HStack', placement: 'Row 1, left bottom (below title)', layer: 'Content' },
-  { element: 'Badge row', property: 'gap', token: 'spacing.xs', value: `${t.xs}px` },
+  { element: 'Badge row', property: 'gap', token: 'spacing.xxs', value: `${t.xxs}px` },
   { element: 'Badge', property: 'font-size', token: '—', value: '11px' },
   { element: 'Badge', property: 'font-weight', token: '—', value: '600 (semibold)' },
   { element: 'Badge', property: 'padding', token: 'spacing.xs / spacing.sm', value: `${t.xs}px ${t.sm}px` },
@@ -211,12 +210,12 @@ const alarmCardSpecs = [
   { element: 'Toggle (on)', property: 'background', token: 'color.primary', value: t.primary },
   { element: 'Toggle (off)', property: 'background', token: '—', value: '#555555' },
   { element: 'Toggle thumb', property: 'size', token: '—', value: '22 x 22px' },
-  { element: 'Row 2', property: 'layout', token: '—', value: 'HStack, space-between, align bottom', placement: 'Bottom row', layer: 'Content' },
-  { element: 'Time', property: 'font-size', token: 'typography.headlineTime', value: '32px', placement: 'Row 2, left top' },
+  { element: 'Row 2', property: 'layout', token: '—', value: 'HStack, space-between, baseline aligned', placement: 'Bottom row', layer: 'Content' },
+  { element: 'Time', property: 'font-size', token: 'typography.headlineTime', value: '24px', placement: 'Row 2, left' },
   { element: 'Time', property: 'font-weight', token: 'typography.headlineTime', value: '600 (semibold)' },
   { element: 'Time', property: 'color', token: 'color.text.primary', value: t.textPrimary },
   { element: 'Time', property: 'line-height', token: '—', value: '1.2' },
-  { element: 'Countdown', property: 'font-size', token: 'typography.bodySmall', value: '14px', placement: 'Row 2, left bottom (below time)' },
+  { element: 'Countdown', property: 'font-size', token: 'typography.captionCountdown', value: '14px', placement: 'Row 2, inline after time (baseline aligned)' },
   { element: 'Countdown', property: 'font-weight', token: '—', value: '500 (medium)' },
   { element: 'Countdown', property: 'color', token: 'color.text.secondary', value: t.textSecondary },
   { element: 'Badge (persistent)', property: 'background', token: 'color.warning', value: t.warning, placement: 'Row 2, right (align bottom)', layer: 'Content' },
@@ -226,8 +225,8 @@ const alarmCardTemplate = `VStack(spacing: SpacingTokens.sm) {           // Card
     HStack(alignment: .top) {                   // Row 1
         VStack(alignment: .leading,
                spacing: SpacingTokens.xxs) {
-            ChronirText(title, style: .titleMedium)
-            HStack(spacing: SpacingTokens.xs) {  // Badge row
+            ChronirText(title, style: .titleSmall)
+            HStack(spacing: SpacingTokens.xxs) { // Badge row
                 ChronirBadge(cycleType: cycleType)
                 if isSnoozed { ChronirBadge("Snoozed") }
                 if isOverdue { ChronirBadge("Missed") }
@@ -236,24 +235,18 @@ const alarmCardTemplate = `VStack(spacing: SpacingTokens.sm) {           // Card
         Spacer()
         Toggle(isOn: $isEnabled)                // Toggle
     }
-    HStack(alignment: .bottom) {                // Row 2
-        VStack(alignment: .leading) {
-            ChronirText(time, style: .headlineTime)
-            if let countdown {
-                ChronirText(countdown,
-                            style: .captionCountdown)
-            }
-        }
+    HStack(alignment: .firstTextBaseline) {     // Row 2
+        AlarmTimeDisplay(                       // Time + countdown inline
+            time: alarm.scheduledTime,
+            countdownText: countdownText)
         Spacer()
         if persistent {
             ChronirBadge("Persistent")          // Trailing badge
         }
     }
 }
-.padding(SpacingTokens.md)
-.background(ColorTokens.surfaceCard)
-.clipShape(RoundedRectangle(
-    cornerRadius: RadiusTokens.md))`
+.padding(SpacingTokens.cardPadding)
+.chronirGlassCard()`
 
 // ─── AlarmFiringOverlay ───
 
@@ -777,6 +770,129 @@ const intervalPickerTemplate = `VStack(alignment: .leading,
     }
 }`
 
+// ─── CategoryGroupCard ───
+
+function StatusDot({ enabled }) {
+  return (
+    <div style={{
+      width: 6, height: 6, borderRadius: 3, flexShrink: 0,
+      backgroundColor: enabled ? t.success : t.textDisabled,
+    }} />
+  )
+}
+
+function CategoryGroupCardPreview({ category, icon, color, alarms, overflowCount }) {
+  return (
+    <div style={{
+      backgroundColor: t.surfaceCard,
+      borderRadius: t.radiusMd,
+      padding: t.md,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: t.sm,
+      minWidth: 280,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: t.sm }}>
+        <span style={{ fontSize: 18, color }}>{icon}</span>
+        <span style={{ fontSize: 16, fontWeight: 600, color: t.textPrimary }}>{category}</span>
+        <Badge text={String(alarms.length + overflowCount)} color={color} />
+        <span style={{ flex: 1 }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: t.textSecondary }}>›</span>
+      </div>
+
+      {/* Compact rows */}
+      {alarms.map((a, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: t.sm }}>
+          <StatusDot enabled={a.enabled} />
+          <span style={{
+            fontSize: 14, flex: 1,
+            color: a.enabled ? t.textPrimary : t.textDisabled,
+          }}>
+            {a.title}
+          </span>
+          <span style={{ fontSize: 12, color: t.textSecondary }}>{a.date}</span>
+        </div>
+      ))}
+
+      {/* Overflow */}
+      {overflowCount > 0 && (
+        <span style={{ fontSize: 14, fontWeight: 500, color: t.textSecondary }}>
+          +{overflowCount} more
+        </span>
+      )}
+    </div>
+  )
+}
+
+const categoryGroupCardSpecs = [
+  { element: 'Card', property: 'background', token: 'color.surface.card', value: t.surfaceCard, placement: 'Root container', layer: 'Base' },
+  { element: 'Card', property: 'border-radius', token: 'radius.md', value: `${t.radiusMd}px` },
+  { element: 'Card', property: 'padding', token: 'spacing.cardPadding', value: `${t.md}px` },
+  { element: 'Card', property: 'row gap', token: 'spacing.sm', value: `${t.sm}px` },
+  { element: 'Header', property: 'layout', token: '—', value: 'HStack', placement: 'Top row', layer: 'Content' },
+  { element: 'Header', property: 'gap', token: 'spacing.sm', value: `${t.sm}px` },
+  { element: 'Category icon', property: 'font-size', token: '—', value: '18px (title3)', placement: 'Header, leading', layer: 'Content' },
+  { element: 'Category icon', property: 'color', token: 'AlarmCategory.color', value: 'Per category' },
+  { element: 'Category name', property: 'font-size', token: 'typography.titleMedium', value: '16px', placement: 'Header, after icon' },
+  { element: 'Category name', property: 'font-weight', token: '—', value: '600 (semibold)' },
+  { element: 'Category name', property: 'color', token: 'color.text.primary', value: t.textPrimary },
+  { element: 'Count badge', property: 'background', token: 'AlarmCategory.color', value: 'Per category', placement: 'Header, after name' },
+  { element: 'Chevron', property: 'font-size', token: '—', value: '12px (caption, semibold)', placement: 'Header, trailing', layer: 'Content' },
+  { element: 'Chevron', property: 'color', token: 'color.text.secondary', value: t.textSecondary },
+  { element: 'Alarm row', property: 'layout', token: '—', value: 'HStack', placement: 'Below header, up to 3 rows', layer: 'Content' },
+  { element: 'Alarm row', property: 'gap', token: 'spacing.sm', value: `${t.sm}px` },
+  { element: 'Status dot', property: 'size', token: '—', value: '6 x 6px', placement: 'Row, leading' },
+  { element: 'Status dot (enabled)', property: 'fill', token: 'color.success', value: t.success },
+  { element: 'Status dot (disabled)', property: 'fill', token: 'color.text.disabled', value: t.textDisabled },
+  { element: 'Alarm title', property: 'font-size', token: 'typography.bodyMedium', value: '14px', placement: 'Row, after dot' },
+  { element: 'Alarm title (enabled)', property: 'color', token: 'color.text.primary', value: t.textPrimary },
+  { element: 'Alarm title (disabled)', property: 'color', token: 'color.text.disabled', value: t.textDisabled },
+  { element: 'Fire date', property: 'font-size', token: 'typography.labelSmall', value: '12px', placement: 'Row, trailing' },
+  { element: 'Fire date', property: 'color', token: 'color.text.secondary', value: t.textSecondary },
+  { element: 'Overflow text', property: 'font-size', token: 'typography.labelLarge', value: '14px', placement: 'Below alarm rows', layer: 'Content' },
+  { element: 'Overflow text', property: 'font-weight', token: '—', value: '500 (medium)' },
+  { element: 'Overflow text', property: 'color', token: 'color.text.secondary', value: t.textSecondary },
+]
+
+const categoryGroupCardTemplate = `VStack(alignment: .leading,
+       spacing: SpacingTokens.sm) {              // Card
+    HStack(spacing: SpacingTokens.sm) {          // Header
+        Image(systemName: category.iconName)     // Icon
+            .foregroundStyle(category.color)
+            .font(.title3)
+        ChronirText(category.displayName,        // Name
+                    style: .titleMedium)
+        ChronirBadge("\\(alarms.count)",         // Count
+                     color: category.color)
+        Spacer()
+        Image(systemName: "chevron.right")       // Chevron
+            .foregroundStyle(ColorTokens.textSecondary)
+            .font(.caption.weight(.semibold))
+    }
+    ForEach(displayedAlarms) { alarm in          // Rows (max 3)
+        HStack(spacing: SpacingTokens.sm) {
+            Circle()                             // Status dot
+                .fill(isEnabled ? .success : .textDisabled)
+                .frame(width: 6, height: 6)
+            ChronirText(alarm.title,             // Title
+                        style: .bodyMedium)
+            Spacer()
+            ChronirText(alarm.nextFireDate       // Date
+                .formatted(.dateTime
+                    .month(.abbreviated).day()),
+                style: .labelSmall)
+        }
+    }
+    if overflowCount > 0 {                      // Overflow
+        ChronirText("+\\(overflowCount) more",
+                    style: .labelLarge,
+                    color: ColorTokens.textSecondary)
+    }
+}
+.padding(SpacingTokens.cardPadding)
+.chronirGlassCard()`
+
 // ─── Registry ───
 
 export const previews = {
@@ -846,6 +962,31 @@ export const previews = {
       <IntervalPickerPreview />
       <SpecTable specs={intervalPickerSpecs} />
       <StructureTemplate code={intervalPickerTemplate} />
+    </>
+  ),
+  CategoryGroupCard: () => (
+    <>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <CategoryGroupCardPreview
+          category="Finance" icon="$" color="#22C55E"
+          alarms={[
+            { title: 'Pay Rent', date: 'Mar 1', enabled: true },
+            { title: 'Credit Card Bill', date: 'Mar 15', enabled: true },
+          ]}
+          overflowCount={0}
+        />
+        <CategoryGroupCardPreview
+          category="Health" icon="♥" color="#F87171"
+          alarms={[
+            { title: 'Annual Checkup', date: 'Apr 10', enabled: true },
+            { title: 'Dentist', date: 'May 3', enabled: false },
+            { title: 'Eye Exam', date: 'Jun 20', enabled: true },
+          ]}
+          overflowCount={2}
+        />
+      </div>
+      <SpecTable specs={categoryGroupCardSpecs} />
+      <StructureTemplate code={categoryGroupCardTemplate} />
     </>
   ),
 }

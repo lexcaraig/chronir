@@ -46,8 +46,7 @@ struct CategoryGroupCard: View {
             }
         }
         .padding(SpacingTokens.cardPadding)
-        .background(ColorTokens.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+        .chronirGlassCard()
     }
 
     private func compactRow(_ alarm: Alarm) -> some View {
@@ -63,7 +62,7 @@ struct CategoryGroupCard: View {
             )
             Spacer()
             ChronirText(
-                alarm.nextFireDate.formatted(.dateTime.month(.abbreviated).day()),
+                alarm.nextFireDate.formatted(.dateTime.month(.abbreviated).day().hour().minute()),
                 style: .labelSmall,
                 color: ColorTokens.textSecondary
             )

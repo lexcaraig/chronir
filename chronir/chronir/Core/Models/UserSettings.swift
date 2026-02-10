@@ -27,13 +27,34 @@ final class UserSettings {
         didSet { Self.defaults.set(hasCompletedOnboarding, forKey: "hasCompletedOnboarding") }
     }
 
+    var wallpaperImageName: String? {
+        didSet { Self.defaults.set(wallpaperImageName, forKey: "wallpaperImageName") }
+    }
+
+    var wallpaperScale: Double {
+        didSet { Self.defaults.set(wallpaperScale, forKey: "wallpaperScale") }
+    }
+
+    var wallpaperOffsetX: Double {
+        didSet { Self.defaults.set(wallpaperOffsetX, forKey: "wallpaperOffsetX") }
+    }
+
+    var wallpaperOffsetY: Double {
+        didSet { Self.defaults.set(wallpaperOffsetY, forKey: "wallpaperOffsetY") }
+    }
+
+    var wallpaperIsLight: Bool {
+        didSet { Self.defaults.set(wallpaperIsLight, forKey: "wallpaperIsLight") }
+    }
+
     private init() {
         Self.defaults.register(defaults: [
             "snoozeEnabled": true,
             "slideToStopEnabled": false,
             "selectedAlarmSound": "alarm",
             "timezoneMode": TimezoneMode.floating.rawValue,
-            "hasCompletedOnboarding": false
+            "hasCompletedOnboarding": false,
+            "wallpaperScale": 1.0
         ])
 
         snoozeEnabled = Self.defaults.bool(forKey: "snoozeEnabled")
@@ -42,5 +63,11 @@ final class UserSettings {
         let raw = Self.defaults.string(forKey: "timezoneMode") ?? TimezoneMode.floating.rawValue
         timezoneMode = TimezoneMode(rawValue: raw) ?? .floating
         hasCompletedOnboarding = Self.defaults.bool(forKey: "hasCompletedOnboarding")
+        wallpaperImageName = Self.defaults.string(forKey: "wallpaperImageName")
+        let savedScale = Self.defaults.double(forKey: "wallpaperScale")
+        wallpaperScale = savedScale == 0 ? 1.0 : savedScale
+        wallpaperOffsetX = Self.defaults.double(forKey: "wallpaperOffsetX")
+        wallpaperOffsetY = Self.defaults.double(forKey: "wallpaperOffsetY")
+        wallpaperIsLight = Self.defaults.bool(forKey: "wallpaperIsLight")
     }
 }

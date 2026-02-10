@@ -5,7 +5,6 @@ struct AlarmListView: View {
     @Query(sort: \Alarm.nextFireDate) private var alarms: [Alarm]
     @Environment(\.modelContext) private var modelContext
     @State private var showingCreateAlarm = false
-    @State private var showingSettings = false
     @State private var enabledStates: [UUID: Bool] = [:]
     @State private var selectedAlarmID: UUID?
     @State private var alarmToDelete: Alarm?
@@ -59,11 +58,13 @@ struct AlarmListView: View {
                     ForEach(smartGroupedItems, id: \.id) { item in
                         switch item {
                         case .grouped(let category, let alarms):
-                            CategoryGroupCard(
-                                category: category,
-                                alarms: alarms,
-                                enabledStates: enabledStates
-                            )
+                            GlassEffectContainer {
+                                CategoryGroupCard(
+                                    category: category,
+                                    alarms: alarms,
+                                    enabledStates: enabledStates
+                                )
+                            }
                             .contentShape(Rectangle())
                             .onTapGesture { selectedCategory = category }
                             .listRowSeparator(.hidden)
@@ -81,11 +82,13 @@ struct AlarmListView: View {
                     ForEach(smartGroupedItems, id: \.id) { item in
                         switch item {
                         case .grouped(let category, let alarms):
-                            CategoryGroupCard(
-                                category: category,
-                                alarms: alarms,
-                                enabledStates: enabledStates
-                            )
+                            GlassEffectContainer {
+                                CategoryGroupCard(
+                                    category: category,
+                                    alarms: alarms,
+                                    enabledStates: enabledStates
+                                )
+                            }
                             .contentShape(Rectangle())
                             .onTapGesture { selectedCategory = category }
                             .listRowSeparator(.hidden)
@@ -102,8 +105,7 @@ struct AlarmListView: View {
             }
         }
         .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .background(ColorTokens.backgroundPrimary)
+        .chronirWallpaperBackground()
         .navigationTitle("Alarms")
         .navigationDestination(item: $selectedAlarmID) { alarmID in
             AlarmDetailView(alarmID: alarmID)
@@ -119,14 +121,10 @@ struct AlarmListView: View {
                             isGroupedByCategory.toggle()
                         } label: {
                             Image(systemName: isGroupedByCategory ? "list.bullet" : "rectangle.3.group")
-                                .foregroundStyle(ColorTokens.textSecondary)
                         }
                     }
-                    Button {
-                        showingSettings = true
-                    } label: {
+                    NavigationLink(value: "settings") {
                         Image(systemName: "gear")
-                            .foregroundStyle(ColorTokens.textSecondary)
                     }
                 }
             }
@@ -137,15 +135,9 @@ struct AlarmListView: View {
         .sheet(isPresented: $showUpgradePrompt) {
             PaywallView()
         }
-        .sheet(isPresented: $showingSettings) {
-            NavigationStack {
+        .navigationDestination(for: String.self) { destination in
+            if destination == "settings" {
                 SettingsView()
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Done") { showingSettings = false }
-                                .foregroundStyle(ColorTokens.primary)
-                        }
-                    }
             }
         }
         .confirmationDialog(
@@ -163,13 +155,15 @@ struct AlarmListView: View {
         } message: { alarm in
             Text("Are you sure you want to delete \"\(alarm.title)\"?")
         }
+        .onAppear {
+            refreshNextFireDates()
+        }
         .onReceive(alarmCheckTimer) { _ in
             checkForFiringAlarms()
         }
         .onChange(of: firingCoordinator.isFiring) {
             if firingCoordinator.isFiring {
                 showingCreateAlarm = false
-                showingSettings = false
                 showUpgradePrompt = false
             }
         }
@@ -197,14 +191,16 @@ struct AlarmListView: View {
         }
 
         // FAB overlay
-        Button {
-            requestCreateAlarm()
-        } label: {
-            Image(systemName: "plus")
-                .font(.title2.weight(.semibold))
-                .foregroundStyle(.white)
-                .frame(width: 56, height: 56)
-                .chronirGlassTintedCircle(tint: ColorTokens.primary)
+        GlassEffectContainer {
+            Button {
+                requestCreateAlarm()
+            } label: {
+                Image(systemName: "plus")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 56, height: 56)
+                    .chronirGlassTintedCircle(tint: ColorTokens.primary)
+            }
         }
         .padding(.bottom, SpacingTokens.lg)
 
@@ -238,11 +234,13 @@ struct AlarmListView: View {
     }
 
     private func alarmRow(_ alarm: Alarm) -> some View {
-        AlarmCard(
-            alarm: alarm,
-            visualState: visualState(for: alarm),
-            isEnabled: enabledBinding(for: alarm)
-        )
+        GlassEffectContainer {
+            AlarmCard(
+                alarm: alarm,
+                visualState: visualState(for: alarm),
+                isEnabled: enabledBinding(for: alarm)
+            )
+        }
         .contentShape(Rectangle())
         .onTapGesture { selectedAlarmID = alarm.id }
         .listRowSeparator(.hidden)
@@ -370,6 +368,18 @@ struct AlarmListView: View {
         }
         modelContext.delete(alarm)
     }
+
+    private func refreshNextFireDates() {
+        let calculator = DateCalculator()
+        let now = Date()
+        for alarm in alarms where alarm.isEnabled {
+            let correct = calculator.calculateNextFireDate(for: alarm, from: now)
+            if alarm.nextFireDate != correct {
+                alarm.nextFireDate = correct
+            }
+        }
+    }
+
 }
 
 #Preview {

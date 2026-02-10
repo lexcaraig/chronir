@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Status:** Draft  
-**Last Updated:** February 5, 2026  
+**Last Updated:** February 10, 2026  
 **Platforms:** iOS (SwiftUI + Liquid Glass) · Android (Kotlin/Jetpack Compose + Material 3)
 
 ---
@@ -524,6 +524,45 @@ Displayed when no alarms exist. Shows example alarm template as a tappable onboa
 
 **Content:** Illustration + "Pay rent — 1st of every month" as a tappable card that creates a pre-filled alarm.
 
+#### CategoryGroupCard
+
+A collapsible card that groups alarms by their `AlarmCategory`, showing a compact summary with an overflow count. Used when the alarm list is in grouped-by-category mode (Plus/Premium tiers only).
+
+| Property      | Type            | Default  | Description                             |
+| ------------- | --------------- | -------- | --------------------------------------- |
+| category      | AlarmCategory   | required | The category this group represents      |
+| alarms        | [Alarm]         | required | All alarms in this category             |
+| enabledStates | [UUID: Bool]    | required | Override map for alarm enabled states   |
+
+**Anatomy:**
+
+```
+┌─────────────────────────────────────────┐
+│  [Icon]  Finance          [3]       ›   │
+│  ● Pay Rent               Feb 1, 9:00AM │
+│  ● Credit Card Bill      Feb 15, 9:00AM │
+│  ● Insurance Premium     Feb 28, 9:00AM │
+│  +2 more                                │
+└─────────────────────────────────────────┘
+```
+
+**Behavior:**
+
+- Displays up to 3 alarm rows in compact form (status dot + title + next fire date)
+- Shows "+N more" overflow text when the category has more than 3 alarms
+- Header shows category icon (SF Symbol), display name, alarm count badge, and chevron
+- Tapping the card navigates to a filtered view showing only that category's alarms
+- Uses `chronirGlassCard()` background styling
+
+**States:**
+
+| State    | Visual Treatment                                    |
+| -------- | --------------------------------------------------- |
+| Enabled  | Green status dot, primary text color                |
+| Disabled | Gray status dot, disabled text color                |
+
+**Tier gating:** Only available in Plus/Premium tiers. Free tier shows flat ungrouped list.
+
 ---
 
 ### 5.4 Templates
@@ -666,6 +705,7 @@ This is the highest-priority screen in the entire app. It must work flawlessly a
 **Do:**
 
 - Apply `.glassEffect()` to navigation chrome: toolbars, floating buttons, modal overlays
+- Apply glass to alarm cards — cards use `chronirGlassCard()` always; wallpaper background enhances the effect
 - Use `GlassEffectContainer` to unify multiple glass elements
 - Embrace floating, translucent bottom bars per Apple's new navigation patterns
 - Use SF Symbols that integrate naturally with the glassy aesthetic
@@ -673,7 +713,7 @@ This is the highest-priority screen in the entire app. It must work flawlessly a
 
 **Don't:**
 
-- Apply glass effects to alarm cards or list row content (creates visual noise)
+- Apply glass effects to list row content other than alarm cards (creates visual noise)
 - Use glass on the firing screen (clarity is paramount when urgency matters)
 - Over-layer glass effects (computational overhead and visual clutter)
 
@@ -828,6 +868,7 @@ chronir/chronir/
 │   │   └── ChronirCategoryPicker.swift
 │   ├── Organisms/
 │   │   ├── AlarmCard.swift
+│   │   ├── CategoryGroupCard.swift
 │   │   ├── AlarmListHeader.swift
 │   │   └── EmptyState.swift
 │   └── Templates/
@@ -885,6 +926,7 @@ Chronir-Android/
 │   │   └── CycleTypeSelector.kt
 │   ├── organism/
 │   │   ├── AlarmCard.kt
+│   │   ├── CategoryGroupCard.kt
 │   │   ├── AlarmListHeader.kt
 │   │   └── EmptyState.kt
 │   └── template/

@@ -8,6 +8,7 @@ struct PaywallView: View {
         NavigationStack {
             VStack(spacing: SpacingTokens.lg) {
                 Spacer()
+                    .frame(minHeight: SpacingTokens.md)
 
                 Image(systemName: "bell.badge.fill")
                     .font(.system(size: 56))

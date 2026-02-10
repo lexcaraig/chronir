@@ -8,6 +8,7 @@ struct SettingsView: View {
         List {
             alarmBehaviorSection
             timezoneSection
+            appearanceSection
             notificationsSection
             backupSection
             developerSection
@@ -71,6 +72,37 @@ struct SettingsView: View {
                 style: .caption,
                 color: ColorTokens.textSecondary
             )
+        }
+        .listRowBackground(ColorTokens.surfaceCard)
+    }
+
+    // MARK: - Appearance
+
+    private var appearanceSection: some View {
+        Section {
+            NavigationLink(destination: WallpaperPickerView()) {
+                HStack {
+                    ChronirText("Background Wallpaper", style: .bodyPrimary)
+                    Spacer()
+                    if let name = settings.wallpaperImageName,
+                       let data = try? Data(contentsOf: WallpaperPickerView.wallpaperURL(for: name)),
+                       let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 32, height: 32)
+                            .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
+                    } else {
+                        ChronirText(
+                            "None",
+                            style: .bodySecondary,
+                            color: ColorTokens.textSecondary
+                        )
+                    }
+                }
+            }
+        } header: {
+            ChronirText("Appearance", style: .labelLarge, color: ColorTokens.textSecondary)
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }

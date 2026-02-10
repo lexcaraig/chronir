@@ -379,6 +379,27 @@ export const layers = [
         usage: `AlarmListSection(\n  title: "Upcoming",\n  alarms: alarms,\n  enabledStates: $states\n)`,
       },
       {
+        name: 'CategoryGroupCard',
+        file: 'DesignSystem/Organisms/CategoryGroupCard.swift',
+        description: 'Collapsible card grouping alarms by category. Shows compact rows (up to 3) with overflow count. Plus/Premium tiers only.',
+        props: [
+          { name: 'category', type: 'AlarmCategory', required: true },
+          { name: 'alarms', type: '[Alarm]', required: true },
+          { name: 'enabledStates', type: '[UUID: Bool]', required: true },
+        ],
+        variants: [
+          { name: 'Few alarms', detail: '1–3 alarms, no overflow text' },
+          { name: 'Many alarms', detail: '4+ alarms, shows "+N more" overflow' },
+        ],
+        tokens: {
+          typography: 'titleMedium (category name), bodyMedium (alarm title), labelSmall (date), labelLarge (overflow)',
+          spacing: 'SpacingTokens.sm (row gaps), .cardPadding (container)',
+          colors: 'AlarmCategory.color (icon + badge), ColorTokens.textPrimary, .textSecondary, .textDisabled, .success (enabled dot)',
+        },
+        composedOf: ['ChronirText', 'ChronirBadge', 'Image (SF Symbol)'],
+        usage: `CategoryGroupCard(\n  category: .finance,\n  alarms: financeAlarms,\n  enabledStates: enabledStates\n)`,
+      },
+      {
         name: 'EmptyStateView',
         file: 'DesignSystem/Organisms/EmptyStateView.swift',
         description: 'Centered empty state with icon, headline, description, and CTA button.',

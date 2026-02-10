@@ -27,4 +27,39 @@ extension View {
     func chronirGlassCircle() -> some View {
         self.glassEffect(GlassTokens.element, in: .circle)
     }
+
+    /// Glass card surface (e.g. alarm cards over wallpaper or dark background).
+    func chronirGlassCard() -> some View {
+        self.glassEffect(GlassTokens.card, in: .rect(cornerRadius: GlassTokens.cardRadius))
+    }
+
+    /// Wallpaper background with saved transform (scale/offset) and light-image scrim.
+    /// Falls back to `ColorTokens.backgroundGradient` when no wallpaper is set.
+    func chronirWallpaperBackground() -> some View {
+        self
+            .scrollContentBackground(.hidden)
+            .background {
+                if let name = UserSettings.shared.wallpaperImageName,
+                   let data = try? Data(contentsOf: WallpaperPickerView.wallpaperURL(for: name)),
+                   let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .scaleEffect(UserSettings.shared.wallpaperScale)
+                        .offset(CGSize(
+                            width: UserSettings.shared.wallpaperOffsetX,
+                            height: UserSettings.shared.wallpaperOffsetY
+                        ))
+                        .ignoresSafeArea()
+                        .overlay {
+                            if UserSettings.shared.wallpaperIsLight {
+                                Color.black.opacity(0.35).ignoresSafeArea()
+                            }
+                        }
+                } else {
+                    ColorTokens.backgroundGradient
+                        .ignoresSafeArea()
+                }
+            }
+    }
 }
