@@ -27,10 +27,12 @@
 
 | #   | Step                           | Expected Result                          | Pass? |
 | --- | ------------------------------ | ---------------------------------------- | ----- |
-| 2.1 | Purchase Plus, then delete app | App removed                              |       |
-| 2.2 | Reinstall and launch           | Tier shows Free initially                |       |
-| 2.3 | Settings → Restore Purchases   | Tier restores to Plus                    |       |
-| 2.4 | Verify alarm count             | All previously created alarms accessible |       |
+| 2.1 | Purchase Plus, then delete app | App removed                              | PASS  |
+| 2.2 | Reinstall and launch           | Tier shows Free initially                | PASS  |
+| 2.3 | Settings → Restore Purchases   | Tier restores to Plus                    | SKIP  |
+| 2.4 | Verify alarm count             | All previously created alarms accessible | SKIP  |
+
+> **Note:** 2.3–2.4 require an App Store Connect sandbox account. Xcode `.storekit` config transactions are ephemeral and don't survive app deletion. Deferred to production/TestFlight testing.
 
 ---
 
@@ -236,7 +238,7 @@
 | Category                    | Total Tests | Passed | Failed | Notes |
 | --------------------------- | ----------- | ------ | ------ | ----- |
 | Purchase Flow               | 7           | 7      | 0      |       |
-| Restore Purchases           | 4           |        |        |       |
+| Restore Purchases           | 4           | 2      | 0      | 2.3-2.4 deferred to TestFlight |
 | Expiry & Downgrade          | 7           | 7      | 0      |       |
 | Alarm Limit Gating          | 5           |        |        |       |
 | Subscription Management     | 5           |        |        |       |
@@ -251,7 +253,7 @@
 | Layout Toggle               | 5           |        |        |       |
 | Settings Subscription       | 3           |        |        |       |
 | Edge Cases                  | 8           |        |        |       |
-| **TOTAL**                   | **108**     | **14** | **0**  |       |
+| **TOTAL**                   | **108**     | **16** | **0**  |       |
 
 ---
 
