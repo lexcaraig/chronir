@@ -9,7 +9,6 @@ struct AlarmListView: View {
     @State private var selectedAlarmID: UUID?
     @State private var alarmToDelete: Alarm?
     @State private var showUpgradePrompt = false
-    @State private var isGroupedByCategory = false
     @State private var selectedCategoryFilter: AlarmCategory?
     @State private var selectedCategory: AlarmCategory?
     @State private var paywallViewModel = PaywallViewModel()
@@ -77,7 +76,7 @@ struct AlarmListView: View {
                     }
                 }
 
-                if isGroupedByCategory && !paywallViewModel.isFreeTier {
+                if UserSettings.shared.groupAlarmsByCategory && !paywallViewModel.isFreeTier {
                     // Full section-header grouping with smart collapse
                     ForEach(smartGroupedItems, id: \.id) { item in
                         switch item {
@@ -120,17 +119,8 @@ struct AlarmListView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: SpacingTokens.sm) {
-                    if !paywallViewModel.isFreeTier {
-                        Button {
-                            isGroupedByCategory.toggle()
-                        } label: {
-                            Image(systemName: isGroupedByCategory ? "list.bullet" : "rectangle.3.group")
-                        }
-                    }
-                    NavigationLink(value: "settings") {
-                        Image(systemName: "gear")
-                    }
+                NavigationLink(value: "settings") {
+                    Image(systemName: "gear")
                 }
             }
         }

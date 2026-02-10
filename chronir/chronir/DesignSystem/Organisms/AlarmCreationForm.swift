@@ -3,6 +3,7 @@ import SwiftUI
 struct AlarmCreationForm: View {
     @Binding var title: String
     @Binding var cycleType: CycleType
+    @Binding var repeatInterval: Int
     @Binding var timesOfDay: [TimeOfDay]
     @Binding var isPersistent: Bool
     @Binding var note: String
@@ -21,6 +22,8 @@ struct AlarmCreationForm: View {
             } else if cycleType == .monthlyDate {
                 monthlyDayPicker
             }
+
+            repeatIntervalPicker
 
             ChronirCategoryPicker(selection: $category)
 
@@ -90,6 +93,33 @@ struct AlarmCreationForm: View {
         }
     }
 
+    private var repeatIntervalPicker: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            ChronirText("Repeat Every", style: .labelMedium, color: ColorTokens.textSecondary)
+            HStack(spacing: SpacingTokens.sm) {
+                Stepper(value: $repeatInterval, in: 1...52) {
+                    ChronirText(
+                        "\(repeatInterval) \(intervalUnitLabel)",
+                        style: .bodyLarge
+                    )
+                }
+            }
+        }
+    }
+
+    private var intervalUnitLabel: String {
+        switch cycleType {
+        case .weekly:
+            return repeatInterval == 1 ? "week" : "weeks"
+        case .monthlyDate, .monthlyRelative:
+            return repeatInterval == 1 ? "month" : "months"
+        case .annual:
+            return repeatInterval == 1 ? "year" : "years"
+        case .customDays:
+            return repeatInterval == 1 ? "day" : "days"
+        }
+    }
+
     // ISO weekday: 1=Mon, 7=Sun
     private var dayLabels: [(Int, String)] {
         [(2, "M"), (3, "T"), (4, "W"), (5, "T"), (6, "F"), (7, "S"), (1, "S")]
@@ -99,6 +129,7 @@ struct AlarmCreationForm: View {
 #Preview {
     @Previewable @State var title = ""
     @Previewable @State var cycleType = CycleType.weekly
+    @Previewable @State var repeatInterval = 1
     @Previewable @State var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
     @Previewable @State var isPersistent = false
     @Previewable @State var note = ""
@@ -110,6 +141,7 @@ struct AlarmCreationForm: View {
         AlarmCreationForm(
             title: $title,
             cycleType: $cycleType,
+            repeatInterval: $repeatInterval,
             timesOfDay: $timesOfDay,
             isPersistent: $isPersistent,
             note: $note,

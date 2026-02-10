@@ -6,6 +6,7 @@ import SwiftData
 final class AlarmCreationViewModel {
     var title: String = ""
     var cycleType: CycleType = .weekly
+    var repeatInterval: Int = 1
     var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
     var isPersistent: Bool = false
     var note: String = ""
@@ -51,21 +52,21 @@ final class AlarmCreationViewModel {
     func buildSchedule() -> Schedule {
         switch cycleType {
         case .weekly:
-            return .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: 1)
+            return .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: repeatInterval)
         case .monthlyDate:
-            return .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: 1)
+            return .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: repeatInterval)
         case .monthlyRelative:
-            return .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: 1)
+            return .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: repeatInterval)
         case .annual:
             let now = Date()
             let cal = Calendar.current
             return .annual(
                 month: cal.component(.month, from: now),
                 dayOfMonth: cal.component(.day, from: now),
-                interval: 1
+                interval: repeatInterval
             )
         case .customDays:
-            return .customDays(intervalDays: 7, startDate: Date())
+            return .customDays(intervalDays: repeatInterval, startDate: Date())
         }
     }
 }

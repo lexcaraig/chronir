@@ -352,6 +352,7 @@ private struct CatalogAlarmCreationFormView: View {
     @State private var title = ""
     @State private var cycleType = CycleType.weekly
     @State private var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
+    @State private var repeatInterval = 1
     @State private var isPersistent = false
     @State private var note = ""
     @State private var selectedDays: Set<Int> = [2]
@@ -363,6 +364,7 @@ private struct CatalogAlarmCreationFormView: View {
             AlarmCreationForm(
                 title: $title,
                 cycleType: $cycleType,
+                repeatInterval: $repeatInterval,
                 timesOfDay: $timesOfDay,
                 isPersistent: $isPersistent,
                 note: $note,

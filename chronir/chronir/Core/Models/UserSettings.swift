@@ -47,6 +47,10 @@ final class UserSettings {
         didSet { Self.defaults.set(wallpaperIsLight, forKey: "wallpaperIsLight") }
     }
 
+    var groupAlarmsByCategory: Bool {
+        didSet { Self.defaults.set(groupAlarmsByCategory, forKey: "groupAlarmsByCategory") }
+    }
+
     private init() {
         Self.defaults.register(defaults: [
             "snoozeEnabled": true,
@@ -54,7 +58,8 @@ final class UserSettings {
             "selectedAlarmSound": "alarm",
             "timezoneMode": TimezoneMode.floating.rawValue,
             "hasCompletedOnboarding": false,
-            "wallpaperScale": 1.0
+            "wallpaperScale": 1.0,
+            "groupAlarmsByCategory": false
         ])
 
         snoozeEnabled = Self.defaults.bool(forKey: "snoozeEnabled")
@@ -69,5 +74,6 @@ final class UserSettings {
         wallpaperOffsetX = Self.defaults.double(forKey: "wallpaperOffsetX")
         wallpaperOffsetY = Self.defaults.double(forKey: "wallpaperOffsetY")
         wallpaperIsLight = Self.defaults.bool(forKey: "wallpaperIsLight")
+        groupAlarmsByCategory = Self.defaults.bool(forKey: "groupAlarmsByCategory")
     }
 }

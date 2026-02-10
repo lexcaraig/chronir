@@ -7,6 +7,7 @@ struct AlarmCreationView: View {
     @Query(sort: \Alarm.nextFireDate) private var existingAlarms: [Alarm]
     @State private var title = ""
     @State private var cycleType: CycleType = .weekly
+    @State private var repeatInterval: Int = 1
     @State private var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
     @State private var isPersistent = false
     @State private var note = ""
@@ -28,6 +29,7 @@ struct AlarmCreationView: View {
                 AlarmCreationForm(
                     title: $title,
                     cycleType: $cycleType,
+                    repeatInterval: $repeatInterval,
                     timesOfDay: $timesOfDay,
                     isPersistent: $isPersistent,
                     note: $note,
@@ -60,6 +62,9 @@ struct AlarmCreationView: View {
         }
         .onChange(of: category) {
             conflictWarning = nil
+        }
+        .onChange(of: cycleType) {
+            repeatInterval = 1
         }
     }
 
@@ -124,20 +129,20 @@ struct AlarmCreationView: View {
         let schedule: Schedule
         switch cycleType {
         case .weekly:
-            schedule = .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: 1)
+            schedule = .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: repeatInterval)
         case .monthlyDate:
-            schedule = .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: 1)
+            schedule = .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: repeatInterval)
         case .monthlyRelative:
-            schedule = .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: 1)
+            schedule = .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: repeatInterval)
         case .annual:
             let now = Date()
             schedule = .annual(
                 month: calendar.component(.month, from: now),
                 dayOfMonth: calendar.component(.day, from: now),
-                interval: 1
+                interval: repeatInterval
             )
         case .customDays:
-            schedule = .customDays(intervalDays: 7, startDate: Date())
+            schedule = .customDays(intervalDays: repeatInterval, startDate: Date())
         }
 
         let alarm = Alarm(

@@ -101,6 +101,11 @@ struct SettingsView: View {
                     }
                 }
             }
+
+            ChronirToggle(
+                label: "Group Alarms by Category",
+                isOn: $settings.groupAlarmsByCategory
+            )
         } header: {
             ChronirText("Appearance", style: .labelLarge, color: ColorTokens.textSecondary)
         }

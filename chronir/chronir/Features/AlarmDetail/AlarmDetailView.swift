@@ -19,6 +19,7 @@ struct AlarmDetailView: View {
                     AlarmCreationForm(
                         title: $viewModel.title,
                         cycleType: $viewModel.cycleType,
+                        repeatInterval: $viewModel.repeatInterval,
                         timesOfDay: $viewModel.timesOfDay,
                         isPersistent: $viewModel.isPersistent,
                         note: $viewModel.note,
