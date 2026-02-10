@@ -55,11 +55,18 @@ struct CategoryGroupCard: View {
             Circle()
                 .fill(isEnabled ? ColorTokens.success : ColorTokens.textDisabled)
                 .frame(width: 6, height: 6)
-            ChronirText(
-                alarm.title,
-                style: .bodyMedium,
-                color: isEnabled ? ColorTokens.textPrimary : ColorTokens.textDisabled
-            )
+            VStack(alignment: .leading, spacing: 2) {
+                ChronirText(
+                    alarm.title,
+                    style: .bodyMedium,
+                    color: isEnabled ? ColorTokens.textPrimary : ColorTokens.textDisabled
+                )
+                ChronirText(
+                    alarm.schedule.displayName,
+                    style: .caption,
+                    color: ColorTokens.textSecondary
+                )
+            }
             Spacer()
             ChronirText(
                 alarm.nextFireDate.formatted(.dateTime.month(.abbreviated).day().hour().minute()),

@@ -28,6 +28,8 @@ struct AlarmDetailView: View {
                         annualMonth: $viewModel.annualMonth,
                         annualDay: $viewModel.annualDay,
                         annualYear: $viewModel.annualYear,
+                        startMonth: $viewModel.startMonth,
+                        startYear: $viewModel.startYear,
                         category: $viewModel.category
                     )
 

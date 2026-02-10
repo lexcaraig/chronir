@@ -22,6 +22,8 @@ final class AlarmDetailViewModel {
     var annualMonth: Int = Calendar.current.component(.month, from: Date())
     var annualDay: Int = Calendar.current.component(.day, from: Date())
     var annualYear: Int = Calendar.current.component(.year, from: Date())
+    var startMonth: Int = Calendar.current.component(.month, from: Date())
+    var startYear: Int = Calendar.current.component(.year, from: Date())
     var category: AlarmCategory?
     var selectedImage: UIImage?
     var removePhoto = false
@@ -63,8 +65,16 @@ final class AlarmDetailViewModel {
             case .monthlyDate(let days, let interval):
                 self.daysOfMonth = Set(days)
                 self.repeatInterval = interval
+                if interval > 1 {
+                    self.startMonth = Calendar.current.component(.month, from: alarm.nextFireDate)
+                    self.startYear = Calendar.current.component(.year, from: alarm.nextFireDate)
+                }
             case .monthlyRelative(_, _, let interval):
                 self.repeatInterval = interval
+                if interval > 1 {
+                    self.startMonth = Calendar.current.component(.month, from: alarm.nextFireDate)
+                    self.startYear = Calendar.current.component(.year, from: alarm.nextFireDate)
+                }
             case .annual(let month, let dayOfMonth, let interval):
                 self.annualMonth = month
                 self.annualDay = dayOfMonth
@@ -95,6 +105,17 @@ final class AlarmDetailViewModel {
             let firstTime = timesOfDay.sorted().first ?? TimeOfDay(hour: 8, minute: 0)
             let targetDate = cal.date(from: DateComponents(
                 year: annualYear, month: annualMonth, day: annualDay,
+                hour: firstTime.hour, minute: firstTime.minute
+            )) ?? Date()
+            alarm.nextFireDate = targetDate > Date()
+                ? targetDate
+                : dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+        } else if repeatInterval > 1 && (cycleType == .monthlyDate || cycleType == .monthlyRelative) {
+            let cal = Calendar.current
+            let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
+            let firstDay = cycleType == .monthlyDate ? Array(daysOfMonth).min() ?? 1 : 1
+            let targetDate = cal.date(from: DateComponents(
+                year: startYear, month: startMonth, day: firstDay,
                 hour: firstTime.hour, minute: firstTime.minute
             )) ?? Date()
             alarm.nextFireDate = targetDate > Date()

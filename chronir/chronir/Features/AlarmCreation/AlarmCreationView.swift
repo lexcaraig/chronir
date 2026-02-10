@@ -16,6 +16,8 @@ struct AlarmCreationView: View {
     @State private var annualMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var annualDay: Int = Calendar.current.component(.day, from: Date())
     @State private var annualYear: Int = Calendar.current.component(.year, from: Date())
+    @State private var startMonth: Int = Calendar.current.component(.month, from: Date())
+    @State private var startYear: Int = Calendar.current.component(.year, from: Date())
     @State private var category: AlarmCategory?
     @State private var saveError: String?
     @State private var conflictWarning: String?
@@ -41,6 +43,8 @@ struct AlarmCreationView: View {
                     annualMonth: $annualMonth,
                     annualDay: $annualDay,
                     annualYear: $annualYear,
+                    startMonth: $startMonth,
+                    startYear: $startYear,
                     category: $category
                 )
 
@@ -165,6 +169,17 @@ struct AlarmCreationView: View {
             let firstTime = timesOfDay.sorted().first ?? TimeOfDay(hour: 8, minute: 0)
             let targetDate = calendar.date(from: DateComponents(
                 year: annualYear, month: annualMonth, day: annualDay,
+                hour: firstTime.hour, minute: firstTime.minute
+            )) ?? Date()
+            alarm.nextFireDate = targetDate > Date()
+                ? targetDate
+                : DateCalculator().calculateNextFireDate(for: alarm, from: Date())
+        } else if repeatInterval > 1 && (cycleType == .monthlyDate || cycleType == .monthlyRelative) {
+            // Use the user-selected starting month/year for multi-month intervals
+            let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
+            let firstDay = cycleType == .monthlyDate ? Array(daysOfMonth).min() ?? 1 : 1
+            let targetDate = calendar.date(from: DateComponents(
+                year: startYear, month: startMonth, day: firstDay,
                 hour: firstTime.hour, minute: firstTime.minute
             )) ?? Date()
             alarm.nextFireDate = targetDate > Date()

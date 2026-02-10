@@ -12,6 +12,8 @@ struct AlarmCreationForm: View {
     @Binding var annualMonth: Int
     @Binding var annualDay: Int
     @Binding var annualYear: Int
+    @Binding var startMonth: Int
+    @Binding var startYear: Int
     @Binding var category: AlarmCategory?
 
     var body: some View {
@@ -29,6 +31,10 @@ struct AlarmCreationForm: View {
             }
 
             repeatIntervalPicker
+
+            if repeatInterval > 1 && (cycleType == .monthlyDate || cycleType == .monthlyRelative) {
+                monthlyStartPicker
+            }
 
             ChronirCategoryPicker(selection: $category)
 
@@ -122,6 +128,8 @@ struct AlarmCreationForm: View {
                     }
                 }
                 .pickerStyle(.menu)
+
+                Spacer()
             }
         }
     }
@@ -140,6 +148,29 @@ struct AlarmCreationForm: View {
             return 31
         }
         return range.count
+    }
+
+    private var monthlyStartPicker: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            ChronirText("First Occurrence", style: .labelMedium, color: ColorTokens.textSecondary)
+            HStack(spacing: SpacingTokens.sm) {
+                Picker("Month", selection: $startMonth) {
+                    ForEach(1...12, id: \.self) { month in
+                        Text(Calendar.current.monthSymbols[month - 1]).tag(month)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Picker("Year", selection: $startYear) {
+                    ForEach(currentYear...currentYear + 10, id: \.self) { year in
+                        Text(String(year)).tag(year)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Spacer()
+            }
+        }
     }
 
     private var repeatIntervalPicker: some View {
@@ -187,6 +218,8 @@ struct AlarmCreationForm: View {
     @Previewable @State var annualMonth = Calendar.current.component(.month, from: Date())
     @Previewable @State var annualDay = Calendar.current.component(.day, from: Date())
     @Previewable @State var annualYear = Calendar.current.component(.year, from: Date())
+    @Previewable @State var startMonth = Calendar.current.component(.month, from: Date())
+    @Previewable @State var startYear = Calendar.current.component(.year, from: Date())
     @Previewable @State var category: AlarmCategory?
 
     ScrollView {
@@ -202,6 +235,8 @@ struct AlarmCreationForm: View {
             annualMonth: $annualMonth,
             annualDay: $annualDay,
             annualYear: $annualYear,
+            startMonth: $startMonth,
+            startYear: $startYear,
             category: $category
         )
     }

@@ -7,6 +7,19 @@ enum Schedule: Codable, Hashable {
     case annual(month: Int, dayOfMonth: Int, interval: Int)
     case customDays(intervalDays: Int, startDate: Date)
 
+    var displayName: String {
+        switch self {
+        case .weekly(_, let interval):
+            return interval == 1 ? "Weekly" : "Every \(interval) Weeks"
+        case .monthlyDate(_, let interval), .monthlyRelative(_, _, let interval):
+            return interval == 1 ? "Monthly" : "Every \(interval) Months"
+        case .annual(_, _, let interval):
+            return interval == 1 ? "Annual" : "Every \(interval) Years"
+        case .customDays(let days, _):
+            return days == 1 ? "Daily" : "Every \(days) Days"
+        }
+    }
+
     var cycleType: CycleType {
         switch self {
         case .weekly: return .weekly

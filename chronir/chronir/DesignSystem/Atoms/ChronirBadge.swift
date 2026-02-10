@@ -14,6 +14,11 @@ struct ChronirBadge: View {
         self.color = Self.color(for: cycleType)
     }
 
+    init(schedule: Schedule) {
+        self.text = schedule.displayName
+        self.color = Self.color(for: schedule.cycleType)
+    }
+
     var body: some View {
         Text(text)
             .font(TypographyTokens.labelSmall)

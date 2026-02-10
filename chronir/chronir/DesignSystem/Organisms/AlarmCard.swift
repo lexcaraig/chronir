@@ -67,7 +67,7 @@ struct AlarmCard: View {
                         color: visualState == .inactive ? ColorTokens.textDisabled : ColorTokens.textPrimary
                     )
                     HStack(spacing: SpacingTokens.xxs) {
-                        ChronirBadge(cycleType: alarm.cycleType)
+                        ChronirBadge(schedule: alarm.schedule)
                         if let cat = alarm.alarmCategory {
                             ChronirBadge(cat.displayName, color: cat.color)
                         }
