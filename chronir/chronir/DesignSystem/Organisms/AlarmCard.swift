@@ -44,8 +44,20 @@ struct AlarmCard: View {
         let hours = totalMinutes / 60
         let minutes = totalMinutes % 60
         let days = hours / 24
+        let months = days / 30
+        let years = days / 365
 
-        if days > 0 {
+        if years > 0 {
+            let remainingMonths = (days - years * 365) / 30
+            return remainingMonths > 0
+                ? "\(prefix) \(years)y \(remainingMonths)mo"
+                : "\(prefix) \(years)y"
+        } else if months > 0 {
+            let remainingDays = days - months * 30
+            return remainingDays > 0
+                ? "\(prefix) \(months)mo \(remainingDays)d"
+                : "\(prefix) \(months)mo"
+        } else if days > 0 {
             return "\(prefix) \(days)d \(hours % 24)h"
         } else if hours > 0 {
             return "\(prefix) \(hours)h \(minutes)m"
