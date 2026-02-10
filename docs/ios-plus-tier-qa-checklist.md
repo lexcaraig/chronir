@@ -46,7 +46,7 @@
 | 3.4 | Verify downgrade banner               | Banner: "Your subscription has ended. Only your 2 oldest alarms remain active." | PASS  |
 | 3.5 | Tap + button                          | Paywall appears (back at 2-alarm limit)                                         | PASS  |
 | 3.6 | Tap/swipe disabled alarm              | Paywall appears (cannot re-enable beyond limit)                                 | PASS  |
-| 3.7 | Re-subscribe                          | All alarms re-enabled, banner disappears                                        |       |
+| 3.7 | Re-subscribe                          | All alarms re-enabled, banner disappears                                        | PASS  |
 
 ---
 
@@ -237,7 +237,7 @@
 | --------------------------- | ----------- | ------ | ------ | ----- |
 | Purchase Flow               | 7           | 7      | 0      |       |
 | Restore Purchases           | 4           |        |        |       |
-| Expiry & Downgrade          | 7           | 6      | 0      | 3.7 untested |
+| Expiry & Downgrade          | 7           | 7      | 0      |       |
 | Alarm Limit Gating          | 5           |        |        |       |
 | Subscription Management     | 5           |        |        |       |
 | Paywall UI                  | 6           |        |        |       |
@@ -251,7 +251,7 @@
 | Layout Toggle               | 5           |        |        |       |
 | Settings Subscription       | 3           |        |        |       |
 | Edge Cases                  | 8           |        |        |       |
-| **TOTAL**                   | **108**     | **13** | **0**  |       |
+| **TOTAL**                   | **108**     | **14** | **0**  |       |
 
 ---
 
