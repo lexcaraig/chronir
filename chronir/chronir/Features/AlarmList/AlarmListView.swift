@@ -102,28 +102,9 @@ struct AlarmListView: View {
                         }
                     }
                 } else {
-                    // Default view: auto-collapse categories with 2+ alarms
-                    ForEach(smartGroupedItems, id: \.id) { item in
-                        switch item {
-                        case .grouped(let category, let alarms):
-                            GlassEffectContainer {
-                                CategoryGroupCard(
-                                    category: category,
-                                    alarms: alarms,
-                                    enabledStates: enabledStates
-                                )
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture { selectedCategory = category }
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                            .listRowInsets(EdgeInsets(
-                                top: SpacingTokens.xxs, leading: SpacingTokens.md,
-                                bottom: SpacingTokens.xxs, trailing: SpacingTokens.md
-                            ))
-                        case .individual(let alarm):
-                            alarmRow(alarm)
-                        }
+                    // Default flat list — all alarms as individual rows
+                    ForEach(filteredAlarms) { alarm in
+                        alarmRow(alarm)
                     }
                 }
             }
