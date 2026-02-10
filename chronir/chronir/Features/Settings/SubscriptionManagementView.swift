@@ -3,6 +3,7 @@ import StoreKit
 
 struct SubscriptionManagementView: View {
     private let subscriptionService = SubscriptionService.shared
+    @State private var restoreMessage: String?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -123,14 +124,29 @@ struct SubscriptionManagementView: View {
             Button {
                 Task {
                     await SubscriptionService.shared.restorePurchases()
+                    if subscriptionService.currentTier.isFreeTier {
+                        restoreMessage = "No active subscriptions found."
+                    } else {
+                        restoreMessage = "Restored to \(subscriptionService.currentTier.displayName)."
+                    }
                 }
             } label: {
-                ChronirText("Restore Purchases", style: .bodyPrimary, color: ColorTokens.primary)
+                if subscriptionService.isLoading {
+                    ProgressView()
+                } else {
+                    ChronirText("Restore Purchases", style: .bodyPrimary, color: ColorTokens.primary)
+                }
             }
+            .disabled(subscriptionService.isLoading)
         } header: {
             ChronirText("Manage", style: .labelLarge, color: ColorTokens.textSecondary)
         }
         .listRowBackground(ColorTokens.surfaceCard)
+        .alert("Restore Purchases", isPresented: .constant(restoreMessage != nil)) {
+            Button("OK") { restoreMessage = nil }
+        } message: {
+            Text(restoreMessage ?? "")
+        }
     }
 
     private func badgeColor(for tier: SubscriptionTier) -> Color {
