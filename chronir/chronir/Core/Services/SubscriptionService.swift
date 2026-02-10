@@ -7,13 +7,22 @@ final class SubscriptionService {
     static let shared = SubscriptionService()
 
     private(set) var products: [Product] = []
-    private(set) var currentTier: SubscriptionTier = .free
+    private(set) var currentTier: SubscriptionTier = .free {
+        didSet {
+            UserDefaults.standard.set(currentTier.rawValue, forKey: "chronir_last_known_tier")
+        }
+    }
     private(set) var activeProductID: String?
     private(set) var renewalDate: Date?
     var isLoading = false
     var errorMessage: String?
 
     private var transactionListenerTask: Task<Void, Never>?
+
+    private static var persistedTier: SubscriptionTier {
+        let raw = UserDefaults.standard.string(forKey: "chronir_last_known_tier") ?? "free"
+        return SubscriptionTier(rawValue: raw) ?? .free
+    }
 
     static let productIDs: Set<String> = [
         "com.chronir.premium.annual",
@@ -93,13 +102,15 @@ final class SubscriptionService {
             }
         }
 
-        let previousTier = currentTier
+        let previousTier = Self.persistedTier
         currentTier = highestTier
         activeProductID = latestProductID
         renewalDate = latestRenewalDate
 
         if previousTier.rank > highestTier.rank {
             await handleTierDowngrade(from: previousTier, to: highestTier)
+        } else if previousTier == .free && highestTier.rank > previousTier.rank {
+            await handleTierUpgrade(to: highestTier)
         }
     }
 
@@ -138,6 +149,24 @@ final class SubscriptionService {
             }
         } catch {
             print("Failed to handle tier downgrade: \(error)")
+        }
+    }
+
+    private func handleTierUpgrade(to newTier: SubscriptionTier) async {
+        guard let repo = AlarmRepository.shared else { return }
+
+        do {
+            let allAlarms = try await repo.fetchAll()
+            let disabled = allAlarms.filter { !$0.isEnabled }
+
+            for alarm in disabled {
+                alarm.isEnabled = true
+                alarm.updatedAt = Date()
+                try await repo.update(alarm)
+                try? await AlarmScheduler.shared.scheduleAlarm(alarm)
+            }
+        } catch {
+            print("Failed to handle tier upgrade: \(error)")
         }
     }
 
