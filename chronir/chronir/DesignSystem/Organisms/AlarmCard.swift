@@ -36,29 +36,28 @@ struct AlarmCard: View {
 
     private var countdownText: String? {
         guard visualState == .active || visualState == .snoozed else { return nil }
-        let interval = alarm.nextFireDate.timeIntervalSince(Date())
-        guard interval > 0 else { return nil }
+        let now = Date()
+        guard alarm.nextFireDate > now else { return nil }
 
         let prefix = visualState == .snoozed ? "Fires in" : "Alarm in"
-        let totalMinutes = Int(interval) / 60
-        let hours = totalMinutes / 60
-        let minutes = totalMinutes % 60
-        let days = hours / 24
-        let months = days / 30
-        let years = days / 365
+        let cal = Calendar.current
+        let diff = cal.dateComponents([.year, .month, .day, .hour, .minute], from: now, to: alarm.nextFireDate)
+        let years = diff.year ?? 0
+        let months = diff.month ?? 0
+        let days = diff.day ?? 0
+        let hours = diff.hour ?? 0
+        let minutes = diff.minute ?? 0
 
         if years > 0 {
-            let remainingMonths = (days - years * 365) / 30
-            return remainingMonths > 0
-                ? "\(prefix) \(years)y \(remainingMonths)mo"
+            return months > 0
+                ? "\(prefix) \(years)y \(months)mo"
                 : "\(prefix) \(years)y"
         } else if months > 0 {
-            let remainingDays = days - months * 30
-            return remainingDays > 0
-                ? "\(prefix) \(months)mo \(remainingDays)d"
+            return days > 0
+                ? "\(prefix) \(months)mo \(days)d"
                 : "\(prefix) \(months)mo"
         } else if days > 0 {
-            return "\(prefix) \(days)d \(hours % 24)h"
+            return "\(prefix) \(days)d \(hours)h"
         } else if hours > 0 {
             return "\(prefix) \(hours)h \(minutes)m"
         } else if minutes > 0 {
