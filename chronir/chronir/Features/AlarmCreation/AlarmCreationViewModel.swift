@@ -14,6 +14,7 @@ final class AlarmCreationViewModel {
     var daysOfMonth: Set<Int> = [1]
     var annualMonth: Int = Calendar.current.component(.month, from: Date())
     var annualDay: Int = Calendar.current.component(.day, from: Date())
+    var annualYear: Int = Calendar.current.component(.year, from: Date())
     var category: AlarmCategory?
     var isLoading: Bool = false
     var errorMessage: String?

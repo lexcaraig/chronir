@@ -21,6 +21,7 @@ final class AlarmDetailViewModel {
     var daysOfMonth: Set<Int> = [1]
     var annualMonth: Int = Calendar.current.component(.month, from: Date())
     var annualDay: Int = Calendar.current.component(.day, from: Date())
+    var annualYear: Int = Calendar.current.component(.year, from: Date())
     var category: AlarmCategory?
     var selectedImage: UIImage?
     var removePhoto = false
@@ -67,6 +68,7 @@ final class AlarmDetailViewModel {
             case .annual(let month, let dayOfMonth, let interval):
                 self.annualMonth = month
                 self.annualDay = dayOfMonth
+                self.annualYear = Calendar.current.component(.year, from: alarm.nextFireDate)
                 self.repeatInterval = interval
             case .customDays(let intervalDays, _):
                 self.repeatInterval = intervalDays
@@ -88,7 +90,19 @@ final class AlarmDetailViewModel {
         alarm.note = note.isEmpty ? nil : note
         alarm.category = category?.rawValue
         alarm.updatedAt = Date()
-        alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+        if cycleType == .annual {
+            let cal = Calendar.current
+            let firstTime = timesOfDay.sorted().first ?? TimeOfDay(hour: 8, minute: 0)
+            let targetDate = cal.date(from: DateComponents(
+                year: annualYear, month: annualMonth, day: annualDay,
+                hour: firstTime.hour, minute: firstTime.minute
+            )) ?? Date()
+            alarm.nextFireDate = targetDate > Date()
+                ? targetDate
+                : dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+        } else {
+            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+        }
 
         #if os(iOS)
         if removePhoto {

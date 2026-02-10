@@ -11,6 +11,7 @@ struct AlarmCreationForm: View {
     @Binding var daysOfMonth: Set<Int>
     @Binding var annualMonth: Int
     @Binding var annualDay: Int
+    @Binding var annualYear: Int
     @Binding var category: AlarmCategory?
 
     var body: some View {
@@ -99,7 +100,7 @@ struct AlarmCreationForm: View {
 
     private var annualDatePicker: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            ChronirText("Date", style: .labelMedium, color: ColorTokens.textSecondary)
+            ChronirText("First Occurrence", style: .labelMedium, color: ColorTokens.textSecondary)
             HStack(spacing: SpacingTokens.sm) {
                 Picker("Month", selection: $annualMonth) {
                     ForEach(1...12, id: \.self) { month in
@@ -114,8 +115,19 @@ struct AlarmCreationForm: View {
                     }
                 }
                 .pickerStyle(.menu)
+
+                Picker("Year", selection: $annualYear) {
+                    ForEach(currentYear...currentYear + 30, id: \.self) { year in
+                        Text(String(year)).tag(year)
+                    }
+                }
+                .pickerStyle(.menu)
             }
         }
+    }
+
+    private var currentYear: Int {
+        Calendar.current.component(.year, from: Date())
     }
 
     private var daysInSelectedMonth: Int {
@@ -174,6 +186,7 @@ struct AlarmCreationForm: View {
     @Previewable @State var daysOfMonth: Set<Int> = [1]
     @Previewable @State var annualMonth = Calendar.current.component(.month, from: Date())
     @Previewable @State var annualDay = Calendar.current.component(.day, from: Date())
+    @Previewable @State var annualYear = Calendar.current.component(.year, from: Date())
     @Previewable @State var category: AlarmCategory?
 
     ScrollView {
@@ -188,6 +201,7 @@ struct AlarmCreationForm: View {
             daysOfMonth: $daysOfMonth,
             annualMonth: $annualMonth,
             annualDay: $annualDay,
+            annualYear: $annualYear,
             category: $category
         )
     }

@@ -359,6 +359,7 @@ private struct CatalogAlarmCreationFormView: View {
     @State private var daysOfMonth: Set<Int> = [1]
     @State private var annualMonth = Calendar.current.component(.month, from: Date())
     @State private var annualDay = Calendar.current.component(.day, from: Date())
+    @State private var annualYear = Calendar.current.component(.year, from: Date())
     @State private var category: AlarmCategory?
 
     var body: some View {
@@ -374,6 +375,7 @@ private struct CatalogAlarmCreationFormView: View {
                 daysOfMonth: $daysOfMonth,
                 annualMonth: $annualMonth,
                 annualDay: $annualDay,
+                annualYear: $annualYear,
                 category: $category
             )
         }

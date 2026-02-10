@@ -15,6 +15,7 @@ struct AlarmCreationView: View {
     @State private var daysOfMonth: Set<Int> = [1]
     @State private var annualMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var annualDay: Int = Calendar.current.component(.day, from: Date())
+    @State private var annualYear: Int = Calendar.current.component(.year, from: Date())
     @State private var category: AlarmCategory?
     @State private var saveError: String?
     @State private var conflictWarning: String?
@@ -39,6 +40,7 @@ struct AlarmCreationView: View {
                     daysOfMonth: $daysOfMonth,
                     annualMonth: $annualMonth,
                     annualDay: $annualDay,
+                    annualYear: $annualYear,
                     category: $category
                 )
 
@@ -158,7 +160,19 @@ struct AlarmCreationView: View {
             note: note.isEmpty ? nil : note
         )
 
-        alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
+        if cycleType == .annual {
+            // Use the user-selected year directly so "Sep 10, 2029" doesn't snap to 2026
+            let firstTime = timesOfDay.sorted().first ?? TimeOfDay(hour: 8, minute: 0)
+            let targetDate = calendar.date(from: DateComponents(
+                year: annualYear, month: annualMonth, day: annualDay,
+                hour: firstTime.hour, minute: firstTime.minute
+            )) ?? Date()
+            alarm.nextFireDate = targetDate > Date()
+                ? targetDate
+                : DateCalculator().calculateNextFireDate(for: alarm, from: Date())
+        } else {
+            alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
+        }
 
         // Check for same-day conflicts within the same category (non-blocking, show once)
         if conflictWarning == nil, let selectedCategory = category {
