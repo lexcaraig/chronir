@@ -232,8 +232,20 @@ struct AlarmListView: View {
     private func enabledBinding(for alarm: Alarm) -> Binding<Bool> {
         Binding(
             get: { enabledStates[alarm.id] ?? alarm.isEnabled },
-            set: { enabledStates[alarm.id] = $0 }
+            set: { newValue in
+                if newValue && !canEnableMoreAlarms() {
+                    showUpgradePrompt = true
+                } else {
+                    enabledStates[alarm.id] = newValue
+                }
+            }
         )
+    }
+
+    private func canEnableMoreAlarms() -> Bool {
+        guard paywallViewModel.isFreeTier, let limit = paywallViewModel.alarmLimit else { return true }
+        let enabledCount = alarms.filter({ enabledStates[$0.id] ?? $0.isEnabled }).count
+        return enabledCount < limit
     }
 
     private func alarmRow(_ alarm: Alarm) -> some View {
@@ -245,7 +257,14 @@ struct AlarmListView: View {
             )
         }
         .contentShape(Rectangle())
-        .onTapGesture { selectedAlarmID = alarm.id }
+        .onTapGesture {
+            let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
+            if !isEnabled && paywallViewModel.isFreeTier {
+                showUpgradePrompt = true
+            } else {
+                selectedAlarmID = alarm.id
+            }
+        }
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets(
@@ -268,7 +287,11 @@ struct AlarmListView: View {
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
                 let current = enabledStates[alarm.id] ?? alarm.isEnabled
-                enabledStates[alarm.id] = !current
+                if !current && !canEnableMoreAlarms() {
+                    showUpgradePrompt = true
+                } else {
+                    enabledStates[alarm.id] = !current
+                }
             } label: {
                 let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
                 Label(
