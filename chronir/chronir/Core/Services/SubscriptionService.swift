@@ -16,6 +16,7 @@ final class SubscriptionService {
     private(set) var renewalDate: Date?
     var isLoading = false
     var errorMessage: String?
+    private(set) var statusChecked = false
 
     private var transactionListenerTask: Task<Void, Never>?
 
@@ -107,11 +108,7 @@ final class SubscriptionService {
         activeProductID = latestProductID
         renewalDate = latestRenewalDate
 
-        if previousTier.rank > highestTier.rank {
-            await handleTierDowngrade(from: previousTier, to: highestTier)
-        } else if previousTier == .free && highestTier.rank > previousTier.rank {
-            await handleTierUpgrade(to: highestTier)
-        }
+        statusChecked = true
     }
 
     // MARK: - Restore
@@ -125,48 +122,6 @@ final class SubscriptionService {
             await updateSubscriptionStatus()
         } catch {
             errorMessage = "Failed to restore purchases: \(error.localizedDescription)"
-        }
-    }
-
-    // MARK: - Downgrade Handling
-
-    private func handleTierDowngrade(from previous: SubscriptionTier, to current: SubscriptionTier) async {
-        guard current == .free, let repo = AlarmRepository.shared else { return }
-
-        do {
-            let allAlarms = try await repo.fetchEnabled()
-            guard let limit = current.alarmLimit, allAlarms.count > limit else { return }
-
-            // Sort by createdAt ascending — keep the oldest ones enabled
-            let sorted = allAlarms.sorted { $0.createdAt < $1.createdAt }
-            let toDisable = sorted.dropFirst(limit)
-
-            for alarm in toDisable {
-                alarm.isEnabled = false
-                alarm.updatedAt = Date()
-                try await repo.update(alarm)
-                try? await AlarmScheduler.shared.cancelAlarm(alarm)
-            }
-        } catch {
-            print("Failed to handle tier downgrade: \(error)")
-        }
-    }
-
-    private func handleTierUpgrade(to newTier: SubscriptionTier) async {
-        guard let repo = AlarmRepository.shared else { return }
-
-        do {
-            let allAlarms = try await repo.fetchAll()
-            let disabled = allAlarms.filter { !$0.isEnabled }
-
-            for alarm in disabled {
-                alarm.isEnabled = true
-                alarm.updatedAt = Date()
-                try await repo.update(alarm)
-                try? await AlarmScheduler.shared.scheduleAlarm(alarm)
-            }
-        } catch {
-            print("Failed to handle tier upgrade: \(error)")
         }
     }
 

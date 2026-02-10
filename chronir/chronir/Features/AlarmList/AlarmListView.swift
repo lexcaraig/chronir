@@ -12,6 +12,7 @@ struct AlarmListView: View {
     @State private var selectedCategoryFilter: AlarmCategory?
     @State private var selectedCategory: AlarmCategory?
     @State private var paywallViewModel = PaywallViewModel()
+    private let subscriptionService = SubscriptionService.shared
     private var firingCoordinator = AlarmFiringCoordinator.shared
     private let alarmCheckTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -183,6 +184,13 @@ struct AlarmListView: View {
                     }
                 }
             }
+        }
+        .onChange(of: subscriptionService.statusChecked) { _, checked in
+            if checked { enforceAlarmLimit() }
+        }
+        .onChange(of: subscriptionService.currentTier) { _, _ in
+            guard subscriptionService.statusChecked else { return }
+            enforceAlarmLimit()
         }
 
         // FAB overlay
@@ -371,6 +379,23 @@ struct AlarmListView: View {
             let correct = calculator.calculateNextFireDate(for: alarm, from: now)
             if alarm.nextFireDate != correct {
                 alarm.nextFireDate = correct
+            }
+        }
+    }
+
+    private func enforceAlarmLimit() {
+        let tier = subscriptionService.currentTier
+        if tier == .free, let limit = tier.alarmLimit {
+            let enabled = alarms.filter { enabledStates[$0.id] ?? $0.isEnabled }
+            if enabled.count > limit {
+                let sorted = enabled.sorted { $0.createdAt < $1.createdAt }
+                for alarm in sorted.dropFirst(limit) {
+                    enabledStates[alarm.id] = false
+                }
+            }
+        } else if !tier.isFreeTier {
+            for alarm in alarms where !(enabledStates[alarm.id] ?? alarm.isEnabled) {
+                enabledStates[alarm.id] = true
             }
         }
     }
