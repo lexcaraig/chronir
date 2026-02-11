@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct AlarmFiringView: View {
     let alarmID: UUID
@@ -8,6 +11,7 @@ struct AlarmFiringView: View {
     @State private var viewModel = AlarmFiringViewModel()
     @State private var holdProgress: CGFloat = 0
     @State private var isHolding = false
+    @State private var cachedPhoto: UIImage?
 
     private let holdDuration: TimeInterval = 3.0
 
@@ -20,10 +24,18 @@ struct AlarmFiringView: View {
                     .tint(ColorTokens.firingForeground)
             }
         }
+        .onDisappear {
+            viewModel.stopFiring()
+        }
         .task {
             loadAlarmFromContext()
             if viewModel.alarm == nil {
                 await viewModel.loadAlarm(id: alarmID)
+                #if os(iOS)
+                if let alarm = viewModel.alarm, alarm.photoFileName != nil {
+                    cachedPhoto = PhotoStorageService.loadPhoto(for: alarm.id)
+                }
+                #endif
             }
             if viewModel.alarm != nil {
                 viewModel.startFiring()
@@ -36,7 +48,14 @@ struct AlarmFiringView: View {
         let descriptor = FetchDescriptor<Alarm>(
             predicate: #Predicate<Alarm> { $0.id == targetID }
         )
-        viewModel.alarm = try? modelContext.fetch(descriptor).first
+        if let alarm = try? modelContext.fetch(descriptor).first {
+            viewModel.alarm = alarm
+            #if os(iOS)
+            if alarm.photoFileName != nil {
+                cachedPhoto = PhotoStorageService.loadPhoto(for: alarm.id)
+            }
+            #endif
+        }
     }
 
     @ViewBuilder
@@ -54,14 +73,15 @@ struct AlarmFiringView: View {
 
             ChronirBadge(cycleType: alarm.cycleType)
 
-            if let photo = PhotoStorageService.loadPhoto(for: alarm.id) {
+            #if os(iOS)
+            if let photo = cachedPhoto {
                 Image(uiImage: photo)
                     .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 160)
+                    .scaledToFill()
+                    .frame(maxWidth: 280, maxHeight: 160)
                     .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
-                    .padding(.horizontal, SpacingTokens.lg)
             }
+            #endif
 
             if let note = alarm.note, !note.isEmpty {
                 ChronirText(note, style: .bodySecondary, color: ColorTokens.firingForeground.opacity(0.7))

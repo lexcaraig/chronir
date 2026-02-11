@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 import AlarmKit
 import StoreKit
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @main
 struct ChronirApp: App {
@@ -69,7 +72,15 @@ struct ChronirApp: App {
                                 try? await repo.update(model)
                             }
                         default:
-                            // Alarm stopped or state cleared — dismiss if showing
+                            // Alarm stopped from lock screen — complete it and dismiss
+                            if let repo = AlarmRepository.shared,
+                               let model = try? await repo.fetch(by: alarm.id) {
+                                let calc = DateCalculator()
+                                model.lastFiredDate = Date()
+                                model.snoozeCount = 0
+                                model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
+                                try? await repo.update(model)
+                            }
                             await MainActor.run {
                                 AlarmFiringCoordinator.shared.dismissFiring()
                             }
@@ -77,23 +88,51 @@ struct ChronirApp: App {
                     }
                 }
             }
+            #if os(iOS)
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                // Fires BEFORE scenePhase changes to .active, so we clear
+                // firingAlarmID before SwiftUI re-renders the fullScreenCover.
+                guard coordinator.isFiring else { return }
+                let firingID = coordinator.firingAlarmID
+                guard let alarms = try? AlarmManager.shared.alarms else {
+                    coordinator.dismissFiring()
+                    return
+                }
+                let stillAlerting = alarms.contains {
+                    $0.id == firingID && $0.state == .alerting
+                }
+                if !stillAlerting {
+                    if let firingID {
+                        let context = container.mainContext
+                        let targetID = firingID
+                        let descriptor = FetchDescriptor<Alarm>(
+                            predicate: #Predicate<Alarm> { $0.id == targetID }
+                        )
+                        if let model = try? context.fetch(descriptor).first {
+                            let calc = DateCalculator()
+                            model.lastFiredDate = Date()
+                            model.snoozeCount = 0
+                            model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
+                            try? context.save()
+                        }
+                    }
+                    coordinator.dismissFiring()
+                }
+            }
+            #endif
             .onChange(of: scenePhase) {
+                // Fallback for edge cases where willEnterForeground didn't fire.
                 guard scenePhase == .active,
                       coordinator.isFiring else { return }
-                // App resumed — check if the alarm is still alerting.
-                // alarmUpdates misses state changes while the app is suspended.
-                Task {
-                    let firingID = await coordinator.firingAlarmID
-                    guard let alarms = try? AlarmManager.shared.alarms else {
-                        await AlarmFiringCoordinator.shared.dismissFiring()
-                        return
-                    }
-                    let stillAlerting = alarms.contains {
-                        $0.id == firingID && $0.state == .alerting
-                    }
-                    if !stillAlerting {
-                        await AlarmFiringCoordinator.shared.dismissFiring()
-                    }
+                guard let alarms = try? AlarmManager.shared.alarms else {
+                    coordinator.dismissFiring()
+                    return
+                }
+                let stillAlerting = alarms.contains {
+                    $0.id == coordinator.firingAlarmID && $0.state == .alerting
+                }
+                if !stillAlerting {
+                    coordinator.dismissFiring()
                 }
             }
             .fullScreenCover(item: $coordinator.firingAlarmID) { alarmID in

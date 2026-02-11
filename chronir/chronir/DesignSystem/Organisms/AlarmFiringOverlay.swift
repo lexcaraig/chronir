@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct AlarmFiringOverlay: View {
     let alarm: Alarm
@@ -32,8 +35,20 @@ struct AlarmFiringOverlay: View {
 
             ChronirBadge(cycleType: alarm.cycleType)
 
+            #if os(iOS)
+            if alarm.photoFileName != nil,
+               let photo = PhotoStorageService.loadPhoto(for: alarm.id) {
+                Image(uiImage: photo)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: 280, maxHeight: 160)
+                    .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+            }
+            #endif
+
             if let note = alarm.note, !note.isEmpty {
                 ChronirText(note, style: .bodySecondary, color: ColorTokens.firingForeground.opacity(0.7))
+                    .padding(.horizontal, SpacingTokens.lg)
             }
 
             if snoozeCount > 0 {
