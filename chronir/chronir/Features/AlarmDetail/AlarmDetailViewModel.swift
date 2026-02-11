@@ -29,6 +29,9 @@ final class AlarmDetailViewModel {
     var removePhoto = false
     var isLoading: Bool = false
     var errorMessage: String?
+    var titleError: String?
+    var warningMessage: String?
+    var showWarningDialog: Bool = false
 
     private let dateCalculator = DateCalculator()
 
@@ -88,21 +91,69 @@ final class AlarmDetailViewModel {
         }
     }
 
-    func updateAlarm(context: ModelContext) {
-        guard let alarm else { return }
-        guard !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+    func clearWarnings() {
+        titleError = nil
+    }
 
-        alarm.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+    /// Returns true if save proceeded, false if blocked by validation or warning dialog shown.
+    @discardableResult
+    func updateAlarm(context: ModelContext, existingAlarms: [Alarm]) -> Bool {
+        guard let alarm else { return false }
+
+        let schedule = buildSchedule()
+        let result = AlarmValidator.validate(
+            title: title,
+            note: note,
+            cycleType: cycleType,
+            schedule: schedule,
+            timesOfDay: timesOfDay,
+            daysOfMonth: daysOfMonth,
+            existingAlarms: existingAlarms,
+            excludingAlarmID: alarm.id
+        )
+
+        // Hard errors block save
+        if !result.isValid {
+            if result.errors.contains(.emptyTitle) {
+                titleError = "Alarm name is required."
+            }
+            return false
+        }
+
+        // Soft warnings: show confirmation dialog
+        let actionableWarnings = result.warnings.filter { $0 != .monthlyDay31 }
+        if let firstWarning = actionableWarnings.first {
+            warningMessage = firstWarning.displayMessage
+            showWarningDialog = true
+            return false
+        }
+
+        return performSave(context: context)
+    }
+
+    @discardableResult
+    func forceSave(context: ModelContext) -> Bool {
+        performSave(context: context)
+    }
+
+    private func performSave(context: ModelContext) -> Bool {
+        guard let alarm else { return false }
+
+        let trimmedTitle = AlarmValidator.trimmedTitle(title)
+        let trimmedNote = AlarmValidator.trimmedNote(note)
+        let schedule = buildSchedule()
+
+        alarm.title = trimmedTitle
         alarm.cycleType = cycleType
         alarm.timesOfDay = timesOfDay
-        alarm.schedule = buildSchedule()
+        alarm.schedule = schedule
         alarm.persistenceLevel = isPersistent ? .full : .notificationOnly
-        alarm.note = note.isEmpty ? nil : note
+        alarm.note = trimmedNote
         alarm.category = category?.rawValue
         alarm.updatedAt = Date()
         if cycleType == .annual {
             let cal = Calendar.current
-            let firstTime = timesOfDay.sorted().first ?? TimeOfDay(hour: 8, minute: 0)
+            let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
             let targetDate = cal.date(from: DateComponents(
                 year: annualYear, month: annualMonth, day: annualDay,
                 hour: firstTime.hour, minute: firstTime.minute
@@ -136,7 +187,9 @@ final class AlarmDetailViewModel {
 
         do {
             try context.save()
-            // Reschedule the notification
+            titleError = nil
+            warningMessage = nil
+            showWarningDialog = false
             let alarmToSchedule = alarm
             Task {
                 do {
@@ -148,8 +201,10 @@ final class AlarmDetailViewModel {
                     print("Failed to reschedule notification: \(error)")
                 }
             }
+            return true
         } catch {
             errorMessage = error.localizedDescription
+            return false
         }
     }
 

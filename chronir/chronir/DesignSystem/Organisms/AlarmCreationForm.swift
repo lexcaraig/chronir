@@ -15,10 +15,18 @@ struct AlarmCreationForm: View {
     @Binding var startMonth: Int
     @Binding var startYear: Int
     @Binding var category: AlarmCategory?
+    var titleError: String?
+    @State private var savedIntervals: [CycleType: Int] = [:]
 
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
-            LabeledTextField(label: "Alarm Name", placeholder: "Enter a name...", text: $title)
+            LabeledTextField(
+                label: "Alarm Name",
+                placeholder: "Enter a name...",
+                text: $title,
+                error: titleError,
+                maxLength: AlarmValidator.titleMaxLength
+            )
 
             IntervalPicker(selection: $cycleType)
 
@@ -26,6 +34,17 @@ struct AlarmCreationForm: View {
                 weeklyDayPicker
             } else if cycleType == .monthlyDate {
                 monthlyDayPicker
+                if daysOfMonth.contains(where: { $0 > 28 }) {
+                    HStack(spacing: SpacingTokens.xs) {
+                        Image(systemName: "info.circle")
+                            .foregroundStyle(ColorTokens.textSecondary)
+                        ChronirText(
+                            AlarmValidator.ValidationWarning.monthlyDay31.displayMessage,
+                            style: .labelSmall,
+                            color: ColorTokens.textSecondary
+                        )
+                    }
+                }
             } else if cycleType == .annual {
                 annualDatePicker
             }
@@ -42,9 +61,18 @@ struct AlarmCreationForm: View {
 
             ChronirToggle(label: "Persistent (requires dismissal)", isOn: $isPersistent)
 
-            LabeledTextField(label: "Note (optional)", placeholder: "Add a note...", text: $note)
+            LabeledTextField(
+                label: "Note (optional)",
+                placeholder: "Add a note...",
+                text: $note,
+                maxLength: AlarmValidator.noteMaxLength
+            )
         }
         .padding(SpacingTokens.lg)
+        .onChange(of: cycleType) { oldValue, newValue in
+            savedIntervals[oldValue] = repeatInterval
+            repeatInterval = savedIntervals[newValue] ?? 1
+        }
     }
 
     private var weeklyDayPicker: some View {

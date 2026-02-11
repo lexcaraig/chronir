@@ -20,10 +20,22 @@ struct AlarmCreationView: View {
     @State private var startYear: Int = Calendar.current.component(.year, from: Date())
     @State private var category: AlarmCategory?
     @State private var saveError: String?
-    @State private var conflictWarning: String?
+    @State private var titleError: String?
+    @State private var showWarningDialog = false
+    @State private var warningMessage = ""
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
     @Environment(\.dismiss) private var dismiss
+
+    private var hasUnsavedChanges: Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || selectedImage != nil
+            || category != nil
+            || timesOfDay != [TimeOfDay(hour: 8, minute: 0)]
+            || selectedDays != [2]
+            || isPersistent
+    }
 
     var body: some View {
         ModalSheetTemplate(
@@ -45,36 +57,28 @@ struct AlarmCreationView: View {
                     annualYear: $annualYear,
                     startMonth: $startMonth,
                     startYear: $startYear,
-                    category: $category
+                    category: $category,
+                    titleError: titleError
                 )
 
                 photoSection
                     .padding(.horizontal, SpacingTokens.lg)
-
-                if let conflictWarning {
-                    HStack(spacing: SpacingTokens.sm) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(ColorTokens.warning)
-                        ChronirText(conflictWarning, style: .bodySmall, color: ColorTokens.warning)
-                    }
-                    .padding(SpacingTokens.md)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(ColorTokens.warning.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
-                    .padding(.horizontal, SpacingTokens.md)
-                }
             }
         )
+        .interactiveDismissDisabled(hasUnsavedChanges)
         .alert("Save Failed", isPresented: .constant(saveError != nil)) {
             Button("OK") { saveError = nil }
         } message: {
             Text(saveError ?? "")
         }
-        .onChange(of: category) {
-            conflictWarning = nil
+        .confirmationDialog(warningMessage, isPresented: $showWarningDialog, titleVisibility: .visible) {
+            Button("Save Anyway") {
+                forceSave()
+            }
+            Button("Cancel", role: .cancel) {}
         }
-        .onChange(of: cycleType) {
-            repeatInterval = 1
+        .onChange(of: title) {
+            titleError = nil
         }
     }
 
@@ -128,31 +132,46 @@ struct AlarmCreationView: View {
     }
 
     private func saveAndDismiss() {
-        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedTitle.isEmpty else {
-            saveError = "Please enter an alarm name."
+        let schedule = buildSchedule()
+
+        let result = AlarmValidator.validate(
+            title: title,
+            note: note,
+            cycleType: cycleType,
+            schedule: schedule,
+            timesOfDay: timesOfDay,
+            daysOfMonth: daysOfMonth,
+            existingAlarms: existingAlarms
+        )
+
+        // Hard errors block save
+        if !result.isValid {
+            if result.errors.contains(.emptyTitle) {
+                titleError = "Alarm name is required."
+            }
             return
         }
 
-        let calendar = Calendar.current
-
-        let schedule: Schedule
-        switch cycleType {
-        case .weekly:
-            schedule = .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: repeatInterval)
-        case .monthlyDate:
-            schedule = .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: repeatInterval)
-        case .monthlyRelative:
-            schedule = .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: repeatInterval)
-        case .annual:
-            schedule = .annual(
-                month: annualMonth,
-                dayOfMonth: annualDay,
-                interval: repeatInterval
-            )
-        case .customDays:
-            schedule = .customDays(intervalDays: repeatInterval, startDate: Date())
+        // Soft warnings: show confirmation dialog
+        let actionableWarnings = result.warnings.filter { $0 != .monthlyDay31 }
+        if let firstWarning = actionableWarnings.first {
+            warningMessage = firstWarning.displayMessage
+            showWarningDialog = true
+            return
         }
+
+        performSave()
+    }
+
+    private func forceSave() {
+        performSave()
+    }
+
+    private func performSave() {
+        let trimmedTitle = AlarmValidator.trimmedTitle(title)
+        let trimmedNote = AlarmValidator.trimmedNote(note)
+        let calendar = Calendar.current
+        let schedule = buildSchedule()
 
         let alarm = Alarm(
             title: trimmedTitle,
@@ -161,12 +180,11 @@ struct AlarmCreationView: View {
             schedule: schedule,
             persistenceLevel: isPersistent ? .full : .notificationOnly,
             category: category?.rawValue,
-            note: note.isEmpty ? nil : note
+            note: trimmedNote
         )
 
         if cycleType == .annual {
-            // Use the user-selected year directly so "Sep 10, 2029" doesn't snap to 2026
-            let firstTime = timesOfDay.sorted().first ?? TimeOfDay(hour: 8, minute: 0)
+            let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
             let targetDate = calendar.date(from: DateComponents(
                 year: annualYear, month: annualMonth, day: annualDay,
                 hour: firstTime.hour, minute: firstTime.minute
@@ -175,7 +193,6 @@ struct AlarmCreationView: View {
                 ? targetDate
                 : DateCalculator().calculateNextFireDate(for: alarm, from: Date())
         } else if repeatInterval > 1 && (cycleType == .monthlyDate || cycleType == .monthlyRelative) {
-            // Use the user-selected starting month/year for multi-month intervals
             let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
             let firstDay = cycleType == .monthlyDate ? Array(daysOfMonth).min() ?? 1 : 1
             let targetDate = calendar.date(from: DateComponents(
@@ -189,21 +206,6 @@ struct AlarmCreationView: View {
             alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
         }
 
-        // Check for same-day conflicts within the same category (non-blocking, show once)
-        if conflictWarning == nil, let selectedCategory = category {
-            let newFireDay = calendar.startOfDay(for: alarm.nextFireDate)
-            let conflicts = existingAlarms.filter { existing in
-                existing.isEnabled
-                    && existing.alarmCategory == selectedCategory
-                    && calendar.startOfDay(for: existing.nextFireDate) == newFireDay
-            }
-            if !conflicts.isEmpty {
-                let names = conflicts.map(\.title).joined(separator: ", ")
-                conflictWarning = "\(names) also fire\(conflicts.count == 1 ? "s" : "") on the same day."
-                return
-            }
-        }
-
         if let selectedImage {
             alarm.photoFileName = PhotoStorageService.savePhoto(selectedImage, for: alarm.id)
         }
@@ -212,7 +214,6 @@ struct AlarmCreationView: View {
 
         do {
             try modelContext.save()
-            // Schedule the notification
             Task {
                 do {
                     _ = await PermissionManager.shared.requestAlarmPermission()
@@ -224,6 +225,25 @@ struct AlarmCreationView: View {
             dismiss()
         } catch {
             saveError = error.localizedDescription
+        }
+    }
+
+    private func buildSchedule() -> Schedule {
+        switch cycleType {
+        case .weekly:
+            return .weekly(daysOfWeek: Array(selectedDays).sorted(), interval: repeatInterval)
+        case .monthlyDate:
+            return .monthlyDate(daysOfMonth: Array(daysOfMonth).sorted(), interval: repeatInterval)
+        case .monthlyRelative:
+            return .monthlyRelative(weekOfMonth: 1, dayOfWeek: 2, interval: repeatInterval)
+        case .annual:
+            return .annual(
+                month: annualMonth,
+                dayOfMonth: annualDay,
+                interval: repeatInterval
+            )
+        case .customDays:
+            return .customDays(intervalDays: repeatInterval, startDate: Date())
         }
     }
 }

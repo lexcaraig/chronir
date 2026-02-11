@@ -1,8 +1,10 @@
 import SwiftUI
+import SwiftData
 import PhotosUI
 
 struct AlarmDetailView: View {
     let alarmID: UUID
+    @Query(sort: \Alarm.nextFireDate) private var existingAlarms: [Alarm]
     @State private var viewModel = AlarmDetailViewModel()
     @State private var showDeleteConfirmation = false
     @State private var selectedPhotoItem: PhotosPickerItem?
@@ -10,76 +12,108 @@ struct AlarmDetailView: View {
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
-        Group {
-            if viewModel.isLoading && viewModel.alarm == nil {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if viewModel.alarm != nil {
-                ScrollView {
-                    AlarmCreationForm(
-                        title: $viewModel.title,
-                        cycleType: $viewModel.cycleType,
-                        repeatInterval: $viewModel.repeatInterval,
-                        timesOfDay: $viewModel.timesOfDay,
-                        isPersistent: $viewModel.isPersistent,
-                        note: $viewModel.note,
-                        selectedDays: $viewModel.selectedDays,
-                        daysOfMonth: $viewModel.daysOfMonth,
-                        annualMonth: $viewModel.annualMonth,
-                        annualDay: $viewModel.annualDay,
-                        annualYear: $viewModel.annualYear,
-                        startMonth: $viewModel.startMonth,
-                        startYear: $viewModel.startYear,
-                        category: $viewModel.category
-                    )
-
-                    photoSection
-                        .padding(.horizontal, SpacingTokens.lg)
-
-                    Button(role: .destructive) {
-                        showDeleteConfirmation = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "trash")
-                            Text("Delete Alarm")
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(SpacingTokens.md)
+        content
+            .navigationTitle("Edit Alarm")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        let saved = viewModel.updateAlarm(
+                            context: modelContext,
+                            existingAlarms: existingAlarms
+                        )
+                        if saved { dismiss() }
                     }
-                    .padding(.horizontal, SpacingTokens.md)
-                    .padding(.top, SpacingTokens.lg)
+                    .foregroundStyle(ColorTokens.primary)
                 }
-                .background(ColorTokens.backgroundPrimary)
-            } else {
-                Text("Alarm not found")
-                    .foregroundStyle(ColorTokens.textSecondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-        }
-        .navigationTitle("Edit Alarm")
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
-                    viewModel.updateAlarm(context: modelContext)
-                    if viewModel.errorMessage == nil {
+            .confirmationDialog("Delete this alarm?", isPresented: $showDeleteConfirmation) {
+                Button("Delete", role: .destructive) {
+                    viewModel.deleteAlarm(context: modelContext)
+                    dismiss()
+                }
+            }
+            .confirmationDialog(
+                viewModel.warningMessage ?? "",
+                isPresented: $viewModel.showWarningDialog,
+                titleVisibility: .visible
+            ) {
+                Button("Save Anyway") {
+                    if viewModel.forceSave(context: modelContext) {
                         dismiss()
                     }
                 }
-                .foregroundStyle(ColorTokens.primary)
+                Button("Cancel", role: .cancel) {}
             }
-        }
-        .confirmationDialog("Delete this alarm?", isPresented: $showDeleteConfirmation) {
-            Button("Delete", role: .destructive) {
-                viewModel.deleteAlarm(context: modelContext)
-                dismiss()
+            .alert("Save Failed", isPresented: .constant(viewModel.errorMessage != nil)) {
+                Button("OK") { viewModel.errorMessage = nil }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
             }
+            .onChange(of: viewModel.title) { viewModel.clearWarnings() }
+            .onChange(of: viewModel.cycleType) { viewModel.clearWarnings() }
+            .onChange(of: viewModel.timesOfDay) { viewModel.clearWarnings() }
+            .onChange(of: viewModel.selectedDays) { viewModel.clearWarnings() }
+            .onChange(of: viewModel.daysOfMonth) { viewModel.clearWarnings() }
+            .onChange(of: viewModel.category) { viewModel.clearWarnings() }
+            .onAppear {
+                viewModel.loadAlarm(id: alarmID, context: modelContext)
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if viewModel.isLoading && viewModel.alarm == nil {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else if viewModel.alarm != nil {
+            alarmForm
+        } else {
+            Text("Alarm not found")
+                .foregroundStyle(ColorTokens.textSecondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .onAppear {
-            viewModel.loadAlarm(id: alarmID, context: modelContext)
+    }
+
+    private var alarmForm: some View {
+        ScrollView {
+            AlarmCreationForm(
+                title: $viewModel.title,
+                cycleType: $viewModel.cycleType,
+                repeatInterval: $viewModel.repeatInterval,
+                timesOfDay: $viewModel.timesOfDay,
+                isPersistent: $viewModel.isPersistent,
+                note: $viewModel.note,
+                selectedDays: $viewModel.selectedDays,
+                daysOfMonth: $viewModel.daysOfMonth,
+                annualMonth: $viewModel.annualMonth,
+                annualDay: $viewModel.annualDay,
+                annualYear: $viewModel.annualYear,
+                startMonth: $viewModel.startMonth,
+                startYear: $viewModel.startYear,
+                category: $viewModel.category,
+                titleError: viewModel.titleError
+            )
+
+            photoSection
+                .padding(.horizontal, SpacingTokens.lg)
+
+            Button(role: .destructive) {
+                showDeleteConfirmation = true
+            } label: {
+                HStack {
+                    Image(systemName: "trash")
+                    Text("Delete Alarm")
+                }
+                .frame(maxWidth: .infinity)
+                .padding(SpacingTokens.md)
+            }
+            .padding(.horizontal, SpacingTokens.md)
+            .padding(.top, SpacingTokens.lg)
         }
+        .background(ColorTokens.backgroundPrimary)
     }
 
     private var photoSection: some View {

@@ -380,7 +380,8 @@ private struct CatalogAlarmCreationFormView: View {
                 annualYear: $annualYear,
                 startMonth: $startMonth,
                 startYear: $startYear,
-                category: $category
+                category: $category,
+                titleError: nil
             )
         }
         .background(ColorTokens.backgroundPrimary)
