@@ -26,6 +26,7 @@ struct AlarmFiringView: View {
         }
         .onDisappear {
             viewModel.stopFiring()
+            Task { await viewModel.completeIfNeeded() }
         }
         .task {
             loadAlarmFromContext()
@@ -61,43 +62,49 @@ struct AlarmFiringView: View {
     @ViewBuilder
     private func content(for alarm: Alarm) -> some View {
         VStack(spacing: SpacingTokens.xxxl) {
-            Spacer()
+            ScrollView {
+                VStack(spacing: SpacingTokens.xxxl) {
+                    Spacer(minLength: SpacingTokens.xxxl)
 
-            ChronirText(alarm.title, style: .headlineLarge, color: ColorTokens.firingForeground)
+                    ChronirText(alarm.title, style: .headlineLarge, color: ColorTokens.firingForeground)
 
-            ChronirText(
-                alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
-                style: .displayAlarm,
-                color: ColorTokens.firingForeground
-            )
+                    ChronirText(
+                        alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
+                        style: .displayAlarm,
+                        color: ColorTokens.firingForeground
+                    )
 
-            ChronirBadge(cycleType: alarm.cycleType)
+                    ChronirBadge(cycleType: alarm.cycleType)
 
-            #if os(iOS)
-            if let photo = cachedPhoto {
-                Image(uiImage: photo)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: 280, maxHeight: 160)
-                    .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+                    #if os(iOS)
+                    if let photo = cachedPhoto {
+                        Image(uiImage: photo)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: 280, maxHeight: 160)
+                            .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+                    }
+                    #endif
+
+                    if let note = alarm.note, !note.isEmpty {
+                        ChronirText(note, style: .bodySecondary, color: ColorTokens.firingForeground.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, SpacingTokens.lg)
+                    }
+
+                    if alarm.snoozeCount > 0 {
+                        ChronirText(
+                            "Snoozed \(alarm.snoozeCount) time\(alarm.snoozeCount == 1 ? "" : "s")",
+                            style: .bodySecondary,
+                            color: ColorTokens.warning
+                        )
+                    }
+
+                    Spacer(minLength: SpacingTokens.xxxl)
+                }
+                .frame(maxWidth: .infinity)
             }
-            #endif
-
-            if let note = alarm.note, !note.isEmpty {
-                ChronirText(note, style: .bodySecondary, color: ColorTokens.firingForeground.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, SpacingTokens.lg)
-            }
-
-            if alarm.snoozeCount > 0 {
-                ChronirText(
-                    "Snoozed \(alarm.snoozeCount) time\(alarm.snoozeCount == 1 ? "" : "s")",
-                    style: .bodySecondary,
-                    color: ColorTokens.warning
-                )
-            }
-
-            Spacer()
+            .scrollBounceBehavior(.basedOnSize)
 
             if settings.snoozeEnabled {
                 SnoozeOptionBar { interval in
@@ -107,7 +114,7 @@ struct AlarmFiringView: View {
 
             dismissButton
 
-            Spacer()
+            Spacer(minLength: SpacingTokens.md)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ColorTokens.firingBackground)

@@ -196,14 +196,14 @@
 | #    | Step                              | Expected Result                              | Pass? |
 | ---- | --------------------------------- | -------------------------------------------- | ----- |
 | 13.1 | Create alarm with photo + note    | Alarm saved                                  | PASS  |
-| 13.2 | Trigger alarm firing              | Photo displays below alarm title             | FAIL  |
+| 13.2 | Trigger alarm firing              | Photo displays below alarm title             | PASS  |
 | 13.3 | Note displays on firing screen    | Note text visible                            | PASS  |
-| 13.4 | Long note text                    | Text doesn't break layout, scrolls if needed |       |
-| 13.5 | Alarm with photo but no note      | Photo shown, no empty note area              |       |
-| 13.6 | Alarm with note but no photo      | Note shown, no empty photo area              |       |
-| 13.7 | Alarm with neither photo nor note | Clean firing screen, no gaps                 |       |
+| 13.4 | Long note text                    | Text doesn't break layout, scrolls if needed | PASS  |
+| 13.5 | Alarm with photo but no note      | Photo shown, no empty note area              | PASS  |
+| 13.6 | Alarm with note but no photo      | Note shown, no empty photo area              | PASS  |
+| 13.7 | Alarm with neither photo nor note | Clean firing screen, no gaps                 | PASS  |
 
-> **13.2 bug:** Photo not displayed on firing overlay — only note text appears. Needs investigation in `AlarmFiringOverlay`.
+> **13.2 fix:** Photo cached in `@State` on alarm load instead of inline file I/O. Content wrapped in `ScrollView` for long note support. OS banner "X" and lock screen stop now complete the alarm via `completeIfNeeded()` safety net in `onDisappear`.
 
 ---
 
@@ -233,14 +233,21 @@
 
 | #    | Scenario                                        | Expected Result                              | Pass? |
 | ---- | ----------------------------------------------- | -------------------------------------------- | ----- |
-| 16.1 | Monthly alarm on 31st, month has 30 days        | Fires on 30th (last day of month)            |       |
-| 16.2 | Monthly alarm on 31st in February               | Fires on 28th (or 29th leap year)            |       |
-| 16.3 | Annual alarm on Feb 29 in non-leap year         | Fires on Feb 28                              |       |
-| 16.4 | Monthly every 3mo, start month already passed   | DateCalculator picks next valid occurrence   |       |
-| 16.5 | Annual, selected year in the past (edge)        | DateCalculator picks next valid occurrence   |       |
-| 16.6 | Offline purchase attempt                        | Graceful error, no crash                     |       |
-| 16.7 | Rapid toggle Monthly ↔ Weekly with interval > 1 | Interval resets to 1 on cycle type change    |       |
-| 16.8 | Create alarm with all fields populated          | All fields saved and round-trip through edit |       |
+| 16.1 | Monthly alarm on 31st, month has 30 days        | Fires on 30th (last day of month)            | PASS  |
+| 16.2 | Monthly alarm on 31st in February               | Fires on 28th (or 29th leap year)            | PASS  |
+| 16.3 | Annual alarm on Feb 29 in non-leap year         | Fires on Feb 28                              | PASS  |
+| 16.4 | Monthly every 3mo, start month already passed   | DateCalculator picks next valid occurrence   | PASS  |
+| 16.5 | Annual, selected year in the past (edge)        | DateCalculator picks next valid occurrence   | PASS  |
+| 16.6 | Offline purchase attempt                        | Graceful error, no crash                     | PASS  |
+| 16.7 | Rapid toggle Monthly ↔ Weekly with interval > 1 | Interval resets to 1 on cycle type change    | PASS  |
+| 16.8 | Create alarm with all fields populated          | All fields saved and round-trip through edit | PASS  |
+
+> **16.1–16.2:** Monthly day 31 → card showed "Alarm in 16d 8h" (Feb 28 at 8 AM). Day-31 info note displayed correctly.
+> **16.3:** Fixed day picker to use selected year instead of current year. Feb 29 selectable for leap years (2028), clamps to 28 when switching to non-leap year. Unit test `annualFeb29NonLeapYear` verifies fallback logic.
+> **16.4–16.5:** Already verified in tests 8.9 and 9.5.
+> **16.6:** StoreKit config processes transactions locally — offline purchase succeeded (no network needed). No crash. Real App Store offline testing deferred to TestFlight.
+> **16.7:** Interval persistence works across rapid cycle type toggles including Annual. No crash.
+> **16.8:** All fields (title, days, interval, category, time, persistent, note, photo) round-trip through create → edit → save.
 
 ---
 
@@ -260,11 +267,11 @@
 | Interval-Aware Badges       | 8           | 8      | 0      |                                      |
 | Countdown Display           | 8           | 8      | 0      |                                      |
 | Photo Attachment            | 8           | 8      | 0      |                                      |
-| Photo/Note on Firing Screen | 7           |        |        |                                      |
+| Photo/Note on Firing Screen | 7           | 7      | 0      |                                      |
 | Layout Toggle               | 5           | 5      | 0      |                                      |
 | Settings Subscription       | 3           | 3      | 0      |                                      |
-| Edge Cases                  | 8           |        |        |                                      |
-| **TOTAL**                   | **108**     | **89** | **0**  |                                      |
+| Edge Cases                  | 8           | 8      | 0      |                                      |
+| **TOTAL**                   | **108**     | **104** | **0**  |                                      |
 
 ---
 

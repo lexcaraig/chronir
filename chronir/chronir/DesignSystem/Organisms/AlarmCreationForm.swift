@@ -73,6 +73,12 @@ struct AlarmCreationForm: View {
             savedIntervals[oldValue] = repeatInterval
             repeatInterval = savedIntervals[newValue] ?? 1
         }
+        .onChange(of: annualMonth) {
+            annualDay = min(annualDay, daysInSelectedMonth)
+        }
+        .onChange(of: annualYear) {
+            annualDay = min(annualDay, daysInSelectedMonth)
+        }
     }
 
     private var weeklyDayPicker: some View {
@@ -173,7 +179,7 @@ struct AlarmCreationForm: View {
         let cal = Calendar.current
         var components = DateComponents()
         components.month = annualMonth
-        components.year = cal.component(.year, from: Date())
+        components.year = annualYear
         guard let date = cal.date(from: components),
               let range = cal.range(of: .day, in: .month, for: date) else {
             return 31

@@ -6,6 +6,7 @@ import AlarmKit
 final class AlarmFiringViewModel {
     var alarm: Alarm?
     var isFiring: Bool = false
+    private var isCompleted: Bool = false
 
     private let scheduler: AlarmScheduling
     private let hapticService: HapticServiceProtocol
@@ -44,7 +45,8 @@ final class AlarmFiringViewModel {
     // MARK: - Snooze
 
     func snooze(interval: SnoozeOptionBar.SnoozeInterval) async {
-        guard let alarm else { return }
+        guard let alarm, !isCompleted else { return }
+        isCompleted = true
 
         let seconds: TimeInterval = switch interval {
         case .oneHour: 3600
@@ -77,7 +79,8 @@ final class AlarmFiringViewModel {
     // MARK: - Dismiss
 
     func dismiss() async {
-        guard let alarm else { return }
+        guard let alarm, !isCompleted else { return }
+        isCompleted = true
 
         try? AlarmManager.shared.stop(id: alarm.id)
 
@@ -101,6 +104,28 @@ final class AlarmFiringViewModel {
         }
 
         hapticService.playSuccess()
+    }
+
+    // MARK: - Safety Net
+
+    /// Called from onDisappear to ensure the alarm is always completed,
+    /// even if dismissed externally (OS banner "X", lock screen stop).
+    func completeIfNeeded() async {
+        guard let alarm, !isCompleted else { return }
+        isCompleted = true
+
+        alarm.lastFiredDate = Date()
+        alarm.snoozeCount = 0
+        alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+
+        try? await scheduler.cancelAlarm(alarm)
+        try? await scheduler.scheduleAlarm(alarm)
+
+        saveCompletionRecord(alarmID: alarm.id, action: .completed)
+
+        if let repo = AlarmRepository.shared {
+            try? await repo.update(alarm)
+        }
     }
 
     // MARK: - Private
