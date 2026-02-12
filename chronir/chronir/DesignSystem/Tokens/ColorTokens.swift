@@ -83,9 +83,9 @@ enum ColorTokens {
 
     // MARK: - Background Gradient
 
-    static let gradientStart = Color(hex: 0x1A0533)
-    static let gradientMid = Color(hex: 0x3D1444)
-    static let gradientEnd = Color(hex: 0x6B2030)
+    static let gradientStart = Color(hex: 0x0A1628)
+    static let gradientMid = Color(hex: 0x0C4A6E)
+    static let gradientEnd = Color(hex: 0x06B6D4)
 
     static let backgroundGradient = LinearGradient(
         colors: [gradientStart, gradientMid, gradientEnd],
