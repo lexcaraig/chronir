@@ -2,7 +2,7 @@
 
 **Sprint:** 8 (Phase 3 — V1.0 Plus Tier)
 **Branch:** `main`
-**Device:** Physical device "lexpresswayyy" + StoreKit sandbox
+**Device:** Physical device "lexpresswayyy" + StoreKit sandbox + TestFlight sandbox
 **Tier:** Plus (unlimited alarms, attachments, cloud backup)
 
 ---
@@ -28,11 +28,11 @@
 | #   | Step                           | Expected Result                          | Pass? |
 | --- | ------------------------------ | ---------------------------------------- | ----- |
 | 2.1 | Purchase Plus, then delete app | App removed                              | PASS  |
-| 2.2 | Reinstall and launch           | Tier shows Free initially                | PASS  |
-| 2.3 | Settings → Restore Purchases   | Tier restores to Plus                    | SKIP  |
-| 2.4 | Verify alarm count             | All previously created alarms accessible | SKIP  |
+| 2.2 | Reinstall and launch           | Tier auto-restores to Plus               | PASS  |
+| 2.3 | Settings → Restore Purchases   | Tier restores to Plus                    | PASS  |
+| 2.4 | Verify alarm count             | All previously created alarms accessible | PASS  |
 
-> **Note:** 2.3–2.4 require an App Store Connect sandbox account. Xcode `.storekit` config transactions are ephemeral and don't survive app deletion. Deferred to production/TestFlight testing.
+> **Note:** With real sandbox (TestFlight), StoreKit 2 `Transaction.currentEntitlements` automatically detects the active subscription on reinstall — no manual restore needed. This differs from Xcode `.storekit` config where transactions are ephemeral. 2.2 expected result updated to reflect sandbox behavior.
 
 ---
 
@@ -71,10 +71,10 @@
 | 5.1 | Settings → Subscription Management | Screen opens showing current plan         | PASS  |
 | 5.2 | Verify plan details                | Tier name, renewal date, price displayed  | PASS  |
 | 5.3 | Tap "Change Plan"                  | Opens StoreKit manage subscriptions sheet | PASS  |
-| 5.4 | Tap "Restore Purchases"            | Triggers restore flow                     | SKIP  |
+| 5.4 | Tap "Restore Purchases"            | Triggers restore flow                     | PASS  |
 | 5.5 | Verify feature comparison          | Free vs Plus vs Premium features listed   | PASS  |
 
-> **Note:** 5.4 deferred — same StoreKit sandbox limitation as 2.3–2.4. Restore requires App Store Connect sandbox account.
+> **Note:** 5.4 ready for testing — sandbox account and Paid Apps Agreement now active.
 
 ---
 
@@ -256,10 +256,10 @@
 | Category                    | Total Tests | Passed | Failed | Notes                                |
 | --------------------------- | ----------- | ------ | ------ | ------------------------------------ |
 | Purchase Flow               | 7           | 7      | 0      |                                      |
-| Restore Purchases           | 4           | 2      | 0      | 2.3-2.4 deferred to TestFlight       |
+| Restore Purchases           | 4           | 4      | 0      | Verified on TestFlight sandbox       |
 | Expiry & Downgrade          | 7           | 7      | 0      |                                      |
 | Alarm Limit Gating          | 5           | 5      | 0      |                                      |
-| Subscription Management     | 5           | 4      | 0      | 5.4 deferred (StoreKit sandbox)      |
+| Subscription Management     | 5           | 5      | 0      | 5.4 verified on TestFlight sandbox   |
 | Paywall UI                  | 6           | 6      | 0      |                                      |
 | Repeat Interval             | 9           | 8      | 0      | 7.7 deferred (Custom Days not in UI) |
 | Annual First Occurrence     | 9           | 9      | 0      |                                      |
@@ -271,13 +271,22 @@
 | Layout Toggle               | 5           | 5      | 0      |                                      |
 | Settings Subscription       | 3           | 3      | 0      |                                      |
 | Edge Cases                  | 8           | 8      | 0      |                                      |
-| **TOTAL**                   | **108**     | **104** | **0**  |                                      |
+| **TOTAL**                   | **108**     | **107** | **0**  |                                      |
 
 ---
 
 ## StoreKit Testing Setup
 
+### Local (Xcode StoreKit Config)
 1. **Xcode Scheme:** Edit Scheme → Options → StoreKit Configuration → `Chronir.storekit`
 2. **Accelerated Renewals:** Set `timeRate: 6` in StoreKit config for expiry testing
 3. **Manage Transactions:** Debug → StoreKit → Manage Transactions (clear/expire/refund)
 4. **Physical Device:** Same scheme config works on device via Xcode run
+
+### Sandbox (TestFlight / App Store Connect)
+1. **Paid Apps Agreement:** Active (12 Feb 2026)
+2. **Sandbox Account:** lexpresswayyy@gmail.com ("Test Pro", Philippines)
+3. **Renewal Rate:** Monthly every 5 minutes (configured in App Store Connect → Sandbox → Test Accounts)
+4. **TestFlight:** Automatically uses sandbox — no StoreKit config needed
+5. **Xcode on Device:** Set StoreKit Configuration → None to use sandbox instead of local config
+6. **Purchase confirmed:** Plus Monthly subscription purchased successfully via TestFlight sandbox (12 Feb 2026)
