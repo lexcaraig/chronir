@@ -78,8 +78,8 @@ Features are organized by screen: `AlarmList`, `AlarmDetail`, `AlarmCreation`, `
 ### Monetization Tiers
 
 - **Free:** 2 alarms max, local-only, basic features
-- **Plus ($1.99/mo):** Unlimited alarms, attachments, cloud backup, custom snooze, widgets
-- **Premium ($3.99/mo):** Shared alarms, groups, push notifications, Live Activities
+- **Plus ($1.99/mo):** Unlimited alarms, photo attachments, custom snooze, pre-alarm warnings, completion history, streaks
+- **Premium ($3.99/mo):** *(Not yet available — Phase 4, Sprint 11+)* Shared alarms, groups, push notifications, Live Activities
 
 ## Test Devices
 
@@ -171,6 +171,8 @@ Rules discovered through debugging. These override any conflicting assumptions.
 - **Swift concurrency on MainActor:** `await MainActor.run` does NOT execute immediately — it queues work. UIKit notification handlers (`.onReceive`) can preempt or be preempted by queued MainActor blocks in unpredictable order. Design for any ordering.
 - **SwiftData `@ModelActor` context boundaries:** Never return `@Model` objects from a `@ModelActor` method to the main thread. They become detached from the actor's background `ModelContext` and crash on attribute access. Fetch on the same context where objects will be used (use the view's `@Environment(\.modelContext)` for UI).
 
+- **Pre-launch audit for stub/placeholder debt:** Scaffold code (`fatalError` stubs, non-functional UI links, aspirational feature lists in paywalls) accumulates silently across sprints. Before any App Store submission, audit for: (1) `fatalError`/`preconditionFailure` in non-test code, (2) UI elements that look interactive but aren't wired up, (3) feature descriptions that promise unbuilt capabilities, (4) developer-only sections visible to end users. Each individually seems harmless but collectively causes App Store rejection.
+
 **IMPORTANT:** When a bug fix requires more than one attempt, or the user confirms a mistake was made that needed correction, automatically run `/learn-from-mistake` to capture the lesson. Do not wait to be asked — proactively trigger it whenever a confirmed mistake scenario is resolved.
 
 ## Spec Documents
@@ -205,6 +207,7 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 | `/sync-tokens`       | `/sync-tokens`                                    | Rebuild design tokens and copy to both platforms.                                                      |
 | `/build-all`         | `/build-all`                                      | Full quality verification (format, lint, test, build) across all platforms.                            |
 | `/fix-tests`         | `/fix-tests ios`                                  | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg.               |
+| `/pre-submit-audit`  | `/pre-submit-audit`                               | App Store Review compliance audit: crash stubs, non-functional UI, feature accuracy, debug visibility. |
 
 ### Custom Agents
 
