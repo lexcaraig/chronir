@@ -179,7 +179,7 @@ struct AlarmListView: View {
                                 try await AlarmScheduler.shared.cancelAlarm(alarm)
                             }
                         } catch {
-                            print("Failed to toggle alarm notification: \(error)")
+                            // Toggle failed — alarm state will reconcile on next launch
                         }
                     }
                 }

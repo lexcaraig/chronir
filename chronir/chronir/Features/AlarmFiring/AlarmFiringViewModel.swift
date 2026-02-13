@@ -125,7 +125,6 @@ final class AlarmFiringViewModel {
             return false
         }
         if alreadyHandled {
-            print("[completeIfNeeded] Skipping \(alarm.title) — already handled")
             isCompleted = true
             return
         }
@@ -138,7 +137,6 @@ final class AlarmFiringViewModel {
 
         if wasSnoozed {
             alarm.snoozeCount += 1
-            print("[completeIfNeeded] Snooze detected for \(alarm.title), snoozeCount=\(alarm.snoozeCount)")
             saveCompletionLog(alarmID: alarm.id, action: .snoozed)
         } else {
             alarm.lastFiredDate = Date()
@@ -148,7 +146,6 @@ final class AlarmFiringViewModel {
             try? await scheduler.cancelAlarm(alarm)
             try? await scheduler.scheduleAlarm(alarm)
 
-            print("[completeIfNeeded] Stop detected for \(alarm.title), nextFire=\(alarm.nextFireDate)")
             saveCompletionLog(alarmID: alarm.id, action: .completed)
         }
 

@@ -20,7 +20,7 @@ enum PhotoStorageService {
             try data.write(to: url, options: .atomic)
             return fileName
         } catch {
-            print("Failed to save photo: \(error)")
+            // Photo save failed — return nil to indicate failure
             return nil
         }
     }

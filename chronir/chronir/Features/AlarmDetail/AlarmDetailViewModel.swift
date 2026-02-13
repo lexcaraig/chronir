@@ -207,7 +207,7 @@ final class AlarmDetailViewModel {
                         try await AlarmScheduler.shared.scheduleAlarm(alarmToSchedule)
                     }
                 } catch {
-                    print("Failed to reschedule notification: \(error)")
+                    // Reschedule failed — alarm will fire on next app launch
                 }
             }
             return true

@@ -78,7 +78,6 @@ struct CustomSnoozePickerView: View {
 }
 
 #Preview {
-    CustomSnoozePickerView { interval in
-        print("Custom snooze: \(interval)s")
+    CustomSnoozePickerView { _ in
     }
 }

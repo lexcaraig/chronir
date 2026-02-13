@@ -107,7 +107,8 @@ struct SubscriptionManagementView: View {
             if !subscriptionService.currentTier.isFreeTier {
                 Button {
                     Task {
-                        try? await AppStore.showManageSubscriptions(in: windowScene)
+                        guard let scene = windowScene else { return }
+                        try? await AppStore.showManageSubscriptions(in: scene)
                     }
                 } label: {
                     HStack {
@@ -156,10 +157,10 @@ struct SubscriptionManagementView: View {
     }
 
     #if os(iOS)
-    private var windowScene: UIWindowScene {
+    private var windowScene: UIWindowScene? {
         UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
-            .first!
+            .first
     }
     #endif
 }

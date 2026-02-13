@@ -229,7 +229,7 @@ struct AlarmCreationView: View {
                     _ = await PermissionManager.shared.requestAlarmPermission()
                     try await AlarmScheduler.shared.scheduleAlarm(alarm)
                 } catch {
-                    print("Failed to schedule notification: \(error)")
+                    // Schedule failed — alarm will fire on next app launch
                 }
             }
             dismiss()

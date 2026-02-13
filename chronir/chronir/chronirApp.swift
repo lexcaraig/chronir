@@ -88,22 +88,15 @@ struct ChronirApp: App {
             .task {
                 for await alarms in AlarmManager.shared.alarmUpdates {
                     for alarm in alarms {
-                        print("[alarmUpdates] id=\(alarm.id) state=\(alarm.state)")
                         switch alarm.state {
                         case .alerting:
                             await MainActor.run {
                                 // Skip if the app is returning from background —
                                 // the foreground handler is the sole decision-maker.
-                                guard !AlarmFiringCoordinator.shared.appIsInBackground else {
-                                    print("[alarmUpdates] Skipping .alerting for \(alarm.id) — app in background")
-                                    return
-                                }
+                                guard !AlarmFiringCoordinator.shared.appIsInBackground else { return }
                                 // Skip if the foreground handler already processed this alarm
                                 // (stale buffered event arriving after appIsInBackground was cleared).
-                                guard !AlarmFiringCoordinator.shared.isHandled(alarm.id) else {
-                                    print("[alarmUpdates] Skipping .alerting for \(alarm.id) — already handled")
-                                    return
-                                }
+                                guard !AlarmFiringCoordinator.shared.isHandled(alarm.id) else { return }
                                 AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
                             }
                         case .countdown:
@@ -127,10 +120,7 @@ struct ChronirApp: App {
                 AlarmFiringCoordinator.shared.appIsInBackground = true
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                print("[Foreground] Handler fired. coordinator.isFiring=\(coordinator.isFiring)")
-                print("[Foreground] snoozedInBackground=\(coordinator.snoozedInBackground)")
                 let akAlarms = (try? AlarmManager.shared.alarms) ?? []
-                print("[Foreground] AlarmKit alarms: \(akAlarms.map { "\($0.id) state=\($0.state)" })")
 
                 let context = container.mainContext
                 let now = Date()
@@ -139,9 +129,7 @@ struct ChronirApp: App {
                 // Data is handled by completeIfNeeded() via onDisappear — just dismiss here.
                 if coordinator.isFiring, let firingID = coordinator.firingAlarmID {
                     let akAlarm = akAlarms.first { $0.id == firingID }
-                    print("[Foreground] Case 1: firingID=\(firingID) akState=\(String(describing: akAlarm?.state))")
                     if akAlarm?.state != .alerting {
-                        print("[Foreground] Case 1: dismissing — completeIfNeeded will handle data")
                         coordinator.dismissFiring()
                     }
                 }
@@ -152,22 +140,13 @@ struct ChronirApp: App {
                 )
                 if let models = try? context.fetch(enabledDesc) {
                     let pastDue = models.filter { $0.nextFireDate < now }
-                    print("[Foreground] Case 2: \(models.count) enabled, \(pastDue.count) past-due")
-                    for model in pastDue {
-                        print("[Foreground] Past-due: \(model.title) id=\(model.id) nextFire=\(model.nextFireDate)")
-                    }
                     for model in pastDue {
                         // Skip if ViewModel's completeIfNeeded() already handled this
-                        guard !coordinator.isHandled(model.id) else {
-                            print("[Foreground] Case 2: skipping \(model.title) — already handled")
-                            continue
-                        }
+                        guard !coordinator.isHandled(model.id) else { continue }
 
                         let akAlarm = akAlarms.first { $0.id == model.id }
-                        print("[Foreground] Case 2: \(model.title) akState=\(String(describing: akAlarm?.state))")
 
                         if akAlarm?.state == .alerting {
-                            print("[Foreground] Case 2: \(model.title) still alerting — presenting")
                             coordinator.presentAlarm(id: model.id)
                         } else {
                             // Snoozed only if .countdown was seen OR alarm is actively in countdown
@@ -180,7 +159,6 @@ struct ChronirApp: App {
                             )
                             coordinator.snoozedInBackground.remove(model.id)
                             coordinator.markHandled(model.id)
-                            print("[Foreground] Case 2: handled \(model.title), wasSnoozed=\(wasSnoozed), snoozeCount=\(model.snoozeCount)")
                         }
                     }
                 }

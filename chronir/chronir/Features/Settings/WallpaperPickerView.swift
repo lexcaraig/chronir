@@ -265,7 +265,7 @@ struct WallpaperPickerView: View {
             wallpaperImage = uiImage
             resetTransform()
         } catch {
-            print("Failed to save wallpaper: \(error)")
+            // Wallpaper save failed — user can retry
         }
 
         // Brief delay so the user sees the loading state

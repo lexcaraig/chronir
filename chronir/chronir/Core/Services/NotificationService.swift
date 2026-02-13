@@ -25,26 +25,17 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
     // MARK: - Pre-Alarm Notifications
 
     func schedulePreAlarmNotification(for alarm: Alarm) async {
-        guard alarm.preAlarmMinutes > 0, alarm.isEnabled else {
-            print("[PreAlarm] Skipping \(alarm.title) — preAlarmMinutes=\(alarm.preAlarmMinutes) isEnabled=\(alarm.isEnabled)")
-            return
-        }
+        guard alarm.preAlarmMinutes > 0, alarm.isEnabled else { return }
 
         let preAlarmDate = alarm.nextFireDate.addingTimeInterval(-Double(alarm.preAlarmMinutes) * 60)
-        guard preAlarmDate > Date() else {
-            print("[PreAlarm] Skipping \(alarm.title) — preAlarmDate \(preAlarmDate) is in the past")
-            return
-        }
+        guard preAlarmDate > Date() else { return }
 
         // Ensure notification authorization before scheduling
         let settings = await notificationCenter.notificationSettings()
         if settings.authorizationStatus == .notDetermined {
             _ = try? await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
         }
-        guard settings.authorizationStatus != .denied else {
-            print("[PreAlarm] Notification permission denied — cannot schedule")
-            return
-        }
+        guard settings.authorizationStatus != .denied else { return }
 
         let content = UNMutableNotificationContent()
         content.title = "Upcoming Alarm"
@@ -63,12 +54,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
             trigger: trigger
         )
 
-        do {
-            try await notificationCenter.add(request)
-            print("[PreAlarm] Scheduled for \(alarm.title) at \(preAlarmDate) (alarm fires \(alarm.nextFireDate))")
-        } catch {
-            print("[PreAlarm] ERROR scheduling notification: \(error)")
-        }
+        try? await notificationCenter.add(request)
     }
 
     func cancelPreAlarmNotification(for alarm: Alarm) {
