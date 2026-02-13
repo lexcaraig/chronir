@@ -14,26 +14,33 @@ final class AuthService: AuthServiceProtocol {
 
     private init() {}
 
+    // TODO: Implement Firebase Auth when cloud backup is built (Sprint 10+)
+
     func signIn(email: String, password: String) async throws -> UserProfile {
-        // TODO: Implement in Sprint 3 - Firebase Auth
-        fatalError("TODO: Implement signIn")
+        throw AuthError.notImplemented
     }
 
     func signUp(email: String, password: String, displayName: String) async throws -> UserProfile {
-        // TODO: Implement in Sprint 3
-        fatalError("TODO: Implement signUp")
+        throw AuthError.notImplemented
     }
 
     func signOut() throws {
-        // TODO: Implement in Sprint 3
+        throw AuthError.notImplemented
     }
 
     func currentUser() -> UserProfile? {
-        // TODO: Implement in Sprint 3
-        return nil
+        nil
     }
 
     func deleteAccount() async throws {
-        // TODO: Implement in Sprint 3
+        throw AuthError.notImplemented
+    }
+
+    enum AuthError: LocalizedError {
+        case notImplemented
+
+        var errorDescription: String? {
+            "Account features are not yet available."
+        }
     }
 }

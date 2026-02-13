@@ -12,7 +12,9 @@ struct SettingsView: View {
             notificationsSection
             historySection
             backupSection
+            #if DEBUG
             developerSection
+            #endif
             aboutSection
         }
         .scrollContentBackground(.hidden)
@@ -210,21 +212,30 @@ struct SettingsView: View {
                 Spacer()
                 ChronirText("1.0.0", style: .bodySecondary, color: ColorTokens.textSecondary)
             }
-            HStack {
-                ChronirText("Privacy Policy", style: .bodyPrimary)
-                Spacer()
-                ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
+            Link(destination: privacyURL) {
+                HStack {
+                    ChronirText("Privacy Policy", style: .bodyPrimary)
+                    Spacer()
+                    ChronirIcon(systemName: "arrow.up.right", size: .small, color: ColorTokens.textSecondary)
+                }
             }
-            HStack {
-                ChronirText("Terms of Service", style: .bodyPrimary)
-                Spacer()
-                ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
+            Link(destination: termsURL) {
+                HStack {
+                    ChronirText("Terms of Service", style: .bodyPrimary)
+                    Spacer()
+                    ChronirIcon(systemName: "arrow.up.right", size: .small, color: ColorTokens.textSecondary)
+                }
             }
         } header: {
             ChronirText("About", style: .labelLarge, color: ColorTokens.textSecondary)
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
+
+    // swiftlint:disable:next force_unwrapping
+    private let privacyURL = URL(string: "https://chronir.app/privacy")!
+    // swiftlint:disable:next force_unwrapping
+    private let termsURL = URL(string: "https://chronir.app/terms")!
 }
 
 #Preview {
