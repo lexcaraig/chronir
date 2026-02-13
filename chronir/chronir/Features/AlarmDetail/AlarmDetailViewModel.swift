@@ -25,6 +25,7 @@ final class AlarmDetailViewModel {
     var startMonth: Int = Calendar.current.component(.month, from: Date())
     var startYear: Int = Calendar.current.component(.year, from: Date())
     var category: AlarmCategory?
+    var preAlarmEnabled: Bool = false
     var selectedImage: UIImage?
     var removePhoto = false
     var isLoading: Bool = false
@@ -54,6 +55,7 @@ final class AlarmDetailViewModel {
             self.isPersistent = alarm.persistenceLevel == .full
             self.note = alarm.note ?? ""
             self.category = alarm.alarmCategory
+            self.preAlarmEnabled = alarm.preAlarmMinutes > 0
             self.timesOfDay = alarm.timesOfDay
             #if os(iOS)
             if alarm.photoFileName != nil {
@@ -117,6 +119,9 @@ final class AlarmDetailViewModel {
             if result.errors.contains(.emptyTitle) {
                 titleError = "Alarm name is required."
             }
+            if UserSettings.shared.hapticsEnabled {
+                HapticService.shared.playError()
+            }
             return false
         }
 
@@ -149,6 +154,7 @@ final class AlarmDetailViewModel {
         alarm.schedule = schedule
         alarm.persistenceLevel = isPersistent ? .full : .notificationOnly
         alarm.note = trimmedNote
+        alarm.preAlarmMinutes = preAlarmEnabled ? 1440 : 0
         alarm.category = category?.rawValue
         alarm.updatedAt = Date()
         if cycleType == .annual {
@@ -187,6 +193,9 @@ final class AlarmDetailViewModel {
 
         do {
             try context.save()
+            if UserSettings.shared.hapticsEnabled {
+                HapticService.shared.playSuccess()
+            }
             titleError = nil
             warningMessage = nil
             showWarningDialog = false

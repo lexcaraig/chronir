@@ -12,7 +12,9 @@ struct OnboardingView: View {
             permissionPage.tag(2)
         }
         .tabViewStyle(.page(indexDisplayMode: .always))
-        .background(ColorTokens.backgroundPrimary)
+        .background {
+            ColorTokens.backgroundGradient.ignoresSafeArea()
+        }
         .ignoresSafeArea()
     }
 
@@ -21,8 +23,7 @@ struct OnboardingView: View {
     private var welcomePage: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
-            ChronirIcon(systemName: "bell.fill", size: .large, color: ColorTokens.primary)
-                .scaleEffect(2.5)
+            glassIconCircle(systemName: "bell.fill", color: ColorTokens.primary)
                 .padding(.bottom, SpacingTokens.lg)
             ChronirText(
                 "Never Forget\nWhat Matters",
@@ -46,8 +47,7 @@ struct OnboardingView: View {
     private var schedulePage: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
-            ChronirIcon(systemName: "calendar.badge.clock", size: .large, color: ColorTokens.warning)
-                .scaleEffect(2.5)
+            glassIconCircle(systemName: "calendar.badge.clock", color: ColorTokens.warning)
                 .padding(.bottom, SpacingTokens.lg)
             ChronirText(
                 "Weekly, Monthly,\nAnnually",
@@ -73,8 +73,7 @@ struct OnboardingView: View {
     private var permissionPage: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
-            ChronirIcon(systemName: "shield.checkered", size: .large, color: ColorTokens.success)
-                .scaleEffect(2.5)
+            glassIconCircle(systemName: "shield.checkered", color: ColorTokens.success)
                 .padding(.bottom, SpacingTokens.lg)
             ChronirText(
                 "Stay Notified",
@@ -114,6 +113,14 @@ struct OnboardingView: View {
     }
 
     // MARK: - Helpers
+
+    private func glassIconCircle(systemName: String, color: Color) -> some View {
+        Image(systemName: systemName)
+            .font(.system(size: 40, weight: .medium))
+            .foregroundStyle(color)
+            .frame(width: 96, height: 96)
+            .glassEffect(GlassTokens.element.tint(color.opacity(0.3)), in: .circle)
+    }
 
     private var nextButton: some View {
         ChronirButton("Continue") {

@@ -51,6 +51,10 @@ final class UserSettings {
         didSet { Self.defaults.set(groupAlarmsByCategory, forKey: "groupAlarmsByCategory") }
     }
 
+    var hapticsEnabled: Bool {
+        didSet { Self.defaults.set(hapticsEnabled, forKey: "hapticsEnabled") }
+    }
+
     private init() {
         Self.defaults.register(defaults: [
             "snoozeEnabled": true,
@@ -59,7 +63,8 @@ final class UserSettings {
             "timezoneMode": TimezoneMode.floating.rawValue,
             "hasCompletedOnboarding": false,
             "wallpaperScale": 1.0,
-            "groupAlarmsByCategory": false
+            "groupAlarmsByCategory": false,
+            "hapticsEnabled": true
         ])
 
         snoozeEnabled = Self.defaults.bool(forKey: "snoozeEnabled")
@@ -75,5 +80,6 @@ final class UserSettings {
         wallpaperOffsetY = Self.defaults.double(forKey: "wallpaperOffsetY")
         wallpaperIsLight = Self.defaults.bool(forKey: "wallpaperIsLight")
         groupAlarmsByCategory = Self.defaults.bool(forKey: "groupAlarmsByCategory")
+        hapticsEnabled = Self.defaults.bool(forKey: "hapticsEnabled")
     }
 }

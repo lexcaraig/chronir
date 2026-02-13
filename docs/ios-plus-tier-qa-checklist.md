@@ -1,9 +1,9 @@
 # iOS Plus Tier QA Checklist
 
-**Sprint:** 8 (Phase 3 — V1.0 Plus Tier)
-**Branch:** `main`
-**Device:** Physical device "lexpresswayyy" + StoreKit sandbox
-**Tier:** Plus (unlimited alarms, attachments, cloud backup)
+**Sprint:** 8–9 (Phase 3 — V1.0 Plus Tier)
+**Branch:** `main` (S8), `sprint-9` (S9)
+**Device:** Physical device "lexpresswayyy" + StoreKit sandbox + TestFlight sandbox
+**Tier:** Plus (unlimited alarms, attachments, cloud backup, history, custom snooze)
 
 ---
 
@@ -28,11 +28,11 @@
 | #   | Step                           | Expected Result                          | Pass? |
 | --- | ------------------------------ | ---------------------------------------- | ----- |
 | 2.1 | Purchase Plus, then delete app | App removed                              | PASS  |
-| 2.2 | Reinstall and launch           | Tier shows Free initially                | PASS  |
-| 2.3 | Settings → Restore Purchases   | Tier restores to Plus                    | SKIP  |
-| 2.4 | Verify alarm count             | All previously created alarms accessible | SKIP  |
+| 2.2 | Reinstall and launch           | Tier auto-restores to Plus               | PASS  |
+| 2.3 | Settings → Restore Purchases   | Tier restores to Plus                    | PASS  |
+| 2.4 | Verify alarm count             | All previously created alarms accessible | PASS  |
 
-> **Note:** 2.3–2.4 require an App Store Connect sandbox account. Xcode `.storekit` config transactions are ephemeral and don't survive app deletion. Deferred to production/TestFlight testing.
+> **Note:** With real sandbox (TestFlight), StoreKit 2 `Transaction.currentEntitlements` automatically detects the active subscription on reinstall — no manual restore needed. This differs from Xcode `.storekit` config where transactions are ephemeral. 2.2 expected result updated to reflect sandbox behavior.
 
 ---
 
@@ -71,10 +71,10 @@
 | 5.1 | Settings → Subscription Management | Screen opens showing current plan         | PASS  |
 | 5.2 | Verify plan details                | Tier name, renewal date, price displayed  | PASS  |
 | 5.3 | Tap "Change Plan"                  | Opens StoreKit manage subscriptions sheet | PASS  |
-| 5.4 | Tap "Restore Purchases"            | Triggers restore flow                     | SKIP  |
+| 5.4 | Tap "Restore Purchases"            | Triggers restore flow                     | PASS  |
 | 5.5 | Verify feature comparison          | Free vs Plus vs Premium features listed   | PASS  |
 
-> **Note:** 5.4 deferred — same StoreKit sandbox limitation as 2.3–2.4. Restore requires App Store Connect sandbox account.
+> **Note:** 5.4 ready for testing — sandbox account and Paid Apps Agreement now active.
 
 ---
 
@@ -251,15 +251,93 @@
 
 ---
 
+## 17. Pre-Alarm Warning System (Sprint 9)
+
+| #    | Step                                            | Expected Result                                         | Pass? |
+| ---- | ----------------------------------------------- | ------------------------------------------------------- | ----- |
+| 17.1 | Create alarm with "24h Pre-Alarm Warning" ON    | `preAlarmMinutes` saves as 1440                         | PASS  |
+| 17.2 | Edit that alarm                                 | Toggle shows ON state                                   | PASS  |
+| 17.3 | Free tier → open create/edit form               | Pre-alarm toggle is hidden                              | PASS  |
+| 17.4 | Alarm fires in < 24h                            | Pre-alarm notification skipped (past date guard)        | PASS  |
+| 17.5 | Snoozed alarm reschedules                       | Pre-alarm not scheduled (`snoozeCount == 0` guard)      | PASS  |
+| 17.6 | Cancel/disable alarm                            | Pre-alarm notification cancelled                        | PASS  |
+| 17.7 | Reschedule all alarms                           | Pre-alarm re-scheduled for eligible alarms              | PASS  |
+| 17.8 | Wait for pre-alarm time                         | Notification: "Upcoming Alarm — fires in 24 hours"      | PASS  |
+
+---
+
+## 18. Completion History Page (Sprint 9)
+
+| #    | Step                                            | Expected Result                                         | Pass? |
+| ---- | ----------------------------------------------- | ------------------------------------------------------- | ----- |
+| 18.1 | Settings → "Completion History"                 | Global history page opens, grouped by date              | PASS  |
+| 18.2 | No logs exist                                   | Empty state: "No completion history yet"                | PASS  |
+| 18.3 | Completed action row                            | Checkmark icon, green "Completed" badge                 | PASS  |
+| 18.4 | Snoozed action row                              | Zzz icon, yellow "Snoozed" badge                       | PASS  |
+| 18.5 | Dismissed action row                            | Xmark icon, red "Dismissed" badge                      | SKIP  |
+| 18.6 | Log with snoozeCount > 0                        | Shows "2x snoozed" badge                               | PASS  |
+| 18.7 | Global view rows                                | Alarm title shown on each row                           | PASS  |
+| 18.8 | AlarmDetail → "View History"                    | Per-alarm filtered view (no alarm title on rows)        | PASS  |
+| 18.9 | Per-alarm view                                  | Streak header shows current + longest streak            | PASS  |
+
+---
+
+## 19. Streak Counter (Sprint 9)
+
+| #    | Step                                            | Expected Result                                         | Pass? |
+| ---- | ----------------------------------------------- | ------------------------------------------------------- | ----- |
+| 19.1 | 2+ consecutive `.completed` actions             | Streak badge shows on AlarmCard ("2 streak")            | PASS  |
+| 19.2 | Single completion (streak = 1)                  | No badge (threshold >= 2)                               | PASS  |
+| 19.3 | Snooze or dismiss breaks streak                 | Streak resets to 0, badge disappears                    | PASS  |
+| 19.4 | Free tier                                       | Streak badge hidden (streak passed as 0)                | PASS  |
+| 19.5 | Per-alarm history view                          | Current streak and longest streak display correctly     | PASS  |
+| 19.6 | Longest streak survives after current breaks    | Longest remains, current shows new count                | PASS  |
+
+---
+
+## 20. Plus Tier Gating — History (Sprint 9)
+
+| #    | Step                                            | Expected Result                                         | Pass? |
+| ---- | ----------------------------------------------- | ------------------------------------------------------- | ----- |
+| 20.1 | Free user → Settings "Completion History"       | Lock icon visible on row                                | PASS  |
+| 20.2 | Free user → tap Completion History              | Upgrade prompt with lock icon and description           | PASS  |
+| 20.3 | Tap "Upgrade to Plus"                           | Navigates to PaywallView                                | PASS  |
+| 20.4 | Plus/Premium user → Completion History          | Full history content loads normally                     | PASS  |
+| 20.5 | AlarmDetail "View History" link                 | Only visible for Plus+ users                            | PASS  |
+
+---
+
+## 21. Custom Snooze Duration (Sprint 9)
+
+| #    | Step                                            | Expected Result                                         | Pass? |
+| ---- | ----------------------------------------------- | ------------------------------------------------------- | ----- |
+| 21.1 | Free user → alarm fires                         | Only 3 snooze buttons (1h, 1d, 1w)                     | PASS  |
+| 21.2 | Plus user → alarm fires                         | 4th "..." custom button appears                         | PASS  |
+| 21.3 | Tap custom button                               | Sheet presents with hour/minute wheel pickers           | PASS  |
+| 21.4 | Set < 5 minutes                                 | "Snooze" button disabled (5 min minimum)                | PASS  |
+| 21.5 | Set 2h 30m, tap Snooze                          | Alarm reschedules for 2h 30m from now                   | PASS  |
+| 21.6 | Tap Cancel on sheet                             | Sheet dismisses, alarm continues firing                 | PASS  |
+| 21.7 | Duration label                                  | Updates dynamically ("Snooze for 2h 30m")               | PASS  |
+
+---
+
+## 22. Sprint 9 Cross-Cutting (Plus-Specific)
+
+| #    | Scenario                                        | Expected Result                                         | Pass? |
+| ---- | ----------------------------------------------- | ------------------------------------------------------- | ----- |
+| 22.1 | iOS notification limit (64 pending)             | 32 alarms with pre-alarm = 64 notifications, acceptable|       |
+
+---
+
 ## Test Summary
 
 | Category                    | Total Tests | Passed | Failed | Notes                                |
 | --------------------------- | ----------- | ------ | ------ | ------------------------------------ |
 | Purchase Flow               | 7           | 7      | 0      |                                      |
-| Restore Purchases           | 4           | 2      | 0      | 2.3-2.4 deferred to TestFlight       |
+| Restore Purchases           | 4           | 4      | 0      | Verified on TestFlight sandbox       |
 | Expiry & Downgrade          | 7           | 7      | 0      |                                      |
 | Alarm Limit Gating          | 5           | 5      | 0      |                                      |
-| Subscription Management     | 5           | 4      | 0      | 5.4 deferred (StoreKit sandbox)      |
+| Subscription Management     | 5           | 5      | 0      | 5.4 verified on TestFlight sandbox   |
 | Paywall UI                  | 6           | 6      | 0      |                                      |
 | Repeat Interval             | 9           | 8      | 0      | 7.7 deferred (Custom Days not in UI) |
 | Annual First Occurrence     | 9           | 9      | 0      |                                      |
@@ -271,13 +349,28 @@
 | Layout Toggle               | 5           | 5      | 0      |                                      |
 | Settings Subscription       | 3           | 3      | 0      |                                      |
 | Edge Cases                  | 8           | 8      | 0      |                                      |
-| **TOTAL**                   | **108**     | **104** | **0**  |                                      |
+| Pre-Alarm Warning (S9)      | 8           | 8      | 0      | Sprint 9 — all pass                  |
+| Completion History (S9)     | 9           | 8      | 0      | 18.5 SKIP — no UX for `.dismissed`   |
+| Streak Counter (S9)         | 6           | 6      | 0      | Sprint 9 — all pass                  |
+| Plus Gating — History (S9)  | 5           | 5      | 0      | Sprint 9 — all pass                  |
+| Custom Snooze (S9)          | 7           | 7      | 0      | Sprint 9 — all pass                  |
+| Sprint 9 Cross-Cutting      | 1           | —      | —      | Sprint 9 — Plus-specific items       |
+| **TOTAL**                   | **145**     | **141** | **0**  | 1 Sprint 9 test pending, 1 skipped   |
 
 ---
 
 ## StoreKit Testing Setup
 
+### Local (Xcode StoreKit Config)
 1. **Xcode Scheme:** Edit Scheme → Options → StoreKit Configuration → `Chronir.storekit`
 2. **Accelerated Renewals:** Set `timeRate: 6` in StoreKit config for expiry testing
 3. **Manage Transactions:** Debug → StoreKit → Manage Transactions (clear/expire/refund)
 4. **Physical Device:** Same scheme config works on device via Xcode run
+
+### Sandbox (TestFlight / App Store Connect)
+1. **Paid Apps Agreement:** Active (12 Feb 2026)
+2. **Sandbox Account:** lexpresswayyy@gmail.com ("Test Pro", Philippines)
+3. **Renewal Rate:** Monthly every 5 minutes (configured in App Store Connect → Sandbox → Test Accounts)
+4. **TestFlight:** Automatically uses sandbox — no StoreKit config needed
+5. **Xcode on Device:** Set StoreKit Configuration → None to use sandbox instead of local config
+6. **Purchase confirmed:** Plus Monthly subscription purchased successfully via TestFlight sandbox (12 Feb 2026)

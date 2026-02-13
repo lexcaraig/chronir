@@ -94,11 +94,29 @@ struct AlarmDetailView: View {
                 startMonth: $viewModel.startMonth,
                 startYear: $viewModel.startYear,
                 category: $viewModel.category,
+                preAlarmEnabled: $viewModel.preAlarmEnabled,
+                isPlusTier: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                 titleError: viewModel.titleError
             )
 
             photoSection
                 .padding(.horizontal, SpacingTokens.lg)
+
+            if SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank {
+                NavigationLink(
+                    destination: CompletionHistoryView(
+                        alarmID: alarmID,
+                        alarmTitle: viewModel.title
+                    )
+                ) {
+                    HStack {
+                        Image(systemName: "clock.badge.checkmark")
+                        ChronirText("View History", style: .bodyMedium, color: ColorTokens.primary)
+                    }
+                }
+                .padding(.horizontal, SpacingTokens.lg)
+                .padding(.top, SpacingTokens.md)
+            }
 
             Button(role: .destructive) {
                 showDeleteConfirmation = true

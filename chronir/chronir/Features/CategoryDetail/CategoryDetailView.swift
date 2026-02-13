@@ -108,7 +108,10 @@ struct CategoryDetailView: View {
         AlarmCard(
             alarm: alarm,
             visualState: visualState(for: alarm),
-            isEnabled: enabledBinding(for: alarm)
+            isEnabled: enabledBinding(for: alarm),
+            streak: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
+                ? StreakCalculator.currentStreak(from: alarm.completionLogs)
+                : 0
         )
         .contentShape(Rectangle())
         .onTapGesture { selectedAlarmID = alarm.id }

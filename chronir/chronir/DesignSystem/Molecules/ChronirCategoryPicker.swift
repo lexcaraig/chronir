@@ -20,6 +20,7 @@ struct ChronirCategoryPicker: View {
     private var noneButton: some View {
         Button {
             selection = nil
+            if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
         } label: {
             HStack(spacing: SpacingTokens.xxs) {
                 Image(systemName: "xmark.circle")
@@ -42,6 +43,7 @@ struct ChronirCategoryPicker: View {
     private func categoryButton(_ category: AlarmCategory) -> some View {
         Button {
             selection = category
+            if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
         } label: {
             HStack(spacing: SpacingTokens.xxs) {
                 Image(systemName: category.iconName)

@@ -19,6 +19,7 @@ struct AlarmCreationView: View {
     @State private var startMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var startYear: Int = Calendar.current.component(.year, from: Date())
     @State private var category: AlarmCategory?
+    @State private var preAlarmEnabled: Bool = false
     @State private var saveError: String?
     @State private var titleError: String?
     @State private var showWarningDialog = false
@@ -58,6 +59,8 @@ struct AlarmCreationView: View {
                     startMonth: $startMonth,
                     startYear: $startYear,
                     category: $category,
+                    preAlarmEnabled: $preAlarmEnabled,
+                    isPlusTier: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                     titleError: titleError
                 )
 
@@ -149,6 +152,9 @@ struct AlarmCreationView: View {
             if result.errors.contains(.emptyTitle) {
                 titleError = "Alarm name is required."
             }
+            if UserSettings.shared.hapticsEnabled {
+                HapticService.shared.playError()
+            }
             return
         }
 
@@ -179,6 +185,7 @@ struct AlarmCreationView: View {
             timesOfDay: timesOfDay,
             schedule: schedule,
             persistenceLevel: isPersistent ? .full : .notificationOnly,
+            preAlarmMinutes: preAlarmEnabled ? 1440 : 0,
             category: category?.rawValue,
             note: trimmedNote
         )
@@ -214,6 +221,9 @@ struct AlarmCreationView: View {
 
         do {
             try modelContext.save()
+            if UserSettings.shared.hapticsEnabled {
+                HapticService.shared.playSuccess()
+            }
             Task {
                 do {
                     _ = await PermissionManager.shared.requestAlarmPermission()

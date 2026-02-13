@@ -33,13 +33,20 @@ struct SnoozeOptionBar: View {
         case oneHour
         case oneDay
         case oneWeek
+        case custom(TimeInterval)
     }
+
+    var showCustomButton: Bool = false
+    var onCustomTap: (() -> Void)?
 
     var body: some View {
         HStack(spacing: SpacingTokens.md) {
             SnoozeOptionButton("1", sublabel: "hour") { onSnooze(.oneHour) }
             SnoozeOptionButton("1", sublabel: "day") { onSnooze(.oneDay) }
             SnoozeOptionButton("1", sublabel: "week") { onSnooze(.oneWeek) }
+            if showCustomButton {
+                SnoozeOptionButton("...", sublabel: "custom") { onCustomTap?() }
+            }
         }
     }
 }

@@ -42,6 +42,12 @@ final class PermissionManager: PermissionManaging {
     }
 
     func requestAlarmPermission() async -> Bool {
+        // Also request notification permission for pre-alarm warnings
+        let notifSettings = await UNUserNotificationCenter.current().notificationSettings()
+        if notifSettings.authorizationStatus == .notDetermined {
+            _ = try? await requestNotificationPermission()
+        }
+
         if AlarmManager.shared.authorizationState == .authorized {
             return true
         }

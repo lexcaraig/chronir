@@ -46,6 +46,10 @@ final class Alarm: Identifiable {
     var ownerID: String?
     var sharedWith: [String]
 
+    // MARK: - Completion History
+    @Relationship(deleteRule: .cascade, inverse: \CompletionLog.alarm)
+    var completionLogs: [CompletionLog] = []
+
     // MARK: - Metadata
     var createdAt: Date
     var updatedAt: Date
