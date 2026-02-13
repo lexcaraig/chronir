@@ -16,11 +16,43 @@ struct ChronirApp: App {
 
     init() {
         do {
-            container = try ModelContainer(for: Alarm.self)
+            container = try ModelContainer(for: Alarm.self, CompletionLog.self)
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
         AlarmRepository.configure(with: container)
+        Self.migrateCompletionRecords(container: container)
+    }
+
+    /// One-time migration of legacy CompletionRecord from UserDefaults to SwiftData.
+    private static func migrateCompletionRecords(container: ModelContainer) {
+        let key = "completionRecords"
+        guard let data = UserDefaults.standard.data(forKey: key),
+              let legacy = try? JSONDecoder().decode([LegacyCompletionRecord].self, from: data),
+              !legacy.isEmpty else {
+            return
+        }
+        let context = container.mainContext
+        for record in legacy {
+            let log = CompletionLog(
+                id: record.id,
+                alarmID: record.alarmID,
+                scheduledDate: record.completedAt,
+                completedAt: record.completedAt,
+                action: record.action
+            )
+            // Link to alarm if it still exists
+            let targetID = record.alarmID
+            let descriptor = FetchDescriptor<Alarm>(
+                predicate: #Predicate<Alarm> { $0.id == targetID }
+            )
+            if let alarm = try? context.fetch(descriptor).first {
+                log.alarm = alarm
+            }
+            context.insert(log)
+        }
+        try? context.save()
+        UserDefaults.standard.removeObject(forKey: key)
     }
 
     var body: some Scene {
@@ -56,31 +88,33 @@ struct ChronirApp: App {
             .task {
                 for await alarms in AlarmManager.shared.alarmUpdates {
                     for alarm in alarms {
+                        print("[alarmUpdates] id=\(alarm.id) state=\(alarm.state)")
                         switch alarm.state {
                         case .alerting:
                             await MainActor.run {
+                                // Skip if the app is returning from background —
+                                // the foreground handler is the sole decision-maker.
+                                guard !AlarmFiringCoordinator.shared.appIsInBackground else {
+                                    print("[alarmUpdates] Skipping .alerting for \(alarm.id) — app in background")
+                                    return
+                                }
+                                // Skip if the foreground handler already processed this alarm
+                                // (stale buffered event arriving after appIsInBackground was cleared).
+                                guard !AlarmFiringCoordinator.shared.isHandled(alarm.id) else {
+                                    print("[alarmUpdates] Skipping .alerting for \(alarm.id) — already handled")
+                                    return
+                                }
                                 AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
                             }
                         case .countdown:
-                            // User pressed Snooze on lock screen — dismiss in-app UI and track
+                            // Snoozed — track for foreground handler, dismiss firing UI
                             await MainActor.run {
+                                AlarmFiringCoordinator.shared.snoozedInBackground.insert(alarm.id)
                                 AlarmFiringCoordinator.shared.dismissFiring()
                             }
-                            if let repo = AlarmRepository.shared,
-                               let model = try? await repo.fetch(by: alarm.id) {
-                                model.snoozeCount += 1
-                                try? await repo.update(model)
-                            }
                         default:
-                            // Alarm stopped from lock screen — complete it and dismiss
-                            if let repo = AlarmRepository.shared,
-                               let model = try? await repo.fetch(by: alarm.id) {
-                                let calc = DateCalculator()
-                                model.lastFiredDate = Date()
-                                model.snoozeCount = 0
-                                model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
-                                try? await repo.update(model)
-                            }
+                            // Stopped or rescheduled — dismiss firing UI only
+                            // Data updates handled by foreground handler or ViewModel
                             await MainActor.run {
                                 AlarmFiringCoordinator.shared.dismissFiring()
                             }
@@ -89,35 +123,70 @@ struct ChronirApp: App {
                 }
             }
             #if os(iOS)
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                AlarmFiringCoordinator.shared.appIsInBackground = true
+            }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                // Fires BEFORE scenePhase changes to .active, so we clear
-                // firingAlarmID before SwiftUI re-renders the fullScreenCover.
-                guard coordinator.isFiring else { return }
-                let firingID = coordinator.firingAlarmID
-                guard let alarms = try? AlarmManager.shared.alarms else {
-                    coordinator.dismissFiring()
-                    return
+                print("[Foreground] Handler fired. coordinator.isFiring=\(coordinator.isFiring)")
+                print("[Foreground] snoozedInBackground=\(coordinator.snoozedInBackground)")
+                let akAlarms = (try? AlarmManager.shared.alarms) ?? []
+                print("[Foreground] AlarmKit alarms: \(akAlarms.map { "\($0.id) state=\($0.state)" })")
+
+                let context = container.mainContext
+                let now = Date()
+
+                // Case 1: Firing screen was up before backgrounding
+                // Data is handled by completeIfNeeded() via onDisappear — just dismiss here.
+                if coordinator.isFiring, let firingID = coordinator.firingAlarmID {
+                    let akAlarm = akAlarms.first { $0.id == firingID }
+                    print("[Foreground] Case 1: firingID=\(firingID) akState=\(String(describing: akAlarm?.state))")
+                    if akAlarm?.state != .alerting {
+                        print("[Foreground] Case 1: dismissing — completeIfNeeded will handle data")
+                        coordinator.dismissFiring()
+                    }
                 }
-                let stillAlerting = alarms.contains {
-                    $0.id == firingID && $0.state == .alerting
-                }
-                if !stillAlerting {
-                    if let firingID {
-                        let context = container.mainContext
-                        let targetID = firingID
-                        let descriptor = FetchDescriptor<Alarm>(
-                            predicate: #Predicate<Alarm> { $0.id == targetID }
-                        )
-                        if let model = try? context.fetch(descriptor).first {
-                            let calc = DateCalculator()
-                            model.lastFiredDate = Date()
-                            model.snoozeCount = 0
-                            model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
-                            try? context.save()
+
+                // Case 2: Alarm fired while app was fully backgrounded
+                let enabledDesc = FetchDescriptor<Alarm>(
+                    predicate: #Predicate<Alarm> { $0.isEnabled == true }
+                )
+                if let models = try? context.fetch(enabledDesc) {
+                    let pastDue = models.filter { $0.nextFireDate < now }
+                    print("[Foreground] Case 2: \(models.count) enabled, \(pastDue.count) past-due")
+                    for model in pastDue {
+                        print("[Foreground] Past-due: \(model.title) id=\(model.id) nextFire=\(model.nextFireDate)")
+                    }
+                    for model in pastDue {
+                        // Skip if ViewModel's completeIfNeeded() already handled this
+                        guard !coordinator.isHandled(model.id) else {
+                            print("[Foreground] Case 2: skipping \(model.title) — already handled")
+                            continue
+                        }
+
+                        let akAlarm = akAlarms.first { $0.id == model.id }
+                        print("[Foreground] Case 2: \(model.title) akState=\(String(describing: akAlarm?.state))")
+
+                        if akAlarm?.state == .alerting {
+                            print("[Foreground] Case 2: \(model.title) still alerting — presenting")
+                            coordinator.presentAlarm(id: model.id)
+                        } else {
+                            // Snoozed only if .countdown was seen OR alarm is actively in countdown
+                            let wasSnoozed = coordinator.snoozedInBackground.contains(model.id)
+                                || akAlarm?.state == .countdown
+                            handleLockScreenAction(
+                                model: model,
+                                wasSnoozed: wasSnoozed,
+                                context: context
+                            )
+                            coordinator.snoozedInBackground.remove(model.id)
+                            coordinator.markHandled(model.id)
+                            print("[Foreground] Case 2: handled \(model.title), wasSnoozed=\(wasSnoozed), snoozeCount=\(model.snoozeCount)")
                         }
                     }
-                    coordinator.dismissFiring()
                 }
+
+                // Re-enable alarmUpdates presentation now that stale events have been processed.
+                coordinator.appIsInBackground = false
             }
             #endif
             .onChange(of: scenePhase) {
@@ -147,6 +216,47 @@ struct ChronirApp: App {
                     .interactiveDismissDisabled()
             }
         }
+    }
+}
+
+// MARK: - Lock Screen Action Handling
+
+extension ChronirApp {
+    /// Processes a lock screen snooze or stop for a given alarm model.
+    /// Must be called on the main context.
+    @MainActor
+    private func handleLockScreenAction(
+        model: Alarm,
+        wasSnoozed: Bool,
+        context: ModelContext
+    ) {
+        if wasSnoozed {
+            // Lock screen snooze
+            model.snoozeCount += 1
+            let log = CompletionLog(
+                alarmID: model.id,
+                scheduledDate: model.nextFireDate,
+                action: .snoozed,
+                snoozeCount: model.snoozeCount
+            )
+            log.alarm = model
+            context.insert(log)
+        } else {
+            // Lock screen stop
+            let calc = DateCalculator()
+            let log = CompletionLog(
+                alarmID: model.id,
+                scheduledDate: model.nextFireDate,
+                action: .completed,
+                snoozeCount: model.snoozeCount
+            )
+            log.alarm = model
+            context.insert(log)
+            model.lastFiredDate = Date()
+            model.snoozeCount = 0
+            model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
+        }
+        try? context.save()
     }
 }
 

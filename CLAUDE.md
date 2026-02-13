@@ -157,6 +157,22 @@ PR triggers lint + tests; merge to main triggers release build.
 - **Deep links:** `chronir://alarm/{id}`, `chronir://invite/{code}`, `https://chronir.app/invite/{code}`
 - Preview-driven development: every component needs Light/Dark + relevant state previews.
 
+## Lessons Learned
+
+Rules discovered through debugging. These override any conflicting assumptions.
+
+- **AlarmKit lock screen event handling:** Multiple independent handlers race on MainActor when the app returns from background:
+    - `alarmUpdates` buffered events execute their `await MainActor.run` blocks BEFORE `willEnterForegroundNotification` fires — never assume the foreground handler runs first.
+    - Track background state via `willResignActiveNotification` (fires before backgrounding), not via the foreground handler (fires too late).
+    - Search ALL callers of state-changing functions (like `presentAlarm`) before assuming a fix works — `AlarmListView.checkForFiringAlarms()` timer was an independent presenter missed through multiple fix attempts.
+    - Always check `AlarmKit.Alarm.State` specifically (`.countdown` for snooze) rather than using presence checks (`akAlarm != nil`) which conflate rescheduled alarms with snoozed ones.
+- **Dedup flags must never be cleared before a guard:** If a handler clears a dedup flag (e.g., `handledAlarmIDs.remove()`) BEFORE a guard that might skip the action, the side-effect persists even when the guard skips. Always place side-effects AFTER all guards pass. For time-sensitive dedup, use expiring entries (`[UUID: Date]` with a TTL) instead of a simple `Set<UUID>`.
+- **Before fixing any bug:** Always `grep` for ALL callers of the function/property you're modifying. Hidden callers (timers, observers, other views) can bypass your fix entirely.
+- **Swift concurrency on MainActor:** `await MainActor.run` does NOT execute immediately — it queues work. UIKit notification handlers (`.onReceive`) can preempt or be preempted by queued MainActor blocks in unpredictable order. Design for any ordering.
+- **SwiftData `@ModelActor` context boundaries:** Never return `@Model` objects from a `@ModelActor` method to the main thread. They become detached from the actor's background `ModelContext` and crash on attribute access. Fetch on the same context where objects will be used (use the view's `@Environment(\.modelContext)` for UI).
+
+**IMPORTANT:** When a bug fix requires more than one attempt, or the user confirms a mistake was made that needed correction, automatically run `/learn-from-mistake` to capture the lesson. Do not wait to be asked — proactively trigger it whenever a confirmed mistake scenario is resolved.
+
 ## Spec Documents
 
 All planning documents are in `docs/`:
@@ -203,9 +219,9 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 
 ### Plugins
 
-| Plugin            | Purpose                                                                                                                                                                                                                                                  |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `code-simplifier` | Runs automatically after implementation in `/implement-task`, `/implement-ios`, `/implement-android`. Simplifies code for clarity and maintainability while preserving functionality. Also runs during `/phase-qa-gate` as a non-blocking quality audit. |
+| Plugin            | Purpose                                                                                                                                                                                                                                                                             |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `code-simplifier` | Runs automatically after ANY code changes, regardless of the task or workflow. Simplifies code for clarity and maintainability while preserving functionality. Must be invoked proactively after writing or modifying code — not just during `/implement-task` or `/phase-qa-gate`. |
 
 ### Typical Sprint Flow
 
@@ -252,3 +268,5 @@ Record a learning whenever:
 - Update or remove entries that turn out to be wrong or outdated
 - Keep MEMORY.md concise — detailed notes go in topic files
 - Never duplicate information already in CLAUDE.md or spec docs — only record surprises and gotchas
+
+---

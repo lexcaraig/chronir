@@ -10,6 +10,7 @@ struct SettingsView: View {
             timezoneSection
             appearanceSection
             notificationsSection
+            historySection
             backupSection
             developerSection
             aboutSection
@@ -28,6 +29,7 @@ struct SettingsView: View {
         Section {
             ChronirToggle(label: "Snooze Enabled", isOn: $settings.snoozeEnabled)
             ChronirToggle(label: "Slide to Stop", isOn: $settings.slideToStopEnabled)
+            ChronirToggle(label: "Haptic Feedback", isOn: $settings.hapticsEnabled)
             NavigationLink(destination: SoundPicker()) {
                 HStack {
                     ChronirText("Alarm Sound", style: .bodyPrimary)
@@ -122,6 +124,25 @@ struct SettingsView: View {
             )
         } header: {
             ChronirText("Notifications", style: .labelLarge, color: ColorTokens.textSecondary)
+        }
+        .listRowBackground(ColorTokens.surfaceCard)
+    }
+
+    // MARK: - History
+
+    private var historySection: some View {
+        Section {
+            NavigationLink(destination: CompletionHistoryView()) {
+                HStack {
+                    ChronirText("Completion History", style: .bodyPrimary)
+                    Spacer()
+                    if SubscriptionService.shared.currentTier == .free {
+                        ChronirIcon(systemName: "lock.fill", size: .small, color: ColorTokens.textSecondary)
+                    }
+                }
+            }
+        } header: {
+            ChronirText("History", style: .labelLarge, color: ColorTokens.textSecondary)
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }

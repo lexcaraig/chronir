@@ -29,6 +29,7 @@ struct AlarmCard: View {
     let alarm: Alarm
     let visualState: AlarmVisualState
     @Binding var isEnabled: Bool
+    var streak: Int = 0
 
     private var textOpacity: Double {
         visualState == .inactive ? 0.5 : 1.0
@@ -119,6 +120,9 @@ struct AlarmCard: View {
                     }
                 }
                 Spacer()
+                if streak >= 2 {
+                    ChronirBadge("\(streak) streak", color: ColorTokens.success)
+                }
                 if alarm.isPersistent {
                     ChronirBadge("Persistent", color: ColorTokens.warning)
                 }

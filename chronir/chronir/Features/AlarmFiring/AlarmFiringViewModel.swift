@@ -33,7 +33,9 @@ final class AlarmFiringViewModel {
     func startFiring() {
         isFiring = true
         soundService.startPlaying(soundName: nil)
-        hapticService.startAlarmVibrationLoop()
+        if UserSettings.shared.hapticsEnabled {
+            hapticService.startAlarmVibrationLoop()
+        }
     }
 
     func stopFiring() {
@@ -52,6 +54,7 @@ final class AlarmFiringViewModel {
         case .oneHour: 3600
         case .oneDay: 86400
         case .oneWeek: 604800
+        case .custom(let duration): duration
         }
 
         try? AlarmManager.shared.stop(id: alarm.id)
@@ -61,7 +64,7 @@ final class AlarmFiringViewModel {
 
         try? await scheduler.scheduleAlarm(alarm)
 
-        saveCompletionRecord(alarmID: alarm.id, action: .snoozed)
+        saveCompletionLog(alarmID: alarm.id, action: .snoozed)
 
         if let repo = AlarmRepository.shared {
             try? await repo.update(alarm)
@@ -73,7 +76,7 @@ final class AlarmFiringViewModel {
             AlarmFiringCoordinator.shared.dismissFiring()
         }
 
-        hapticService.playSuccess()
+        if UserSettings.shared.hapticsEnabled { hapticService.playSuccess() }
     }
 
     // MARK: - Dismiss
@@ -91,7 +94,7 @@ final class AlarmFiringViewModel {
         try? await scheduler.cancelAlarm(alarm)
         try? await scheduler.scheduleAlarm(alarm)
 
-        saveCompletionRecord(alarmID: alarm.id, action: .completed)
+        saveCompletionLog(alarmID: alarm.id, action: .completed)
 
         if let repo = AlarmRepository.shared {
             try? await repo.update(alarm)
@@ -103,25 +106,51 @@ final class AlarmFiringViewModel {
             AlarmFiringCoordinator.shared.dismissFiring()
         }
 
-        hapticService.playSuccess()
+        if UserSettings.shared.hapticsEnabled { hapticService.playSuccess() }
     }
 
     // MARK: - Safety Net
 
     /// Called from onDisappear to ensure the alarm is always completed,
-    /// even if dismissed externally (OS banner "X", lock screen stop).
+    /// even if dismissed externally (OS banner "X", lock screen stop/snooze).
     func completeIfNeeded() async {
         guard let alarm, !isCompleted else { return }
+
+        // Atomically check-and-set handled state to prevent any double-processing
+        let alreadyHandled = await MainActor.run {
+            if AlarmFiringCoordinator.shared.isHandled(alarm.id) {
+                return true
+            }
+            AlarmFiringCoordinator.shared.markHandled(alarm.id)
+            return false
+        }
+        if alreadyHandled {
+            print("[completeIfNeeded] Skipping \(alarm.title) — already handled")
+            isCompleted = true
+            return
+        }
+
         isCompleted = true
 
-        alarm.lastFiredDate = Date()
-        alarm.snoozeCount = 0
-        alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+        let wasSnoozed = await MainActor.run {
+            AlarmFiringCoordinator.shared.snoozedInBackground.remove(alarm.id) != nil
+        }
 
-        try? await scheduler.cancelAlarm(alarm)
-        try? await scheduler.scheduleAlarm(alarm)
+        if wasSnoozed {
+            alarm.snoozeCount += 1
+            print("[completeIfNeeded] Snooze detected for \(alarm.title), snoozeCount=\(alarm.snoozeCount)")
+            saveCompletionLog(alarmID: alarm.id, action: .snoozed)
+        } else {
+            alarm.lastFiredDate = Date()
+            alarm.snoozeCount = 0
+            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
 
-        saveCompletionRecord(alarmID: alarm.id, action: .completed)
+            try? await scheduler.cancelAlarm(alarm)
+            try? await scheduler.scheduleAlarm(alarm)
+
+            print("[completeIfNeeded] Stop detected for \(alarm.title), nextFire=\(alarm.nextFireDate)")
+            saveCompletionLog(alarmID: alarm.id, action: .completed)
+        }
 
         if let repo = AlarmRepository.shared {
             try? await repo.update(alarm)
@@ -130,20 +159,18 @@ final class AlarmFiringViewModel {
 
     // MARK: - Private
 
-    private func saveCompletionRecord(alarmID: UUID, action: CompletionAction) {
-        let record = CompletionRecord(alarmID: alarmID, action: action)
-        var records = loadCompletionRecords()
-        records.append(record)
-        if let data = try? JSONEncoder().encode(records) {
-            UserDefaults.standard.set(data, forKey: "completionRecords")
+    private func saveCompletionLog(alarmID: UUID, action: CompletionAction) {
+        guard let alarm else { return }
+        let log = CompletionLog(
+            alarmID: alarmID,
+            scheduledDate: alarm.nextFireDate,
+            action: action,
+            snoozeCount: alarm.snoozeCount
+        )
+        Task {
+            if let repo = AlarmRepository.shared {
+                try? await repo.saveCompletionLog(log)
+            }
         }
-    }
-
-    private func loadCompletionRecords() -> [CompletionRecord] {
-        guard let data = UserDefaults.standard.data(forKey: "completionRecords"),
-              let records = try? JSONDecoder().decode([CompletionRecord].self, from: data) else {
-            return []
-        }
-        return records
     }
 }

@@ -211,11 +211,13 @@ struct AlarmListView: View {
     }
 
     private func checkForFiringAlarms() {
-        guard !firingCoordinator.isFiring else { return }
+        guard !firingCoordinator.isFiring,
+              !firingCoordinator.appIsInBackground else { return }
         let now = Date()
         for alarm in alarms {
             let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-            guard isEnabled, alarm.nextFireDate <= now else { continue }
+            guard isEnabled, alarm.nextFireDate <= now,
+                  !firingCoordinator.isHandled(alarm.id) else { continue }
             firingCoordinator.presentAlarm(id: alarm.id)
             break
         }
@@ -237,6 +239,9 @@ struct AlarmListView: View {
                     showUpgradePrompt = true
                 } else {
                     enabledStates[alarm.id] = newValue
+                    if UserSettings.shared.hapticsEnabled {
+                        HapticService.shared.playSelection()
+                    }
                 }
             }
         )
@@ -253,7 +258,10 @@ struct AlarmListView: View {
             AlarmCard(
                 alarm: alarm,
                 visualState: visualState(for: alarm),
-                isEnabled: enabledBinding(for: alarm)
+                isEnabled: enabledBinding(for: alarm),
+                streak: subscriptionService.currentTier.rank >= SubscriptionTier.plus.rank
+                    ? StreakCalculator.currentStreak(from: alarm.completionLogs)
+                    : 0
             )
         }
         .contentShape(Rectangle())

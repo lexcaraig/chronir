@@ -15,6 +15,8 @@ struct AlarmCreationForm: View {
     @Binding var startMonth: Int
     @Binding var startYear: Int
     @Binding var category: AlarmCategory?
+    @Binding var preAlarmEnabled: Bool
+    var isPlusTier: Bool = false
     var titleError: String?
     @State private var savedIntervals: [CycleType: Int] = [:]
 
@@ -60,6 +62,10 @@ struct AlarmCreationForm: View {
             TimesOfDayPicker(times: $timesOfDay)
 
             ChronirToggle(label: "Persistent (requires dismissal)", isOn: $isPersistent)
+
+            if isPlusTier {
+                ChronirToggle(label: "24h Pre-Alarm Warning", isOn: $preAlarmEnabled)
+            }
 
             LabeledTextField(
                 label: "Note (optional)",
@@ -260,6 +266,7 @@ struct AlarmCreationForm: View {
     @Previewable @State var startMonth = Calendar.current.component(.month, from: Date())
     @Previewable @State var startYear = Calendar.current.component(.year, from: Date())
     @Previewable @State var category: AlarmCategory?
+    @Previewable @State var preAlarmEnabled = false
 
     ScrollView {
         AlarmCreationForm(
@@ -276,7 +283,9 @@ struct AlarmCreationForm: View {
             annualYear: $annualYear,
             startMonth: $startMonth,
             startYear: $startYear,
-            category: $category
+            category: $category,
+            preAlarmEnabled: $preAlarmEnabled,
+            isPlusTier: true
         )
     }
     .background(ColorTokens.backgroundPrimary)

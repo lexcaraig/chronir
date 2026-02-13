@@ -1,8 +1,8 @@
 # iOS Free Tier QA Checklist
 
-**Sprint:** 7 (Phase 2 close)
-**Branch:** `sprint-7` merged into `main`
-**Device:** iPhone Simulator (iPhone 16, iOS 18+)
+**Sprint:** 7–9 (Phase 2 close + Phase 3 V1.0 Plus Tier)
+**Branch:** `sprint-7` merged into `main`, `sprint-9` (S9)
+**Device:** iPhone Simulator (iPhone 16, iOS 18+) + Physical device "lexpresswayyy"
 **Tier:** Free (2-alarm limit, local-only)
 
 ---
@@ -242,26 +242,77 @@
 
 ---
 
+## 15. Completion Recording (Sprint 9)
+
+> **Note:** Completion logs are recorded for ALL tiers. Viewing history is Plus-gated (see Plus tier checklist).
+
+| #    | Step                                    | Expected Result                                           | Pass? |
+| ---- | --------------------------------------- | --------------------------------------------------------- | ----- |
+| 15.1 | Fresh install                           | No crash, `CompletionLog` table created                   |       |
+| 15.2 | Existing user with UserDefaults records | Records migrate to SwiftData on launch                    |       |
+| 15.3 | After migration, relaunch               | No re-migration (UserDefaults key removed)                |       |
+| 15.4 | Delete alarm with completion logs       | Cascade deletes associated `CompletionLog` entries        | PASS  |
+| 15.5 | Fire alarm → tap "Mark as Done"         | `CompletionLog` with `.completed` action saved            | PASS  |
+| 15.6 | Fire alarm → snooze (1h/1d/1w)          | `CompletionLog` with `.snoozed` action + snooze count     | PASS  |
+| 15.7 | Lock screen stop                        | `CompletionLog` with `.completed` saved via alarmUpdates  | PASS  |
+| 15.8 | Lock screen snooze                      | `CompletionLog` with `.snoozed`, snooze count incremented | PASS  |
+| 15.9 | External dismiss (onDisappear)          | Log saved once, no duplicate (isCompleted guard)          | PASS  |
+
+---
+
+## 16. Haptic Feedback (Sprint 9)
+
+> **Note:** Haptics require physical device — simulator won't produce feedback. No tier gating — works for all users.
+
+| #    | Step                                | Expected Result                                       | Pass? |
+| ---- | ----------------------------------- | ----------------------------------------------------- | ----- |
+| 16.1 | Settings → "Haptic Feedback" toggle | Visible in Alarm Behavior section, default ON         | PASS  |
+| 16.2 | Toggle alarm on/off                 | Selection haptic fires                                | PASS  |
+| 16.3 | Tap category in create/edit form    | Selection haptic fires                                | PASS  |
+| 16.4 | Save alarm (create)                 | Success haptic fires                                  | PASS  |
+| 16.5 | Save alarm (edit)                   | Success haptic fires                                  | PASS  |
+| 16.6 | Validation failure (empty title)    | Error haptic fires                                    | PASS  |
+| 16.7 | Alarm firing vibration loop         | Vibration pulses every 1.5s                           | PASS  |
+| 16.8 | Snooze/dismiss alarm                | Success haptic fires                                  | PASS  |
+| 16.9 | Turn haptics OFF, repeat 16.2–16.8  | No haptics fire anywhere (including firing vibration) | PASS  |
+
+---
+
+## 17. Sprint 9 Cross-Cutting (Free Tier)
+
+| #    | Scenario                             | Expected Result                  | Pass? |
+| ---- | ------------------------------------ | -------------------------------- | ----- |
+| 17.1 | Full iOS build passes                | `xcodebuild build` succeeds      |       |
+| 17.2 | SwiftLint clean                      | No new violations                |       |
+| 17.3 | Delete and reinstall app             | Clean migration path, no crashes |       |
+| 17.4 | Rapid fire → snooze → fire → dismiss | No duplicate completion logs     | PASS  |
+| 17.5 | Background/foreground during alarm   | Completion logged once           | PASS  |
+
+---
+
 ## Test Summary
 
-| Category       | Total Tests | Passed  | Failed | Notes                                                 |
-| -------------- | ----------- | ------- | ------ | ----------------------------------------------------- |
-| Onboarding     | 11          | 11      | 0      | All passed incl. Skip for now                         |
-| Empty State    | 2           | 2       | 0      |                                                       |
-| Create Alarm   | 13          | 9       | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested        |
-| Create Monthly | 7           | 7       | 0      | "Salary day" monthly alarm created on device          |
-| Tier Gating    | 5           | 5       | 0      | All passed incl. delete+re-create                     |
-| Edit Alarm     | 7           | 6       | 0      | 6.4a multi-time edit untested                         |
-| Delete Alarm   | 4           | 4       | 0      | Swipe right → delete confirmed                        |
-| Toggle         | 4           | 4       | 0      | Swipe left + toggle switch both work                  |
-| Alarm Firing   | 12          | 12      | 0      | All passed including hold-to-dismiss                  |
-| Lock Screen    | 7           | 6       | 0      | 9D.5 (1hr re-fire) untested — requires wait           |
-| Settings       | 14          | 14      | 0      | All passed                                            |
-| Persistence    | 3           | 3       | 0      |                                                       |
-| Edge Cases     | 8           | 8       | 0      | All covered by 26 unit tests                          |
-| Visual/UI      | 7           | 7       | 0      | All confirmed from device screenshots                 |
-| Notifications  | 5           | 5       | 0      | All passed                                            |
-| **TOTAL**      | **109**     | **102** | **0**  | 7 tests pending: 6 multi-time + 1 lock screen re-fire |
+| Category                      | Total Tests | Passed  | Failed | Notes                                             |
+| ----------------------------- | ----------- | ------- | ------ | ------------------------------------------------- |
+| Onboarding                    | 11          | 11      | 0      | All passed incl. Skip for now                     |
+| Empty State                   | 2           | 2       | 0      |                                                   |
+| Create Alarm                  | 13          | 9       | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested    |
+| Create Monthly                | 7           | 7       | 0      | "Salary day" monthly alarm created on device      |
+| Tier Gating                   | 5           | 5       | 0      | All passed incl. delete+re-create                 |
+| Edit Alarm                    | 7           | 6       | 0      | 6.4a multi-time edit untested                     |
+| Delete Alarm                  | 4           | 4       | 0      | Swipe right → delete confirmed                    |
+| Toggle                        | 4           | 4       | 0      | Swipe left + toggle switch both work              |
+| Alarm Firing                  | 12          | 12      | 0      | All passed including hold-to-dismiss              |
+| Lock Screen                   | 7           | 6       | 0      | 9D.5 (1hr re-fire) untested — requires wait       |
+| Settings                      | 14          | 14      | 0      | All passed                                        |
+| Persistence                   | 3           | 3       | 0      |                                                   |
+| Edge Cases                    | 8           | 8       | 0      | All covered by 26 unit tests                      |
+| Visual/UI                     | 7           | 7       | 0      | All confirmed from device screenshots             |
+| Notifications                 | 5           | 5       | 0      | All passed                                        |
+| Completion Recording (S9)     | 9           | 6       | 0      | 15.4–15.9 PASS; 15.1–15.3 untested                |
+| Haptic Feedback (S9)          | 9           | 9       | 0      | All passed on device                              |
+| Sprint 9 Cross-Cutting (Free) | 5           | 2       | 0      | 17.4–17.5 PASS; 17.1–17.3 untested                |
+| **TOTAL**                     | **132**     | **119** | **0**  | 6 Sprint 9 tests + 7 pending from earlier sprints |
 
 ---
 

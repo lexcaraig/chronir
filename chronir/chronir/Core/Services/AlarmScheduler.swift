@@ -14,13 +14,16 @@ final class AlarmScheduler: AlarmScheduling {
     private let repository: AlarmRepositoryProtocol
     private let dateCalculator: DateCalculator
     private let alarmManager = AlarmManager.shared
+    private let notificationService: NotificationServiceProtocol
 
     init(
         repository: AlarmRepositoryProtocol = AlarmRepository.shared,
-        dateCalculator: DateCalculator = DateCalculator()
+        dateCalculator: DateCalculator = DateCalculator(),
+        notificationService: NotificationServiceProtocol = NotificationService.shared
     ) {
         self.repository = repository
         self.dateCalculator = dateCalculator
+        self.notificationService = notificationService
     }
 
     func scheduleAlarm(_ alarm: Alarm) async throws {
@@ -46,6 +49,11 @@ final class AlarmScheduler: AlarmScheduling {
                     attributes: buildAttributes(for: alarm)
                 )
             )
+        }
+
+        // Schedule pre-alarm notification if enabled
+        if alarm.preAlarmMinutes > 0 && alarm.snoozeCount == 0 {
+            await notificationService.schedulePreAlarmNotification(for: alarm)
         }
     }
 
@@ -77,6 +85,7 @@ final class AlarmScheduler: AlarmScheduling {
         for id in alarmIDs(for: alarm) {
             try? AlarmManager.shared.cancel(id: id)
         }
+        notificationService.cancelPreAlarmNotification(for: alarm)
     }
 
     func rescheduleAllAlarms() async throws {

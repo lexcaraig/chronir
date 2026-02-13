@@ -12,6 +12,7 @@ struct AlarmFiringView: View {
     @State private var holdProgress: CGFloat = 0
     @State private var isHolding = false
     @State private var cachedPhoto: UIImage?
+    @State private var showCustomSnoozePicker = false
 
     private let holdDuration: TimeInterval = 3.0
 
@@ -24,8 +25,18 @@ struct AlarmFiringView: View {
                     .tint(ColorTokens.firingForeground)
             }
         }
+        .sheet(isPresented: $showCustomSnoozePicker) {
+            CustomSnoozePickerView { duration in
+                Task { await viewModel.snooze(interval: .custom(duration)) }
+            }
+        }
         .onDisappear {
             viewModel.stopFiring()
+            // Mark as handled SYNCHRONOUSLY on MainActor so the foreground handler
+            // sees it before completeIfNeeded's async work finishes.
+            if let alarmID = viewModel.alarm?.id {
+                AlarmFiringCoordinator.shared.markHandled(alarmID)
+            }
             Task { await viewModel.completeIfNeeded() }
         }
         .task {
@@ -107,9 +118,13 @@ struct AlarmFiringView: View {
             .scrollBounceBehavior(.basedOnSize)
 
             if settings.snoozeEnabled {
-                SnoozeOptionBar { interval in
-                    Task { await viewModel.snooze(interval: interval) }
-                }
+                SnoozeOptionBar(
+                    onSnooze: { interval in
+                        Task { await viewModel.snooze(interval: interval) }
+                    },
+                    showCustomButton: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
+                    onCustomTap: { showCustomSnoozePicker = true }
+                )
             }
 
             dismissButton
