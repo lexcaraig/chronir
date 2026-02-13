@@ -22,9 +22,10 @@ struct LocalBackupInfoView: View {
                     detail: "Local storage only. Backed up via iCloud device backup.",
                     badge: ColorTokens.textSecondary
                 )
+                // TODO: Update when cloud backup is built (Sprint 10+)
                 comparisonRow(
                     tier: "Plus",
-                    detail: "Cloud backup with Firestore. Sync across devices. Restore on new device.",
+                    detail: "Unlimited alarms, custom snooze, pre-alarm warnings, photo attachments, and completion history.",
                     badge: ColorTokens.primary
                 )
             } header: {

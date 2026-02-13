@@ -80,10 +80,10 @@ struct PaywallView: View {
     private var featureList: some View {
         VStack(spacing: SpacingTokens.md) {
             featureRow(icon: "infinity", title: "Unlimited alarms")
-            featureRow(icon: "icloud.and.arrow.up", title: "Cloud backup & sync")
             featureRow(icon: "clock.badge.checkmark", title: "Custom snooze intervals")
-            featureRow(icon: "rectangle.on.rectangle", title: "Home screen widgets")
+            featureRow(icon: "bell.and.waves.left.and.right", title: "Pre-alarm warnings")
             featureRow(icon: "photo", title: "Photo attachments")
+            featureRow(icon: "chart.bar", title: "Completion history & streaks")
         }
     }
 

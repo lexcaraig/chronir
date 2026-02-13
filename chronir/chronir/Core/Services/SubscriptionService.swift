@@ -25,9 +25,8 @@ final class SubscriptionService {
         return SubscriptionTier(rawValue: raw) ?? .free
     }
 
+    // TODO: Add premium product IDs when Premium tier is built (Phase 4, Sprint 11+)
     static let productIDs: Set<String> = [
-        "com.chronir.premium.annual",
-        "com.chronir.premium.monthly",
         "com.chronir.plus.annual",
         "com.chronir.plus.monthly"
     ]
@@ -153,8 +152,7 @@ final class SubscriptionService {
 
     var plusMonthly: Product? { product(for: "com.chronir.plus.monthly") }
     var plusAnnual: Product? { product(for: "com.chronir.plus.annual") }
-    var premiumMonthly: Product? { product(for: "com.chronir.premium.monthly") }
-    var premiumAnnual: Product? { product(for: "com.chronir.premium.annual") }
+    // TODO: Add premium product accessors when Premium tier is built (Phase 4, Sprint 11+)
 }
 
 // MARK: - Tier Rank

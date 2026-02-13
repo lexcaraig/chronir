@@ -65,30 +65,27 @@ struct SubscriptionManagementView: View {
 
     // MARK: - Plan Comparison
 
+    // TODO: Add Premium column back when Premium tier is built (Phase 4, Sprint 11+)
     private var planComparisonSection: some View {
         Section {
-            comparisonRow("Alarms", free: "2", plus: "Unlimited", premium: "Unlimited")
-            comparisonRow("Cloud Backup", free: "—", plus: "Yes", premium: "Yes")
-            comparisonRow("Widgets", free: "—", plus: "Yes", premium: "Yes")
-            comparisonRow("Photo Attachments", free: "—", plus: "Yes", premium: "Yes")
-            comparisonRow("Shared Alarms", free: "—", plus: "—", premium: "Yes")
-            comparisonRow("Groups", free: "—", plus: "—", premium: "Yes")
-            comparisonRow("Live Activities", free: "—", plus: "—", premium: "Yes")
+            comparisonRow("Alarms", free: "2", plus: "Unlimited")
+            comparisonRow("Custom Snooze", free: "—", plus: "Yes")
+            comparisonRow("Pre-Alarm Warnings", free: "—", plus: "Yes")
+            comparisonRow("Photo Attachments", free: "—", plus: "Yes")
+            comparisonRow("Completion History", free: "—", plus: "Yes")
         } header: {
             ChronirText("Plan Comparison", style: .labelLarge, color: ColorTokens.textSecondary)
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
 
-    private func comparisonRow(_ feature: String, free: String, plus: String, premium: String) -> some View {
+    private func comparisonRow(_ feature: String, free: String, plus: String) -> some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText(feature, style: .bodyPrimary)
             HStack {
                 tierValue("Free", value: free)
                 Spacer()
                 tierValue("Plus", value: plus)
-                Spacer()
-                tierValue("Premium", value: premium)
             }
         }
         .padding(.vertical, SpacingTokens.xxs)

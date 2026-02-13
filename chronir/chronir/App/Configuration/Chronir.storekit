@@ -80,70 +80,14 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "39.99",
-          "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "6758986860",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "Shared alarms, groups, Live Activities. Save 15%.",
-              "displayName" : "Chronir Premium (Annual)",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "com.chronir.premium.annual",
-          "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Chronir Premium Annual",
-          "subscriptionGroupID" : "21927029",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
-        },
-        {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
-          "displayPrice" : "3.99",
-          "familyShareable" : false,
-          "groupNumber" : 2,
-          "internalID" : "6758986861",
-          "introductoryOffer" : null,
-          "localizations" : [
-            {
-              "description" : "Shared alarms, groups, and Live Activities.",
-              "displayName" : "Chronir Premium",
-              "locale" : "en_US"
-            }
-          ],
-          "productID" : "com.chronir.premium.monthly",
-          "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Chronir Premium Monthly",
-          "subscriptionGroupID" : "21927029",
-          "type" : "RecurringSubscription",
-          "winbackOffers" : [
-
-          ]
-        },
-        {
-          "adHocOffers" : [
-
-          ],
-          "codeOffers" : [
-
-          ],
           "displayPrice" : "19.99",
           "familyShareable" : false,
-          "groupNumber" : 3,
+          "groupNumber" : 1,
           "internalID" : "6758986862",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Unlimited alarms, cloud backup, widgets. Save 15%.",
+              "description" : "Unlimited alarms, custom snooze, pre-alarm warnings. Save 15%.",
               "displayName" : "Chronir Plus (Annual)",
               "locale" : "en_US"
             }
@@ -166,12 +110,12 @@
           ],
           "displayPrice" : "1.99",
           "familyShareable" : false,
-          "groupNumber" : 4,
+          "groupNumber" : 2,
           "internalID" : "6758986863",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Unlimited alarms, cloud backup, and widgets.",
+              "description" : "Unlimited alarms, custom snooze, and pre-alarm warnings.",
               "displayName" : "Chronir Plus",
               "locale" : "en_US"
             }
