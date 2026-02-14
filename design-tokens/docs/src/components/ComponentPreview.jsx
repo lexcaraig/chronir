@@ -1,24 +1,26 @@
 import { resolvedLookup } from '../tokens'
 
 // Pull actual token values for rendering
+// Theme-aware colors use CSS variables; accent/status colors are theme-independent
 const t = {
-  // Colors
-  surfaceCard: '#2C2C2E',
-  bgPrimary: '#1C1C1E',
-  bgTertiary: '#2C2C2E',
-  textPrimary: '#FFFFFF',
-  textSecondary: '#9CA3AF',
-  textDisabled: '#475569',
-  primary: '#3B82F6',
-  warning: '#FFB800',
-  error: '#EF4444',
-  success: '#22C55E',
-  firingBg: resolvedLookup['color.firing.background'] || '#000000',
+  // Theme-aware colors (CSS variables)
+  surfaceCard: 'var(--bg-card)',
+  bgPrimary: 'var(--bg)',
+  bgTertiary: 'var(--bg-surface)',
+  textPrimary: 'var(--text)',
+  textSecondary: 'var(--text-secondary)',
+  textDisabled: 'var(--text-muted)',
+  // Accent color (theme-aware: blue in dark, dark neutral in light)
+  primary: 'var(--accent)',
+  warning: 'var(--color-warning)',
+  error: 'var(--color-error)',
+  success: 'var(--color-success)',
+  firingBg: resolvedLookup['color.firing.background'] || '#111213',
   firingFg: resolvedLookup['color.firing.foreground'] || '#F5F5F5',
-  badgeWeekly: resolvedLookup['color.badge.weekly'] || '#3B82F6',
-  badgeMonthly: resolvedLookup['color.badge.monthly'] || '#FFB800',
-  badgeAnnual: resolvedLookup['color.badge.annual'] || '#F87171',
-  badgeCustom: resolvedLookup['color.badge.custom'] || '#8B5CF6',
+  badgeWeekly: 'var(--accent)',
+  badgeMonthly: 'var(--badge-monthly)',
+  badgeAnnual: 'var(--badge-annual)',
+  badgeCustom: 'var(--badge-custom)',
   // Spacing
   xxs: 4, xs: 8, sm: 12, md: 16, lg: 24,
   // Radius
@@ -892,6 +894,17 @@ const categoryGroupCardTemplate = `VStack(alignment: .leading,
 }
 .padding(SpacingTokens.cardPadding)
 .chronirGlassCard()`
+
+// ─── Registry ───
+
+// ─── Named exports for FlatlayView ───
+
+export { t, Badge, Toggle }
+export { AlarmCardPreview, FiringOverlayPreview, EmptyStatePreview }
+export { ButtonVariantsPreview, BadgeVariantsPreview }
+export { ToggleRowPreview, PermissionRowPreview }
+export { TextFieldPreview, IntervalPickerPreview }
+export { CategoryGroupCardPreview }
 
 // ─── Registry ───
 

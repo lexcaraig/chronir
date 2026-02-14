@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { layers } from '../componentData'
 import { previews } from './ComponentPreview'
+import FlatlayView from './FlatlayView'
 
 function PropTable({ props }) {
   if (!props || props.length === 0) return null
@@ -207,6 +208,8 @@ function ComponentCard({ component }) {
 }
 
 export default function ComponentsSection() {
+  const [tab, setTab] = useState('flatlay')
+
   return (
     <section className="section" id="components">
       <h2 className="section-title">
@@ -215,20 +218,39 @@ export default function ComponentsSection() {
       </h2>
       <p className="section-description">
         Atomic Design component hierarchy — atoms, molecules, organisms, and templates.
-        Click a card header to expand full details.
+        {tab === 'spec' ? ' Click a card header to expand full details.' : ' Visual gallery of all components and states.'}
       </p>
 
-      {layers.map(layer => (
-        <div key={layer.id}>
-          <h3 className="group-title">{layer.label}</h3>
-          <p className="layer-description">{layer.description}</p>
-          <div className="component-list">
-            {layer.components.map(c => (
-              <ComponentCard key={c.name} component={c} />
-            ))}
+      <div className="component-tabs">
+        <button
+          className={`component-tab${tab === 'flatlay' ? ' active' : ''}`}
+          onClick={() => setTab('flatlay')}
+        >
+          Flatlay
+        </button>
+        <button
+          className={`component-tab${tab === 'spec' ? ' active' : ''}`}
+          onClick={() => setTab('spec')}
+        >
+          Spec
+        </button>
+      </div>
+
+      {tab === 'flatlay' ? (
+        <FlatlayView />
+      ) : (
+        layers.map(layer => (
+          <div key={layer.id}>
+            <h3 className="group-title">{layer.label}</h3>
+            <p className="layer-description">{layer.description}</p>
+            <div className="component-list">
+              {layer.components.map(c => (
+                <ComponentCard key={c.name} component={c} />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </section>
   )
 }

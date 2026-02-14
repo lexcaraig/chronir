@@ -19,48 +19,122 @@
       "purple": {
         "500": { "value": "#8B5CF6", "type": "color" }
       },
-      "gray": {
-        "50": { "value": "#F8F9FA", "type": "color" },
-        "100": { "value": "#F1F3F5", "type": "color" },
-        "400": { "value": "#9CA3AF", "type": "color" },
-        "800": { "value": "#1C1C1E", "type": "color" },
-        "900": { "value": "#111111", "type": "color" }
-      },
       "white": { "value": "#FFFFFF", "type": "color" },
-      "black": { "value": "#000000", "type": "color" },
-      "offWhite": { "value": "#F5F5F5", "type": "color" }
+      "offWhite": { "value": "#F5F5F5", "type": "color" },
+      "neutral": {
+        "0":    { "value": "#FFFFFF", "type": "color", "description": "Light base" },
+        "100":  { "value": "#F8F8F8", "type": "color" },
+        "200":  { "value": "#F0F1F2", "type": "color" },
+        "300":  { "value": "#DDDEE1", "type": "color" },
+        "400":  { "value": "#B7B9BE", "type": "color" },
+        "500":  { "value": "#8C8F97", "type": "color" },
+        "600":  { "value": "#7D818A", "type": "color" },
+        "700":  { "value": "#6B6E76", "type": "color" },
+        "800":  { "value": "#505258", "type": "color" },
+        "900":  { "value": "#3B3D42", "type": "color" },
+        "1000": { "value": "#292A2E", "type": "color" },
+        "1100": { "value": "#1E1F21", "type": "color", "description": "Light darkest" }
+      },
+      "neutralAlpha": {
+        "100": { "value": "#17171708", "type": "color" },
+        "200": { "value": "#0515240F", "type": "color" },
+        "300": { "value": "#0B120E24", "type": "color" },
+        "400": { "value": "#080F214A", "type": "color" },
+        "500": { "value": "#050C1F75", "type": "color" }
+      },
+      "darkNeutral": {
+        "neg100": { "value": "#111213", "type": "color", "description": "Darkest allowed (replaces black)" },
+        "0":    { "value": "#18191A", "type": "color", "description": "Dark base" },
+        "100":  { "value": "#1F1F21", "type": "color" },
+        "200":  { "value": "#242528", "type": "color" },
+        "250":  { "value": "#2B2C2F", "type": "color" },
+        "300":  { "value": "#303134", "type": "color" },
+        "350":  { "value": "#3D3F43", "type": "color" },
+        "400":  { "value": "#4B4D51", "type": "color" },
+        "500":  { "value": "#63666B", "type": "color" },
+        "600":  { "value": "#7E8188", "type": "color" },
+        "700":  { "value": "#96999E", "type": "color" },
+        "800":  { "value": "#A9ABAF", "type": "color" },
+        "900":  { "value": "#BFC1C4", "type": "color" },
+        "1000": { "value": "#CECFD2", "type": "color" },
+        "1100": { "value": "#E2E3E4", "type": "color", "description": "Dark lightest" }
+      },
+      "darkNeutralAlpha": {
+        "neg100": { "value": "#01040475", "type": "color" },
+        "100":  { "value": "#BDBDBD0A", "type": "color" },
+        "200":  { "value": "#CECED912", "type": "color" },
+        "250":  { "value": "#D9DAE71A", "type": "color" },
+        "300":  { "value": "#E3E4F21F", "type": "color" },
+        "350":  { "value": "#E8EDFD2E", "type": "color" },
+        "400":  { "value": "#E5E9F640", "type": "color" },
+        "500":  { "value": "#E9F0FB5C", "type": "color" }
+      }
+    },
+    "theme": {
+      "light": {
+        "background":          { "value": "{color.primitive.neutral.0}", "type": "color", "description": "Light theme background" },
+        "backgroundSecondary": { "value": "{color.primitive.neutral.100}", "type": "color", "description": "Light theme secondary background" },
+        "surfaceCard":         { "value": "{color.primitive.neutral.0}", "type": "color", "description": "Light theme card surface" },
+        "surfaceElevated":     { "value": "{color.primitive.neutral.0}", "type": "color", "description": "Light theme elevated surface" },
+        "surfaceHover":        { "value": "{color.primitive.neutral.200}", "type": "color", "description": "Light theme hover state" },
+        "surfacePressed":      { "value": "{color.primitive.neutral.300}", "type": "color", "description": "Light theme pressed state" },
+        "textPrimary":         { "value": "{color.primitive.neutral.1100}", "type": "color", "description": "Light theme primary text" },
+        "textSecondary":       { "value": "{color.primitive.neutral.700}", "type": "color", "description": "Light theme secondary text" },
+        "textTertiary":        { "value": "{color.primitive.neutral.500}", "type": "color", "description": "Light theme tertiary text" },
+        "textDisabled":        { "value": "{color.primitive.neutral.400}", "type": "color", "description": "Light theme disabled text" },
+        "borderDefault":       { "value": "{color.primitive.neutral.300}", "type": "color", "description": "Light theme default border" },
+        "borderFocused":       { "value": "{color.primitive.neutral.900}", "type": "color", "description": "Light theme focused border" },
+        "iconPrimary":         { "value": "{color.primitive.neutral.900}", "type": "color", "description": "Light theme primary icon" },
+        "iconSecondary":       { "value": "{color.primitive.neutral.600}", "type": "color", "description": "Light theme secondary icon" }
+      },
+      "dark": {
+        "background":          { "value": "{color.primitive.darkNeutral.200}", "type": "color", "description": "Dark theme background" },
+        "backgroundSecondary": { "value": "{color.primitive.darkNeutral.100}", "type": "color", "description": "Dark theme secondary background" },
+        "surfaceCard":         { "value": "{color.primitive.darkNeutral.300}", "type": "color", "description": "Dark theme card surface" },
+        "surfaceElevated":     { "value": "{color.primitive.darkNeutral.100}", "type": "color", "description": "Dark theme elevated surface" },
+        "surfaceHover":        { "value": "{color.primitive.darkNeutral.350}", "type": "color", "description": "Dark theme hover state" },
+        "surfacePressed":      { "value": "{color.primitive.darkNeutral.400}", "type": "color", "description": "Dark theme pressed state" },
+        "textPrimary":         { "value": "{color.primitive.darkNeutral.1100}", "type": "color", "description": "Dark theme primary text" },
+        "textSecondary":       { "value": "{color.primitive.darkNeutral.700}", "type": "color", "description": "Dark theme secondary text" },
+        "textTertiary":        { "value": "{color.primitive.darkNeutral.500}", "type": "color", "description": "Dark theme tertiary text" },
+        "textDisabled":        { "value": "{color.primitive.darkNeutral.400}", "type": "color", "description": "Dark theme disabled text" },
+        "borderDefault":       { "value": "{color.primitive.darkNeutral.300}", "type": "color", "description": "Dark theme default border" },
+        "borderFocused":       { "value": "{color.primitive.darkNeutral.700}", "type": "color", "description": "Dark theme focused border" },
+        "iconPrimary":         { "value": "{color.primitive.darkNeutral.900}", "type": "color", "description": "Dark theme primary icon" },
+        "iconSecondary":       { "value": "{color.primitive.darkNeutral.600}", "type": "color", "description": "Dark theme secondary icon" }
+      }
     },
     "surface": {
-      "primary": { "value": "{color.primitive.gray.50}", "type": "color", "description": "Primary surface (light mode)" },
-      "elevated": { "value": "{color.primitive.white}", "type": "color", "description": "Elevated surface (light mode)" }
+      "primary": { "value": "{color.primitive.neutral.100}", "type": "color", "description": "Primary surface" },
+      "elevated": { "value": "{color.primitive.neutral.0}", "type": "color", "description": "Elevated surface" }
     },
     "accent": {
-      "primary": { "value": "{color.primitive.blue.500}", "type": "color" },
+      "primary": { "value": "{color.primitive.neutral.900}", "type": "color" },
       "destructive": { "value": "{color.primitive.red.400}", "type": "color" }
     },
     "alarm": {
       "active": {
         "background": { "value": "{color.primitive.amber.500}", "type": "color", "description": "Active alarm card background" },
-        "foreground": { "value": "{color.primitive.gray.900}", "type": "color", "description": "Active alarm card text" }
+        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color", "description": "Active alarm card text" }
       },
       "inactive": {
-        "background": { "value": "{color.primitive.gray.100}", "type": "color", "description": "Inactive alarm card background" },
-        "foreground": { "value": "{color.primitive.gray.400}", "type": "color", "description": "Inactive alarm card text" }
+        "background": { "value": "{color.primitive.neutral.200}", "type": "color", "description": "Inactive alarm card background" },
+        "foreground": { "value": "{color.primitive.neutral.500}", "type": "color", "description": "Inactive alarm card text" }
       }
     },
     "firing": {
-      "background": { "value": "{color.primitive.black}", "type": "color", "description": "Firing screen background (OLED)" },
+      "background": { "value": "{color.primitive.darkNeutral.neg100}", "type": "color", "description": "Firing screen background (never pure black)" },
       "foreground": { "value": "{color.primitive.offWhite}", "type": "color", "description": "Firing screen text" }
     },
     "badge": {
-      "weekly": { "value": "{color.primitive.blue.500}", "type": "color", "description": "Weekly cycle badge" },
-      "monthly": { "value": "{color.primitive.amber.500}", "type": "color", "description": "Monthly cycle badge" },
-      "annual": { "value": "{color.primitive.red.400}", "type": "color", "description": "Annual cycle badge" },
-      "custom": { "value": "{color.primitive.purple.500}", "type": "color", "description": "Custom cycle badge" }
+      "weekly": { "value": "{color.primitive.neutral.900}", "type": "color", "description": "Weekly cycle badge" },
+      "monthly": { "value": "{color.primitive.neutral.800}", "type": "color", "description": "Monthly cycle badge" },
+      "annual": { "value": "{color.primitive.neutral.800}", "type": "color", "description": "Annual cycle badge" },
+      "custom": { "value": "{color.primitive.neutral.800}", "type": "color", "description": "Custom cycle badge" }
     },
     "button": {
-      "snooze": { "value": "{color.primitive.amber.500}", "type": "color" },
-      "dismiss": { "value": "{color.primitive.green.500}", "type": "color" },
+      "snooze": { "value": "{color.primitive.neutral.800}", "type": "color" },
+      "dismiss": { "value": "{color.primitive.neutral.800}", "type": "color" },
       "destructive": { "value": "{color.primitive.red.500}", "type": "color" }
     }
   }
