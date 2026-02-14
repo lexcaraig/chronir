@@ -1,5 +1,26 @@
 import Foundation
 import Observation
+import SwiftUI
+
+enum TextSizePreference: String, CaseIterable {
+    case compact, standard, large
+
+    var scaleFactor: CGFloat {
+        switch self {
+        case .compact: return 0.85
+        case .standard: return 1.0
+        case .large: return 1.15
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .compact: return "Compact"
+        case .standard: return "Standard"
+        case .large: return "Large"
+        }
+    }
+}
 
 @Observable
 final class UserSettings {
@@ -55,6 +76,10 @@ final class UserSettings {
         didSet { Self.defaults.set(hapticsEnabled, forKey: "hapticsEnabled") }
     }
 
+    var textSizePreference: TextSizePreference {
+        didSet { Self.defaults.set(textSizePreference.rawValue, forKey: "textSizePreference") }
+    }
+
     private init() {
         Self.defaults.register(defaults: [
             "snoozeEnabled": true,
@@ -81,5 +106,7 @@ final class UserSettings {
         wallpaperIsLight = Self.defaults.bool(forKey: "wallpaperIsLight")
         groupAlarmsByCategory = Self.defaults.bool(forKey: "groupAlarmsByCategory")
         hapticsEnabled = Self.defaults.bool(forKey: "hapticsEnabled")
+        let textSizeRaw = Self.defaults.string(forKey: "textSizePreference") ?? TextSizePreference.standard.rawValue
+        textSizePreference = TextSizePreference(rawValue: textSizeRaw) ?? .standard
     }
 }

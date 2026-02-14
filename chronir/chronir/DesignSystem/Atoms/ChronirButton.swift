@@ -25,7 +25,7 @@ struct ChronirButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(TypographyTokens.labelLarge)
+                .chronirFont(.labelLarge)
                 .foregroundStyle(foregroundColor)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, SpacingTokens.md)

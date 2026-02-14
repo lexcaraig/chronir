@@ -47,4 +47,10 @@ enum TypographyTokens {
     static let bodySecondary = bodyMedium             // 14pt metadata
     static let captionCountdown = labelLarge          // 14pt "Alarm in 6h 32m"
     static let captionBadge = labelMedium             // 12pt cycle type badges
+
+    // MARK: - Scaling
+
+    static func scaled(size: CGFloat, weight: Font.Weight, design: Font.Design = .default, scale: CGFloat) -> Font {
+        Font.system(size: round(size * scale), weight: weight, design: design)
+    }
 }

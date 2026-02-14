@@ -21,7 +21,7 @@ struct ChronirBadge: View {
 
     var body: some View {
         Text(text)
-            .font(TypographyTokens.labelSmall)
+            .chronirFont(.labelSmall)
             .foregroundStyle(.white)
             .padding(.horizontal, SpacingTokens.sm)
             .padding(.vertical, SpacingTokens.xs)

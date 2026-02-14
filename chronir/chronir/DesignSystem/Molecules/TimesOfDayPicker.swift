@@ -44,13 +44,13 @@ struct TimesOfDayPicker: View {
         } label: {
             HStack(spacing: SpacingTokens.xxs) {
                 Text(time.formatted)
-                    .font(TypographyTokens.labelLarge)
+                    .chronirFont(.labelLarge)
                 if times.count > 1 {
                     Button {
                         withAnimation { removeTime(at: index) }
                     } label: {
                         Image(systemName: "xmark.circle.fill")
-                            .font(TypographyTokens.labelSmall)
+                            .chronirFont(.labelSmall)
                     }
                 }
             }
@@ -70,7 +70,7 @@ struct TimesOfDayPicker: View {
             isAdding = true
         } label: {
             Image(systemName: "plus")
-                .font(TypographyTokens.labelLarge)
+                .chronirFont(.labelLarge)
                 .foregroundStyle(ColorTokens.textSecondary)
                 .padding(.horizontal, SpacingTokens.md)
                 .padding(.vertical, SpacingTokens.sm)

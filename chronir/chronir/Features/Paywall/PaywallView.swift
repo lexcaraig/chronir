@@ -96,7 +96,7 @@ struct PaywallView: View {
                 .chronirGlassCircle()
 
             Text(title)
-                .font(TypographyTokens.bodyLarge)
+                .chronirFont(.bodyLarge)
                 .foregroundStyle(.white)
 
             Spacer()
@@ -144,12 +144,12 @@ struct PaywallView: View {
                     }
 
                 Text(label)
-                    .font(TypographyTokens.bodyLarge)
+                    .chronirFont(.bodyLarge)
                     .foregroundStyle(.white)
 
                 if let badge {
                     Text(badge)
-                        .font(TypographyTokens.labelSmall)
+                        .chronirFont(.labelSmall)
                         .foregroundStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
@@ -178,7 +178,7 @@ struct PaywallView: View {
     private var ctaSection: some View {
         VStack(spacing: SpacingTokens.sm) {
             Text(renewalTermsText)
-                .font(TypographyTokens.caption)
+                .chronirFont(.caption)
                 .foregroundStyle(.white.opacity(0.5))
                 .multilineTextAlignment(.center)
 
@@ -220,7 +220,7 @@ struct PaywallView: View {
                 Task { await viewModel.restorePurchases() }
             } label: {
                 Text("Restore Purchases")
-                    .font(TypographyTokens.caption)
+                    .chronirFont(.caption)
                     .foregroundStyle(.white.opacity(0.45))
             }
 
@@ -231,7 +231,7 @@ struct PaywallView: View {
                 Text("&").foregroundStyle(.white.opacity(0.45))
                 Link("Privacy", destination: privacyURL)
             }
-            .font(TypographyTokens.caption)
+            .chronirFont(.caption)
             .foregroundStyle(.white.opacity(0.45))
         }
     }

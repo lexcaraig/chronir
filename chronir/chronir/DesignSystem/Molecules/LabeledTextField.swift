@@ -21,7 +21,7 @@ struct LabeledTextField: View {
                 }
             }
             TextField(placeholder, text: $text)
-                .font(TypographyTokens.bodyMedium)
+                .chronirFont(.bodyMedium)
                 .foregroundStyle(ColorTokens.textPrimary)
                 .padding(SpacingTokens.md)
                 .glassEffect(GlassTokens.element, in: .rect(cornerRadius: RadiusTokens.sm))

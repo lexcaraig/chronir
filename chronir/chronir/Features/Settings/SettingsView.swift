@@ -106,6 +106,13 @@ struct SettingsView: View {
                 }
             }
 
+            Picker("Text Size", selection: $settings.textSizePreference) {
+                ForEach(TextSizePreference.allCases, id: \.self) { pref in
+                    Text(pref.displayName).tag(pref)
+                }
+            }
+            .pickerStyle(.segmented)
+
             ChronirToggle(
                 label: "Group Alarms by Category",
                 isOn: $settings.groupAlarmsByCategory

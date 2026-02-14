@@ -20,7 +20,7 @@ struct FullScreenAlarmTemplate<Content: View>: View {
     FullScreenAlarmTemplate {
         VStack {
             Text("ALARM FIRING")
-                .font(TypographyTokens.displayLarge)
+                .chronirFont(.displayLarge)
                 .foregroundStyle(ColorTokens.textPrimary)
         }
     }

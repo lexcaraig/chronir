@@ -365,10 +365,10 @@ struct AlarmListView: View {
             HStack(spacing: SpacingTokens.xxs) {
                 if let icon {
                     Image(systemName: icon)
-                        .font(TypographyTokens.labelSmall)
+                        .chronirFont(.labelSmall)
                 }
                 Text(label)
-                    .font(TypographyTokens.labelLarge)
+                    .chronirFont(.labelLarge)
             }
             .foregroundStyle(isSelected ? .white : ColorTokens.textSecondary)
             .padding(.horizontal, SpacingTokens.md)

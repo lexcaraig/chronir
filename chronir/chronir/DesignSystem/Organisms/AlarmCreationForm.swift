@@ -124,7 +124,7 @@ struct AlarmCreationForm: View {
                         }
                     } label: {
                         Text(label)
-                            .font(TypographyTokens.labelSmall)
+                            .chronirFont(.labelSmall)
                             .foregroundStyle(selectedDays.contains(day) ? .white : ColorTokens.textSecondary)
                             .frame(width: 36, height: 36)
                             .glassEffect(
@@ -153,7 +153,7 @@ struct AlarmCreationForm: View {
                         }
                     } label: {
                         Text("\(day)")
-                            .font(TypographyTokens.labelSmall)
+                            .chronirFont(.labelSmall)
                             .foregroundStyle(daysOfMonth.contains(day) ? .white : ColorTokens.textSecondary)
                             .frame(width: 36, height: 36)
                             .glassEffect(

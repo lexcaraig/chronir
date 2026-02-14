@@ -1,5 +1,28 @@
 import SwiftUI
 
+// MARK: - Environment Key
+
+private struct TextSizeScaleKey: EnvironmentKey {
+    static let defaultValue: CGFloat = 1.0
+}
+
+extension EnvironmentValues {
+    var textSizeScale: CGFloat {
+        get { self[TextSizeScaleKey.self] }
+        set { self[TextSizeScaleKey.self] = newValue }
+    }
+}
+
+// MARK: - Font Attributes
+
+struct FontAttributes {
+    let size: CGFloat
+    let weight: Font.Weight
+    let design: Font.Design
+}
+
+// MARK: - Text Style
+
 enum ChronirTextStyle {
     // Spec-aligned (design-system.md Section 3.3)
     case displayAlarm
@@ -28,36 +51,44 @@ enum ChronirTextStyle {
     case labelSmall
     case caption
 
-    var font: Font {
+    /// Base size, weight, and design for each style (scale = 1.0).
+    var baseAttributes: FontAttributes {
         switch self {
-        // Spec-aligned
-        case .displayAlarm: return TypographyTokens.displayAlarm
-        case .headlineTime: return TypographyTokens.headlineTime
-        case .headlineTitle: return TypographyTokens.headlineTitle
-        case .bodyPrimary: return TypographyTokens.bodyPrimary
-        case .bodySecondary: return TypographyTokens.bodySecondary
-        case .captionCountdown: return TypographyTokens.captionCountdown
-        case .captionBadge: return TypographyTokens.captionBadge
-        // Full scale
-        case .displayLarge: return TypographyTokens.displayLarge
-        case .displayMedium: return TypographyTokens.displayMedium
-        case .displaySmall: return TypographyTokens.displaySmall
-        case .headlineLarge: return TypographyTokens.headlineLarge
-        case .headlineMedium: return TypographyTokens.headlineMedium
-        case .headlineSmall: return TypographyTokens.headlineSmall
-        case .titleLarge: return TypographyTokens.titleLarge
-        case .titleMedium: return TypographyTokens.titleMedium
-        case .titleSmall: return TypographyTokens.titleSmall
-        case .bodyLarge: return TypographyTokens.bodyLarge
-        case .bodyMedium: return TypographyTokens.bodyMedium
-        case .bodySmall: return TypographyTokens.bodySmall
-        case .labelLarge: return TypographyTokens.labelLarge
-        case .labelMedium: return TypographyTokens.labelMedium
-        case .labelSmall: return TypographyTokens.labelSmall
-        case .caption: return TypographyTokens.caption
+        // Spec-aligned aliases resolve to their underlying token values
+        case .displayAlarm, .displayLarge: FontAttributes(size: 120, weight: .bold, design: .rounded)
+        case .displayMedium: FontAttributes(size: 57, weight: .bold, design: .rounded)
+        case .displaySmall: FontAttributes(size: 36, weight: .bold, design: .rounded)
+        case .headlineLarge: FontAttributes(size: 32, weight: .semibold, design: .default)
+        case .headlineMedium: FontAttributes(size: 28, weight: .semibold, design: .default)
+        case .headlineSmall, .headlineTime, .headlineTitle:
+            FontAttributes(size: 24, weight: .semibold, design: .default)
+        case .titleLarge: FontAttributes(size: 22, weight: .medium, design: .default)
+        case .titleMedium: FontAttributes(size: 18, weight: .medium, design: .default)
+        case .titleSmall: FontAttributes(size: 16, weight: .medium, design: .default)
+        case .bodyLarge, .bodyPrimary: FontAttributes(size: 16, weight: .regular, design: .default)
+        case .bodyMedium, .bodySecondary: FontAttributes(size: 14, weight: .regular, design: .default)
+        case .bodySmall: FontAttributes(size: 12, weight: .regular, design: .default)
+        case .labelLarge, .captionCountdown: FontAttributes(size: 14, weight: .medium, design: .default)
+        case .labelMedium, .captionBadge: FontAttributes(size: 12, weight: .medium, design: .default)
+        case .labelSmall: FontAttributes(size: 11, weight: .medium, design: .default)
+        case .caption: FontAttributes(size: 10, weight: .regular, design: .default)
         }
     }
+
+    /// Unscaled font (scale = 1.0). Used by widgets and backward-compat paths.
+    var font: Font {
+        let attr = baseAttributes
+        return Font.system(size: attr.size, weight: attr.weight, design: attr.design)
+    }
+
+    /// Scaled font using the given scale factor.
+    func font(scale: CGFloat) -> Font {
+        let attr = baseAttributes
+        return TypographyTokens.scaled(size: attr.size, weight: attr.weight, design: attr.design, scale: scale)
+    }
 }
+
+// MARK: - ChronirText View
 
 struct ChronirText: View {
     let text: String
@@ -65,6 +96,8 @@ struct ChronirText: View {
     var color: Color
     var maxLines: Int?
     var alignment: TextAlignment
+
+    @Environment(\.textSizeScale) private var textSizeScale
 
     init(
         _ text: String,
@@ -82,12 +115,31 @@ struct ChronirText: View {
 
     var body: some View {
         Text(text)
-            .font(style.font)
+            .font(style.font(scale: textSizeScale))
             .foregroundStyle(color)
             .lineLimit(maxLines)
             .multilineTextAlignment(alignment)
     }
 }
+
+// MARK: - View Modifier for Direct .font() Call Sites
+
+struct ChronirFontModifier: ViewModifier {
+    @Environment(\.textSizeScale) private var scale
+    let style: ChronirTextStyle
+
+    func body(content: Content) -> some View {
+        content.font(style.font(scale: scale))
+    }
+}
+
+extension View {
+    func chronirFont(_ style: ChronirTextStyle) -> some View {
+        modifier(ChronirFontModifier(style: style))
+    }
+}
+
+// MARK: - Previews
 
 #Preview("Spec-Aligned Variants") {
     VStack(alignment: .leading, spacing: SpacingTokens.md) {

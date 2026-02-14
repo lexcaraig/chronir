@@ -24,9 +24,9 @@ struct ChronirCategoryPicker: View {
         } label: {
             HStack(spacing: SpacingTokens.xxs) {
                 Image(systemName: "xmark.circle")
-                    .font(TypographyTokens.labelSmall)
+                    .chronirFont(.labelSmall)
                 Text("None")
-                    .font(TypographyTokens.labelLarge)
+                    .chronirFont(.labelLarge)
             }
             .foregroundStyle(selection == nil ? .white : ColorTokens.textSecondary)
             .padding(.horizontal, SpacingTokens.md)
@@ -47,9 +47,9 @@ struct ChronirCategoryPicker: View {
         } label: {
             HStack(spacing: SpacingTokens.xxs) {
                 Image(systemName: category.iconName)
-                    .font(TypographyTokens.labelSmall)
+                    .chronirFont(.labelSmall)
                 Text(category.displayName)
-                    .font(TypographyTokens.labelLarge)
+                    .chronirFont(.labelLarge)
             }
             .foregroundStyle(selection == category ? .white : ColorTokens.textSecondary)
             .padding(.horizontal, SpacingTokens.md)

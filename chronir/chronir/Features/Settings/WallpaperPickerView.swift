@@ -37,7 +37,7 @@ struct WallpaperPickerView: View {
                         .tint(.white)
                         .scaleEffect(1.5)
                     Text("Applying wallpaper...")
-                        .font(TypographyTokens.bodySecondary)
+                        .chronirFont(.bodySecondary)
                         .foregroundStyle(.white)
                 }
             }
@@ -113,15 +113,15 @@ struct WallpaperPickerView: View {
         HStack {
             VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
                 Text(title)
-                    .font(TypographyTokens.titleMedium)
+                    .chronirFont(.titleMedium)
                     .foregroundStyle(ColorTokens.textPrimary)
                 Text(cycle)
-                    .font(TypographyTokens.captionBadge)
+                    .chronirFont(.captionBadge)
                     .foregroundStyle(ColorTokens.textSecondary)
             }
             Spacer()
             Text(time)
-                .font(TypographyTokens.headlineTime)
+                .chronirFont(.headlineTime)
                 .foregroundStyle(ColorTokens.textPrimary)
         }
         .padding(SpacingTokens.cardPadding)
