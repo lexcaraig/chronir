@@ -50,7 +50,7 @@ Chronir/
 │       ├── App/              # ChronirApp entry, Configuration (GoogleService-Info.plist)
 │       ├── DesignSystem/     # Tokens, Atoms, Molecules, Organisms, Templates
 │       ├── Features/         # AlarmList, AlarmDetail, AlarmCreation, AlarmFiring, Settings, Sharing, Paywall
-│       ├── Core/             # Models, Services, Repositories, Utilities
+│       ├── Core/             # Models, Services, Repositories, Utilities, Intents (App Intents/Siri)
 │       └── Widgets/          # NextAlarmWidget, CountdownLiveActivity
 ├── Chronir-Android/       # Gradle multi-module (settings.gradle.kts)
 │   ├── app/                  # Main app module (Hilt, Navigation, MainActivity)
@@ -101,7 +101,8 @@ xcodebuild build \
   -scheme chronir \
   -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
   -skipMacroValidation \
-  CODE_SIGNING_ALLOWED=NO
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES
 ```
 
 ### Android (Gradle multi-module)
@@ -210,6 +211,7 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 | `/build-all`         | `/build-all`                                      | Full quality verification (format, lint, test, build) across all platforms.                            |
 | `/fix-tests`         | `/fix-tests ios`                                  | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg.               |
 | `/pre-submit-audit`  | `/pre-submit-audit`                               | App Store Review compliance audit: crash stubs, non-functional UI, feature accuracy, debug visibility. |
+| `/update-docs`       | `/update-docs Completed Sprint Siri+OneTime`      | Updates docs/, CLAUDE.md, and README.md to reflect completed work (changelog, roadmap, specs, etc.).   |
 
 ### Custom Agents
 

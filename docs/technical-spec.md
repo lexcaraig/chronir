@@ -146,10 +146,17 @@ chronir/chronir/
 │   │   ├── AlarmRepository.swift
 │   │   ├── GroupRepository.swift
 │   │   └── UserRepository.swift
-│   └── Utilities/
-│       ├── DateCalculator.swift
-│       ├── TimezoneHandler.swift
-│       └── PermissionManager.swift
+│   ├── Utilities/
+│   │   ├── DateCalculator.swift
+│   │   ├── TimezoneHandler.swift
+│   │   └── PermissionManager.swift
+│   └── Intents/
+│       ├── CreateAlarmIntent.swift
+│       ├── GetNextAlarmIntent.swift
+│       ├── ListAlarmsIntent.swift
+│       ├── ChronirShortcuts.swift
+│       ├── CycleTypeAppEnum.swift
+│       └── AlarmIntentError.swift
 ├── Widgets/
 │   ├── NextAlarmWidget.swift
 │   └── CountdownLiveActivity.swift
@@ -557,7 +564,7 @@ These tokens are intentionally different between platforms to respect native con
 Alarm {
     id:               String (UUID)
     title:            String (max 100 chars)
-    cycleType:        Enum [WEEKLY, BIWEEKLY, MONTHLY, QUARTERLY, BIANNUAL, ANNUAL, CUSTOM]
+    cycleType:        Enum [WEEKLY, BIWEEKLY, MONTHLY, QUARTERLY, BIANNUAL, ANNUAL, CUSTOM, ONE_TIME]
     intervalValue:    Int (for custom: every N days/weeks/months)
     intervalUnit:     Enum [DAY, WEEK, MONTH, YEAR] (for custom)
     scheduledTime:    Time (HH:mm)

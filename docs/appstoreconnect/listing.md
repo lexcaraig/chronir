@@ -1,6 +1,6 @@
 # Chronir — App Store Connect Listing
 
-**Last Updated:** February 10, 2026
+**Last Updated:** February 14, 2026
 
 ---
 
@@ -33,7 +33,7 @@ Chronir is the alarm app for everything your regular reminders forget.
 Rent due on the 1st. Car insurance renewal. Annual furnace inspection. Pet vaccinations. These aren't tasks you can afford to miss — but a silent notification buried under 50 others isn't enough. Chronir treats your long-cycle obligations with the urgency of a morning wake-up alarm: full-screen, persistent, undeniable.
 
 HOW IT WORKS
-Set an alarm for any recurring schedule — weekly, monthly, or annually. When the time comes, Chronir fires a real alarm with sound and a full-screen alert. No quiet notification. No easy dismiss. You acknowledge it, snooze it, or mark it done.
+Set an alarm for any recurring schedule — weekly, monthly, annually, or one-time. When the time comes, Chronir fires a real alarm with sound and a full-screen alert. No quiet notification. No easy dismiss. You acknowledge it, snooze it, or mark it done.
 
 KEY FEATURES
 
@@ -41,7 +41,10 @@ KEY FEATURES
 Full-screen firing with persistent sound. Fires even in Do Not Disturb and on your lock screen. This is an alarm, not a notification.
 
 — Flexible Scheduling
-Weekly (every Sunday), monthly (1st and 15th), annual (Feb 28), or custom day intervals. Multiple times per day. You set it once, Chronir handles the rest.
+Weekly (every Sunday), monthly (1st and 15th), annual (Feb 28), or one-time (car registration due March 1). You set it once, Chronir handles the rest.
+
+— Siri & Shortcuts
+"Create an alarm in Chronir" — set alarms by voice or automate them with Shortcuts. Ask "When is my next alarm?" or "Show my alarms" hands-free.
 
 — Categories & Grouping
 Organize alarms by category — Home, Health, Finance, Vehicle, Work, Personal, Pets, Subscriptions. Group view keeps your list clean.
@@ -53,10 +56,7 @@ Snooze for 1 hour, 1 day, or 1 week. Persistent alarms keep firing until you tak
 Set a custom background photo with pinch-to-zoom and drag-to-reposition. Your alarm list, your style.
 
 CHRONIR PLUS ($1.99/month)
-Unlock unlimited alarms, cloud backup, custom snooze intervals, note and photo attachments, and home screen widgets.
-
-CHRONIR PREMIUM ($3.99/month)
-Everything in Plus, plus shared alarms with family or teams, alarm groups, push notifications, and Live Activities.
+Unlock unlimited alarms, custom snooze intervals, pre-alarm warnings, photo attachments, and completion history with streaks.
 
 Built for homeowners, caregivers, pet owners, freelancers, and anyone who needs long-cycle accountability — not another to-do list.
 ```
@@ -64,7 +64,7 @@ Built for homeowners, caregivers, pet owners, freelancers, and anyone who needs 
 ### Keywords
 
 ```
-alarm,recurring,reminder,monthly,weekly,annual,persistent,schedule,rent,bills
+alarm,recurring,reminder,monthly,weekly,annual,persistent,schedule,siri,one-time
 ```
 
 ### Support URL
@@ -149,27 +149,21 @@ Manually release this version
 
 ### Subscription Group: `Chronir Pro`
 
-| Product                | Product ID                    | Price      | Duration |
-| ---------------------- | ----------------------------- | ---------- | -------- |
-| Chronir Plus Monthly   | `com.chronir.plus.monthly`    | $1.99/mo   | 1 month  |
-| Chronir Plus Annual    | `com.chronir.plus.annual`     | $19.99/yr  | 1 year   |
-| Chronir Premium Monthly| `com.chronir.premium.monthly` | $3.99/mo   | 1 month  |
-| Chronir Premium Annual | `com.chronir.premium.annual`  | $39.99/yr  | 1 year   |
+| Product                | Product ID                    | Price      | Duration | V1.0 Status |
+| ---------------------- | ----------------------------- | ---------- | -------- | ----------- |
+| Chronir Plus Monthly   | `com.chronir.plus.monthly`    | $1.99/mo   | 1 month  | Submit |
+| Chronir Plus Annual    | `com.chronir.plus.annual`     | $19.99/yr  | 1 year   | Submit |
+| Chronir Premium Monthly| `com.chronir.premium.monthly` | $3.99/mo   | 1 month  | DO NOT SUBMIT (Phase 4) |
+| Chronir Premium Annual | `com.chronir.premium.annual`  | $39.99/yr  | 1 year   | DO NOT SUBMIT (Phase 4) |
 
 ### Subscription Display Names & Descriptions
 
 **Chronir Plus Monthly**
 - Display Name: `Chronir Plus`
-- Description: `Unlimited alarms, cloud backup, custom snooze, note & photo attachments, and widgets.`
+- Description: `Unlimited alarms, custom snooze, pre-alarm warnings, photo attachments, completion history & streaks.`
 
 **Chronir Plus Annual**
 - Display Name: `Chronir Plus (Annual)`
-- Description: `Unlimited alarms, cloud backup, custom snooze, note & photo attachments, and widgets. Save over 15% with annual billing.`
+- Description: `Unlimited alarms, custom snooze, pre-alarm warnings, photo attachments, completion history & streaks. Save over 15% with annual billing.`
 
-**Chronir Premium Monthly**
-- Display Name: `Chronir Premium`
-- Description: `Everything in Plus, plus shared alarms, alarm groups, push notifications, and Live Activities.`
-
-**Chronir Premium Annual**
-- Display Name: `Chronir Premium (Annual)`
-- Description: `Everything in Plus, plus shared alarms, alarm groups, push notifications, and Live Activities. Save over 15% with annual billing.`
+> **Premium subscriptions — DO NOT SUBMIT with V1.0.** Shared alarms, groups, and Live Activities are not built yet (Phase 4, Sprint 11+). Creating these in ASC before the features exist risks Guideline 3.1.2(c) rejection. Update descriptions when features ship.

@@ -595,13 +595,13 @@ All enums are stored as strings in both local DB and Firestore for readability a
 ### 5.1 `CycleType`
 
 ```
-weekly | monthly | annual | custom
+weekly | monthly | annual | custom | oneTime
 ```
 
 ### 5.2 `ScheduleSubtype`
 
 ```
-weekly | monthly_date | monthly_relative | annual | custom_days
+weekly | monthly_date | monthly_relative | annual | custom_days | one_time
 ```
 
 ### 5.3 `PersistenceLevel`

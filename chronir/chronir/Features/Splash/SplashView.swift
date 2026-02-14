@@ -1,56 +1,48 @@
 import SwiftUI
 
 struct SplashView: View {
-    @State private var logoScale: CGFloat = 0.6
-    @State private var logoOpacity: CGFloat = 0
     @State private var bellRotation: Double = 0
-    @State private var isRinging = false
+    @State private var gradientOpacity: CGFloat = 0
 
     var body: some View {
         ZStack {
-            // Animated gradient background
+            // Base navy — matches launch screen exactly
+            ColorTokens.gradientStart
+                .ignoresSafeArea()
+
+            // Gradient fades in over the navy base
             TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
                 let t = timeline.date.timeIntervalSinceReferenceDate
-                let angle = Angle.degrees(t.truncatingRemainder(dividingBy: 360) * 20)
-                let startPoint = UnitPoint(
-                    x: 0.5 + 0.5 * cos(angle.radians),
-                    y: 0.5 + 0.5 * sin(angle.radians)
-                )
-                let endPoint = UnitPoint(
-                    x: 0.5 - 0.5 * cos(angle.radians),
-                    y: 0.5 - 0.5 * sin(angle.radians)
-                )
+                let drift = 0.08 * sin(t * 0.4)
 
                 LinearGradient(
                     colors: [
                         ColorTokens.gradientStart,
                         ColorTokens.gradientMid,
                         ColorTokens.gradientEnd,
-                        ColorTokens.gradientMid
                     ],
-                    startPoint: startPoint,
-                    endPoint: endPoint
+                    startPoint: UnitPoint(x: drift, y: drift),
+                    endPoint: UnitPoint(x: 1.0 - drift, y: 1.0 - drift)
                 )
                 .ignoresSafeArea()
+                .opacity(gradientOpacity)
             }
 
-            // Logo + app name
+            // Logo — visible immediately (matches launch screen), bell ring plays after
             Image("SplashLogo")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 140, height: 140)
                 .rotationEffect(.degrees(bellRotation), anchor: .top)
-            .scaleEffect(logoScale)
-            .opacity(logoOpacity)
         }
         .onAppear {
-            withAnimation(.easeOut(duration: 0.6)) {
-                logoScale = 1.0
-                logoOpacity = 1.0
+            // Fade gradient in so navy transitions smoothly
+            withAnimation(.easeIn(duration: 0.8)) {
+                gradientOpacity = 1.0
             }
 
-            // Start subtle bell ring after logo appears
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            // Bell ring after a brief pause
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 startBellRing()
             }
         }

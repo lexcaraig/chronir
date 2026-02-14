@@ -391,7 +391,7 @@
 | S17-03 | Address top crash reports and user feedback                       | P0       | Stability                               |
 | S17-04 | Implement alarm sound customization (sound picker)                | P1       | Top user request (anticipated)          |
 | S17-05 | Add relative date support ("Last Friday of the month")            | P1       | V2.0 feature, deferred from V1          |
-| S17-06 | Implement Siri Shortcuts integration                              | P1       | "Create alarm" via voice                |
+| S17-06 | ~~Implement Siri Shortcuts integration~~                          | DONE     | Completed early in Sprint Siri+OneTime (ccce4d9) |
 | S17-07 | Implement Google Assistant App Actions                            | P1       | Android voice equivalent                |
 | S17-08 | Add quarterly and bi-annual interval options                      | P1       | User-requested intervals                |
 

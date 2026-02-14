@@ -388,7 +388,7 @@ A small colored chip indicating the alarm's recurrence type.
 
 | Property  | Type      | Default  | Description                         |
 | --------- | --------- | -------- | ----------------------------------- |
-| cycleType | CycleType | required | .weekly, .monthly, .annual, .custom |
+| cycleType | CycleType | required | .weekly, .monthly, .annual, .custom, .oneTime |
 
 **Visual:** Rounded pill shape (`radius.sm`), uses cycle badge color tokens, `typography.caption.badge`.
 
@@ -841,6 +841,16 @@ Register Siri Shortcuts and Google Assistant routines for:
 - "Set alarm for [time]" — creates alarm via voice
 - "Stop" / "Snooze for 5 minutes" — voice dismissal during firing (hands-free scenarios)
 
+**iOS App Intents (Implemented):**
+
+| Intent | Phrase | Description |
+|--------|--------|-------------|
+| `CreateAlarmIntent` | "Create an alarm in Chronir" | Interactive multi-step: name → schedule type → type-specific params → time → Plus features |
+| `GetNextAlarmIntent` | "When is my next alarm?" | Returns title and date of the next upcoming enabled alarm |
+| `ListAlarmsIntent` | "Show my alarms" | Lists up to 5 active alarms with title and next fire date |
+
+All intents use `AppShortcutsProvider` via `ChronirShortcuts` for Spotlight and Shortcuts app integration. Input is sanitized via `AlarmValidator.trimmedTitle()` and free-tier limits are enforced.
+
 ---
 
 ## 10. Project Architecture
@@ -895,6 +905,13 @@ chronir/chronir/
 ├── Models/
 │   ├── Alarm.swift
 │   └── CycleType.swift
+├── Intents/
+│   ├── CreateAlarmIntent.swift
+│   ├── GetNextAlarmIntent.swift
+│   ├── ListAlarmsIntent.swift
+│   ├── ChronirShortcuts.swift
+│   ├── CycleTypeAppEnum.swift
+│   └── AlarmIntentError.swift
 ├── Widgets/
 │   ├── LockScreenWidget.swift
 │   └── LiveActivityProvider.swift

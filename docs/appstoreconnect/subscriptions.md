@@ -1,6 +1,6 @@
 # Chronir — App Store Connect: Subscriptions
 
-**Last Updated:** February 10, 2026
+**Last Updated:** February 14, 2026
 
 ---
 
@@ -32,9 +32,11 @@ Turned On (keep default)
 
 ## Subscriptions (inside "Chronir Pro" group)
 
-Create each subscription one at a time. The **order within the group matters** — put the highest tier first (Premium Annual at top, Plus Monthly at bottom). This determines the upgrade/downgrade UI Apple shows users.
+Create each subscription one at a time. The **order within the group matters** — put the highest tier first at top, lowest at bottom. This determines the upgrade/downgrade UI Apple shows users.
 
-### 1. Chronir Premium Annual
+> **V1.0 NOTE:** Only submit Plus subscriptions with V1.0. Premium subscriptions are planned for Phase 4 (Sprint 11+) — do NOT create them in ASC until shared alarms, groups, and Live Activities are built. Apple verifies that advertised features exist (Guideline 3.1.2(c)).
+
+### ~~1. Chronir Premium Annual~~ — DO NOT SUBMIT (Phase 4)
 
 | Field            | Value                           |
 | ---------------- | ------------------------------- |
@@ -43,10 +45,10 @@ Create each subscription one at a time. The **order within the group matters** �
 | Subscription Duration | 1 Year                     |
 | Price             | $39.99 (USD)                   |
 | Display Name     | Chronir Premium (Annual)        |
-| Description      | Shared alarms, groups, Live Activities. Save 15%. |
+| Description      | ⚠️ TBD — update when shared alarms, groups, and Live Activities ship |
 | Apple ID         | 6758986860   |
 
-### 2. Chronir Premium Monthly
+### ~~2. Chronir Premium Monthly~~ — DO NOT SUBMIT (Phase 4)
 
 | Field            | Value                           |
 | ---------------- | ------------------------------- |
@@ -55,9 +57,9 @@ Create each subscription one at a time. The **order within the group matters** �
 | Subscription Duration | 1 Month                    |
 | Price             | $3.99 (USD)                    |
 | Display Name     | Chronir Premium                 |
-| Description      | Shared alarms, groups, and Live Activities. |
+| Description      | ⚠️ TBD — update when shared alarms, groups, and Live Activities ship |
 
-### 3. Chronir Plus Annual
+### 1. Chronir Plus Annual
 
 | Field            | Value                           |
 | ---------------- | ------------------------------- |
@@ -66,9 +68,9 @@ Create each subscription one at a time. The **order within the group matters** �
 | Subscription Duration | 1 Year                     |
 | Price             | $19.99 (USD)                   |
 | Display Name     | Chronir Plus (Annual)           |
-| Description      | Unlimited alarms, cloud backup, widgets. Save 15%. |
+| Description      | Unlimited alarms, custom snooze, pre-alarm warnings, photo attachments, completion history & streaks. Save 15%. |
 
-### 4. Chronir Plus Monthly
+### 2. Chronir Plus Monthly
 
 | Field            | Value                           |
 | ---------------- | ------------------------------- |
@@ -77,7 +79,7 @@ Create each subscription one at a time. The **order within the group matters** �
 | Subscription Duration | 1 Month                    |
 | Price             | $1.99 (USD)                    |
 | Display Name     | Chronir Plus                    |
-| Description      | Unlimited alarms, cloud backup, and widgets. |
+| Description      | Unlimited alarms, custom snooze, pre-alarm warnings, photo attachments, completion history & streaks. |
 
 ---
 
@@ -98,5 +100,5 @@ None — all monetization is via auto-renewable subscriptions.
 ## Notes
 
 - The first subscription must be submitted alongside an app binary (version 1.0). After that, new subscriptions can be added independently.
-- Subscription order in the group (top to bottom): Premium Annual > Premium Monthly > Plus Annual > Plus Monthly. Apple uses this order for upgrade/downgrade prompts.
+- V1.0 submission order (top to bottom): Plus Annual > Plus Monthly. When Premium ships (Phase 4), add Premium Annual > Premium Monthly above Plus.
 - Each subscription needs a review screenshot before submission — a screenshot of the paywall screen showing the subscription offer. This can be added later when the PaywallView is finalized.

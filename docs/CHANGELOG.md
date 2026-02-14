@@ -1,0 +1,88 @@
+# Changelog
+
+All notable changes to the Chronir project are documented here.
+
+---
+
+## [2026-02-14] — Splash Screen Redesign & Launch Screen Configuration
+
+**Type:** Feature / Infrastructure
+**Branch:** main
+**Commit(s):** uncommitted
+
+### Changes
+- Redesigned splash screen: replaced single rotating `LinearGradient` with the AlarmList wallpaper gradient (gradientStart → gradientMid → gradientEnd) with subtle sinusoidal drift animation
+- Logo now renders at full opacity immediately (no fade-in) for seamless transition from system launch screen
+- Gradient fades in over navy base (0.8s ease-in), bell ring plays after 0.3s pause
+- Configured system launch screen via `UILaunchScreen` dict with `LaunchBackground` color (#0A1628) to eliminate black flash on cold start
+- Added `LaunchBackground.colorset` and `LaunchLogo.imageset` (1x/2x/3x at 140pt) to asset catalog
+- Added `NSSiriUsageDescription` to Info.plist for App Intents/Siri permission prompt
+- Added `CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES` to iOS CI workflow for entitlements build compatibility
+- Removed `INFOPLIST_KEY_UILaunchScreen_Generation` from Xcode project build settings
+
+### Files Changed
+- `chronir/chronir/Features/Splash/SplashView.swift` — Redesigned background + instant logo
+- `chronir/Info.plist` — Added NSSiriUsageDescription, UILaunchScreen dict
+- `chronir/chronir.xcodeproj/project.pbxproj` — Removed UILaunchScreen_Generation
+- `chronir/chronir/Assets.xcassets/LaunchBackground.colorset/` — New navy color asset
+- `chronir/chronir/Assets.xcassets/LaunchLogo.imageset/` — New 1x/2x/3x logo for launch screen
+- `.github/workflows/ios.yml` — Added CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES
+- `CLAUDE.md` — Updated build commands, added launch screen flow documentation
+
+### QA Status
+- Build: PASS (simulator)
+- Manual QA: Verified splash animation, gradient drift, bell ring, logo visibility
+
+### Known Issues
+- `UILaunchScreen` `UIImageName` does not render images on iOS 26 physical devices — color-only launch screen used as workaround
+
+---
+
+## [2026-02-14] — Sprint Siri+OneTime: Siri Integration & One-Time Alarms
+
+**Type:** Sprint
+**Branch:** sprint-siri-onetime (merged to main)
+**Commit(s):** ccce4d9
+
+### Changes
+- Added App Intents framework for Siri/Shortcuts integration (Create, List, Get Next Alarm)
+- Added `CycleType.oneTime` and `Schedule.oneTime(fireDate:)` for single-fire alarms
+- One-time alarms auto-archive (disable + distantFuture) on completion
+- Archived section in alarm list for completed one-time alarms
+- SiriTipView in empty state to promote Siri discovery
+- Siri entitlement (`com.apple.developer.siri`) added to entitlements
+- `badgeOneTime` color token added to design system
+- Security: Sanitized Siri intent input via `AlarmValidator.trimmedTitle()`
+- Security: Enforced free-tier defaults in Shortcuts to prevent Plus feature bypass
+- Added `AlarmIntentError.invalidInput` error case
+- Added `/update-docs` and `/pre-submit-audit` slash commands
+
+### Files Changed (key files)
+- `chronir/chronir/Core/Intents/` — 6 new files (CreateAlarmIntent, GetNextAlarmIntent, ListAlarmsIntent, ChronirShortcuts, CycleTypeAppEnum, AlarmIntentError)
+- `chronir/chronir/Core/Models/Alarm.swift` — Added `isArchived` computed property, oneTime handling in lock screen completion
+- `chronir/chronir/Core/Models/AlarmEnums.swift` — Added `CycleType.oneTime`
+- `chronir/chronir/Core/Models/Schedule.swift` — Added `Schedule.oneTime(fireDate:)`
+- `chronir/chronir/Core/Repositories/AlarmRepository.swift` — Added `createAndSaveAlarm()`, `countActiveAlarms()`, `fetchNextAlarm()`, `fetchActiveAlarms(limit:)`
+- `chronir/chronir/Core/Services/AlarmScheduler.swift` — One-time alarm scheduling support
+- `chronir/chronir/Core/Utilities/DateCalculator.swift` — One-time fire date calculation
+- `chronir/chronir/Core/Utilities/AlarmValidator.swift` — Added `trimmedTitle()` static method
+- `chronir/chronir/DesignSystem/Tokens/ColorTokens.swift` — Added `badgeOneTime`
+- `chronir/chronir/DesignSystem/Atoms/ChronirBadge.swift` — OneTime badge variant
+- `chronir/chronir/DesignSystem/Molecules/IntervalPicker.swift` — Hidden for oneTime cycle
+- `chronir/chronir/DesignSystem/Organisms/AlarmCreationForm.swift` — DatePicker for oneTime
+- `chronir/chronir/Features/AlarmList/AlarmListView.swift` — Archived section, SiriTipView
+- `chronir/chronir/Features/AlarmFiring/AlarmFiringViewModel.swift` — OneTime auto-archive on completion
+- `chronir/chronir/chronirApp.swift` — OneTime handling in lock screen + ChronirShortcuts init
+- `chronir/chronir/chronir.entitlements` — Siri entitlement
+- `chronir/chronirTests/AlarmValidatorTests.swift` — 6 new tests for oneTime validation
+- `chronir/chronirTests/DateCalculatorTests.swift` — 4 new tests for oneTime date calculation
+
+### QA Status
+- Unit tests: 46 passing (23 DateCalculator + 17 AlarmValidator + 6 Timezone)
+- Manual QA: Free 156/169 PASS, Plus 157/164 PASS, 0 failures
+- Build: PASS
+- Pre-submit audit: PASS (all 9 checks)
+
+### Known Issues
+- SwiftLint: 31 warnings (cyclomatic complexity in CreateAlarmIntent, type body length in tests) — non-blocking
+- Plus tier QA items 24.6-24.7, 25.4 pending manual verification

@@ -68,7 +68,9 @@ The research identified specific feature gaps that Chronir can exploit:
 
 **Completion tracking and accountability** appears in Galarm's buddy alarm system (you're notified if someone misses their alarm) but is absent from wake-up focused apps like Alarmy. This feature serves caregivers managing medication schedules and managers coordinating team tasks.
 
-**Native platform design** represents an unexploited advantage. **No competitor has adopted iOS 26 Liquid Glass or Material 3 Expressive design.** First-mover advantage here creates immediate visual differentiation and signals quality to discerning users. Chronir's planned SwiftUI with Liquid Glass and Kotlin/Jetpack Compose with Material 3 addresses this gap directly.
+**Native platform design** represents an unexploited advantage. **No competitor has adopted iOS 26 Liquid Glass or Material 3 Expressive design.** First-mover advantage here creates immediate visual differentiation and signals quality to discerning users. Chronir's iOS app ships with SwiftUI and Liquid Glass; Android (Kotlin/Jetpack Compose with Material 3) is planned.
+
+**Siri/voice integration** was identified as a gap — smart alarm features drive the fastest growth at 24.4% CAGR. Chronir now ships App Intents on iOS, enabling "Create an alarm in Chronir", "When is my next alarm?", and "Show my alarms" via Siri and Shortcuts. No direct competitor offers this level of voice integration for long-cycle alarms.
 
 ---
 
@@ -119,11 +121,12 @@ Chronir should ensure: rock-solid reliability (this is non-negotiable for an ala
 
 **Feature priorities for launch:**
 
-1. TRUE alarm with DND bypass (table stakes)
-2. Comprehensive recurrence (daily through yearly, with patterns like "last Friday of month")
-3. Native platform design (Liquid Glass, Material 3)
-4. Completion tracking (did the alarm get acknowledged?)
-5. Shared alarms (Premium tier—coordinate with family/team)
+1. TRUE alarm with DND bypass (table stakes) — ✅ Shipped (AlarmKit iOS 26)
+2. Comprehensive recurrence (daily through yearly, plus one-time alarms) — ✅ Shipped (weekly, monthly, annual, one-time)
+3. Native platform design (Liquid Glass, Material 3) — ✅ Shipped (iOS Liquid Glass)
+4. Completion tracking (did the alarm get acknowledged?) — ✅ Shipped (CompletionLog + history)
+5. Siri/voice alarm creation via App Intents — ✅ Shipped (Create, List, Get Next Alarm)
+6. Shared alarms (Premium tier—coordinate with family/team) — Planned (Phase 4)
 
 **Consider hybrid monetization:** Adding a lifetime purchase option ($49.99-$69.99) alongside subscriptions captures subscription-resistant users while maintaining recurring revenue from those who prefer annual billing. 35% of top apps now use hybrid models.
 

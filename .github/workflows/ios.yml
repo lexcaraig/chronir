@@ -45,4 +45,5 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES \
             | xcpretty || true

@@ -82,12 +82,12 @@ Sarah is budget-conscious and skeptical of paid apps. She missed her car registr
 
 #### Chronir Usage Scenario
 
-Sarah downloads Chronir, creates two alarms in under 90 seconds (no account needed), and forgets about it until the 1st of the month. She tags "Pay Rent" as Finance and "Car Registration" as Vehicle — the category badges on each card make her two-alarm list feel organized even without upgrading. The alarm fires with full-screen persistence at 9 AM. She pays rent, dismisses the alarm, and returns to her day. She tells her roommate about the app.
+Sarah downloads Chronir, creates two alarms in under 90 seconds (no account needed), and forgets about it until the 1st of the month. She tags "Pay Rent" as Finance and sets "Car Registration" as a one-time alarm for March 1st under Vehicle — the category badges on each card make her two-alarm list feel organized even without upgrading. Next year, she asks Siri: "Create an alarm in Chronir" and sets a new registration reminder in seconds without opening the app. The alarm fires with full-screen persistence at 9 AM. She pays rent, dismisses the alarm, and returns to her day. She tells her roommate about the app.
 
 #### Key Alarms
 
 - "Pay Rent" — 1st of every month, 9:00 AM · `Finance`
-- "Car Registration" — March 1st, annually · `Vehicle`
+- "Car Registration" — March 1st, one-time alarm · `Vehicle`
 
 #### Design Implications
 
@@ -490,6 +490,7 @@ This section maps each persona's primary needs to specific atomic design compone
 | GroupDashboard     | Template     | Rachel, Maria/Jorge       | Both     | P2 (Premium) |
 | AssignmentSelector | Molecule     | Rachel, James/Lisa        | Both     | P2 (Premium) |
 | UpgradePrompt      | Organism     | Sarah, David              | Both     | P0 (MVP)     |
+| SiriTipView        | Molecule     | Sarah, Priya              | iOS      | P1           |
 
 ---
 
