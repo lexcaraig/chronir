@@ -1,41 +1,68 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
-const sections = [
-  { id: 'colors', num: '01', label: 'Color' },
-  { id: 'typography', num: '02', label: 'Typography' },
-  { id: 'spacing', num: '03', label: 'Spacing' },
-  { id: 'radius', num: '04', label: 'Radius' },
-  { id: 'animation', num: '05', label: 'Animation' },
-  { id: 'components', num: '06', label: 'Components' },
+const navTree = [
+  {
+    label: 'Foundations',
+    children: [
+      { id: 'colors', label: 'Color Palette' },
+      { id: 'typography', label: 'Typography' },
+      { id: 'spacing', label: 'Spacing' },
+      { id: 'radius', label: 'Radius' },
+      { id: 'animation', label: 'Animation' },
+    ],
+  },
+  {
+    label: 'Components',
+    children: [
+      { id: 'components', label: 'Component Catalog' },
+    ],
+  },
 ]
 
-export default function TopNav() {
-  const [active, setActive] = useState(window.location.hash.slice(1) || 'colors')
+export default function Sidebar({ active, onNavigate }) {
+  const [collapsed, setCollapsed] = useState({})
 
-  useEffect(() => {
-    const onHash = () => setActive(window.location.hash.slice(1) || 'colors')
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
-  }, [])
+  const toggle = (label) => {
+    setCollapsed(prev => ({ ...prev, [label]: !prev[label] }))
+  }
 
   return (
-    <header className="topnav">
-      <div className="topnav-brand">
-        <span className="topnav-logo">Chronir</span>
-        <span className="topnav-subtitle">Design System</span>
-      </div>
-      <nav>
-        {sections.map(s => (
-          <a
-            key={s.id}
-            href={`#${s.id}`}
-            className={active === s.id ? 'active' : ''}
-          >
-            <span className="topnav-num">{s.num}</span>
-            {s.label}
-          </a>
-        ))}
+    <aside className="sidebar">
+      <nav className="sidebar-nav">
+        {navTree.map(group => {
+          const isCollapsed = collapsed[group.label]
+          const hasActive = group.children.some(c => c.id === active)
+          return (
+            <div key={group.label} className="sidebar-group">
+              <button
+                className={`sidebar-group-label ${hasActive ? 'has-active' : ''}`}
+                onClick={() => toggle(group.label)}
+              >
+                <svg
+                  className={`sidebar-chevron ${isCollapsed ? '' : 'open'}`}
+                  width="16" height="16" viewBox="0 0 16 16" fill="none"
+                >
+                  <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {group.label}
+              </button>
+              {!isCollapsed && (
+                <div className="sidebar-children">
+                  {group.children.map(item => (
+                    <button
+                      key={item.id}
+                      className={`sidebar-item ${active === item.id ? 'active' : ''}`}
+                      onClick={() => onNavigate(item.id)}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </nav>
-    </header>
+    </aside>
   )
 }
