@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import AlarmKit
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -11,18 +12,21 @@ struct AlarmFiringView: View {
     @State private var viewModel = AlarmFiringViewModel()
     @State private var holdProgress: CGFloat = 0
     @State private var isHolding = false
+    @State private var holdTask: Task<Void, Never>?
     @State private var cachedPhoto: UIImage?
     @State private var showCustomSnoozePicker = false
+    @State private var isReady = false
 
     private let holdDuration: TimeInterval = 3.0
 
     var body: some View {
         FullScreenAlarmTemplate {
-            if let alarm = viewModel.alarm {
+            if isReady, let alarm = viewModel.alarm {
                 content(for: alarm)
             } else {
-                ProgressView()
-                    .tint(ColorTokens.firingForeground)
+                // Show blank firing background until we confirm the alarm is still alerting.
+                // Prevents a visible flash of the firing UI when returning from a lock screen stop.
+                Color.clear
             }
         }
         .sheet(isPresented: $showCustomSnoozePicker) {
@@ -32,14 +36,10 @@ struct AlarmFiringView: View {
         }
         .onDisappear {
             viewModel.stopFiring()
-            // Mark as handled SYNCHRONOUSLY on MainActor so the foreground handler
-            // sees it before completeIfNeeded's async work finishes.
-            if let alarmID = viewModel.alarm?.id {
-                AlarmFiringCoordinator.shared.markHandled(alarmID)
-            }
             Task { await viewModel.completeIfNeeded() }
         }
         .task {
+            viewModel.modelContext = modelContext
             loadAlarmFromContext()
             if viewModel.alarm == nil {
                 await viewModel.loadAlarm(id: alarmID)
@@ -50,7 +50,18 @@ struct AlarmFiringView: View {
                 #endif
             }
             if viewModel.alarm != nil {
-                viewModel.startFiring()
+                // Only show content and start sound/haptics if AlarmKit confirms the alarm
+                // is still alerting. Prevents a visible flash of the firing UI when returning
+                // from a lock screen stop.
+                let akAlarms = (try? AlarmManager.shared.alarms) ?? []
+                let isAlerting = akAlarms.contains { $0.id == alarmID && $0.state == .alerting }
+                if isAlerting {
+                    isReady = true
+                    viewModel.startFiring()
+                } else {
+                    // Alarm was already handled on lock screen — dismiss without showing content.
+                    AlarmFiringCoordinator.shared.dismissFiring()
+                }
             }
         }
     }
@@ -169,19 +180,9 @@ struct AlarmFiringView: View {
         .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.lg))
         .padding(.horizontal, SpacingTokens.xxxl)
         .gesture(
-            LongPressGesture(minimumDuration: holdDuration)
-                .onChanged { _ in
-                    startHold()
-                }
-                .onEnded { _ in
-                    completeHold()
-                }
-        )
-        .simultaneousGesture(
             DragGesture(minimumDistance: 0)
-                .onEnded { _ in
-                    cancelHold()
-                }
+                .onChanged { _ in startHold() }
+                .onEnded { _ in cancelHold() }
         )
     }
 
@@ -191,16 +192,24 @@ struct AlarmFiringView: View {
         withAnimation(.linear(duration: holdDuration)) {
             holdProgress = 1.0
         }
+        holdTask = Task {
+            try? await Task.sleep(for: .seconds(holdDuration))
+            guard !Task.isCancelled else { return }
+            completeHold()
+        }
     }
 
     private func completeHold() {
+        holdTask?.cancel()
+        holdTask = nil
         isHolding = false
         holdProgress = 0
         Task { await viewModel.dismiss() }
     }
 
     private func cancelHold() {
-        guard isHolding else { return }
+        holdTask?.cancel()
+        holdTask = nil
         isHolding = false
         withAnimation(.easeOut(duration: 0.2)) {
             holdProgress = 0

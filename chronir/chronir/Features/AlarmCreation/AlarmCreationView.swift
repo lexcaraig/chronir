@@ -20,6 +20,7 @@ struct AlarmCreationView: View {
     @State private var startYear: Int = Calendar.current.component(.year, from: Date())
     @State private var category: AlarmCategory?
     @State private var preAlarmEnabled: Bool = false
+    @State private var oneTimeDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
     @State private var saveError: String?
     @State private var titleError: String?
     @State private var showWarningDialog = false
@@ -60,6 +61,7 @@ struct AlarmCreationView: View {
                     startYear: $startYear,
                     category: $category,
                     preAlarmEnabled: $preAlarmEnabled,
+                    oneTimeDate: $oneTimeDate,
                     isPlusTier: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                     titleError: titleError
                 )
@@ -190,7 +192,13 @@ struct AlarmCreationView: View {
             note: trimmedNote
         )
 
-        if cycleType == .annual {
+        if cycleType == .oneTime {
+            let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
+            alarm.nextFireDate = calendar.date(
+                bySettingHour: firstTime.hour, minute: firstTime.minute,
+                second: 0, of: oneTimeDate
+            ) ?? oneTimeDate
+        } else if cycleType == .annual {
             let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
             let targetDate = calendar.date(from: DateComponents(
                 year: annualYear, month: annualMonth, day: annualDay,
@@ -254,6 +262,8 @@ struct AlarmCreationView: View {
             )
         case .customDays:
             return .customDays(intervalDays: repeatInterval, startDate: Date())
+        case .oneTime:
+            return .oneTime(fireDate: oneTimeDate)
         }
     }
 }

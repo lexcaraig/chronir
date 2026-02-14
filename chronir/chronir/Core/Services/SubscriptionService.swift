@@ -20,11 +20,6 @@ final class SubscriptionService {
 
     private var transactionListenerTask: Task<Void, Never>?
 
-    private static var persistedTier: SubscriptionTier {
-        let raw = UserDefaults.standard.string(forKey: "chronir_last_known_tier") ?? "free"
-        return SubscriptionTier(rawValue: raw) ?? .free
-    }
-
     // TODO: Add premium product IDs when Premium tier is built (Phase 4, Sprint 11+)
     static let productIDs: Set<String> = [
         "com.chronir.plus.annual",
@@ -102,7 +97,6 @@ final class SubscriptionService {
             }
         }
 
-        let previousTier = Self.persistedTier
         currentTier = highestTier
         activeProductID = latestProductID
         renewalDate = latestRenewalDate

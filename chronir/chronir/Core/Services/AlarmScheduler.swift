@@ -34,7 +34,7 @@ final class AlarmScheduler: AlarmScheduling {
 
         let snoozeDuration = AlarmKit.Alarm.CountdownDuration(
             preAlert: nil,
-            postAlert: 3600 // 1-hour snooze
+            postAlert: 540 // 9-minute snooze (matches iOS default)
         )
 
         let fireDates = dateCalculator.calculateNextFireDates(for: alarm, from: Date())
@@ -83,15 +83,22 @@ final class AlarmScheduler: AlarmScheduling {
 
     func cancelAlarm(_ alarm: Alarm) async throws {
         for id in alarmIDs(for: alarm) {
+            try? AlarmManager.shared.stop(id: id)
             try? AlarmManager.shared.cancel(id: id)
         }
         notificationService.cancelPreAlarmNotification(for: alarm)
     }
 
     func rescheduleAllAlarms() async throws {
-        let alarms = try await repository.fetchEnabled()
-        for alarm in alarms {
+        // Cancel ALL alarms first (including disabled/archived) to clear stale AlarmKit registrations
+        let allAlarms = try await repository.fetchAll()
+        for alarm in allAlarms {
             try await cancelAlarm(alarm)
+        }
+
+        // Only reschedule enabled alarms
+        let enabledAlarms = allAlarms.filter { $0.isEnabled }
+        for alarm in enabledAlarms {
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
             try await scheduleAlarm(alarm)
         }

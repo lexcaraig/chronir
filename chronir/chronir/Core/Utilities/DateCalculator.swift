@@ -62,6 +62,9 @@ struct DateCalculator: Sendable {
                 from: date, intervalDays: intervalDays,
                 startDate: startDate, hour: hour, minute: minute
             )
+        case .oneTime(let fireDate):
+            let candidate = setTime(on: fireDate, hour: hour, minute: minute)
+            return candidate > date ? candidate : .distantFuture
         }
     }
 

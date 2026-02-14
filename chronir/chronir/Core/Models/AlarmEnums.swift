@@ -6,6 +6,7 @@ enum CycleType: String, Codable, CaseIterable, Identifiable {
     case monthlyRelative
     case annual
     case customDays
+    case oneTime
 
     var id: String { rawValue }
 
@@ -16,6 +17,7 @@ enum CycleType: String, Codable, CaseIterable, Identifiable {
         case .monthlyRelative: return "Monthly"
         case .annual: return "Annual"
         case .customDays: return "Custom"
+        case .oneTime: return "One-Time"
         }
     }
 }

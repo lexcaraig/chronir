@@ -26,6 +26,7 @@ final class AlarmDetailViewModel {
     var startYear: Int = Calendar.current.component(.year, from: Date())
     var category: AlarmCategory?
     var preAlarmEnabled: Bool = false
+    var oneTimeDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
     var selectedImage: UIImage?
     var removePhoto = false
     var isLoading: Bool = false
@@ -87,6 +88,8 @@ final class AlarmDetailViewModel {
                 self.repeatInterval = interval
             case .customDays(let intervalDays, _):
                 self.repeatInterval = intervalDays
+            case .oneTime(let fireDate):
+                self.oneTimeDate = fireDate
             }
         } catch {
             errorMessage = error.localizedDescription
@@ -157,7 +160,14 @@ final class AlarmDetailViewModel {
         alarm.preAlarmMinutes = preAlarmEnabled ? 1440 : 0
         alarm.category = category?.rawValue
         alarm.updatedAt = Date()
-        if cycleType == .annual {
+        if cycleType == .oneTime {
+            let cal = Calendar.current
+            let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
+            alarm.nextFireDate = cal.date(
+                bySettingHour: firstTime.hour, minute: firstTime.minute,
+                second: 0, of: oneTimeDate
+            ) ?? oneTimeDate
+        } else if cycleType == .annual {
             let cal = Calendar.current
             let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
             let targetDate = cal.date(from: DateComponents(
@@ -255,6 +265,8 @@ final class AlarmDetailViewModel {
             )
         case .customDays:
             return .customDays(intervalDays: repeatInterval, startDate: Date())
+        case .oneTime:
+            return .oneTime(fireDate: oneTimeDate)
         }
     }
 }

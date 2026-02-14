@@ -1,5 +1,7 @@
 import SwiftUI
 import SwiftData
+import AppIntents
+import AlarmKit
 
 struct AlarmListView: View {
     @Query(sort: \Alarm.nextFireDate) private var alarms: [Alarm]
@@ -11,6 +13,7 @@ struct AlarmListView: View {
     @State private var showUpgradePrompt = false
     @State private var selectedCategoryFilter: AlarmCategory?
     @State private var selectedCategory: AlarmCategory?
+    @State private var showArchived = false
     @State private var paywallViewModel = PaywallViewModel()
     private let subscriptionService = SubscriptionService.shared
     private var firingCoordinator = AlarmFiringCoordinator.shared
@@ -19,7 +22,7 @@ struct AlarmListView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
         List {
-            if paywallViewModel.isFreeTier && alarms.count > (paywallViewModel.alarmLimit ?? Int.max) {
+            if paywallViewModel.isFreeTier && activeAlarms.count > (paywallViewModel.alarmLimit ?? Int.max) {
                 Section {
                     HStack(spacing: SpacingTokens.sm) {
                         Image(systemName: "exclamationmark.triangle.fill")
@@ -43,11 +46,17 @@ struct AlarmListView: View {
                 }
             }
 
-            if alarms.isEmpty {
+            if activeAlarms.isEmpty && archivedAlarms.isEmpty {
                 EmptyStateView(onCreateAlarm: { requestCreateAlarm() })
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
                     .listRowInsets(EdgeInsets())
+
+                SiriTipView(intent: CreateAlarmIntent())
+                    .siriTipViewStyle(.automatic)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .padding(.horizontal, SpacingTokens.md)
             } else {
                 if !paywallViewModel.isFreeTier && !activeCategories.isEmpty {
                     Section {
@@ -107,6 +116,30 @@ struct AlarmListView: View {
                         alarmRow(alarm)
                     }
                 }
+
+                if !archivedAlarms.isEmpty {
+                    Section {
+                        DisclosureGroup(
+                            isExpanded: $showArchived
+                        ) {
+                            ForEach(archivedAlarms) { alarm in
+                                alarmRow(alarm)
+                            }
+                        } label: {
+                            HStack(spacing: SpacingTokens.xs) {
+                                Image(systemName: "archivebox")
+                                    .foregroundStyle(ColorTokens.textSecondary)
+                                ChronirText(
+                                    "Archived (\(archivedAlarms.count))",
+                                    style: .labelLarge,
+                                    color: ColorTokens.textSecondary
+                                )
+                            }
+                        }
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                    }
+                }
             }
         }
         .listStyle(.plain)
@@ -136,7 +169,7 @@ struct AlarmListView: View {
                 SettingsView()
             }
         }
-        .confirmationDialog(
+        .alert(
             "Delete Alarm",
             isPresented: Binding(
                 get: { alarmToDelete != nil },
@@ -144,6 +177,9 @@ struct AlarmListView: View {
             ),
             presenting: alarmToDelete
         ) { alarm in
+            Button("Cancel", role: .cancel) {
+                alarmToDelete = nil
+            }
             Button("Delete", role: .destructive) {
                 deleteAlarm(alarm)
                 alarmToDelete = nil
@@ -214,10 +250,14 @@ struct AlarmListView: View {
         guard !firingCoordinator.isFiring,
               !firingCoordinator.appIsInBackground else { return }
         let now = Date()
+        let akAlarms = (try? AlarmManager.shared.alarms) ?? []
         for alarm in alarms {
             let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
             guard isEnabled, alarm.nextFireDate <= now,
                   !firingCoordinator.isHandled(alarm.id) else { continue }
+            // Only present if AlarmKit confirms the alarm is actively alerting
+            let akAlarm = akAlarms.first { $0.id == alarm.id }
+            guard akAlarm?.state == .alerting else { continue }
             firingCoordinator.presentAlarm(id: alarm.id)
             break
         }
@@ -249,7 +289,7 @@ struct AlarmListView: View {
 
     private func canEnableMoreAlarms() -> Bool {
         guard paywallViewModel.isFreeTier, let limit = paywallViewModel.alarmLimit else { return true }
-        let enabledCount = alarms.filter({ enabledStates[$0.id] ?? $0.isEnabled }).count
+        let enabledCount = activeAlarms.filter({ enabledStates[$0.id] ?? $0.isEnabled }).count
         return enabledCount < limit
     }
 
@@ -342,13 +382,22 @@ struct AlarmListView: View {
         }
     }
 
+    private var activeAlarms: [Alarm] {
+        alarms.filter { !($0.cycleType == .oneTime && !$0.isEnabled) }
+    }
+
+    private var archivedAlarms: [Alarm] {
+        alarms.filter { $0.cycleType == .oneTime && !$0.isEnabled }
+    }
+
     private var filteredAlarms: [Alarm] {
-        guard let filter = selectedCategoryFilter else { return alarms }
-        return alarms.filter { $0.alarmCategory == filter }
+        let source = activeAlarms
+        guard let filter = selectedCategoryFilter else { return source }
+        return source.filter { $0.alarmCategory == filter }
     }
 
     private var activeCategories: [AlarmCategory] {
-        let cats = Set(alarms.compactMap(\.alarmCategory))
+        let cats = Set(activeAlarms.compactMap(\.alarmCategory))
         return AlarmCategory.allCases.filter { cats.contains($0) }
     }
 
@@ -389,7 +438,7 @@ struct AlarmListView: View {
     }
 
     private func requestCreateAlarm() {
-        if paywallViewModel.canCreateAlarm(currentCount: alarms.count) {
+        if paywallViewModel.canCreateAlarm(currentCount: activeAlarms.count) {
             showingCreateAlarm = true
         } else {
             showUpgradePrompt = true
@@ -401,12 +450,13 @@ struct AlarmListView: View {
             try? await AlarmScheduler.shared.cancelAlarm(alarm)
         }
         modelContext.delete(alarm)
+        try? modelContext.save()
     }
 
     private func refreshNextFireDates() {
         let calculator = DateCalculator()
         let now = Date()
-        for alarm in alarms where alarm.isEnabled {
+        for alarm in alarms where alarm.isEnabled && alarm.cycleType != .oneTime {
             let correct = calculator.calculateNextFireDate(for: alarm, from: now)
             if alarm.nextFireDate != correct {
                 alarm.nextFireDate = correct
@@ -417,7 +467,7 @@ struct AlarmListView: View {
     private func enforceAlarmLimit() {
         let tier = subscriptionService.currentTier
         if tier == .free, let limit = tier.alarmLimit {
-            let enabled = alarms.filter { enabledStates[$0.id] ?? $0.isEnabled }
+            let enabled = activeAlarms.filter { enabledStates[$0.id] ?? $0.isEnabled }
             if enabled.count > limit {
                 let sorted = enabled.sorted { $0.createdAt < $1.createdAt }
                 for alarm in sorted.dropFirst(limit) {
@@ -425,7 +475,7 @@ struct AlarmListView: View {
                 }
             }
         } else if !tier.isFreeTier {
-            for alarm in alarms where !(enabledStates[alarm.id] ?? alarm.isEnabled) {
+            for alarm in activeAlarms where !(enabledStates[alarm.id] ?? alarm.isEnabled) {
                 enabledStates[alarm.id] = true
             }
         }

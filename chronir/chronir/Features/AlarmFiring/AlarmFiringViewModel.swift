@@ -1,11 +1,14 @@
 import Foundation
 import Observation
 import AlarmKit
+import SwiftData
 
 @Observable
 final class AlarmFiringViewModel {
     var alarm: Alarm?
     var isFiring: Bool = false
+    /// The view's ModelContext — used to persist changes on the correct (main) context.
+    var modelContext: ModelContext?
     private var isCompleted: Bool = false
 
     private let scheduler: AlarmScheduling
@@ -66,9 +69,8 @@ final class AlarmFiringViewModel {
 
         saveCompletionLog(alarmID: alarm.id, action: .snoozed)
 
-        if let repo = AlarmRepository.shared {
-            try? await repo.update(alarm)
-        }
+        // Save on the view's main context (not the actor's background context)
+        try? modelContext?.save()
 
         stopFiring()
 
@@ -89,16 +91,21 @@ final class AlarmFiringViewModel {
 
         alarm.lastFiredDate = Date()
         alarm.snoozeCount = 0
-        alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
 
-        try? await scheduler.cancelAlarm(alarm)
-        try? await scheduler.scheduleAlarm(alarm)
+        if alarm.cycleType == .oneTime {
+            alarm.isEnabled = false
+            alarm.nextFireDate = .distantFuture
+            try? await scheduler.cancelAlarm(alarm)
+        } else {
+            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+            try? await scheduler.cancelAlarm(alarm)
+            try? await scheduler.scheduleAlarm(alarm)
+        }
 
         saveCompletionLog(alarmID: alarm.id, action: .completed)
 
-        if let repo = AlarmRepository.shared {
-            try? await repo.update(alarm)
-        }
+        // Save on the view's main context (not the actor's background context)
+        try? modelContext?.save()
 
         stopFiring()
 
@@ -141,17 +148,22 @@ final class AlarmFiringViewModel {
         } else {
             alarm.lastFiredDate = Date()
             alarm.snoozeCount = 0
-            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
 
-            try? await scheduler.cancelAlarm(alarm)
-            try? await scheduler.scheduleAlarm(alarm)
+            if alarm.cycleType == .oneTime {
+                alarm.isEnabled = false
+                alarm.nextFireDate = .distantFuture
+                try? await scheduler.cancelAlarm(alarm)
+            } else {
+                alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+                try? await scheduler.cancelAlarm(alarm)
+                try? await scheduler.scheduleAlarm(alarm)
+            }
 
             saveCompletionLog(alarmID: alarm.id, action: .completed)
         }
 
-        if let repo = AlarmRepository.shared {
-            try? await repo.update(alarm)
-        }
+        // Save on the view's main context (not the actor's background context)
+        try? modelContext?.save()
     }
 
     // MARK: - Private

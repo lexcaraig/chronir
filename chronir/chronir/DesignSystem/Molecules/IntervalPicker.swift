@@ -15,24 +15,26 @@ struct IntervalPicker: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Repeat", style: .labelMedium, color: ColorTokens.textSecondary)
-            HStack(spacing: SpacingTokens.sm) {
-                ForEach(options) { option in
-                    Button {
-                        selection = option
-                    } label: {
-                        ChronirText(
-                            option.displayName,
-                            style: .labelLarge,
-                            color: selection == option ? .white : ColorTokens.textSecondary
-                        )
-                        .padding(.horizontal, SpacingTokens.md)
-                        .padding(.vertical, SpacingTokens.sm)
-                        .glassEffect(
-                            selection == option
-                                ? GlassTokens.element.tint(ColorTokens.primary).interactive()
-                                : GlassTokens.element,
-                            in: .capsule
-                        )
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: SpacingTokens.sm) {
+                    ForEach(options) { option in
+                        Button {
+                            selection = option
+                        } label: {
+                            ChronirText(
+                                option.displayName,
+                                style: .labelLarge,
+                                color: selection == option ? .white : ColorTokens.textSecondary
+                            )
+                            .padding(.horizontal, SpacingTokens.md)
+                            .padding(.vertical, SpacingTokens.sm)
+                            .glassEffect(
+                                selection == option
+                                    ? GlassTokens.element.tint(ColorTokens.primary).interactive()
+                                    : GlassTokens.element,
+                                in: .capsule
+                            )
+                        }
                     }
                 }
             }

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import AlarmKit
 import StoreKit
+import AppIntents
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -18,10 +19,19 @@ struct ChronirApp: App {
         do {
             container = try ModelContainer(for: Alarm.self, CompletionLog.self)
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            // Corrupted store — delete and recreate to avoid permanent crash loop
+            let defaultURL = URL.applicationSupportDirectory
+                .appendingPathComponent("default.store")
+            try? FileManager.default.removeItem(at: defaultURL)
+            do {
+                container = try ModelContainer(for: Alarm.self, CompletionLog.self)
+            } catch {
+                fatalError("Failed to create ModelContainer after recovery: \(error)")
+            }
         }
         AlarmRepository.configure(with: container)
         Self.migrateCompletionRecords(container: container)
+        ChronirShortcuts.updateAppShortcutParameters()
     }
 
     /// One-time migration of legacy CompletionRecord from UserDefaults to SwiftData.
@@ -97,19 +107,60 @@ struct ChronirApp: App {
                                 // Skip if the foreground handler already processed this alarm
                                 // (stale buffered event arriving after appIsInBackground was cleared).
                                 guard !AlarmFiringCoordinator.shared.isHandled(alarm.id) else { return }
+                                // Skip if the alarm is disabled/archived (stale AlarmKit registration)
+                                let targetID = alarm.id
+                                let descriptor = FetchDescriptor<Alarm>(
+                                    predicate: #Predicate<Alarm> { $0.id == targetID && $0.isEnabled == true }
+                                )
+                                guard (try? self.container.mainContext.fetch(descriptor).first) != nil else {
+                                    try? AlarmManager.shared.stop(id: alarm.id)
+                                    try? AlarmManager.shared.cancel(id: alarm.id)
+                                    return
+                                }
                                 AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
                             }
                         case .countdown:
-                            // Snoozed — track for foreground handler, dismiss firing UI
+                            // Snoozed — track for foreground handler, dismiss firing UI,
+                            // and update model so the alarm card shows the snooze countdown.
                             await MainActor.run {
                                 AlarmFiringCoordinator.shared.snoozedInBackground.insert(alarm.id)
                                 AlarmFiringCoordinator.shared.dismissFiring()
+                                let targetID = alarm.id
+                                let descriptor = FetchDescriptor<Alarm>(
+                                    predicate: #Predicate<Alarm> { $0.id == targetID }
+                                )
+                                if let model = try? self.container.mainContext.fetch(descriptor).first,
+                                   model.nextFireDate <= Date() {
+                                    // Guard: only process if not already handled (race with foreground handler)
+                                    model.snoozeCount += 1
+                                    model.nextFireDate = Date().addingTimeInterval(540)
+                                    let log = CompletionLog(
+                                        alarmID: model.id,
+                                        scheduledDate: model.nextFireDate,
+                                        action: .snoozed,
+                                        snoozeCount: model.snoozeCount
+                                    )
+                                    log.alarm = model
+                                    self.container.mainContext.insert(log)
+                                    try? self.container.mainContext.save()
+                                }
                             }
                         default:
-                            // Stopped or rescheduled — dismiss firing UI only
-                            // Data updates handled by foreground handler or ViewModel
                             await MainActor.run {
-                                AlarmFiringCoordinator.shared.dismissFiring()
+                                // If this alarm was snoozed and its countdown just ended
+                                // without re-alerting, present the firing view ourselves.
+                                // (AlarmKit .fixed() schedules don't re-alert after snooze.)
+                                if AlarmFiringCoordinator.shared.snoozedInBackground.remove(alarm.id) != nil {
+                                    let targetID = alarm.id
+                                    let descriptor = FetchDescriptor<Alarm>(
+                                        predicate: #Predicate<Alarm> { $0.id == targetID && $0.isEnabled == true }
+                                    )
+                                    if (try? self.container.mainContext.fetch(descriptor).first) != nil {
+                                        AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
+                                    }
+                                } else {
+                                    AlarmFiringCoordinator.shared.dismissFiring()
+                                }
                             }
                         }
                     }
@@ -148,13 +199,26 @@ struct ChronirApp: App {
 
                         if akAlarm?.state == .alerting {
                             coordinator.presentAlarm(id: model.id)
+                        } else if akAlarm?.state == .countdown {
+                            // Still in snooze countdown — process if not already by .countdown handler
+                            if model.nextFireDate <= now {
+                                handleLockScreenAction(
+                                    model: model,
+                                    wasSnoozed: true,
+                                    context: context
+                                )
+                            }
+                            coordinator.markHandled(model.id)
+                        } else if coordinator.snoozedInBackground.contains(model.id) {
+                            // Snooze countdown ended while backgrounded — re-present
+                            // (AlarmKit .fixed() schedules don't re-alert after snooze)
+                            coordinator.snoozedInBackground.remove(model.id)
+                            coordinator.presentAlarm(id: model.id)
                         } else {
-                            // Snoozed only if .countdown was seen OR alarm is actively in countdown
-                            let wasSnoozed = coordinator.snoozedInBackground.contains(model.id)
-                                || akAlarm?.state == .countdown
+                            // Lock screen stop (not snoozed)
                             handleLockScreenAction(
                                 model: model,
-                                wasSnoozed: wasSnoozed,
+                                wasSnoozed: false,
                                 context: context
                             )
                             coordinator.snoozedInBackground.remove(model.id)
@@ -184,7 +248,6 @@ struct ChronirApp: App {
             }
             .fullScreenCover(item: $coordinator.firingAlarmID) { alarmID in
                 AlarmFiringView(alarmID: alarmID)
-                    .modelContainer(container)
             }
             .sheet(isPresented: Binding(
                 get: { !settings.hasCompletedOnboarding },
@@ -211,6 +274,7 @@ extension ChronirApp {
         if wasSnoozed {
             // Lock screen snooze
             model.snoozeCount += 1
+            model.nextFireDate = Date().addingTimeInterval(540) // matches postAlert snooze duration
             let log = CompletionLog(
                 alarmID: model.id,
                 scheduledDate: model.nextFireDate,
@@ -232,7 +296,12 @@ extension ChronirApp {
             context.insert(log)
             model.lastFiredDate = Date()
             model.snoozeCount = 0
-            model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
+            if model.cycleType == .oneTime {
+                model.isEnabled = false
+                model.nextFireDate = .distantFuture
+            } else {
+                model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
+            }
         }
         try? context.save()
     }

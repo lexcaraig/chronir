@@ -56,15 +56,18 @@ final class Alarm: Identifiable {
 
     // MARK: - Computed: Schedule
 
+    private static let defaultSchedule: Schedule = .weekly(daysOfWeek: [2], interval: 1)
+
     @Transient
     var schedule: Schedule {
         get {
-            // swiftlint:disable:next force_try
-            try! JSONDecoder().decode(Schedule.self, from: scheduleData)
+            (try? JSONDecoder().decode(Schedule.self, from: scheduleData))
+                ?? Self.defaultSchedule
         }
         set {
-            // swiftlint:disable:next force_try
-            scheduleData = try! JSONEncoder().encode(newValue)
+            if let encoded = try? JSONEncoder().encode(newValue) {
+                scheduleData = encoded
+            }
         }
     }
 
@@ -163,8 +166,8 @@ final class Alarm: Identifiable {
             self.timeOfDayMinute = timeOfDayMinute
             self.timesOfDayData = nil
         }
-        // swiftlint:disable:next force_try
-        self.scheduleData = try! JSONEncoder().encode(schedule)
+        self.scheduleData = (try? JSONEncoder().encode(schedule))
+            ?? Data()
         self.nextFireDate = nextFireDate
         self.lastFiredDate = lastFiredDate
         self.timezone = timezone

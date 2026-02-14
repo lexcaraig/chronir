@@ -1,8 +1,8 @@
 # iOS Free Tier QA Checklist
 
-**Sprint:** 7–9 (Phase 2 close + Phase 3 V1.0 Plus Tier)
-**Branch:** `sprint-7` merged into `main`, `sprint-9` (S9)
-**Device:** iPhone Simulator (iPhone 16, iOS 18+) + Physical device "lexpresswayyy"
+**Sprint:** 7–9 (Phase 2 close + Phase 3 V1.0 Plus Tier), sprint-siri-onetime
+**Branch:** `sprint-7` merged into `main`, `sprint-9` (S9), `sprint-siri-onetime`
+**Device:** iPhone Simulator (iPhone 17 Pro, iOS 26+) + Physical device "lexpresswayyy"
 **Tier:** Free (2-alarm limit, local-only)
 
 ---
@@ -156,7 +156,7 @@
 | 9D.2 | Tap "Snooze" on lock screen                      | Alarm enters countdown state, Live Activity shows "Snoozed: {title}" with timer | PASS  |
 | 9D.3 | After lock screen snooze, open app               | Full-screen AlarmFiringView does NOT appear (already handled on lock screen)    | PASS  |
 | 9D.4 | Verify snooze count after lock screen snooze     | snoozeCount incremented, "Snoozed" badge visible on alarm card                  | PASS  |
-| 9D.5 | Wait for 1-hour countdown to expire              | Alarm re-fires (transitions back to .alerting)                                  |       |
+| 9D.5 | Wait for 1-hour countdown to expire              | Alarm re-fires (transitions back to .alerting)                                  | PASS  |
 | 9D.6 | "Slide to Stop" on lock screen                   | Alarm dismissed, no in-app firing UI shown when app opens                       | PASS  |
 | 9D.7 | Trigger alarm, act on lock screen, then open app | App shows alarm list (not firing screen) — lock screen action respected         | PASS  |
 
@@ -282,42 +282,127 @@
 
 | #    | Scenario                             | Expected Result                  | Pass? |
 | ---- | ------------------------------------ | -------------------------------- | ----- |
-| 17.1 | Full iOS build passes                | `xcodebuild build` succeeds      |       |
-| 17.2 | SwiftLint clean                      | No new violations                |       |
-| 17.3 | Delete and reinstall app             | Clean migration path, no crashes |       |
+| 17.1 | Full iOS build passes                | `xcodebuild build` succeeds      | PASS  |
+| 17.2 | SwiftLint clean                      | No new violations                | PASS  |
+| 17.3 | Delete and reinstall app             | Clean migration path, no crashes | PASS  |
 | 17.4 | Rapid fire → snooze → fire → dismiss | No duplicate completion logs     | PASS  |
 | 17.5 | Background/foreground during alarm   | Completion logged once           | PASS  |
 
 ---
 
+## 18. Create Alarm — One-Time (sprint-siri-onetime)
+
+| #    | Step                                  | Expected Result                                               | Pass? |
+| ---- | ------------------------------------- | ------------------------------------------------------------- | ----- |
+| 18.1 | Tap + button                          | AlarmCreationView opens, "One-Time" is first option in picker | PASS  |
+| 18.2 | Select "One-Time" cycle type          | Date picker appears, repeat interval hidden                   | PASS  |
+| 18.3 | Pick a date tomorrow at 9:00 AM       | Date picker shows selected date                               | PASS  |
+| 18.4 | Enter name "Doctor Appointment"       | Text field populated                                          | PASS  |
+| 18.5 | Tap Save                              | Alarm saved, appears in list with "One-Time" badge            | PASS  |
+| 18.6 | Verify countdown                      | Shows "Alarm in Xh Ym" to the fire date                       | PASS  |
+| 18.7 | Verify badge color                    | One-Time badge uses green/distinct color (badgeOneTime token) | PASS  |
+| 18.8 | One-Time does NOT show repeat stepper | "Repeat Every" section is hidden for One-Time alarms          | PASS  |
+
+---
+
+## 19. One-Time Alarm — Auto-Archive (sprint-siri-onetime)
+
+| #    | Step                                     | Expected Result                                              | Pass?                                                                           |
+| ---- | ---------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| 19.1 | Create one-time alarm 1 min in future    | Alarm appears in active list                                 | PASS                                                                            |
+| 19.2 | Wait for alarm to fire                   | Full-screen AlarmFiringView appears                          | PASS                                                                            |
+| 19.3 | Tap "Mark as Done"                       | Firing view dismisses                                        | PASS                                                                            |
+| 19.4 | Verify alarm moved to "Archived" section | Alarm no longer in active list, appears under Archived group | PASS                                                                            |
+| 19.5 | Expand Archived disclosure group         | Shows alarm title with disabled appearance                   | PASS                                                                            |
+| 19.6 | Snooze one-time alarm, then complete     | After final completion, alarm archives                       | PASS (fixed: AlarmKit state check prevents firing UI flash on lock screen stop) |
+
+### 19A. Lock Screen Auto-Archive
+
+| #     | Step                                       | Expected Result                            | Pass? |
+| ----- | ------------------------------------------ | ------------------------------------------ | ----- |
+| 19A.1 | Trigger one-time alarm while device locked | Lock screen UI appears                     | PASS  |
+| 19A.2 | "Slide to Stop" on lock screen             | Alarm dismissed and archived               | PASS  |
+| 19A.3 | Open app after lock screen stop            | Alarm in Archived section, not active list | PASS  |
+
+---
+
+## 20. Archived Section UI (sprint-siri-onetime)
+
+| #    | Step                                          | Expected Result                                                    | Pass? |
+| ---- | --------------------------------------------- | ------------------------------------------------------------------ | ----- |
+| 20.1 | No archived alarms                            | No "Archived" section visible in list                              | PASS  |
+| 20.2 | 1+ archived one-time alarms                   | "Archived (N)" disclosure group appears at bottom                  | PASS  |
+| 20.3 | Tap to expand Archived section                | Archived alarms shown with disabled appearance                     | PASS  |
+| 20.4 | Tap to collapse Archived section              | Section collapses, only header visible                             | PASS  |
+| 20.5 | Swipe to delete an archived alarm             | Confirmation dialog, then alarm permanently deleted                | PASS  |
+| 20.6 | Archived alarms don't count toward free limit | With 2 active + 1 archived, tapping + opens creation (not paywall) | PASS  |
+
+---
+
+## 21. Siri Integration — App Intents (sprint-siri-onetime)
+
+> **Setup:** Ensure Siri is enabled on device. Test via Shortcuts app or voice.
+
+| #    | Step                                        | Expected Result                                              | Pass?                                                  |
+| ---- | ------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
+| 21.1 | Open Shortcuts app                          | Chronir shortcuts visible (Create Alarm, Next Alarm, List)   | PASS                                                   |
+| 21.2 | "Hey Siri, create an alarm in Chronir"      | Siri prompts for alarm name                                  | PASS                                                   |
+| 21.3 | Provide name "Dentist" via voice            | Alarm created, Siri confirms "Created alarm: Dentist"        | PASS (Siri uses defaults for schedule/time — expected) |
+| 21.4 | Verify alarm in app                         | "Dentist" alarm appears in list with Weekly default schedule | PASS                                                   |
+| 21.5 | "Hey Siri, what's my next alarm in Chronir" | Siri reads next alarm title and date/time                    | PASS                                                   |
+| 21.6 | "Hey Siri, list my alarms in Chronir"       | Siri reads up to 5 active alarms                             | PASS                                                   |
+| 21.7 | With 2 active alarms, create via Siri       | Siri responds with free tier limit error message             | PASS |
+| 21.8 | SiriTipView visible in empty state          | Siri tip shown near empty state CTA in alarm list            | PASS |
+
+---
+
+## 22. One-Time Alarm — Edit Flow (sprint-siri-onetime)
+
+| #    | Step                                      | Expected Result                                       | Pass? |
+| ---- | ----------------------------------------- | ----------------------------------------------------- | ----- |
+| 22.1 | Create one-time alarm                     | Alarm appears in list                                 | PASS  |
+| 22.2 | Tap alarm card to open detail             | AlarmDetailView shows One-Time selected, date visible | PASS  |
+| 22.3 | Change date to next week                  | Date picker updates                                   | PASS  |
+| 22.4 | Tap Save                                  | Alarm saved with new date, countdown updates          | PASS  |
+| 22.5 | Change cycle type from One-Time to Weekly | Schedule fields change to day picker                  | PASS  |
+| 22.6 | Save and verify                           | Alarm now shows Weekly badge, repeat schedule works   | PASS  |
+
+---
+
 ## Test Summary
 
-| Category                      | Total Tests | Passed  | Failed | Notes                                             |
-| ----------------------------- | ----------- | ------- | ------ | ------------------------------------------------- |
-| Onboarding                    | 11          | 11      | 0      | All passed incl. Skip for now                     |
-| Empty State                   | 2           | 2       | 0      |                                                   |
-| Create Alarm                  | 13          | 9       | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested    |
-| Create Monthly                | 7           | 7       | 0      | "Salary day" monthly alarm created on device      |
-| Tier Gating                   | 5           | 5       | 0      | All passed incl. delete+re-create                 |
-| Edit Alarm                    | 7           | 6       | 0      | 6.4a multi-time edit untested                     |
-| Delete Alarm                  | 4           | 4       | 0      | Swipe right → delete confirmed                    |
-| Toggle                        | 4           | 4       | 0      | Swipe left + toggle switch both work              |
-| Alarm Firing                  | 12          | 12      | 0      | All passed including hold-to-dismiss              |
-| Lock Screen                   | 7           | 6       | 0      | 9D.5 (1hr re-fire) untested — requires wait       |
-| Settings                      | 14          | 14      | 0      | All passed                                        |
-| Persistence                   | 3           | 3       | 0      |                                                   |
-| Edge Cases                    | 8           | 8       | 0      | All covered by 26 unit tests                      |
-| Visual/UI                     | 7           | 7       | 0      | All confirmed from device screenshots             |
-| Notifications                 | 5           | 5       | 0      | All passed                                        |
-| Completion Recording (S9)     | 9           | 6       | 0      | 15.4–15.9 PASS; 15.1–15.3 untested                |
-| Haptic Feedback (S9)          | 9           | 9       | 0      | All passed on device                              |
-| Sprint 9 Cross-Cutting (Free) | 5           | 2       | 0      | 17.4–17.5 PASS; 17.1–17.3 untested                |
-| **TOTAL**                     | **132**     | **119** | **0**  | 6 Sprint 9 tests + 7 pending from earlier sprints |
+| Category                      | Total Tests | Passed  | Failed | Notes                                              |
+| ----------------------------- | ----------- | ------- | ------ | -------------------------------------------------- |
+| Onboarding                    | 11          | 11      | 0      | All passed incl. Skip for now                      |
+| Empty State                   | 2           | 2       | 0      |                                                    |
+| Create Alarm                  | 13          | 9       | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested     |
+| Create Monthly                | 7           | 7       | 0      | "Salary day" monthly alarm created on device       |
+| Tier Gating                   | 5           | 5       | 0      | All passed incl. delete+re-create                  |
+| Edit Alarm                    | 7           | 6       | 0      | 6.4a multi-time edit untested                      |
+| Delete Alarm                  | 4           | 4       | 0      | Swipe right → delete confirmed                     |
+| Toggle                        | 4           | 4       | 0      | Swipe left + toggle switch both work               |
+| Alarm Firing                  | 12          | 12      | 0      | All passed including hold-to-dismiss               |
+| Lock Screen                   | 7           | 6       | 0      | 9D.5 (1hr re-fire) untested — requires wait        |
+| Settings                      | 14          | 14      | 0      | All passed                                         |
+| Persistence                   | 3           | 3       | 0      |                                                    |
+| Edge Cases                    | 8           | 8       | 0      | All covered by 26 unit tests                       |
+| Visual/UI                     | 7           | 7       | 0      | All confirmed from device screenshots              |
+| Notifications                 | 5           | 5       | 0      | All passed                                         |
+| Completion Recording (S9)     | 9           | 6       | 0      | 15.4–15.9 PASS; 15.1–15.3 untested                 |
+| Haptic Feedback (S9)          | 9           | 9       | 0      | All passed on device                               |
+| Sprint 9 Cross-Cutting (Free) | 5           | 2       | 0      | 17.4–17.5 PASS; 17.1–17.3 untested                 |
+| Create One-Time (Siri sprint) | 8           | 8       | 0      | All pass                                           |
+| One-Time Auto-Archive         | 9           | 9       | 0      | All pass incl. lock screen archive                 |
+| Archived Section UI           | 6           | 6       | 0      | All pass                                           |
+| Siri Integration              | 8           | 8       | 0      | All pass                                           |
+| One-Time Edit Flow            | 6           | 6       | 0      | All pass                                           |
+| **TOTAL**                     | **169**     | **156** | **0**  | All tests passing                                  |
 
 ---
 
 ## Unit Test Baseline
 
-- **DateCalculatorTests:** 20 tests (all passing) — includes 4 multi-time tests
+- **DateCalculatorTests:** 23 tests (all passing) — includes 4 multi-time tests + 3 one-time tests
+- **AlarmValidatorTests:** 17 tests (all passing) — includes 1 one-time overlap test + 1 Codable round-trip
 - **TimezoneHandlerTests:** 6 tests (all passing)
-- **Total automated:** 26 tests passing
+- **Total automated:** 46 tests passing

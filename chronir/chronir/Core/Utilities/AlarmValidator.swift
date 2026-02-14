@@ -135,6 +135,9 @@ struct AlarmValidator {
 
     private static func schedulesOverlap(_ lhs: Schedule, _ rhs: Schedule) -> Bool {
         switch (lhs, rhs) {
+        case (.oneTime, _), (_, .oneTime):
+            return false
+
         case let (.weekly(daysL, _), .weekly(daysR, _)):
             return !Set(daysL).isDisjoint(with: Set(daysR))
 

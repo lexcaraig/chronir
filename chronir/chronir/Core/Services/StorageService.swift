@@ -6,22 +6,31 @@ protocol StorageServiceProtocol: Sendable {
     func deleteData(at path: String) async throws
 }
 
+enum StorageError: LocalizedError {
+    case notImplemented
+
+    var errorDescription: String? {
+        switch self {
+        case .notImplemented:
+            return "Cloud storage is not yet available."
+        }
+    }
+}
+
 final class StorageService: StorageServiceProtocol {
     static let shared = StorageService()
 
     private init() {}
 
     func uploadData(_ data: Data, path: String) async throws -> URL {
-        // TODO: Implement in Sprint 4 - Firebase Storage
-        fatalError("TODO: Implement uploadData")
+        throw StorageError.notImplemented
     }
 
     func downloadData(from path: String) async throws -> Data {
-        // TODO: Implement in Sprint 4
-        fatalError("TODO: Implement downloadData")
+        throw StorageError.notImplemented
     }
 
     func deleteData(at path: String) async throws {
-        // TODO: Implement in Sprint 4
+        throw StorageError.notImplemented
     }
 }

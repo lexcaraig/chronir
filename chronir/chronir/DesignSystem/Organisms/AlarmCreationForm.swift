@@ -16,6 +16,7 @@ struct AlarmCreationForm: View {
     @Binding var startYear: Int
     @Binding var category: AlarmCategory?
     @Binding var preAlarmEnabled: Bool
+    @Binding var oneTimeDate: Date
     var isPlusTier: Bool = false
     var titleError: String?
     @State private var savedIntervals: [CycleType: Int] = [:]
@@ -30,9 +31,14 @@ struct AlarmCreationForm: View {
                 maxLength: AlarmValidator.titleMaxLength
             )
 
-            IntervalPicker(selection: $cycleType)
+            IntervalPicker(
+                selection: $cycleType,
+                options: [.oneTime, .weekly, .monthlyDate, .annual]
+            )
 
-            if cycleType == .weekly {
+            if cycleType == .oneTime {
+                oneTimeDatePicker
+            } else if cycleType == .weekly {
                 weeklyDayPicker
             } else if cycleType == .monthlyDate {
                 monthlyDayPicker
@@ -51,7 +57,9 @@ struct AlarmCreationForm: View {
                 annualDatePicker
             }
 
-            repeatIntervalPicker
+            if cycleType != .oneTime {
+                repeatIntervalPicker
+            }
 
             if repeatInterval > 1 && (cycleType == .monthlyDate || cycleType == .monthlyRelative) {
                 monthlyStartPicker
@@ -85,6 +93,22 @@ struct AlarmCreationForm: View {
         .onChange(of: annualYear) {
             annualDay = min(annualDay, daysInSelectedMonth)
         }
+    }
+
+    private var oneTimeDatePicker: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            ChronirText("Date", style: .labelMedium, color: ColorTokens.textSecondary)
+            DatePicker(
+                "Fire Date",
+                selection: $oneTimeDate,
+                in: Date()...,
+                displayedComponents: .date
+            )
+            .datePickerStyle(.compact)
+            .labelsHidden()
+            .fixedSize()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var weeklyDayPicker: some View {
@@ -242,6 +266,8 @@ struct AlarmCreationForm: View {
             return repeatInterval == 1 ? "year" : "years"
         case .customDays:
             return repeatInterval == 1 ? "day" : "days"
+        case .oneTime:
+            return ""
         }
     }
 
@@ -267,6 +293,7 @@ struct AlarmCreationForm: View {
     @Previewable @State var startYear = Calendar.current.component(.year, from: Date())
     @Previewable @State var category: AlarmCategory?
     @Previewable @State var preAlarmEnabled = false
+    @Previewable @State var oneTimeDate = Date()
 
     ScrollView {
         AlarmCreationForm(
@@ -285,6 +312,7 @@ struct AlarmCreationForm: View {
             startYear: $startYear,
             category: $category,
             preAlarmEnabled: $preAlarmEnabled,
+            oneTimeDate: $oneTimeDate,
             isPlusTier: true
         )
     }

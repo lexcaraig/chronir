@@ -95,6 +95,7 @@ struct AlarmDetailView: View {
                 startYear: $viewModel.startYear,
                 category: $viewModel.category,
                 preAlarmEnabled: $viewModel.preAlarmEnabled,
+                oneTimeDate: $viewModel.oneTimeDate,
                 isPlusTier: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                 titleError: viewModel.titleError
             )

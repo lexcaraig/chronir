@@ -17,7 +17,7 @@ enum PhotoStorageService {
         let fileName = "\(alarmID.uuidString).jpg"
         let url = photosDirectory.appendingPathComponent(fileName)
         do {
-            try data.write(to: url, options: .atomic)
+            try data.write(to: url, options: [.atomic, .completeFileProtection])
             return fileName
         } catch {
             // Photo save failed — return nil to indicate failure

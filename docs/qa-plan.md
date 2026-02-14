@@ -31,9 +31,14 @@ This document defines the complete QA strategy for Chronir, a premium native rec
 ### 1.2 Out of Scope (V2+)
 
 - Relative date scheduling ("last Friday of month")
-- Siri / Google Assistant integration
+- Google Assistant integration (Android)
 - Smart home speaker integration
 - Task completion analytics dashboard
+
+### 1.3 Added Post-V1.0 (sprint-siri-onetime)
+
+- **One-Time Obligation Alarms** — non-recurring alarms that auto-archive after completion
+- **Siri Integration (iOS)** — App Intents for create, next, and list alarms via voice
 
 ---
 
@@ -291,6 +296,8 @@ These are the most critical tests in the entire plan. If alarms don't fire relia
 | AE-08   | Annual (Feb 29)      | February 29 every year, 9:00am | Fires Feb 28 in non-leap years, Feb 29 in leap years       | ±30 seconds | P0       |
 | AE-09   | Biweekly             | Every 2 weeks, starting Monday | Correct Monday every 2 weeks                               | ±30 seconds | P0       |
 | AE-10   | Every 6 months       | Biannual on Jan 15 and Jul 15  | Fires on both dates correctly                              | ±30 seconds | P0       |
+| AE-11   | One-Time (future)    | One-time alarm set for tomorrow 9am | Fires at specified date/time                          | ±30 seconds | P0       |
+| AE-12   | One-Time (past)      | One-time alarm with date in past    | Does not fire; treated as archived                    | N/A         | P1       |
 
 ### 6.2 Alarm Firing Behavior
 
@@ -317,6 +324,8 @@ These are the most critical tests in the entire plan. If alarms don't fire relia
 | AR-04   | Annual alarm marked done                    | Next occurrence = same date, next year                            | P0       |
 | AR-05   | Alarm snoozed 1 hour → then dismissed       | Original recurring schedule unaffected; next regular fire correct | P1       |
 | AR-06   | Alarm snoozed 1 week → then dismissed       | Original recurring schedule unaffected                            | P1       |
+| AR-07   | One-time alarm marked done                  | Alarm auto-archives (isEnabled = false), no reschedule            | P0       |
+| AR-08   | One-time alarm snoozed → then marked done   | Snooze works normally, then auto-archives on completion           | P1       |
 
 ---
 

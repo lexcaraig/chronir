@@ -74,6 +74,7 @@ enum ColorTokens {
     static let badgeMonthly = amber500
     static let badgeAnnual = red400
     static let badgeCustom = purple500
+    static let badgeOneTime = green500
 
     // MARK: - Action Buttons
 

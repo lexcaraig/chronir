@@ -18,6 +18,7 @@ final class AlarmCreationViewModel {
     var startMonth: Int = Calendar.current.component(.month, from: Date())
     var startYear: Int = Calendar.current.component(.year, from: Date())
     var category: AlarmCategory?
+    var oneTimeDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
     var isLoading: Bool = false
     var errorMessage: String?
 
@@ -70,6 +71,8 @@ final class AlarmCreationViewModel {
             )
         case .customDays:
             return .customDays(intervalDays: repeatInterval, startDate: Date())
+        case .oneTime:
+            return .oneTime(fireDate: oneTimeDate)
         }
     }
 }

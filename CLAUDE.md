@@ -79,7 +79,7 @@ Features are organized by screen: `AlarmList`, `AlarmDetail`, `AlarmCreation`, `
 
 - **Free:** 2 alarms max, local-only, basic features
 - **Plus ($1.99/mo):** Unlimited alarms, photo attachments, custom snooze, pre-alarm warnings, completion history, streaks
-- **Premium ($3.99/mo):** *(Not yet available — Phase 4, Sprint 11+)* Shared alarms, groups, push notifications, Live Activities
+- **Premium ($3.99/mo):** _(Not yet available — Phase 4, Sprint 11+)_ Shared alarms, groups, push notifications, Live Activities
 
 ## Test Devices
 
@@ -172,6 +172,7 @@ Rules discovered through debugging. These override any conflicting assumptions.
 - **SwiftData `@ModelActor` context boundaries:** Never return `@Model` objects from a `@ModelActor` method to the main thread. They become detached from the actor's background `ModelContext` and crash on attribute access. Fetch on the same context where objects will be used (use the view's `@Environment(\.modelContext)` for UI).
 
 - **Pre-launch audit for stub/placeholder debt:** Scaffold code (`fatalError` stubs, non-functional UI links, aspirational feature lists in paywalls) accumulates silently across sprints. Before any App Store submission, audit for: (1) `fatalError`/`preconditionFailure` in non-test code, (2) UI elements that look interactive but aren't wired up, (3) feature descriptions that promise unbuilt capabilities, (4) developer-only sections visible to end users. Each individually seems harmless but collectively causes App Store rejection.
+- **QA gates must fix, not just report:** When a QA gate or audit identifies blocking issues, fix them immediately in the same session — don't just report findings and wait for the user to ask. The purpose of a QA gate is to ship clean, not to generate a document. Always: run audit → fix blockers → rebuild → confirm green → then report results.
 - **Never ship debug `print()` statements:** Debug prints leak internal state (alarm titles, snooze counts, scheduling details) to device console logs visible via Xcode/Console.app. Before every commit, run `grep -r "print(" chronir/chronir/ --include="*.swift" | grep -v "Tests/" | grep -v "Preview"` to catch stray prints. Replace with either nothing (silent failure is fine for non-critical paths) or structured logging behind a `#if DEBUG` guard. `try?` is preferable to `do/catch` with a print when the error is non-actionable.
 
 **IMPORTANT:** When a bug fix requires more than one attempt, or the user confirms a mistake was made that needed correction, automatically run `/learn-from-mistake` to capture the lesson. Do not wait to be asked — proactively trigger it whenever a confirmed mistake scenario is resolved.

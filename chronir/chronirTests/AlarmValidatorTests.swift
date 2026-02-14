@@ -585,6 +585,39 @@ struct AlarmValidatorTests {
         #expect(warning.displayMessage == "Some months have fewer days. The alarm won't fire on days that don't exist in a given month.")
     }
 
+    // MARK: - One-Time No Overlap
+
+    @Test func oneTimeNeverOverlapsWithRecurring() {
+        let existing = makeAlarm(
+            title: "Weekly Task",
+            cycleType: .weekly,
+            timesOfDay: [TimeOfDay(hour: 9, minute: 0)],
+            schedule: .weekly(daysOfWeek: [2], interval: 1)
+        )
+        let result = validate(
+            title: "One-Time Task",
+            cycleType: .oneTime,
+            schedule: .oneTime(fireDate: Date()),
+            timesOfDay: [TimeOfDay(hour: 9, minute: 0)],
+            existingAlarms: [existing]
+        )
+        let hasConflict = result.warnings.contains(where: {
+            if case .sameTimeConflict = $0 { return true }
+            return false
+        })
+        #expect(!hasConflict)
+    }
+
+    // MARK: - Schedule Codable Round-Trip
+
+    @Test func oneTimeScheduleCodableRoundTrip() throws {
+        let fireDate = Date(timeIntervalSince1970: 1_800_000_000)
+        let original = Schedule.oneTime(fireDate: fireDate)
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(Schedule.self, from: data)
+        #expect(original == decoded)
+    }
+
     // MARK: - Edge Cases
 
     @Test func validationWithNoExistingAlarms() {

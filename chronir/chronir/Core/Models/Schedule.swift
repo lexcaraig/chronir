@@ -6,6 +6,7 @@ enum Schedule: Codable, Hashable {
     case monthlyRelative(weekOfMonth: Int, dayOfWeek: Int, interval: Int)
     case annual(month: Int, dayOfMonth: Int, interval: Int)
     case customDays(intervalDays: Int, startDate: Date)
+    case oneTime(fireDate: Date)
 
     var displayName: String {
         switch self {
@@ -17,6 +18,8 @@ enum Schedule: Codable, Hashable {
             return interval == 1 ? "Annual" : "Every \(interval) Years"
         case .customDays(let days, _):
             return days == 1 ? "Daily" : "Every \(days) Days"
+        case .oneTime:
+            return "One-Time"
         }
     }
 
@@ -27,6 +30,7 @@ enum Schedule: Codable, Hashable {
         case .monthlyRelative: return .monthlyRelative
         case .annual: return .annual
         case .customDays: return .customDays
+        case .oneTime: return .oneTime
         }
     }
 
@@ -34,11 +38,11 @@ enum Schedule: Codable, Hashable {
 
     private enum CodingKeys: String, CodingKey {
         case type
-        case daysOfWeek, interval, dayOfMonth, daysOfMonth, weekOfMonth, dayOfWeek, month, intervalDays, startDate
+        case daysOfWeek, interval, dayOfMonth, daysOfMonth, weekOfMonth, dayOfWeek, month, intervalDays, startDate, fireDate
     }
 
     private enum ScheduleType: String, Codable {
-        case weekly, monthlyDate, monthlyRelative, annual, customDays
+        case weekly, monthlyDate, monthlyRelative, annual, customDays, oneTime
     }
 
     func encode(to encoder: Encoder) throws {
@@ -66,6 +70,9 @@ enum Schedule: Codable, Hashable {
             try container.encode(ScheduleType.customDays, forKey: .type)
             try container.encode(intervalDays, forKey: .intervalDays)
             try container.encode(startDate, forKey: .startDate)
+        case .oneTime(let fireDate):
+            try container.encode(ScheduleType.oneTime, forKey: .type)
+            try container.encode(fireDate, forKey: .fireDate)
         }
     }
 
@@ -99,6 +106,9 @@ enum Schedule: Codable, Hashable {
             let intervalDays = try container.decode(Int.self, forKey: .intervalDays)
             let startDate = try container.decode(Date.self, forKey: .startDate)
             self = .customDays(intervalDays: intervalDays, startDate: startDate)
+        case .oneTime:
+            let fireDate = try container.decode(Date.self, forKey: .fireDate)
+            self = .oneTime(fireDate: fireDate)
         }
     }
 }

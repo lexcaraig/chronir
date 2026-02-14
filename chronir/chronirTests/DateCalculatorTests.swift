@@ -365,6 +365,47 @@ struct DateCalculatorTests {
         #expect(nextLegacy == nextMulti)
     }
 
+    // MARK: - One-Time
+
+    @Test func oneTimeFutureDate() {
+        let from = date(2026, 2, 1, 10, 0)
+        let fireDate = date(2026, 3, 15)
+        let alarm = makeAlarm(
+            schedule: .oneTime(fireDate: fireDate),
+            hour: 9, minute: 0
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        let components = calendar.dateComponents([.year, .month, .day, .hour], from: next)
+        #expect(components.year == 2026)
+        #expect(components.month == 3)
+        #expect(components.day == 15)
+        #expect(components.hour == 9)
+    }
+
+    @Test func oneTimePastDateReturnsDistantFuture() {
+        let from = date(2026, 4, 1, 10, 0)
+        let fireDate = date(2026, 3, 15)
+        let alarm = makeAlarm(
+            schedule: .oneTime(fireDate: fireDate),
+            hour: 9, minute: 0
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        #expect(next == .distantFuture)
+    }
+
+    @Test func oneTimeTodayTimeNotPassed() {
+        let from = date(2026, 3, 15, 8, 0)
+        let fireDate = date(2026, 3, 15)
+        let alarm = makeAlarm(
+            schedule: .oneTime(fireDate: fireDate),
+            hour: 9, minute: 0
+        )
+        let next = calculator.calculateNextFireDate(for: alarm, from: from)
+        let components = calendar.dateComponents([.day, .hour], from: next)
+        #expect(components.day == 15)
+        #expect(components.hour == 9)
+    }
+
     // MARK: - Factory
 
     private func makeAlarm(

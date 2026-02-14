@@ -12,6 +12,14 @@ protocol AlarmRepositoryProtocol: Sendable {
     func fetchCompletionLogs(for alarmID: UUID?) async throws -> [CompletionLog]
 }
 
+struct AlarmSummary: Sendable {
+    let id: UUID
+    let title: String
+    let nextFireDate: Date
+    let scheduleDisplayName: String
+    let cycleType: CycleType
+}
+
 @ModelActor
 actor AlarmRepository: AlarmRepositoryProtocol {
     static var shared: AlarmRepository!
@@ -70,6 +78,58 @@ actor AlarmRepository: AlarmRepositoryProtocol {
         }
         modelContext.insert(log)
         try modelContext.save()
+    }
+
+    func fetchEnabledSummaries() async throws -> [AlarmSummary] {
+        // Use a fresh context to ensure we see the latest persisted data
+        // (the actor's cached context may not reflect main context changes)
+        let freshContext = ModelContext(modelContainer)
+        let descriptor = FetchDescriptor<Alarm>(
+            predicate: #Predicate<Alarm> { $0.isEnabled == true },
+            sortBy: [SortDescriptor(\.nextFireDate)]
+        )
+        let alarms = try freshContext.fetch(descriptor)
+        return alarms.map { alarm in
+            AlarmSummary(
+                id: alarm.id,
+                title: alarm.title,
+                nextFireDate: alarm.nextFireDate,
+                scheduleDisplayName: alarm.schedule.displayName,
+                cycleType: alarm.cycleType
+            )
+        }
+    }
+
+    func countActiveAlarms() async throws -> Int {
+        let freshContext = ModelContext(modelContainer)
+        let descriptor = FetchDescriptor<Alarm>(
+            predicate: #Predicate<Alarm> { $0.isEnabled == true }
+        )
+        return try freshContext.fetchCount(descriptor)
+    }
+
+    func createAndSaveAlarm(
+        title: String,
+        cycleType: CycleType,
+        schedule: Schedule,
+        hour: Int,
+        minute: Int,
+        persistenceLevel: PersistenceLevel = .notificationOnly,
+        preAlarmMinutes: Int = 0
+    ) async throws -> UUID {
+        let alarm = Alarm(
+            title: title,
+            cycleType: cycleType,
+            timesOfDay: [TimeOfDay(hour: hour, minute: minute)],
+            schedule: schedule,
+            persistenceLevel: persistenceLevel,
+            preAlarmMinutes: preAlarmMinutes
+        )
+        let calc = DateCalculator()
+        alarm.nextFireDate = calc.calculateNextFireDate(for: alarm, from: Date())
+        modelContext.insert(alarm)
+        try modelContext.save()
+        return alarm.id
     }
 
     func fetchCompletionLogs(for alarmID: UUID?) async throws -> [CompletionLog] {

@@ -35,6 +35,7 @@ struct ChronirBadge: View {
         case .monthlyDate, .monthlyRelative: return ColorTokens.badgeMonthly
         case .annual: return ColorTokens.badgeAnnual
         case .customDays: return ColorTokens.badgeCustom
+        case .oneTime: return ColorTokens.badgeOneTime
         }
     }
 }
@@ -45,6 +46,7 @@ struct ChronirBadge: View {
         ChronirBadge(cycleType: .monthlyDate)
         ChronirBadge(cycleType: .annual)
         ChronirBadge(cycleType: .customDays)
+        ChronirBadge(cycleType: .oneTime)
     }
     .padding()
     .background(ColorTokens.backgroundPrimary)
