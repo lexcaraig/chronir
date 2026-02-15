@@ -22,6 +22,15 @@ export default function App() {
     return hash && sections[hash] ? hash : 'colors'
   })
 
+  const [theme, setTheme] = useState(() =>
+    localStorage.getItem('chronir-docs-theme') || 'dark'
+  )
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('chronir-docs-theme', theme)
+  }, [theme])
+
   useEffect(() => {
     const onHash = () => {
       const hash = window.location.hash.slice(1)
@@ -36,6 +45,10 @@ export default function App() {
     window.location.hash = id
     // Scroll content area to top
     document.querySelector('.main-content')?.scrollTo(0, 0)
+  }
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
   }
 
   const section = sections[active]
@@ -63,6 +76,13 @@ export default function App() {
           >
             Components
           </a>
+          <button
+            className="theme-toggle"
+            onClick={toggleTheme}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+          >
+            {theme === 'dark' ? '\u2600' : '\u263E'}
+          </button>
         </nav>
       </header>
 
@@ -71,7 +91,7 @@ export default function App() {
         <Sidebar active={active} onNavigate={navigate} />
         <main className="main-content">
           <div className="content-inner">
-            <SectionComponent />
+            <SectionComponent theme={theme} />
           </div>
         </main>
       </div>

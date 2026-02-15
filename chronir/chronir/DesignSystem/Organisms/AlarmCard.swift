@@ -19,8 +19,8 @@ enum AlarmVisualState {
         switch self {
         case .active: return nil
         case .inactive: return nil
-        case .snoozed: return ("Snoozed", ColorTokens.warning)
-        case .overdue: return ("Missed", ColorTokens.error)
+        case .snoozed: return ("Snoozed", ColorTokens.badgeWarning)
+        case .overdue: return ("Missed", ColorTokens.badgeError)
         }
     }
 }
@@ -121,10 +121,10 @@ struct AlarmCard: View {
                 }
                 Spacer()
                 if streak >= 2 {
-                    ChronirBadge("\(streak) streak", color: ColorTokens.success)
+                    ChronirBadge("\(streak) streak", color: ColorTokens.badgeSuccess)
                 }
                 if alarm.isPersistent {
-                    ChronirBadge("Persistent", color: ColorTokens.warning)
+                    ChronirBadge("Persistent", color: ColorTokens.badgeWarning)
                 }
             }
         }

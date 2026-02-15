@@ -89,7 +89,7 @@ struct WallpaperPickerView: View {
                 VStack(spacing: SpacingTokens.sm) {
                     Spacer()
                         .frame(height: 100)
-                    GlassEffectContainer {
+                    AdaptiveGlassContainer {
                         VStack(spacing: SpacingTokens.sm) {
                             sampleCard(title: "Morning Workout", cycle: "Weekly", time: "6:30 AM")
                             sampleCard(title: "Pay Rent", cycle: "Monthly", time: "9:00 AM")
@@ -194,7 +194,7 @@ struct WallpaperPickerView: View {
 
     private var controlBar: some View {
         VStack(spacing: SpacingTokens.sm) {
-            GlassEffectContainer {
+            AdaptiveGlassContainer {
                 VStack(spacing: SpacingTokens.xs) {
                     PhotosPicker(selection: $selectedItem, matching: .images) {
                         HStack {

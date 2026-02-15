@@ -57,10 +57,7 @@ struct TimesOfDayPicker: View {
             .foregroundStyle(.white)
             .padding(.horizontal, SpacingTokens.md)
             .padding(.vertical, SpacingTokens.sm)
-            .glassEffect(
-                GlassTokens.element.tint(ColorTokens.primary).interactive(),
-                in: .capsule
-            )
+            .chronirGlassTintedCapsule(tint: ColorTokens.primary)
         }
     }
 
@@ -74,7 +71,7 @@ struct TimesOfDayPicker: View {
                 .foregroundStyle(ColorTokens.textSecondary)
                 .padding(.horizontal, SpacingTokens.md)
                 .padding(.vertical, SpacingTokens.sm)
-                .glassEffect(GlassTokens.element, in: .capsule)
+                .chronirGlassCapsule()
         }
     }
 

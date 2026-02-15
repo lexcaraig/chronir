@@ -31,12 +31,7 @@ struct ChronirCategoryPicker: View {
             .foregroundStyle(selection == nil ? .white : ColorTokens.textSecondary)
             .padding(.horizontal, SpacingTokens.md)
             .padding(.vertical, SpacingTokens.sm)
-            .glassEffect(
-                selection == nil
-                    ? GlassTokens.element.tint(ColorTokens.primary).interactive()
-                    : GlassTokens.element,
-                in: .capsule
-            )
+            .chronirGlassSelectableCapsule(isSelected: selection == nil)
         }
     }
 
@@ -54,12 +49,7 @@ struct ChronirCategoryPicker: View {
             .foregroundStyle(selection == category ? .white : ColorTokens.textSecondary)
             .padding(.horizontal, SpacingTokens.md)
             .padding(.vertical, SpacingTokens.sm)
-            .glassEffect(
-                selection == category
-                    ? GlassTokens.element.tint(category.color).interactive()
-                    : GlassTokens.element,
-                in: .capsule
-            )
+            .chronirGlassSelectableCapsule(isSelected: selection == category, tint: category.color)
         }
     }
 }

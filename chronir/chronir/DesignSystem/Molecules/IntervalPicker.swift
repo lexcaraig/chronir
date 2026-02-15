@@ -28,12 +28,7 @@ struct IntervalPicker: View {
                             )
                             .padding(.horizontal, SpacingTokens.md)
                             .padding(.vertical, SpacingTokens.sm)
-                            .glassEffect(
-                                selection == option
-                                    ? GlassTokens.element.tint(ColorTokens.primary).interactive()
-                                    : GlassTokens.element,
-                                in: .capsule
-                            )
+                            .chronirGlassSelectableCapsule(isSelected: selection == option)
                         }
                     }
                 }

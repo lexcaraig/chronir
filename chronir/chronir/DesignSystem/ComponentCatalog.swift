@@ -70,7 +70,7 @@ private struct CatalogTextView: View {
 
 private struct CatalogButtonView: View {
     var body: some View {
-        GlassEffectContainer {
+        AdaptiveGlassContainer {
             VStack(spacing: SpacingTokens.md) {
                 ChronirButton("Primary Action") {}
                 ChronirButton("Secondary", style: .secondary) {}
@@ -94,9 +94,9 @@ private struct CatalogBadgeView: View {
                 ChronirBadge(cycleType: .customDays)
             }
             HStack(spacing: SpacingTokens.sm) {
-                ChronirBadge("Active", color: ColorTokens.success)
-                ChronirBadge("Persistent", color: ColorTokens.warning)
-                ChronirBadge("Missed", color: ColorTokens.error)
+                ChronirBadge("Active", color: ColorTokens.badgeSuccess)
+                ChronirBadge("Persistent", color: ColorTokens.badgeWarning)
+                ChronirBadge("Missed", color: ColorTokens.badgeError)
             }
         }
         .padding()
@@ -170,7 +170,7 @@ private struct CatalogIntervalPickerView: View {
     @State private var selected: CycleType = .weekly
 
     var body: some View {
-        GlassEffectContainer {
+        AdaptiveGlassContainer {
             IntervalPicker(selection: $selected)
                 .padding()
         }
@@ -235,7 +235,7 @@ private struct CatalogAlarmCardView: View {
 
     var body: some View {
         ScrollView {
-            GlassEffectContainer {
+            AdaptiveGlassContainer {
                 VStack(spacing: SpacingTokens.md) {
                     AlarmCard(
                         alarm: Alarm(title: "Active Card", cycleType: .weekly, persistenceLevel: .full),
@@ -276,7 +276,7 @@ private struct CatalogAlarmCardView: View {
 private struct CatalogCategoryGroupCardView: View {
     var body: some View {
         ScrollView {
-            GlassEffectContainer {
+            AdaptiveGlassContainer {
                 VStack(spacing: SpacingTokens.md) {
                     CategoryGroupCard(
                         category: .finance,
@@ -395,7 +395,7 @@ private struct CatalogCategoryPickerView: View {
     @State private var selection: AlarmCategory? = .home
 
     var body: some View {
-        GlassEffectContainer {
+        AdaptiveGlassContainer {
             ChronirCategoryPicker(selection: $selection)
                 .padding()
         }

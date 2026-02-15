@@ -79,6 +79,8 @@ struct ChronirApp: App {
                 }
             }
             .environment(\.textSizeScale, settings.textSizePreference.scaleFactor)
+            .environment(\.chronirTheme, settings.themePreference)
+            .preferredColorScheme(settings.themePreference.colorScheme)
             .tint(ColorTokens.primary)
             .task {
                 try? await Task.sleep(for: .seconds(2))

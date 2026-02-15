@@ -127,12 +127,7 @@ struct AlarmCreationForm: View {
                             .chronirFont(.labelSmall)
                             .foregroundStyle(selectedDays.contains(day) ? .white : ColorTokens.textSecondary)
                             .frame(width: 36, height: 36)
-                            .glassEffect(
-                                selectedDays.contains(day)
-                                    ? GlassTokens.element.tint(ColorTokens.primary).interactive()
-                                    : GlassTokens.element,
-                                in: .circle
-                            )
+                            .chronirGlassSelectableCircle(isSelected: selectedDays.contains(day))
                     }
                 }
             }
@@ -156,12 +151,7 @@ struct AlarmCreationForm: View {
                             .chronirFont(.labelSmall)
                             .foregroundStyle(daysOfMonth.contains(day) ? .white : ColorTokens.textSecondary)
                             .frame(width: 36, height: 36)
-                            .glassEffect(
-                                daysOfMonth.contains(day)
-                                    ? GlassTokens.element.tint(ColorTokens.primary).interactive()
-                                    : GlassTokens.element,
-                                in: .circle
-                            )
+                            .chronirGlassSelectableCircle(isSelected: daysOfMonth.contains(day))
                     }
                 }
             }

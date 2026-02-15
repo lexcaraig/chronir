@@ -68,7 +68,7 @@ struct GlassPreview<Content: View>: View {
     }
 
     var body: some View {
-        GlassEffectContainer {
+        AdaptiveGlassContainer {
             content
         }
         .preferredColorScheme(.dark)

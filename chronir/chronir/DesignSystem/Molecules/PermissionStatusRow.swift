@@ -25,10 +25,10 @@ struct PermissionStatusRow: View {
     private var statusBadge: some View {
         switch status {
         case .authorized:
-            ChronirBadge("Enabled", color: ColorTokens.success)
+            ChronirBadge("Enabled", color: ColorTokens.badgeSuccess)
         case .denied:
             HStack(spacing: SpacingTokens.xs) {
-                ChronirBadge("Denied", color: ColorTokens.error)
+                ChronirBadge("Denied", color: ColorTokens.badgeError)
                 ChronirIcon(
                     systemName: "arrow.up.forward.app",
                     size: .small,
@@ -36,7 +36,7 @@ struct PermissionStatusRow: View {
                 )
             }
         case .provisional:
-            ChronirBadge("Provisional", color: ColorTokens.warning)
+            ChronirBadge("Provisional", color: ColorTokens.badgeWarning)
         case .notDetermined:
             ChronirBadge("Not Set", color: ColorTokens.textSecondary)
         }

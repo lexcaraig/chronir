@@ -14,9 +14,9 @@ struct ChronirBadgeGroup: View {
 
 #Preview {
     ChronirBadgeGroup(badges: [
-        ("Weekly", ColorTokens.primary),
-        ("Persistent", ColorTokens.warning),
-        ("Shared", ColorTokens.secondary)
+        ("Weekly", ColorTokens.badgeWeekly),
+        ("Persistent", ColorTokens.badgeWarning),
+        ("Shared", ColorTokens.primary)
     ])
     .padding()
     .background(ColorTokens.backgroundPrimary)

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OnboardingView: View {
     @Bindable private var settings = UserSettings.shared
+    @Environment(\.chronirTheme) private var theme
     @State private var currentPage = 0
     @State private var permissionGranted = false
 
@@ -13,7 +14,7 @@ struct OnboardingView: View {
         }
         .tabViewStyle(.page(indexDisplayMode: .always))
         .background {
-            ColorTokens.backgroundGradient.ignoresSafeArea()
+            ColorTokens.backgroundPrimary.ignoresSafeArea()
         }
         .ignoresSafeArea()
     }
@@ -23,7 +24,7 @@ struct OnboardingView: View {
     private var welcomePage: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
-            glassIconCircle(systemName: "bell.fill", color: ColorTokens.primary)
+            iconCircle(systemName: "bell.fill", color: ColorTokens.primary)
                 .padding(.bottom, SpacingTokens.lg)
             ChronirText(
                 "Never Forget\nWhat Matters",
@@ -47,7 +48,7 @@ struct OnboardingView: View {
     private var schedulePage: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
-            glassIconCircle(systemName: "calendar.badge.clock", color: ColorTokens.warning)
+            iconCircle(systemName: "calendar.badge.clock", color: ColorTokens.warning)
                 .padding(.bottom, SpacingTokens.lg)
             ChronirText(
                 "Weekly, Monthly,\nAnnually",
@@ -73,7 +74,7 @@ struct OnboardingView: View {
     private var permissionPage: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
-            glassIconCircle(systemName: "shield.checkered", color: ColorTokens.success)
+            iconCircle(systemName: "shield.checkered", color: ColorTokens.success)
                 .padding(.bottom, SpacingTokens.lg)
             ChronirText(
                 "Stay Notified",
@@ -114,12 +115,12 @@ struct OnboardingView: View {
 
     // MARK: - Helpers
 
-    private func glassIconCircle(systemName: String, color: Color) -> some View {
+    private func iconCircle(systemName: String, color: Color) -> some View {
         Image(systemName: systemName)
             .font(.system(size: 40, weight: .medium))
             .foregroundStyle(color)
             .frame(width: 96, height: 96)
-            .glassEffect(GlassTokens.element.tint(color.opacity(0.3)), in: .circle)
+            .background(color.opacity(0.12), in: .circle)
     }
 
     private var nextButton: some View {
@@ -131,6 +132,14 @@ struct OnboardingView: View {
     }
 }
 
-#Preview {
+#Preview("Light") {
     OnboardingView()
+        .environment(\.chronirTheme, .light)
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    OnboardingView()
+        .environment(\.chronirTheme, .dark)
+        .preferredColorScheme(.dark)
 }

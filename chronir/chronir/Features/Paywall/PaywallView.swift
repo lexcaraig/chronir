@@ -28,7 +28,7 @@ struct PaywallView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
-            ColorTokens.backgroundGradient
+            ColorTokens.backgroundPrimary
                 .ignoresSafeArea()
         }
         .task {
@@ -50,9 +50,9 @@ struct PaywallView: View {
         Button { dismiss() } label: {
             Image(systemName: "xmark")
                 .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(ColorTokens.textSecondary)
                 .frame(width: 30, height: 30)
-                .chronirGlassCircle()
+                .background(ColorTokens.backgroundTertiary, in: .circle)
         }
         .padding(.top, 60)
         .padding(.trailing, SpacingTokens.lg)
@@ -66,12 +66,11 @@ struct PaywallView: View {
 
             Image(systemName: "bell.badge.fill")
                 .font(.system(size: 48))
-                .foregroundStyle(.white)
-                .shadow(color: ColorTokens.primary.opacity(0.5), radius: 24)
+                .foregroundStyle(ColorTokens.primary)
 
             Text("Unlock Plus")
                 .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(ColorTokens.textPrimary)
         }
     }
 
@@ -91,13 +90,13 @@ struct PaywallView: View {
         HStack(spacing: SpacingTokens.md) {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(.white.opacity(0.85))
+                .foregroundStyle(ColorTokens.primary)
                 .frame(width: 40, height: 40)
-                .chronirGlassCircle()
+                .background(ColorTokens.primary.opacity(0.12), in: .circle)
 
             Text(title)
                 .chronirFont(.bodyLarge)
-                .foregroundStyle(.white)
+                .foregroundStyle(ColorTokens.textPrimary)
 
             Spacer()
         }
@@ -133,42 +132,39 @@ struct PaywallView: View {
         return Button { selectedPlan = plan } label: {
             HStack(spacing: SpacingTokens.md) {
                 Circle()
-                    .strokeBorder(.white.opacity(0.4), lineWidth: 2)
+                    .strokeBorder(ColorTokens.borderDefault, lineWidth: 2)
                     .frame(width: 24, height: 24)
                     .overlay {
                         if isSelected {
                             Circle()
-                                .fill(.white)
+                                .fill(ColorTokens.primary)
                                 .frame(width: 12, height: 12)
                         }
                     }
 
                 Text(label)
                     .chronirFont(.bodyLarge)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(ColorTokens.textPrimary)
 
                 if let badge {
-                    Text(badge)
-                        .chronirFont(.labelSmall)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .chronirGlassCapsule()
+                    ChronirBadge(badge, color: ColorTokens.primary)
                 }
 
                 Spacer()
 
                 Text(price)
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(ColorTokens.textPrimary)
             }
             .padding(.horizontal, SpacingTokens.md)
             .padding(.vertical, SpacingTokens.md)
-            .glassEffect(
-                isSelected
-                    ? GlassTokens.card.tint(ColorTokens.primary).interactive()
-                    : GlassTokens.card,
+            .background(
+                isSelected ? ColorTokens.primary.opacity(0.08) : ColorTokens.surfaceCard,
                 in: .rect(cornerRadius: GlassTokens.cardRadius)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: GlassTokens.cardRadius)
+                    .stroke(isSelected ? ColorTokens.primary : ColorTokens.borderDefault, lineWidth: isSelected ? 2 : 0.5)
             )
         }
     }
@@ -179,7 +175,7 @@ struct PaywallView: View {
         VStack(spacing: SpacingTokens.sm) {
             Text(renewalTermsText)
                 .chronirFont(.caption)
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(ColorTokens.textTertiary)
                 .multilineTextAlignment(.center)
 
             Button {
@@ -196,17 +192,7 @@ struct PaywallView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .background(
-                    LinearGradient(
-                        colors: [
-                            Color(red: 0.35, green: 0.25, blue: 0.95),
-                            Color(red: 0.5, green: 0.2, blue: 0.85)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ),
-                    in: Capsule()
-                )
+                .background(ColorTokens.primary, in: Capsule())
             }
             .disabled(viewModel.isLoading)
         }
@@ -221,18 +207,18 @@ struct PaywallView: View {
             } label: {
                 Text("Restore Purchases")
                     .chronirFont(.caption)
-                    .foregroundStyle(.white.opacity(0.45))
+                    .foregroundStyle(ColorTokens.textTertiary)
             }
 
             Spacer()
 
             HStack(spacing: 4) {
                 Link("Terms", destination: termsURL)
-                Text("&").foregroundStyle(.white.opacity(0.45))
+                Text("&").foregroundStyle(ColorTokens.textTertiary)
                 Link("Privacy", destination: privacyURL)
             }
             .chronirFont(.caption)
-            .foregroundStyle(.white.opacity(0.45))
+            .foregroundStyle(ColorTokens.textTertiary)
         }
     }
 
@@ -280,6 +266,14 @@ struct PaywallView: View {
     private let privacyURL = URL(string: "https://chronir.app/privacy")!
 }
 
-#Preview {
+#Preview("Light") {
     PaywallView()
+        .environment(\.chronirTheme, .light)
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    PaywallView()
+        .environment(\.chronirTheme, .dark)
+        .preferredColorScheme(.dark)
 }

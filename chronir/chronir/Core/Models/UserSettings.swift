@@ -2,6 +2,28 @@ import Foundation
 import Observation
 import SwiftUI
 
+enum ThemePreference: String, CaseIterable {
+    case light, dark, liquidGlass
+
+    var displayName: String {
+        switch self {
+        case .light: return "Light"
+        case .dark: return "Dark"
+        case .liquidGlass: return "Glass"
+        }
+    }
+
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .light: return .light
+        case .dark: return .dark
+        case .liquidGlass: return .dark
+        }
+    }
+
+    var isGlassActive: Bool { self == .liquidGlass }
+}
+
 enum TextSizePreference: String, CaseIterable {
     case compact, standard, large
 
@@ -80,6 +102,10 @@ final class UserSettings {
         didSet { Self.defaults.set(textSizePreference.rawValue, forKey: "textSizePreference") }
     }
 
+    var themePreference: ThemePreference {
+        didSet { Self.defaults.set(themePreference.rawValue, forKey: "themePreference") }
+    }
+
     private init() {
         Self.defaults.register(defaults: [
             "snoozeEnabled": true,
@@ -108,5 +134,7 @@ final class UserSettings {
         hapticsEnabled = Self.defaults.bool(forKey: "hapticsEnabled")
         let textSizeRaw = Self.defaults.string(forKey: "textSizePreference") ?? TextSizePreference.standard.rawValue
         textSizePreference = TextSizePreference(rawValue: textSizeRaw) ?? .standard
+        let themeRaw = Self.defaults.string(forKey: "themePreference") ?? ThemePreference.light.rawValue
+        themePreference = ThemePreference(rawValue: themeRaw) ?? .light
     }
 }

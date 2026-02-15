@@ -52,11 +52,11 @@ struct ChronirBadge: View {
     .background(ColorTokens.backgroundPrimary)
 }
 
-#Preview("Custom Badges") {
+#Preview("Status Badges") {
     HStack(spacing: SpacingTokens.sm) {
-        ChronirBadge("Active", color: ColorTokens.success)
-        ChronirBadge("Persistent", color: ColorTokens.warning)
-        ChronirBadge("Owner", color: ColorTokens.secondary)
+        ChronirBadge("Active", color: ColorTokens.badgeSuccess)
+        ChronirBadge("Persistent", color: ColorTokens.badgeWarning)
+        ChronirBadge("Missed", color: ColorTokens.badgeError)
     }
     .padding()
     .background(ColorTokens.backgroundPrimary)

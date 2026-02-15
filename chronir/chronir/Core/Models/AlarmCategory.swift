@@ -40,14 +40,14 @@ enum AlarmCategory: String, Codable, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
-        case .home: return ColorTokens.blue500
-        case .health: return ColorTokens.red400
-        case .finance: return ColorTokens.green500
-        case .vehicle: return ColorTokens.amber500
-        case .work: return ColorTokens.purple500
-        case .personal: return ColorTokens.blue600
-        case .pets: return ColorTokens.amber500
-        case .subscriptions: return ColorTokens.red500
+        case .home: return ColorTokens.categoryHome
+        case .health: return ColorTokens.categoryHealth
+        case .finance: return ColorTokens.categoryFinance
+        case .vehicle: return ColorTokens.categoryVehicle
+        case .work: return ColorTokens.categoryWork
+        case .personal: return ColorTokens.categoryPersonal
+        case .pets: return ColorTokens.categoryPets
+        case .subscriptions: return ColorTokens.categorySubscriptions
         }
     }
 }

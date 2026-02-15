@@ -895,6 +895,413 @@ const categoryGroupCardTemplate = `VStack(alignment: .leading,
 .padding(SpacingTokens.cardPadding)
 .chronirGlassCard()`
 
+// ─── FAB (Floating Action Button) ───
+
+function FABPreview() {
+  const variants = [
+    { icon: '+', label: 'Default (plus)' },
+    { icon: '✎', label: 'Custom (pencil)' },
+  ]
+  return (
+    <div style={{ display: 'flex', gap: t.lg, alignItems: 'center' }}>
+      {variants.map(v => (
+        <div key={v.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: t.xs }}>
+          <div style={{
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            backgroundColor: t.primary,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            fontSize: 24,
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}>
+            {v.icon}
+          </div>
+          <span style={{ fontSize: 11, color: t.textSecondary }}>{v.label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const fabSpecs = [
+  { element: 'FAB', property: 'size', token: '—', value: '56 × 56pt', placement: 'Bottom-center, overlaying content', layer: 'Overlay' },
+  { element: 'FAB', property: 'shape', token: '—', value: 'Circle' },
+  { element: 'FAB', property: 'background', token: 'color.primary', value: t.primary, placement: '—', layer: '—' },
+  { element: 'FAB', property: 'bottom padding', token: 'spacing.lg', value: `${t.lg}px` },
+  { element: 'FAB (Liquid Glass)', property: 'modifier', token: '—', value: '.chronirGlassTintedCircle(tint:)' },
+  { element: 'FAB (Light/Dark)', property: 'modifier', token: '—', value: 'Solid tint fill + Circle clip' },
+  { element: 'Icon', property: 'font', token: '—', value: '.title2.weight(.semibold)', placement: 'Centered in circle', layer: 'Content' },
+  { element: 'Icon', property: 'color', token: '—', value: '#FFFFFF (always white)' },
+  { element: 'Wrapper', property: 'container', token: '—', value: 'AdaptiveGlassContainer', placement: 'Wraps FAB button', layer: 'Base' },
+]
+
+const fabTemplate = `// Bottom of ZStack in AlarmListView
+AdaptiveGlassContainer {
+    Button {
+        requestCreateAlarm()
+    } label: {
+        Image(systemName: "plus")              // Icon
+            .font(.title2.weight(.semibold))
+            .foregroundStyle(.white)
+            .frame(width: 56, height: 56)      // Size
+            .chronirGlassTintedCircle(          // Shape + tint
+                tint: ColorTokens.primary)
+    }
+}
+.padding(.bottom, SpacingTokens.lg)            // Safe area offset`
+
+// ─── OnboardingView ───
+
+function OnboardingPagePreview({ icon, iconColor, headline, body, buttonLabel }) {
+  return (
+    <div style={{
+      backgroundColor: t.bgPrimary,
+      borderRadius: t.radiusMd,
+      padding: '32px 24px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: t.lg,
+      minHeight: 280,
+      justifyContent: 'center',
+      textAlign: 'center',
+    }}>
+      <div style={{
+        width: 96, height: 96, borderRadius: '50%',
+        backgroundColor: iconColor + '1F', // 12% opacity
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 32, color: iconColor,
+      }}>
+        {icon}
+      </div>
+      <div style={{ fontSize: 24, fontWeight: 600, color: t.textPrimary, lineHeight: 1.2 }}>{headline}</div>
+      <div style={{ fontSize: 14, color: t.textSecondary, lineHeight: 1.5, maxWidth: 280 }}>{body}</div>
+      <div style={{
+        padding: `${t.md}px ${t.lg}px`,
+        backgroundColor: t.primary,
+        color: '#fff',
+        borderRadius: t.radiusSm,
+        fontWeight: 600,
+        fontSize: 14,
+        width: '80%',
+        textAlign: 'center',
+      }}>
+        {buttonLabel}
+      </div>
+    </div>
+  )
+}
+
+function OnboardingPreview() {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+      <OnboardingPagePreview
+        icon="🔔" iconColor={t.primary}
+        headline="Never Forget What Matters"
+        body="High-persistence alarms for the obligations that can't be missed."
+        buttonLabel="Continue"
+      />
+      <OnboardingPagePreview
+        icon="📅" iconColor={t.warning}
+        headline="Weekly, Monthly, Annually"
+        body="Set recurring alarms on any cycle. Rent day, medication refills, insurance renewals — all covered."
+        buttonLabel="Continue"
+      />
+      <OnboardingPagePreview
+        icon="🛡" iconColor={t.success}
+        headline="Stay Notified"
+        body="Chronir needs notification access to fire alarms even when the app is closed."
+        buttonLabel="Enable Alarms"
+      />
+    </div>
+  )
+}
+
+const onboardingSpecs = [
+  { element: 'Page', property: 'background', token: 'color.background.primary', value: t.bgPrimary, placement: 'Full screen, paged TabView', layer: 'Base' },
+  { element: 'Page', property: 'layout', token: '—', value: 'VStack, center aligned', placement: 'Vertical stack with Spacer top/bottom' },
+  { element: 'Page', property: 'padding', token: 'spacing.xl', value: `${t.lg}px (xl)` },
+  { element: 'Icon circle', property: 'size', token: '—', value: '96 × 96pt', placement: 'Center, top of content', layer: 'Content' },
+  { element: 'Icon circle', property: 'shape', token: '—', value: 'Circle' },
+  { element: 'Icon circle', property: 'background', token: '—', value: 'color.opacity(0.12)' },
+  { element: 'Icon', property: 'font-size', token: '—', value: '40pt (system, medium weight)', placement: 'Centered in circle' },
+  { element: 'Icon (Welcome)', property: 'color', token: 'color.primary', value: t.primary },
+  { element: 'Icon (Schedules)', property: 'color', token: 'color.warning', value: t.warning },
+  { element: 'Icon (Permissions)', property: 'color', token: 'color.success', value: t.success },
+  { element: 'Icon → headline gap', property: 'gap', token: 'spacing.lg', value: `${t.lg}px` },
+  { element: 'Headline', property: 'style', token: 'ChronirTextStyle.headlineTitle', value: '24px semibold', placement: 'Center, below icon', layer: 'Content' },
+  { element: 'Headline', property: 'color', token: 'color.text.primary', value: t.textPrimary },
+  { element: 'Headline', property: 'alignment', token: '—', value: 'center' },
+  { element: 'Body', property: 'style', token: 'ChronirTextStyle.bodySecondary', value: '14px regular', placement: 'Center, below headline', layer: 'Content' },
+  { element: 'Body', property: 'color', token: 'color.text.secondary', value: t.textSecondary },
+  { element: 'Body', property: 'alignment', token: '—', value: 'center' },
+  { element: 'CTA button', property: 'component', token: '—', value: 'ChronirButton', placement: 'Bottom of content', layer: 'Content' },
+  { element: 'Skip button (page 3)', property: 'style', token: 'ChronirTextStyle.bodySecondary', value: '14px', placement: 'Below CTA, page 3 only' },
+  { element: 'Skip button', property: 'color', token: 'color.text.secondary', value: t.textSecondary },
+  { element: 'Page indicator', property: 'style', token: '—', value: 'TabView .page(indexDisplayMode: .always)', placement: 'Bottom edge', layer: 'Chrome' },
+]
+
+const onboardingTemplate = `TabView(selection: $currentPage) {
+    // Page 1: Welcome
+    VStack(spacing: SpacingTokens.lg) {
+        Spacer()
+        iconCircle(systemName: "bell.fill",      // Icon circle
+                   color: ColorTokens.primary)
+        ChronirText("Never Forget\\nWhat Matters",
+                    style: .headlineTitle,
+                    alignment: .center)           // Headline
+        ChronirText("High-persistence alarms...",
+                    style: .bodySecondary,
+                    color: ColorTokens.textSecondary,
+                    alignment: .center)           // Body
+        Spacer()
+        ChronirButton("Continue") {               // CTA
+            currentPage += 1
+        }
+    }
+    .padding(SpacingTokens.xl)
+    .tag(0)
+
+    // Page 2: Schedules (same layout, warning icon)
+    // Page 3: Permissions (Enable Alarms + Skip)
+}
+.tabViewStyle(.page(indexDisplayMode: .always))
+.background { ColorTokens.backgroundPrimary }`
+
+// ─── PaywallView ───
+
+function PaywallPreview() {
+  return (
+    <div style={{
+      backgroundColor: t.bgPrimary,
+      borderRadius: t.radiusMd,
+      padding: '24px 20px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: t.lg,
+      position: 'relative',
+      maxWidth: 360,
+    }}>
+      {/* Close button */}
+      <div style={{
+        position: 'absolute', top: 12, right: 12,
+        width: 30, height: 30, borderRadius: '50%',
+        backgroundColor: t.bgTertiary,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 12, fontWeight: 700, color: t.textSecondary,
+      }}>✕</div>
+
+      {/* Header */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: t.sm, paddingTop: 16 }}>
+        <span style={{ fontSize: 40, color: t.primary }}>🔔</span>
+        <span style={{ fontSize: 28, fontWeight: 700, color: t.textPrimary }}>Unlock Plus</span>
+      </div>
+
+      {/* Feature list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: t.md }}>
+        {[
+          { icon: '∞', label: 'Unlimited alarms' },
+          { icon: '⏰', label: 'Custom snooze intervals' },
+          { icon: '🔔', label: 'Pre-alarm warnings' },
+          { icon: '📷', label: 'Photo attachments' },
+          { icon: '📊', label: 'Completion history & streaks' },
+        ].map(f => (
+          <div key={f.label} style={{ display: 'flex', alignItems: 'center', gap: t.md }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: '50%',
+              backgroundColor: t.primary + '1F',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 16, color: t.primary,
+            }}>{f.icon}</div>
+            <span style={{ fontSize: 16, color: t.textPrimary }}>{f.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Plan selector */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: t.sm }}>
+        {/* Annual — selected */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: t.md,
+          padding: t.md,
+          backgroundColor: t.primary + '14', // 8% opacity
+          borderRadius: t.radiusMd,
+          border: `2px solid ${t.primary}`,
+        }}>
+          <div style={{
+            width: 24, height: 24, borderRadius: '50%',
+            border: `2px solid ${t.primary}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: t.primary }} />
+          </div>
+          <span style={{ fontSize: 16, fontWeight: 500, color: t.textPrimary }}>Annual</span>
+          <Badge text="Best Deal" color={t.primary} />
+          <span style={{ flex: 1 }} />
+          <span style={{ fontSize: 17, fontWeight: 600, color: t.textPrimary }}>$19.99</span>
+        </div>
+        {/* Monthly — unselected */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: t.md,
+          padding: t.md,
+          backgroundColor: t.surfaceCard,
+          borderRadius: t.radiusMd,
+          border: `0.5px solid ${t.textDisabled}`,
+        }}>
+          <div style={{
+            width: 24, height: 24, borderRadius: '50%',
+            border: `2px solid ${t.textDisabled}`,
+          }} />
+          <span style={{ fontSize: 16, fontWeight: 500, color: t.textPrimary }}>Monthly</span>
+          <span style={{ flex: 1 }} />
+          <span style={{ fontSize: 17, fontWeight: 600, color: t.textPrimary }}>$1.99</span>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: t.sm }}>
+        <span style={{ fontSize: 12, color: t.textSecondary, textAlign: 'center' }}>
+          Auto-renews at $19.99/year. Cancel anytime in Settings.
+        </span>
+        <div style={{
+          padding: `${t.md}px`,
+          backgroundColor: t.primary,
+          color: '#fff',
+          borderRadius: 100,
+          fontWeight: 600,
+          fontSize: 17,
+          width: '100%',
+          textAlign: 'center',
+          height: 54,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          Subscribe — $19.99/yr
+        </div>
+      </div>
+
+      {/* Legal footer */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: t.textSecondary }}>
+        <span>Restore Purchases</span>
+        <span>Terms & Privacy</span>
+      </div>
+    </div>
+  )
+}
+
+const paywallSpecs = [
+  { element: 'Container', property: 'background', token: 'color.background.primary', value: t.bgPrimary, placement: 'Full screen, scrollable', layer: 'Base' },
+  { element: 'Container', property: 'padding', token: 'spacing.lg', value: `${t.lg}px horizontal` },
+  { element: 'Container', property: 'section gap', token: 'spacing.xl', value: '24px (xl)' },
+  { element: 'Close button', property: 'size', token: '—', value: '30 × 30pt', placement: 'Top-right, absolute', layer: 'Overlay' },
+  { element: 'Close button', property: 'shape', token: '—', value: 'Circle' },
+  { element: 'Close button', property: 'background', token: 'color.background.tertiary', value: t.bgTertiary },
+  { element: 'Close button', property: 'icon color', token: 'color.text.secondary', value: t.textSecondary },
+  { element: 'Close button', property: 'icon', token: '—', value: 'xmark (14pt, bold)' },
+  { element: 'Close button', property: 'top padding', token: '—', value: '60pt' },
+  { element: 'Header icon', property: 'font-size', token: '—', value: '48pt (system)', placement: 'Center, top', layer: 'Content' },
+  { element: 'Header icon', property: 'color', token: 'color.primary', value: t.primary },
+  { element: 'Header title', property: 'font-size', token: '—', value: '36px', placement: 'Center, below icon' },
+  { element: 'Header title', property: 'font-weight', token: '—', value: '700 (bold)' },
+  { element: 'Header title', property: 'color', token: 'color.text.primary', value: t.textPrimary },
+  { element: 'Feature icon circle', property: 'size', token: '—', value: '40 × 40pt', placement: 'Feature row, leading', layer: 'Content' },
+  { element: 'Feature icon circle', property: 'background', token: '—', value: 'color.primary.opacity(0.12)' },
+  { element: 'Feature icon', property: 'font-size', token: '—', value: '16pt (medium weight)' },
+  { element: 'Feature icon', property: 'color', token: 'color.primary', value: t.primary },
+  { element: 'Feature text', property: 'style', token: 'ChronirTextStyle.bodyLarge', value: '16px', placement: 'Feature row, after icon' },
+  { element: 'Feature text', property: 'color', token: 'color.text.primary', value: t.textPrimary },
+  { element: 'Feature row gap', property: 'gap', token: 'spacing.md', value: `${t.md}px` },
+  { element: 'Plan card', property: 'padding', token: 'spacing.md', value: `${t.md}px`, placement: 'Plan selector section', layer: 'Content' },
+  { element: 'Plan card', property: 'border-radius', token: 'GlassTokens.cardRadius', value: `${t.radiusMd}px` },
+  { element: 'Plan card (selected)', property: 'background', token: 'color.primary', value: `${t.primary} @ 8% opacity` },
+  { element: 'Plan card (selected)', property: 'border', token: 'color.primary', value: `2px solid ${t.primary}` },
+  { element: 'Plan card (unselected)', property: 'background', token: 'color.surface.card', value: t.surfaceCard },
+  { element: 'Plan card (unselected)', property: 'border', token: 'color.border.default', value: '0.5px solid' },
+  { element: 'Radio (selected)', property: 'fill', token: 'color.primary', value: t.primary },
+  { element: 'Radio (unselected)', property: 'stroke', token: 'color.border.default', value: '2px stroke' },
+  { element: 'Radio', property: 'size', token: '—', value: '24pt outer, 12pt inner dot' },
+  { element: 'Plan label', property: 'style', token: 'ChronirTextStyle.bodyLarge', value: '16px', placement: 'Plan card, after radio' },
+  { element: 'Plan price', property: 'font-size', token: '—', value: '17px (semibold)', placement: 'Plan card, trailing' },
+  { element: 'Badge (Best Deal)', property: 'component', token: '—', value: 'ChronirBadge', placement: 'Plan card, after label' },
+  { element: 'Renewal terms', property: 'style', token: '.caption', value: '12px', placement: 'Above CTA button, center', layer: 'Content' },
+  { element: 'Renewal terms', property: 'color', token: 'color.text.tertiary', value: t.textSecondary },
+  { element: 'CTA button', property: 'height', token: '—', value: '54pt', placement: 'Below terms', layer: 'Content' },
+  { element: 'CTA button', property: 'background', token: 'color.primary', value: t.primary },
+  { element: 'CTA button', property: 'shape', token: '—', value: 'Capsule' },
+  { element: 'CTA button', property: 'font-size', token: '—', value: '17px (semibold)' },
+  { element: 'CTA button', property: 'color', token: '—', value: '#FFFFFF' },
+  { element: 'Legal footer', property: 'layout', token: '—', value: 'HStack, space-between', placement: 'Bottom of scroll', layer: 'Content' },
+  { element: 'Legal footer', property: 'style', token: '.caption', value: '12px' },
+  { element: 'Legal footer', property: 'color', token: 'color.text.tertiary', value: t.textSecondary },
+]
+
+const paywallTemplate = `ZStack(alignment: .topTrailing) {
+    ScrollView(showsIndicators: false) {
+        VStack(spacing: SpacingTokens.xl) {
+            // Header
+            VStack(spacing: SpacingTokens.sm) {
+                Spacer().frame(height: 80)
+                Image(systemName: "bell.badge.fill")
+                    .font(.system(size: 48))
+                    .foregroundStyle(ColorTokens.primary)
+                Text("Unlock Plus")
+                    .font(.system(size: 36, weight: .bold))
+                    .foregroundStyle(ColorTokens.textPrimary)
+            }
+
+            // Feature list
+            VStack(spacing: SpacingTokens.md) {
+                featureRow(icon: "infinity",
+                           title: "Unlimited alarms")
+                // ... more features
+            }
+
+            // Plan selector
+            VStack(spacing: SpacingTokens.sm) {
+                planRow(plan: .annual,
+                        label: "Annual",
+                        price: "$19.99",
+                        badge: "Best Deal")       // Selected state
+                planRow(plan: .monthly,
+                        label: "Monthly",
+                        price: "$1.99",
+                        badge: nil)                // Unselected state
+            }
+
+            // CTA
+            VStack(spacing: SpacingTokens.sm) {
+                Text(renewalTermsText)
+                    .chronirFont(.caption)
+                    .foregroundStyle(ColorTokens.textTertiary)
+                Button { purchase() } label: {
+                    Text("Subscribe — $19.99/yr")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(ColorTokens.primary, in: Capsule())
+                }
+            }
+
+            // Legal footer
+            HStack {
+                Button("Restore Purchases") { ... }
+                Spacer()
+                Link("Terms") + Link("Privacy")
+            }
+            .chronirFont(.caption)
+            .foregroundStyle(ColorTokens.textTertiary)
+        }
+        .padding(.horizontal, SpacingTokens.lg)
+    }
+    closeButton                                    // Top-right X
+}
+.background { ColorTokens.backgroundPrimary }`
+
 // ─── Registry ───
 
 // ─── Named exports for FlatlayView ───
@@ -905,6 +1312,8 @@ export { ButtonVariantsPreview, BadgeVariantsPreview }
 export { ToggleRowPreview, PermissionRowPreview }
 export { TextFieldPreview, IntervalPickerPreview }
 export { CategoryGroupCardPreview }
+export { FABPreview }
+export { OnboardingPreview, PaywallPreview }
 
 // ─── Registry ───
 
@@ -1000,6 +1409,27 @@ export const previews = {
       </div>
       <SpecTable specs={categoryGroupCardSpecs} />
       <StructureTemplate code={categoryGroupCardTemplate} />
+    </>
+  ),
+  ChronirFAB: () => (
+    <>
+      <FABPreview />
+      <SpecTable specs={fabSpecs} />
+      <StructureTemplate code={fabTemplate} />
+    </>
+  ),
+  OnboardingView: () => (
+    <>
+      <OnboardingPreview />
+      <SpecTable specs={onboardingSpecs} />
+      <StructureTemplate code={onboardingTemplate} />
+    </>
+  ),
+  PaywallView: () => (
+    <>
+      <PaywallPreview />
+      <SpecTable specs={paywallSpecs} />
+      <StructureTemplate code={paywallTemplate} />
     </>
   ),
 }

@@ -14,9 +14,9 @@ struct CompletionLogRow: View {
 
     private var actionColor: Color {
         switch log.action {
-        case .completed: return ColorTokens.success
-        case .snoozed: return ColorTokens.warning
-        case .dismissed: return ColorTokens.error
+        case .completed: return ColorTokens.badgeSuccess
+        case .snoozed: return ColorTokens.badgeWarning
+        case .dismissed: return ColorTokens.badgeError
         }
     }
 
@@ -52,7 +52,7 @@ struct CompletionLogRow: View {
                 if log.snoozeCount > 0 {
                     ChronirBadge(
                         "\(log.snoozeCount)x snoozed",
-                        color: ColorTokens.warning
+                        color: ColorTokens.badgeWarning
                     )
                 }
                 ChronirBadge(actionLabel, color: actionColor)

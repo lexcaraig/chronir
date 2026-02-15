@@ -24,7 +24,7 @@ struct LabeledTextField: View {
                 .chronirFont(.bodyMedium)
                 .foregroundStyle(ColorTokens.textPrimary)
                 .padding(SpacingTokens.md)
-                .glassEffect(GlassTokens.element, in: .rect(cornerRadius: RadiusTokens.sm))
+                .chronirGlassButton()
                 .overlay(
                     RoundedRectangle(cornerRadius: RadiusTokens.sm)
                         .stroke(error != nil ? ColorTokens.error : .clear, lineWidth: 1.5)

@@ -151,8 +151,8 @@ struct SubscriptionManagementView: View {
         switch tier {
         case .free: return ColorTokens.textSecondary
         case .plus: return ColorTokens.primary
-        case .premium: return ColorTokens.warning
-        case .family: return ColorTokens.success
+        case .premium: return ColorTokens.badgeWarning
+        case .family: return ColorTokens.badgeSuccess
         }
     }
 

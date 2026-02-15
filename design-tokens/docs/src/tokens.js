@@ -148,4 +148,19 @@ export const animation = {
   grouped: groupBy(animationList),
 }
 
+// Extract theme-resolved token maps
+function extractThemeTokens(lookup, prefix) {
+  const theme = {}
+  for (const [key, value] of Object.entries(lookup)) {
+    if (key.startsWith(prefix + '.')) {
+      const role = key.slice(prefix.length + 1)
+      theme[role] = value
+    }
+  }
+  return theme
+}
+
+export const lightTheme = extractThemeTokens(resolvedLookup, 'color.theme.light')
+export const darkTheme = extractThemeTokens(resolvedLookup, 'color.theme.dark')
+
 export { resolvedLookup }

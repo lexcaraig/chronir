@@ -84,24 +84,33 @@ struct SettingsView: View {
 
     private var appearanceSection: some View {
         Section {
-            NavigationLink(destination: WallpaperPickerView()) {
-                HStack {
-                    ChronirText("Background Wallpaper", style: .bodyPrimary)
-                    Spacer()
-                    if let name = settings.wallpaperImageName,
-                       let data = try? Data(contentsOf: WallpaperPickerView.wallpaperURL(for: name)),
-                       let uiImage = UIImage(data: data) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 32, height: 32)
-                            .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
-                    } else {
-                        ChronirText(
-                            "None",
-                            style: .bodySecondary,
-                            color: ColorTokens.textSecondary
-                        )
+            Picker("Theme", selection: $settings.themePreference) {
+                ForEach(ThemePreference.allCases, id: \.self) { pref in
+                    Text(pref.displayName).tag(pref)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            if settings.themePreference == .liquidGlass {
+                NavigationLink(destination: WallpaperPickerView()) {
+                    HStack {
+                        ChronirText("Background Wallpaper", style: .bodyPrimary)
+                        Spacer()
+                        if let name = settings.wallpaperImageName,
+                           let data = try? Data(contentsOf: WallpaperPickerView.wallpaperURL(for: name)),
+                           let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 32, height: 32)
+                                .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
+                        } else {
+                            ChronirText(
+                                "None",
+                                style: .bodySecondary,
+                                color: ColorTokens.textSecondary
+                            )
+                        }
                     }
                 }
             }
@@ -188,8 +197,8 @@ struct SettingsView: View {
         switch SubscriptionService.shared.currentTier {
         case .free: return ColorTokens.textSecondary
         case .plus: return ColorTokens.primary
-        case .premium: return ColorTokens.warning
-        case .family: return ColorTokens.success
+        case .premium: return ColorTokens.badgeWarning
+        case .family: return ColorTokens.badgeSuccess
         }
     }
 

@@ -61,7 +61,7 @@ struct AlarmListView: View {
                 if !paywallViewModel.isFreeTier && !activeCategories.isEmpty {
                     Section {
                         ScrollView(.horizontal, showsIndicators: false) {
-                            GlassEffectContainer {
+                            AdaptiveGlassContainer {
                                 HStack(spacing: SpacingTokens.xs) {
                                     filterChip(label: "All", isSelected: selectedCategoryFilter == nil) {
                                         selectedCategoryFilter = nil
@@ -91,7 +91,7 @@ struct AlarmListView: View {
                     ForEach(smartGroupedItems, id: \.id) { item in
                         switch item {
                         case .grouped(let category, let alarms):
-                            GlassEffectContainer {
+                            AdaptiveGlassContainer {
                                 CategoryGroupCard(
                                     category: category,
                                     alarms: alarms,
@@ -230,7 +230,7 @@ struct AlarmListView: View {
         }
 
         // FAB overlay
-        GlassEffectContainer {
+        AdaptiveGlassContainer {
             Button {
                 requestCreateAlarm()
             } label: {
@@ -238,7 +238,7 @@ struct AlarmListView: View {
                     .font(.title2.weight(.semibold))
                     .foregroundStyle(.white)
                     .frame(width: 56, height: 56)
-                    .chronirGlassCircle()
+                    .chronirGlassTintedCircle(tint: ColorTokens.primary)
             }
         }
         .padding(.bottom, SpacingTokens.lg)
@@ -294,7 +294,7 @@ struct AlarmListView: View {
     }
 
     private func alarmRow(_ alarm: Alarm) -> some View {
-        GlassEffectContainer {
+        AdaptiveGlassContainer {
             AlarmCard(
                 alarm: alarm,
                 visualState: visualState(for: alarm),
@@ -373,12 +373,7 @@ struct AlarmListView: View {
             .foregroundStyle(isSelected ? .white : ColorTokens.textSecondary)
             .padding(.horizontal, SpacingTokens.md)
             .padding(.vertical, SpacingTokens.sm)
-            .glassEffect(
-                isSelected
-                    ? GlassTokens.element.tint(color).interactive()
-                    : GlassTokens.element,
-                in: .capsule
-            )
+            .chronirGlassSelectableCapsule(isSelected: isSelected, tint: color)
         }
     }
 

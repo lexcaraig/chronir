@@ -18,10 +18,10 @@ export const layers = [
           { name: 'action', type: '() -> Void', required: true },
         ],
         variants: [
-          { name: 'primary', bg: '#3B82F6', fg: '#FFFFFF', label: 'Primary Action' },
-          { name: 'secondary', bg: '#2C2C2E', fg: '#FFFFFF', label: 'Secondary' },
+          { name: 'primary', bg: 'var(--accent)', fg: '#FFFFFF', label: 'Primary Action' },
+          { name: 'secondary', bg: 'var(--bg-surface)', fg: 'var(--text)', label: 'Secondary' },
           { name: 'destructive', bg: '#EF4444', fg: '#FFFFFF', label: 'Delete' },
-          { name: 'ghost', bg: 'transparent', fg: '#3B82F6', label: 'Ghost Action' },
+          { name: 'ghost', bg: 'transparent', fg: 'var(--accent)', label: 'Ghost Action' },
         ],
         tokens: {
           typography: 'TypographyTokens.labelLarge',
@@ -85,10 +85,10 @@ export const layers = [
           { name: 'color', type: 'Color', default: 'ColorTokens.primary' },
         ],
         variants: [
-          { name: 'Weekly', bg: '#3B82F6' },
-          { name: 'Monthly', bg: '#FFB800' },
-          { name: 'Annual', bg: '#F87171' },
-          { name: 'Custom', bg: '#8B5CF6' },
+          { name: 'Weekly', bg: 'var(--accent)' },
+          { name: 'Monthly', bg: 'var(--badge-monthly)' },
+          { name: 'Annual', bg: 'var(--badge-annual)' },
+          { name: 'Custom', bg: 'var(--badge-custom)' },
         ],
         tokens: {
           typography: 'TypographyTokens.labelSmall',
@@ -96,6 +96,28 @@ export const layers = [
           colors: 'ColorTokens.badgeWeekly, .badgeMonthly, .badgeAnnual, .badgeCustom',
         },
         usage: `ChronirBadge(cycleType: .weekly)\nChronirBadge("Active", color: ColorTokens.success)`,
+      },
+      {
+        name: 'ChronirFAB',
+        file: 'DesignSystem/Atoms/ChronirFAB.swift',
+        description: 'Floating action button — 56×56 tinted circle with white SF Symbol icon. Anchored bottom-center.',
+        props: [
+          { name: 'icon', type: 'String', default: '"plus"' },
+          { name: 'tint', type: 'Color', default: 'ColorTokens.primary' },
+          { name: 'action', type: '() -> Void', required: true },
+        ],
+        variants: [
+          { name: 'Default (plus)', icon: 'plus', tint: 'var(--accent)' },
+          { name: 'Custom icon', icon: 'pencil', tint: 'var(--accent)' },
+        ],
+        tokens: {
+          size: '56 × 56pt',
+          typography: 'title2 weight(.semibold) (SF Symbol)',
+          spacing: 'SpacingTokens.lg (bottom padding from safe area)',
+          colors: 'ColorTokens.primary (tint background), white (icon)',
+          shape: 'Circle — .chronirGlassTintedCircle(tint:)',
+        },
+        usage: `Button {\n    requestCreateAlarm()\n} label: {\n    Image(systemName: "plus")\n        .font(.title2.weight(.semibold))\n        .foregroundStyle(.white)\n        .frame(width: 56, height: 56)\n        .chronirGlassTintedCircle(tint: ColorTokens.primary)\n}`,
       },
       {
         name: 'ChronirToggle',
@@ -467,6 +489,44 @@ export const layers = [
           colors: 'ColorTokens.backgroundPrimary, .textSecondary (Cancel), .primary (Save)',
         },
         usage: `ModalSheetTemplate(title: "New Alarm", onDismiss: dismiss, onSave: save) {\n  AlarmCreationForm(...)\n}`,
+      },
+      {
+        name: 'OnboardingView',
+        file: 'Features/Onboarding/OnboardingView.swift',
+        description: '3-page paged onboarding flow. Each page has a tinted icon circle, headline, body text, and CTA button. Final page requests alarm permission.',
+        props: [],
+        variants: [
+          { name: 'Welcome', detail: 'Bell icon (primary), "Never Forget What Matters" headline, Continue button' },
+          { name: 'Schedules', detail: 'Calendar icon (warning), "Weekly, Monthly, Annually" headline, Continue button' },
+          { name: 'Permissions', detail: 'Shield icon (success), "Stay Notified" headline, Enable Alarms / Skip / Get Started buttons' },
+        ],
+        tokens: {
+          typography: 'ChronirTextStyle.headlineTitle (headline), .bodySecondary (body)',
+          spacing: 'SpacingTokens.lg (page padding), .xl (outer padding), .sm (icon-to-text), .xs (skip button top)',
+          colors: 'ColorTokens.backgroundPrimary (bg), .primary (welcome icon), .warning (schedule icon), .success (permissions icon), .textSecondary (body + skip)',
+          shape: 'Circle — color.opacity(0.12) background for icon',
+        },
+        composedOf: ['ChronirText', 'ChronirButton'],
+        usage: `OnboardingView()\n// Shown once when hasCompletedOnboarding == false`,
+      },
+      {
+        name: 'PaywallView',
+        file: 'Features/Paywall/PaywallView.swift',
+        description: 'Subscription paywall with feature list, annual/monthly plan selector with radio buttons, CTA purchase button, and legal footer.',
+        props: [],
+        variants: [
+          { name: 'Annual selected', detail: '"Best Deal" badge, annual price in CTA, annual renewal terms' },
+          { name: 'Monthly selected', detail: 'Monthly price in CTA, monthly renewal terms' },
+          { name: 'Loading', detail: 'ProgressView spinner in CTA button while purchasing' },
+        ],
+        tokens: {
+          typography: '.system(size: 36, weight: .bold) (title), .bodyLarge (feature/plan text), .system(size: 17, weight: .semibold) (price + CTA), .caption (terms + legal)',
+          spacing: 'SpacingTokens.xl (section gap), .lg (horizontal padding), .md (feature/plan row gaps), .sm (plan selector gap + CTA section gap)',
+          radius: 'GlassTokens.cardRadius (plan cards)',
+          colors: 'ColorTokens.backgroundPrimary (bg), .primary (icon, radio fill, badge, CTA bg), .textPrimary (title, feature text, price), .textSecondary (close btn), .textTertiary (terms, legal), .backgroundTertiary (close btn bg), .surfaceCard (plan card bg), .borderDefault (plan card border)',
+        },
+        composedOf: ['ChronirBadge', 'ChronirButton (custom CTA)'],
+        usage: `PaywallView()\n// Presented as sheet from Settings or upgrade prompts`,
       },
       {
         name: 'SingleColumnTemplate',
