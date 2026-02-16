@@ -246,14 +246,12 @@ struct ChronirApp: App {
                             coordinator.snoozedInBackground.remove(model.id)
                             coordinator.presentAlarm(id: model.id)
                         } else {
-                            // Lock screen stop (not snoozed)
-                            handleLockScreenAction(
-                                model: model,
-                                wasSnoozed: false,
-                                context: context
-                            )
+                            // Alarm is past due but not actively alerting.
+                            // This can mean the user tapped Done on lock screen OR
+                            // just swiped up to unlock. Present the firing view
+                            // so the user must explicitly acknowledge the alarm.
                             coordinator.snoozedInBackground.remove(model.id)
-                            coordinator.markHandled(model.id)
+                            coordinator.presentAlarm(id: model.id)
                         }
                     }
                 }
