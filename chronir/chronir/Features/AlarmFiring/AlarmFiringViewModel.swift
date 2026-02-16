@@ -111,6 +111,7 @@ final class AlarmFiringViewModel {
 
         await MainActor.run {
             AlarmFiringCoordinator.shared.dismissFiring()
+            AppReviewService.recordCompletion()
         }
 
         if UserSettings.shared.hapticsEnabled { hapticService.playSuccess() }

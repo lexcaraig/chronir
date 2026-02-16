@@ -331,6 +331,7 @@ extension ChronirApp {
             } else {
                 model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
             }
+            AppReviewService.recordCompletion()
         }
         try? context.save()
     }
