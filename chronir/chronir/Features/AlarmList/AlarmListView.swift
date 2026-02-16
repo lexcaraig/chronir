@@ -6,7 +6,12 @@ import AlarmKit
 struct AlarmListView: View {
     @Query(sort: \Alarm.nextFireDate) private var alarms: [Alarm]
     @Environment(\.modelContext) private var modelContext
+    var deepLinkAlarmID: Binding<UUID?>
     @State private var showingCreateAlarm = false
+
+    init(deepLinkAlarmID: Binding<UUID?>) {
+        self.deepLinkAlarmID = deepLinkAlarmID
+    }
     @State private var enabledStates: [UUID: Bool] = [:]
     @State private var selectedAlarmID: UUID?
     @State private var alarmToDelete: Alarm?
@@ -147,6 +152,12 @@ struct AlarmListView: View {
         .navigationTitle("Alarms")
         .navigationDestination(item: $selectedAlarmID) { alarmID in
             AlarmDetailView(alarmID: alarmID)
+        }
+        .onChange(of: deepLinkAlarmID.wrappedValue) {
+            if let id = deepLinkAlarmID.wrappedValue {
+                selectedAlarmID = id
+                deepLinkAlarmID.wrappedValue = nil
+            }
         }
         .navigationDestination(item: $selectedCategory) { category in
             CategoryDetailView(category: category)
@@ -486,7 +497,7 @@ struct AlarmListView: View {
 
 #Preview {
     NavigationStack {
-        AlarmListView()
+        AlarmListView(deepLinkAlarmID: .constant(nil))
     }
     .modelContainer(for: Alarm.self, inMemory: true)
 }

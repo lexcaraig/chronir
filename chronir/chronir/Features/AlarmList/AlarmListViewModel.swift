@@ -40,6 +40,7 @@ final class AlarmListViewModel {
             } else {
                 try await scheduler.cancelAlarm(alarm)
             }
+            await WidgetDataService.shared.refresh()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -50,6 +51,7 @@ final class AlarmListViewModel {
             try await scheduler.cancelAlarm(alarm)
             try await repository.delete(alarm)
             alarms.removeAll { $0.id == alarm.id }
+            await WidgetDataService.shared.refresh()
         } catch {
             errorMessage = error.localizedDescription
         }

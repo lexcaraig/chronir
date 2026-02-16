@@ -163,6 +163,8 @@ struct CreateAlarmIntent: AppIntent {
             }
         }
 
+        await WidgetDataService.shared.refresh()
+
         let timeString = String(format: "%d:%02d", hour, minute)
         let details = summaryParts.joined(separator: ", ")
         return .result(dialog: "Created alarm \"\(sanitizedName)\" — \(details) at \(timeString)")

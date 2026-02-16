@@ -55,6 +55,8 @@ final class AlarmScheduler: AlarmScheduling {
         if alarm.preAlarmMinutes > 0 && alarm.snoozeCount == 0 {
             await notificationService.schedulePreAlarmNotification(for: alarm)
         }
+
+        await WidgetDataService.shared.refresh()
     }
 
     /// Schedule a fresh AlarmKit alarm at the snooze expiry time.

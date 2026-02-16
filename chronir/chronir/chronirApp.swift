@@ -14,6 +14,7 @@ struct ChronirApp: App {
     @Bindable private var settings = UserSettings.shared
     @Environment(\.scenePhase) private var scenePhase
     @State private var showSplash = true
+    @State private var deepLinkAlarmID: UUID?
 
     init() {
         do {
@@ -69,7 +70,7 @@ struct ChronirApp: App {
         WindowGroup {
             ZStack {
                 NavigationStack {
-                    AlarmListView()
+                    AlarmListView(deepLinkAlarmID: $deepLinkAlarmID)
                 }
 
                 if showSplash {
@@ -97,6 +98,7 @@ struct ChronirApp: App {
                 guard settings.hasCompletedOnboarding else { return }
                 _ = await PermissionManager.shared.requestAlarmPermission()
                 try? await AlarmScheduler.shared.rescheduleAllAlarms()
+                await WidgetDataService.shared.refresh()
 
                 // Restore in-memory snooze tracking on cold launch.
                 // snoozedInBackground is lost when the app is killed.
@@ -275,6 +277,14 @@ struct ChronirApp: App {
                     coordinator.dismissFiring()
                 }
             }
+            .onOpenURL { url in
+                // Handle chronir://alarm/{id} deep links from widgets
+                guard url.scheme == "chronir",
+                      url.host == "alarm",
+                      let idString = url.pathComponents.dropFirst().first,
+                      let alarmID = UUID(uuidString: idString) else { return }
+                deepLinkAlarmID = alarmID
+            }
             .fullScreenCover(item: $coordinator.firingAlarmID) { alarmID in
                 AlarmFiringView(alarmID: alarmID)
             }
@@ -334,6 +344,7 @@ extension ChronirApp {
             AppReviewService.recordCompletion()
         }
         try? context.save()
+        Task { await WidgetDataService.shared.refresh() }
     }
 }
 

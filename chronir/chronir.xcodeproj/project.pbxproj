@@ -7,13 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		10DD5D243E653BB376AEBA56 /* WidgetDataReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53181FD86F74F8B837004D4B /* WidgetDataReader.swift */; };
+		1DEF6B0017A79AE9751E16A4 /* AccessoryCircularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB0B6A154604127003821537 /* AccessoryCircularView.swift */; };
+		26939678999F87F02A1E389C /* AccessoryRectangularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 162B3C7C32E111E1C7A4BB46 /* AccessoryRectangularView.swift */; };
+		2D8D898DDC53E540CE88A441 /* AlarmListTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B81735ED2E91B104116A6B /* AlarmListTimelineProvider.swift */; };
+		56F6B993E2676CB5093F6A1A /* SystemSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6721AC3A371FCE4AD59D5EE /* SystemSmallView.swift */; };
+		9009073EDDEECD0FE3112FE2 /* AccessoryInlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A128AC3F5D1DE706D3CEEF2 /* AccessoryInlineView.swift */; };
+		92166E2F5DF120F27844A9C1 /* WidgetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C5CF0A3715CD9DF481D6FA /* WidgetModels.swift */; };
+		988D2B1CAEEFA318A31FFECE /* SystemMediumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AE9839E0387CBFD0E77474 /* SystemMediumView.swift */; };
+		9DDCDAB3FC35FE97902B0714 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4D7B09B6AA04389AD4C3A8 /* SwiftUI.framework */; };
+		A17A125D44DD5B1AD56D4783 /* WidgetTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09D2E7F5277E4349C3925F37 /* WidgetTokens.swift */; };
+		AB99837CFAB72998D398F05A /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F34EC1576DB35B27DD1B996E /* WidgetKit.framework */; };
+		B2DF6833E25C414F4DF9F783 /* ChronirWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 92EA712943C85B9D73E894E3 /* ChronirWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D5E6B19FE624139F63D9F415 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03C59CCA7F1B7B2E12026AED /* Foundation.framework */; };
 		F1RE0001000100010001000C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE0001000100010001000B /* FirebaseAuth */; };
 		F1RE0001000100010001000E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE0001000100010001000D /* FirebaseFirestore */; };
 		F1RE00010001000100010010 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE0001000100010001000F /* FirebaseStorage */; };
 		F1RE00010001000100010012 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE00010001000100010011 /* FirebaseCrashlytics */; };
+		F25212E45636EEFB17B09CB6 /* ChronirWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C7355E3B1C7FD85B173DCF1 /* ChronirWidgetsBundle.swift */; };
+		F8ABAE9EFBFB07EB9E2D70C9 /* NextAlarmTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF66B8DFDEAAE640923D2790 /* NextAlarmTimelineProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1393A5CB33B2AB7BEAC4F3E0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B2E5B6E22F363783002E2448 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9C6C6E782722E17A38A0D86D;
+			remoteInfo = ChronirWidgets;
+		};
 		B2E5B6F82F363786002E2448 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B2E5B6E22F363783002E2448 /* Project object */;
@@ -30,10 +52,40 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		14FFDBC08181C505803205B7 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B2DF6833E25C414F4DF9F783 /* ChronirWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		03C59CCA7F1B7B2E12026AED /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		08AE9839E0387CBFD0E77474 /* SystemMediumView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SystemMediumView.swift; sourceTree = "<group>"; };
+		09D2E7F5277E4349C3925F37 /* WidgetTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetTokens.swift; sourceTree = "<group>"; };
+		162B3C7C32E111E1C7A4BB46 /* AccessoryRectangularView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccessoryRectangularView.swift; sourceTree = "<group>"; };
+		1C7355E3B1C7FD85B173DCF1 /* ChronirWidgetsBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChronirWidgetsBundle.swift; sourceTree = "<group>"; };
+		48C5CF0A3715CD9DF481D6FA /* WidgetModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetModels.swift; sourceTree = "<group>"; };
+		53181FD86F74F8B837004D4B /* WidgetDataReader.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetDataReader.swift; sourceTree = "<group>"; };
+		57B81735ED2E91B104116A6B /* AlarmListTimelineProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AlarmListTimelineProvider.swift; sourceTree = "<group>"; };
+		84C31D2FC5398E207C60D5DA /* ChronirWidgets.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ChronirWidgets.entitlements; sourceTree = "<group>"; };
+		8A128AC3F5D1DE706D3CEEF2 /* AccessoryInlineView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccessoryInlineView.swift; sourceTree = "<group>"; };
+		92EA712943C85B9D73E894E3 /* ChronirWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ChronirWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F4D7B09B6AA04389AD4C3A8 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftUI.framework; sourceTree = "<group>"; };
 		B2E5B6EA2F363783002E2448 /* chronir.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chronir.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2E5B6F72F363786002E2448 /* chronirTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = chronirTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2E5B7012F363786002E2448 /* chronirUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = chronirUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CF66B8DFDEAAE640923D2790 /* NextAlarmTimelineProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NextAlarmTimelineProvider.swift; sourceTree = "<group>"; };
+		E6721AC3A371FCE4AD59D5EE /* SystemSmallView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SystemSmallView.swift; sourceTree = "<group>"; };
+		EB0B6A154604127003821537 /* AccessoryCircularView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccessoryCircularView.swift; sourceTree = "<group>"; };
+		F34EC1576DB35B27DD1B996E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WidgetKit.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -55,6 +107,16 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		09881D44D05A86FA8B7ECADE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5E6B19FE624139F63D9F415 /* Foundation.framework in Frameworks */,
+				AB99837CFAB72998D398F05A /* WidgetKit.framework in Frameworks */,
+				9DDCDAB3FC35FE97902B0714 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B2E5B6E72F363783002E2448 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -83,6 +145,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32ECB4223B108875AE703207 /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				CF66B8DFDEAAE640923D2790 /* NextAlarmTimelineProvider.swift */,
+				57B81735ED2E91B104116A6B /* AlarmListTimelineProvider.swift */,
+			);
+			path = Providers;
+			sourceTree = "<group>";
+		};
+		962FC7BAD1739B29A7BE1E06 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				48C5CF0A3715CD9DF481D6FA /* WidgetModels.swift */,
+				53181FD86F74F8B837004D4B /* WidgetDataReader.swift */,
+				09D2E7F5277E4349C3925F37 /* WidgetTokens.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		B2E5B6E12F363783002E2448 = {
 			isa = PBXGroup;
 			children = (
@@ -90,6 +171,8 @@
 				B2E5B6FA2F363786002E2448 /* chronirTests */,
 				B2E5B7042F363786002E2448 /* chronirUITests */,
 				B2E5B6EB2F363783002E2448 /* Products */,
+				D6EB4924AD4C0079E816E918 /* Frameworks */,
+				D5CDD7A6631A24361E402CF2 /* ChronirWidgets */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,13 +182,73 @@
 				B2E5B6EA2F363783002E2448 /* chronir.app */,
 				B2E5B6F72F363786002E2448 /* chronirTests.xctest */,
 				B2E5B7012F363786002E2448 /* chronirUITests.xctest */,
+				92EA712943C85B9D73E894E3 /* ChronirWidgets.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D30B8C6CB9C2649E573D3949 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				8A128AC3F5D1DE706D3CEEF2 /* AccessoryInlineView.swift */,
+				EB0B6A154604127003821537 /* AccessoryCircularView.swift */,
+				162B3C7C32E111E1C7A4BB46 /* AccessoryRectangularView.swift */,
+				E6721AC3A371FCE4AD59D5EE /* SystemSmallView.swift */,
+				08AE9839E0387CBFD0E77474 /* SystemMediumView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D5CDD7A6631A24361E402CF2 /* ChronirWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				962FC7BAD1739B29A7BE1E06 /* Shared */,
+				D30B8C6CB9C2649E573D3949 /* Views */,
+				32ECB4223B108875AE703207 /* Providers */,
+				1C7355E3B1C7FD85B173DCF1 /* ChronirWidgetsBundle.swift */,
+				84C31D2FC5398E207C60D5DA /* ChronirWidgets.entitlements */,
+			);
+			path = ChronirWidgets;
+			sourceTree = "<group>";
+		};
+		D6EB4924AD4C0079E816E918 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F0DB9E67EFDF6924E074C4A3 /* iOS */,
+				F34EC1576DB35B27DD1B996E /* WidgetKit.framework */,
+				9F4D7B09B6AA04389AD4C3A8 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F0DB9E67EFDF6924E074C4A3 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				03C59CCA7F1B7B2E12026AED /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9C6C6E782722E17A38A0D86D /* ChronirWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9710D993BD4F03979D9D1C2C /* Build configuration list for PBXNativeTarget "ChronirWidgets" */;
+			buildPhases = (
+				9063C7E0BE76E9D82288ADF0 /* Sources */,
+				09881D44D05A86FA8B7ECADE /* Frameworks */,
+				4EC79AFBE8C7F023504AC270 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ChronirWidgets;
+			productName = ChronirWidgets;
+			productReference = 92EA712943C85B9D73E894E3 /* ChronirWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B2E5B6E92F363783002E2448 /* chronir */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B2E5B70B2F363786002E2448 /* Build configuration list for PBXNativeTarget "chronir" */;
@@ -113,10 +256,12 @@
 				B2E5B6E62F363783002E2448 /* Sources */,
 				B2E5B6E72F363783002E2448 /* Frameworks */,
 				B2E5B6E82F363783002E2448 /* Resources */,
+				14FFDBC08181C505803205B7 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				8D8B86B4F85C83D7E21C2C25 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B2E5B6EC2F363783002E2448 /* chronir */,
@@ -149,8 +294,6 @@
 				B2E5B6FA2F363786002E2448 /* chronirTests */,
 			);
 			name = chronirTests;
-			packageProductDependencies = (
-			);
 			productName = chronirTests;
 			productReference = B2E5B6F72F363786002E2448 /* chronirTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -172,8 +315,6 @@
 				B2E5B7042F363786002E2448 /* chronirUITests */,
 			);
 			name = chronirUITests;
-			packageProductDependencies = (
-			);
 			productName = chronirUITests;
 			productReference = B2E5B7012F363786002E2448 /* chronirUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -221,11 +362,19 @@
 				B2E5B6E92F363783002E2448 /* chronir */,
 				B2E5B6F62F363786002E2448 /* chronirTests */,
 				B2E5B7002F363786002E2448 /* chronirUITests */,
+				9C6C6E782722E17A38A0D86D /* ChronirWidgets */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4EC79AFBE8C7F023504AC270 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B2E5B6E82F363783002E2448 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -250,6 +399,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9063C7E0BE76E9D82288ADF0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F25212E45636EEFB17B09CB6 /* ChronirWidgetsBundle.swift in Sources */,
+				92166E2F5DF120F27844A9C1 /* WidgetModels.swift in Sources */,
+				10DD5D243E653BB376AEBA56 /* WidgetDataReader.swift in Sources */,
+				A17A125D44DD5B1AD56D4783 /* WidgetTokens.swift in Sources */,
+				9009073EDDEECD0FE3112FE2 /* AccessoryInlineView.swift in Sources */,
+				1DEF6B0017A79AE9751E16A4 /* AccessoryCircularView.swift in Sources */,
+				26939678999F87F02A1E389C /* AccessoryRectangularView.swift in Sources */,
+				56F6B993E2676CB5093F6A1A /* SystemSmallView.swift in Sources */,
+				988D2B1CAEEFA318A31FFECE /* SystemMediumView.swift in Sources */,
+				F8ABAE9EFBFB07EB9E2D70C9 /* NextAlarmTimelineProvider.swift in Sources */,
+				2D8D898DDC53E540CE88A441 /* AlarmListTimelineProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B2E5B6E62F363783002E2448 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -274,6 +441,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		8D8B86B4F85C83D7E21C2C25 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ChronirWidgets;
+			target = 9C6C6E782722E17A38A0D86D /* ChronirWidgets */;
+			targetProxy = 1393A5CB33B2AB7BEAC4F3E0 /* PBXContainerItemProxy */;
+		};
 		B2E5B6F92F363786002E2448 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B2E5B6E92F363783002E2448 /* chronir */;
@@ -287,6 +460,79 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		27A3BE822134C6DCC72102B0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ChronirWidgets/ChronirWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = X69S8GG49M;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ChronirWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Chronir Widgets";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chronir.ios.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) CHRONIR_WIDGET_EXTENSION";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		844C8B8186B4EA7D0C58CD12 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = ChronirWidgets/ChronirWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = X69S8GG49M;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ChronirWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Chronir Widgets";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chronir.ios.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) CHRONIR_WIDGET_EXTENSION";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
 		B2E5B7092F363786002E2448 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -561,6 +807,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9710D993BD4F03979D9D1C2C /* Build configuration list for PBXNativeTarget "ChronirWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				27A3BE822134C6DCC72102B0 /* Release */,
+				844C8B8186B4EA7D0C58CD12 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B2E5B6E52F363783002E2448 /* Build configuration list for PBXProject "chronir" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
