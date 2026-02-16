@@ -261,9 +261,9 @@ struct PaywallView: View {
     }
 
     // swiftlint:disable:next force_unwrapping
-    private let termsURL = URL(string: "https://chronir.app/terms")!
+    private let termsURL = URL(string: "https://gist.github.com/lexcaraig/88de245f9c109c4936efa515a3fb0b28")!
     // swiftlint:disable:next force_unwrapping
-    private let privacyURL = URL(string: "https://chronir.app/privacy")!
+    private let privacyURL = URL(string: "https://gist.github.com/lexcaraig/88de245f9c109c4936efa515a3fb0b28")!
 }
 
 #Preview("Light") {
