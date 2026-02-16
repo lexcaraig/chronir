@@ -70,7 +70,7 @@ alarm,recurring,reminder,monthly,weekly,annual,persistent,schedule,siri,one-time
 ### Support URL
 
 ```
-https://chronir.app/support
+https://github.com/lexcaraig/chronir/issues
 ```
 
 ### Marketing URL

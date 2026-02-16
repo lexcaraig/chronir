@@ -217,6 +217,7 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 | `/build-all`         | `/build-all`                                      | Full quality verification (format, lint, test, build) across all platforms.                            |
 | `/fix-tests`         | `/fix-tests ios`                                  | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg.               |
 | `/pre-submit-audit`  | `/pre-submit-audit`                               | App Store Review compliance audit: crash stubs, non-functional UI, feature accuracy, debug visibility. |
+| `/release`           | `/release 1.1 ios`                                | End-to-end release: version bump, quality gates, store metadata, docs, git tag, checklist.             |
 | `/update-docs`       | `/update-docs Completed Sprint Siri+OneTime`      | Updates docs/, CLAUDE.md, and README.md to reflect completed work (changelog, roadmap, specs, etc.).   |
 
 ### Custom Agents
