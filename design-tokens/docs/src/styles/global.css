@@ -1307,3 +1307,130 @@ body {
   border: 1px solid var(--border);
   border-radius: 100px;
 }
+
+/* ═══════════════════ Screens Section ═══════════════════ */
+
+.screens-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 32px;
+  align-items: center;
+}
+
+.screens-control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.screens-control-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.screens-toggle-group {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.screens-toggle {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+
+.screens-toggle:hover {
+  color: var(--text);
+  background: var(--hover-overlay);
+}
+
+.screens-toggle.active {
+  color: var(--text);
+  background: var(--bg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.screens-preview-single {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.screens-preview-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px 0;
+}
+
+.iphone-frame-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.iphone-frame {
+  border-radius: 48px;
+  background: #000;
+  padding: 4px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 24px 60px rgba(0, 0, 0, 0.4),
+    0 8px 20px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.iphone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 44px;
+  overflow: hidden;
+  position: relative;
+}
+
+.screen-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.screen-content::-webkit-scrollbar {
+  display: none;
+}
+
+.screen-nav {
+  display: flex;
+  align-items: center;
+  padding: 8px 20px 12px;
+  flex-shrink: 0;
+}
+
+.iphone-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}

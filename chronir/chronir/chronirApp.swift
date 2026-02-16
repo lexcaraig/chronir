@@ -97,6 +97,19 @@ struct ChronirApp: App {
                 guard settings.hasCompletedOnboarding else { return }
                 _ = await PermissionManager.shared.requestAlarmPermission()
                 try? await AlarmScheduler.shared.rescheduleAllAlarms()
+
+                // Restore in-memory snooze tracking on cold launch.
+                // snoozedInBackground is lost when the app is killed.
+                await MainActor.run {
+                    let descriptor = FetchDescriptor<Alarm>(
+                        predicate: #Predicate<Alarm> { $0.snoozeCount > 0 && $0.isEnabled == true }
+                    )
+                    if let snoozed = try? self.container.mainContext.fetch(descriptor) {
+                        for alarm in snoozed where alarm.nextFireDate > Date() {
+                            AlarmFiringCoordinator.shared.snoozedInBackground.insert(alarm.id)
+                        }
+                    }
+                }
             }
             .task {
                 for await alarms in AlarmManager.shared.alarmUpdates {
@@ -123,18 +136,24 @@ struct ChronirApp: App {
                                 AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
                             }
                         case .countdown:
-                            // Snoozed — track for foreground handler, dismiss firing UI,
-                            // and update model so the alarm card shows the snooze countdown.
+                            // Snoozed — dismiss firing UI, update model, and schedule
+                            // a fresh AlarmKit alarm at the snooze expiry time.
+                            // AlarmKit .fixed() schedules don't re-alert after countdown,
+                            // so a new alarm is needed for full system sound on re-fire.
+                            let snoozeAlarmID = alarm.id
+                            var alarmTitle: String?
                             await MainActor.run {
-                                AlarmFiringCoordinator.shared.snoozedInBackground.insert(alarm.id)
-                                AlarmFiringCoordinator.shared.dismissFiring()
-                                let targetID = alarm.id
+                                AlarmFiringCoordinator.shared.snoozedInBackground.insert(snoozeAlarmID)
+                                if snoozeAlarmID == AlarmFiringCoordinator.shared.firingAlarmID {
+                                    AlarmFiringCoordinator.shared.dismissFiring()
+                                }
+                                let targetID = snoozeAlarmID
                                 let descriptor = FetchDescriptor<Alarm>(
                                     predicate: #Predicate<Alarm> { $0.id == targetID }
                                 )
                                 if let model = try? self.container.mainContext.fetch(descriptor).first,
                                    model.nextFireDate <= Date() {
-                                    // Guard: only process if not already handled (race with foreground handler)
+                                    alarmTitle = model.title
                                     model.snoozeCount += 1
                                     model.nextFireDate = Date().addingTimeInterval(540)
                                     let log = CompletionLog(
@@ -147,6 +166,15 @@ struct ChronirApp: App {
                                     self.container.mainContext.insert(log)
                                     try? self.container.mainContext.save()
                                 }
+                            }
+                            // Replace the countdown with a fresh alarm so the re-fire
+                            // plays full system alarm sound even on the lock screen.
+                            if let title = alarmTitle {
+                                try? await AlarmScheduler.shared.scheduleSnoozeRefire(
+                                    id: snoozeAlarmID,
+                                    title: title,
+                                    at: Date().addingTimeInterval(540)
+                                )
                             }
                         default:
                             await MainActor.run {
@@ -161,7 +189,7 @@ struct ChronirApp: App {
                                     if (try? self.container.mainContext.fetch(descriptor).first) != nil {
                                         AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
                                     }
-                                } else {
+                                } else if alarm.id == AlarmFiringCoordinator.shared.firingAlarmID {
                                     AlarmFiringCoordinator.shared.dismissFiring()
                                 }
                             }

@@ -17,6 +17,12 @@ const navTree = [
       { id: 'components', label: 'Component Catalog' },
     ],
   },
+  {
+    label: 'Screens',
+    children: [
+      { id: 'screens', label: 'App Screens' },
+    ],
+  },
 ]
 
 export default function Sidebar({ active, onNavigate }) {

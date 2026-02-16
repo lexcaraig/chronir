@@ -6,6 +6,7 @@ import SpacingSection from './components/SpacingSection'
 import RadiusSection from './components/RadiusSection'
 import AnimationSection from './components/AnimationSection'
 import ComponentsSection from './components/ComponentsSection'
+import ScreensSection from './components/ScreensSection'
 
 const sections = {
   colors: { component: ColorSection, title: 'Color Palette', description: 'A selection of colors that work together to create consistency in apps.' },
@@ -14,6 +15,7 @@ const sections = {
   radius: { component: RadiusSection, title: 'Radius', description: 'Corner radius scale from sm (8pt) to full (9999pt, fully rounded).' },
   animation: { component: AnimationSection, title: 'Animation', description: 'Duration presets and spring physics parameters for interactive animations.' },
   components: { component: ComponentsSection, title: 'Component Catalog', description: 'Atomic Design components from tokens through organisms.' },
+  screens: { component: ScreensSection, title: 'App Screens', description: 'Live previews of Chronir screens at iPhone resolution.' },
 }
 
 export default function App() {
@@ -65,7 +67,7 @@ export default function App() {
         </div>
         <nav className="toolbar-nav">
           <a
-            className={active !== 'components' ? 'active' : ''}
+            className={!['components', 'screens'].includes(active) ? 'active' : ''}
             onClick={() => navigate('colors')}
           >
             Foundations
@@ -75,6 +77,12 @@ export default function App() {
             onClick={() => navigate('components')}
           >
             Components
+          </a>
+          <a
+            className={active === 'screens' ? 'active' : ''}
+            onClick={() => navigate('screens')}
+          >
+            Screens
           </a>
           <button
             className="theme-toggle"

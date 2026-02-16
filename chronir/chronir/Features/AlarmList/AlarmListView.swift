@@ -152,6 +152,12 @@ struct AlarmListView: View {
             CategoryDetailView(category: category)
         }
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Image("NavBarLogo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 28, height: 28)
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink(value: "settings") {
                     Image(systemName: "gear")
@@ -451,7 +457,7 @@ struct AlarmListView: View {
     private func refreshNextFireDates() {
         let calculator = DateCalculator()
         let now = Date()
-        for alarm in alarms where alarm.isEnabled && alarm.cycleType != .oneTime {
+        for alarm in alarms where alarm.isEnabled && alarm.cycleType != .oneTime && alarm.snoozeCount == 0 {
             let correct = calculator.calculateNextFireDate(for: alarm, from: now)
             if alarm.nextFireDate != correct {
                 alarm.nextFireDate = correct

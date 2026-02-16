@@ -57,28 +57,59 @@ final class AlarmScheduler: AlarmScheduling {
         }
     }
 
-    private func buildAttributes(for alarm: Alarm) -> AlarmAttributes<AlarmMetadataPayload> {
+    /// Schedule a fresh AlarmKit alarm at the snooze expiry time.
+    /// AlarmKit `.fixed()` schedules don't re-alert after a countdown ends,
+    /// so we replace the countdown with a new alarm to get full system sound.
+    func scheduleSnoozeRefire(id: UUID, title: String, at fireDate: Date) async throws {
+        try? AlarmManager.shared.stop(id: id)
+        try? AlarmManager.shared.cancel(id: id)
+
+        if alarmManager.authorizationState != .authorized {
+            let state = try await alarmManager.requestAuthorization()
+            guard state == .authorized else { return }
+        }
+
+        let snoozeDuration = AlarmKit.Alarm.CountdownDuration(
+            preAlert: nil,
+            postAlert: 540
+        )
+
+        _ = try await alarmManager.schedule(
+            id: id,
+            configuration: .init(
+                countdownDuration: snoozeDuration,
+                schedule: .fixed(fireDate),
+                attributes: buildAttributes(title: title, alarmID: id)
+            )
+        )
+    }
+
+    private func buildAttributes(title: String, alarmID: UUID) -> AlarmAttributes<AlarmMetadataPayload> {
         let alert = AlarmPresentation.Alert(
-            title: LocalizedStringResource(stringLiteral: alarm.title),
+            title: LocalizedStringResource(stringLiteral: title),
             stopButton: AlarmButton(text: "Done", textColor: .white, systemImageName: "checkmark.circle"),
             secondaryButton: AlarmButton(text: "Snooze", textColor: .white, systemImageName: "zzz"),
             secondaryButtonBehavior: .countdown
         )
 
         let countdown = AlarmPresentation.Countdown(
-            title: LocalizedStringResource(stringLiteral: "Snoozed: \(alarm.title)")
+            title: LocalizedStringResource(stringLiteral: "Snoozed: \(title)")
         )
 
         let paused = AlarmPresentation.Paused(
-            title: LocalizedStringResource(stringLiteral: "Paused: \(alarm.title)"),
+            title: LocalizedStringResource(stringLiteral: "Paused: \(title)"),
             resumeButton: AlarmButton(text: "Resume", textColor: .white, systemImageName: "play.circle")
         )
 
         return AlarmAttributes(
             presentation: AlarmPresentation(alert: alert, countdown: countdown, paused: paused),
-            metadata: AlarmMetadataPayload(alarmID: alarm.id.uuidString, title: alarm.title),
+            metadata: AlarmMetadataPayload(alarmID: alarmID.uuidString, title: title),
             tintColor: ColorTokens.primary
         )
+    }
+
+    private func buildAttributes(for alarm: Alarm) -> AlarmAttributes<AlarmMetadataPayload> {
+        buildAttributes(title: alarm.title, alarmID: alarm.id)
     }
 
     func cancelAlarm(_ alarm: Alarm) async throws {
@@ -90,14 +121,16 @@ final class AlarmScheduler: AlarmScheduling {
     }
 
     func rescheduleAllAlarms() async throws {
-        // Cancel ALL alarms first (including disabled/archived) to clear stale AlarmKit registrations
+        // Cancel ALL alarms first (including disabled/archived) to clear stale AlarmKit registrations,
+        // but skip snoozed alarms — their AlarmKit countdown is still active.
         let allAlarms = try await repository.fetchAll()
-        for alarm in allAlarms {
+        for alarm in allAlarms where alarm.snoozeCount == 0 {
             try await cancelAlarm(alarm)
         }
 
-        // Only reschedule enabled alarms
-        let enabledAlarms = allAlarms.filter { $0.isEnabled }
+        // Only reschedule enabled, non-snoozed alarms.
+        // Snoozed alarms retain their snooze countdown nextFireDate.
+        let enabledAlarms = allAlarms.filter { $0.isEnabled && $0.snoozeCount == 0 }
         for alarm in enabledAlarms {
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
             try await scheduleAlarm(alarm)
