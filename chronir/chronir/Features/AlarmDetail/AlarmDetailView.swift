@@ -100,10 +100,12 @@ struct AlarmDetailView: View {
                 titleError: viewModel.titleError
             )
 
-            photoSection
-                .padding(.horizontal, SpacingTokens.lg)
+            if isPlusTier || viewModel.selectedImage != nil {
+                photoSection
+                    .padding(.horizontal, SpacingTokens.lg)
+            }
 
-            if SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank {
+            if isPlusTier {
                 NavigationLink(
                     destination: CompletionHistoryView(
                         alarmID: alarmID,
@@ -135,9 +137,17 @@ struct AlarmDetailView: View {
         .background(ColorTokens.backgroundPrimary)
     }
 
+    private var isPlusTier: Bool {
+        SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
+    }
+
     private var photoSection: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.sm) {
-            ChronirText("Photo (optional)", style: .labelMedium, color: ColorTokens.textSecondary)
+            ChronirText(
+                isPlusTier ? "Photo (optional)" : "Photo",
+                style: .labelMedium,
+                color: ColorTokens.textSecondary
+            )
 
             if let image = viewModel.selectedImage {
                 ZStack(alignment: .topTrailing) {
@@ -147,39 +157,43 @@ struct AlarmDetailView: View {
                         .frame(height: 120)
                         .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
 
-                    Button {
-                        viewModel.selectedImage = nil
-                        viewModel.removePhoto = true
-                        selectedPhotoItem = nil
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title3)
-                            .foregroundStyle(.white, .black.opacity(0.5))
+                    if isPlusTier {
+                        Button {
+                            viewModel.selectedImage = nil
+                            viewModel.removePhoto = true
+                            selectedPhotoItem = nil
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title3)
+                                .foregroundStyle(.white, .black.opacity(0.5))
+                        }
+                        .padding(SpacingTokens.xs)
                     }
-                    .padding(SpacingTokens.xs)
                 }
             }
 
-            PhotosPicker(
-                selection: $selectedPhotoItem,
-                matching: .images,
-                photoLibrary: .shared()
-            ) {
-                HStack(spacing: SpacingTokens.sm) {
-                    Image(systemName: "photo.badge.plus")
-                    ChronirText(
-                        viewModel.selectedImage == nil ? "Add Photo" : "Change Photo",
-                        style: .bodyMedium,
-                        color: ColorTokens.primary
-                    )
+            if isPlusTier {
+                PhotosPicker(
+                    selection: $selectedPhotoItem,
+                    matching: .images,
+                    photoLibrary: .shared()
+                ) {
+                    HStack(spacing: SpacingTokens.sm) {
+                        Image(systemName: "photo.badge.plus")
+                        ChronirText(
+                            viewModel.selectedImage == nil ? "Add Photo" : "Change Photo",
+                            style: .bodyMedium,
+                            color: ColorTokens.primary
+                        )
+                    }
                 }
-            }
-            .onChange(of: selectedPhotoItem) {
-                Task {
-                    if let data = try? await selectedPhotoItem?.loadTransferable(type: Data.self),
-                       let image = UIImage(data: data) {
-                        viewModel.selectedImage = image
-                        viewModel.removePhoto = false
+                .onChange(of: selectedPhotoItem) {
+                    Task {
+                        if let data = try? await selectedPhotoItem?.loadTransferable(type: Data.self),
+                           let image = UIImage(data: data) {
+                            viewModel.selectedImage = image
+                            viewModel.removePhoto = false
+                        }
                     }
                 }
             }

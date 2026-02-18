@@ -33,7 +33,7 @@ struct AlarmListView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundStyle(ColorTokens.warning)
                         ChronirText(
-                            "Your subscription has ended. Only your 2 oldest alarms remain active.",
+                            "Your subscription has ended. Only your 3 oldest alarms remain active.",
                             style: .bodySmall,
                             color: ColorTokens.warning
                         )

@@ -68,7 +68,7 @@ struct SubscriptionManagementView: View {
     // TODO: Add Premium column back when Premium tier is built (Phase 4, Sprint 11+)
     private var planComparisonSection: some View {
         Section {
-            comparisonRow("Alarms", free: "2", plus: "Unlimited")
+            comparisonRow("Alarms", free: "3", plus: "Unlimited")
             comparisonRow("Custom Snooze", free: "—", plus: "Yes")
             comparisonRow("Pre-Alarm Warnings", free: "—", plus: "Yes")
             comparisonRow("Photo Attachments", free: "—", plus: "Yes")

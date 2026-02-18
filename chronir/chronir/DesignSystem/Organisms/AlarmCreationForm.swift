@@ -75,12 +75,19 @@ struct AlarmCreationForm: View {
                 ChronirToggle(label: "24h Pre-Alarm Warning", isOn: $preAlarmEnabled)
             }
 
-            LabeledTextField(
-                label: "Note (optional)",
-                placeholder: "Add a note...",
-                text: $note,
-                maxLength: AlarmValidator.noteMaxLength
-            )
+            if isPlusTier {
+                LabeledTextField(
+                    label: "Note (optional)",
+                    placeholder: "Add a note...",
+                    text: $note,
+                    maxLength: AlarmValidator.noteMaxLength
+                )
+            } else if !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                    ChronirText("Note", style: .labelMedium, color: ColorTokens.textSecondary)
+                    ChronirText(note, style: .bodyMedium)
+                }
+            }
         }
         .padding(SpacingTokens.lg)
         .onChange(of: cycleType) { oldValue, newValue in

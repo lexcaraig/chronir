@@ -17,7 +17,7 @@ enum SubscriptionTier: String, Codable, CaseIterable {
 
     var alarmLimit: Int? {
         switch self {
-        case .free: return 2
+        case .free: return 3
         case .plus, .premium, .family: return nil
         }
     }

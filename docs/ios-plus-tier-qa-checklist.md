@@ -14,7 +14,7 @@
 | #   | Step                                  | Expected Result                                        | Pass? |
 | --- | ------------------------------------- | ------------------------------------------------------ | ----- |
 | 1.1 | Launch app on Free tier               | Settings shows "Free" badge                            | PASS  |
-| 1.2 | Tap + with 2 alarms (trigger paywall) | PaywallView appears with Liquid Glass styling          | PASS  |
+| 1.2 | Tap + with 3 alarms (trigger paywall) | PaywallView appears with Liquid Glass styling          | PASS  |
 | 1.3 | Verify plan options                   | Monthly and Annual toggle visible with StoreKit prices | PASS  |
 | 1.4 | Select Monthly, tap Subscribe         | StoreKit purchase sheet appears                        | PASS  |
 | 1.5 | Confirm purchase                      | Paywall dismisses, tier updates to Plus                | PASS  |
@@ -44,9 +44,9 @@
 | --- | ------------------------------------- | ------------------------------------------------------------------------------- | ----- |
 | 3.1 | Purchase Plus, create 5 alarms        | All 5 alarms active                                                             | PASS  |
 | 3.2 | Let subscription expire (accelerated) | Tier downgrades to Free                                                         | PASS  |
-| 3.3 | Verify alarm states                   | Only oldest 2 alarms remain enabled, newest 3 disabled                          | PASS  |
-| 3.4 | Verify downgrade banner               | Banner: "Your subscription has ended. Only your 2 oldest alarms remain active." | PASS  |
-| 3.5 | Tap + button                          | Paywall appears (back at 2-alarm limit)                                         | PASS  |
+| 3.3 | Verify alarm states                   | Only oldest 3 alarms remain enabled, newest 2 disabled                          | PASS  |
+| 3.4 | Verify downgrade banner               | Banner: "Your subscription has ended. Only your 3 oldest alarms remain active." | PASS  |
+| 3.5 | Tap + button                          | Paywall appears (back at 3-alarm limit)                                         | PASS  |
 | 3.6 | Tap/swipe disabled alarm              | Paywall appears (cannot re-enable beyond limit)                                 | PASS  |
 | 3.7 | Re-subscribe                          | All alarms re-enabled, banner disappears                                        | PASS  |
 
@@ -56,7 +56,7 @@
 
 | #   | Step                              | Expected Result                      | Pass? |
 | --- | --------------------------------- | ------------------------------------ | ----- |
-| 4.1 | On Free tier with 2 alarms, tap + | PaywallView appears                  | PASS  |
+| 4.1 | On Free tier with 3 alarms, tap + | PaywallView appears                  | PASS  |
 | 4.2 | Dismiss paywall                   | Returns to alarm list                | PASS  |
 | 4.3 | Subscribe to Plus                 | Tier updates                         | PASS  |
 | 4.4 | Tap + again                       | AlarmCreationView opens (no paywall) | PASS  |

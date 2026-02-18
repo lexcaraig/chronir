@@ -66,8 +66,10 @@ struct AlarmCreationView: View {
                     titleError: titleError
                 )
 
-                photoSection
-                    .padding(.horizontal, SpacingTokens.lg)
+                if SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank {
+                    photoSection
+                        .padding(.horizontal, SpacingTokens.lg)
+                }
             }
         )
         .interactiveDismissDisabled(hasUnsavedChanges)

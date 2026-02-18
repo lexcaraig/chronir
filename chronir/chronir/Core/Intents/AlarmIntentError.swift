@@ -9,7 +9,7 @@ enum AlarmIntentError: Error, CustomLocalizedStringResourceConvertible {
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .freeTierLimitReached:
-            return "You've reached the free tier limit of 2 alarms. Upgrade to Plus for unlimited alarms."
+            return "You've reached the free tier limit of 3 alarms. Upgrade to Plus for unlimited alarms."
         case .repositoryUnavailable:
             return "Chronir isn't ready yet. Please open the app first."
         case .schedulingFailed:

@@ -3,7 +3,7 @@
 **Sprint:** 7–9 (Phase 2 close + Phase 3 V1.0 Plus Tier), sprint-siri-onetime
 **Branch:** `sprint-7` merged into `main`, `sprint-9` (S9), `sprint-siri-onetime`
 **Device:** iPhone Simulator (iPhone 17 Pro, iOS 26+) + Physical device "lexpresswayyy"
-**Tier:** Free (2-alarm limit, local-only)
+**Tier:** Free (3-alarm limit, local-only)
 
 ---
 
@@ -49,7 +49,7 @@
 | 3.6a | Tap "+" to add second time 12 PM  | Second chip appears, sorted chronologically                        |       |
 | 3.6b | Tap "x" to remove 12 PM chip      | Chip removed, single 9:00 AM chip remains                          |       |
 | 3.7  | Toggle "Persistent" ON            | Toggle turns on                                                    | PASS  |
-| 3.8  | Enter note "Pay landlord"         | Note text field populated (optional field visible)                 | PASS  |
+| 3.8  | Verify note field hidden          | Note field not visible for Free tier (Plus-only feature)           | PASS  |
 | 3.9  | Tap Save                          | Modal dismisses, alarm appears in list                             | PASS  |
 | 3.10 | Verify alarm card                 | Shows "Rent Reminder", 9:00 AM, "Weekly" badge, countdown          | PASS  |
 | 3.11 | Verify toggle on card             | Toggle is ON (enabled)                                             | PASS  |
@@ -70,15 +70,15 @@
 
 ---
 
-## 5. Free Tier Limit (2 Alarms)
+## 5. Free Tier Limit (3 Alarms)
 
 | #   | Step                          | Expected Result                                               | Pass?                                                             |
 | --- | ----------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------- |
-| 5.1 | With 2 alarms in list, tap +  | PaywallView appears (not creation form)                       | PASS                                                              |
-| 5.2 | Paywall shows limit message   | "You've reached the 2-alarm limit" or similar                 | PASS                                                              |
+| 5.1 | With 3 alarms in list, tap +  | PaywallView appears (not creation form)                       | PASS                                                              |
+| 5.2 | Paywall shows limit message   | "You've reached the 3-alarm limit" or similar                 | PASS                                                              |
 | 5.3 | Feature list visible          | Unlimited alarms, cloud backup, custom snooze, widgets listed | PASS                                                              |
 | 5.4 | Tap "Close"                   | Paywall dismisses, back to list (also dismisses via drag)     | PASS                                                              |
-| 5.5 | Delete one alarm, tap + again | AlarmCreationView opens normally (under limit)                | PASS (deleted all, created 2, hit wall, deleted 1, created again) |
+| 5.5 | Delete one alarm, tap + again | AlarmCreationView opens normally (under limit)                | PASS                                                              |
 
 ---
 
@@ -335,7 +335,7 @@
 | 20.3 | Tap to expand Archived section                | Archived alarms shown with disabled appearance                     | PASS  |
 | 20.4 | Tap to collapse Archived section              | Section collapses, only header visible                             | PASS  |
 | 20.5 | Swipe to delete an archived alarm             | Confirmation dialog, then alarm permanently deleted                | PASS  |
-| 20.6 | Archived alarms don't count toward free limit | With 2 active + 1 archived, tapping + opens creation (not paywall) | PASS  |
+| 20.6 | Archived alarms don't count toward free limit | With 3 active + 1 archived, tapping + opens creation (not paywall) | PASS  |
 
 ---
 
@@ -351,12 +351,27 @@
 | 21.4 | Verify alarm in app                         | "Dentist" alarm appears in list with Weekly default schedule | PASS                                                   |
 | 21.5 | "Hey Siri, what's my next alarm in Chronir" | Siri reads next alarm title and date/time                    | PASS                                                   |
 | 21.6 | "Hey Siri, list my alarms in Chronir"       | Siri reads up to 5 active alarms                             | PASS                                                   |
-| 21.7 | With 2 active alarms, create via Siri       | Siri responds with free tier limit error message             | PASS |
+| 21.7 | With 3 active alarms, create via Siri       | Siri responds with free tier limit error message             | PASS |
 | 21.8 | SiriTipView visible in empty state          | Siri tip shown near empty state CTA in alarm list            | PASS |
 
 ---
 
-## 22. One-Time Alarm — Edit Flow (sprint-siri-onetime)
+## 22. Photo/Note Tier Gating (sprint-ios-launch TIER-01)
+
+> **Note:** Photos and notes are Plus-only features. Free users cannot add new photos/notes but can view existing ones (from a downgrade scenario).
+
+| #    | Step                                         | Expected Result                                              | Pass? |
+| ---- | -------------------------------------------- | ------------------------------------------------------------ | ----- |
+| 22.1 | Free tier → Create Alarm                     | Photo section is NOT visible                                 | PASS  |
+| 22.2 | Free tier → Create Alarm                     | Note field is NOT visible                                    | PASS  |
+| 22.3 | Free tier → Edit alarm WITH existing photo   | Photo displayed read-only (no delete button, no PhotosPicker)| PASS  |
+| 22.4 | Free tier → Edit alarm WITH existing note    | Note displayed as read-only text (not editable)              | PASS  |
+| 22.5 | Free tier → Edit alarm WITHOUT photo/note    | Photo section hidden, note field hidden                      | PASS  |
+| 22.6 | Plus tier → Create/Edit alarm                | Photo section + note field fully interactive (no change)     | PASS  |
+
+---
+
+## 23. One-Time Alarm — Edit Flow (sprint-siri-onetime)
 
 | #    | Step                                      | Expected Result                                       | Pass? |
 | ---- | ----------------------------------------- | ----------------------------------------------------- | ----- |
