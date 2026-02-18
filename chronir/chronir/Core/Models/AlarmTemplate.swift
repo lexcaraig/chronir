@@ -87,7 +87,7 @@ extension AlarmTemplate {
             daysOfMonth: [1],
             suggestedNote: "Baseboards, windows, appliances, behind furniture.",
             iconName: "sparkles"
-        ),
+        )
     ]
 
     // MARK: - Auto
@@ -142,7 +142,7 @@ extension AlarmTemplate {
             daysOfMonth: [],
             suggestedNote: "Compare quotes before renewal. Review coverage limits.",
             iconName: "shield.fill"
-        ),
+        )
     ]
 
     // MARK: - Health
@@ -197,7 +197,7 @@ extension AlarmTemplate {
             daysOfMonth: [],
             suggestedNote: "Bring current glasses/contacts prescription. Check vision insurance.",
             iconName: "eye.fill"
-        ),
+        )
     ]
 
     // MARK: - Finance
@@ -252,6 +252,6 @@ extension AlarmTemplate {
             daysOfMonth: [],
             suggestedNote: "Review all recurring charges. Cancel unused subscriptions.",
             iconName: "creditcard.fill"
-        ),
+        )
     ]
 }

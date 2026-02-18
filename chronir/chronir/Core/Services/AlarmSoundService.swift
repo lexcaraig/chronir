@@ -25,7 +25,7 @@ final class AlarmSoundService: AlarmSoundServiceProtocol {
         SoundOption(name: "sms-received5", displayName: "Digital Pulse", iconName: "waveform", requiresPlus: true),
         SoundOption(name: "sms-received1", displayName: "Soft Note", iconName: "music.note", requiresPlus: true),
         SoundOption(name: "tweet_sent", displayName: "Quick Alert", iconName: "bolt.fill", requiresPlus: true),
-        SoundOption(name: "anticipate", displayName: "Anticipate", iconName: "sparkles", requiresPlus: true),
+        SoundOption(name: "anticipate", displayName: "Anticipate", iconName: "sparkles", requiresPlus: true)
     ]
 
     /// Backward-compatible accessor

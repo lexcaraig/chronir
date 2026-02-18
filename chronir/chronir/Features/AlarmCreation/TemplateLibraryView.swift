@@ -97,7 +97,7 @@ struct TemplateLibraryView: View {
 }
 
 #Preview {
-    TemplateLibraryView { template in
+    TemplateLibraryView { _ in
         // Preview action
     }
 }

@@ -444,6 +444,11 @@ struct AlarmListView: View {
         return AlarmCategory.allCases.filter { cats.contains($0) }
     }
 
+}
+
+// MARK: - Helpers
+
+extension AlarmListView {
     private enum SmartListItem: Identifiable {
         case grouped(AlarmCategory, [Alarm])
         case individual(Alarm)
@@ -580,7 +585,6 @@ struct AlarmListView: View {
             }
         }
     }
-
 }
 
 #Preview {

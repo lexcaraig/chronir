@@ -65,7 +65,7 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
             UserDefaults.standard.set(now, forKey: "chronir_last_sync")
             syncState = .synced(now)
         } catch {
-            syncState = .error(error.localizedDescription)
+            syncState = .error(Self.userFriendlyMessage(for: error))
             throw error
         }
     }
@@ -77,7 +77,9 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     }
 
     func pullRemoteChanges() async throws {
-        _ = try await fetchRemoteAlarms(uid: currentUID ?? "")
+        guard let uid = currentUID else { return }
+        guard isPlusTier else { return }
+        _ = try await fetchRemoteAlarms(uid: uid)
     }
 
     func resolveConflicts() async throws {
@@ -151,7 +153,7 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
             UserDefaults.standard.set(now, forKey: "chronir_last_sync")
             syncState = .synced(now)
         } catch {
-            syncState = .error(error.localizedDescription)
+            syncState = .error(Self.userFriendlyMessage(for: error))
         }
     }
 
@@ -201,6 +203,18 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
 
     private var isPlusTier: Bool {
         SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
+    }
+
+    private static func userFriendlyMessage(for error: Error) -> String {
+        let nsError = error as NSError
+        if nsError.domain == "FIRFirestoreErrorDomain" {
+            switch nsError.code {
+            case 7: return "Sync permission denied. Please sign in again."
+            case 14: return "Unable to reach server. Check your connection."
+            default: return "Sync failed. Please try again later."
+            }
+        }
+        return "Sync failed. Please try again later."
     }
 
     private func fetchRemoteAlarms(uid: String) async throws -> [AlarmSyncPayload] {
@@ -290,7 +304,7 @@ struct AlarmSyncPayload: Identifiable {
             "persistenceLevel": persistenceLevelRaw,
             "preAlarmMinutes": preAlarmMinutes,
             "createdAt": Timestamp(date: createdAt),
-            "updatedAt": Timestamp(date: updatedAt),
+            "updatedAt": Timestamp(date: updatedAt)
         ]
         if let note { data["note"] = note }
         if let timesOfDayJSON { data["timesOfDayJSON"] = timesOfDayJSON }

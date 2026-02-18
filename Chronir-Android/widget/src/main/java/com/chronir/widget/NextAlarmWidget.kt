@@ -1,5 +1,6 @@
 package com.chronir.widget
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ import java.time.format.DateTimeFormatter
 
 class NextAlarmWidget : GlanceAppWidget() {
 
+    @SuppressLint("ResourceType")
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val nextAlarm = loadNextAlarm(context)
 

@@ -2,7 +2,7 @@
 
 **Goal:** Strengthen Free and Plus tier value propositions — fix gating bugs, add high-impact features, improve conversion.
 **Branch:** `sprint-tier-improvements`
-**Status:** Implementation Complete (Pending QA)
+**Status:** QA Gate Passed
 
 ---
 

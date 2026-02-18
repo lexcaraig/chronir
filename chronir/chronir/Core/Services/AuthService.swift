@@ -117,10 +117,11 @@ final class AuthService: AuthServiceProtocol, @unchecked Sendable {
         guard let user = Auth.auth().currentUser else {
             throw AuthError.noUser
         }
-        // Delete Firestore data first
-        try await CloudSyncService.shared.deleteAllCloudData()
-        // Then delete Firebase Auth account
+        // Delete auth account first to verify recent authentication.
+        // If this fails (e.g. requiresRecentLogin), no data is lost.
         try await user.delete()
+        // Only delete cloud data after auth account is confirmed deleted
+        try? await CloudSyncService.shared.deleteAllCloudData()
         await MainActor.run {
             self.userProfile = nil
             self.isSignedIn = false
@@ -151,7 +152,9 @@ enum AppleSignInHelper {
         precondition(length > 0)
         var randomBytes = [UInt8](repeating: 0, count: length)
         let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
-        guard errorCode == errSecSuccess else { return "" }
+        guard errorCode == errSecSuccess else {
+            preconditionFailure("Unable to generate secure random bytes: \(errorCode)")
+        }
         let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
         return String(randomBytes.map { charset[Int($0) % charset.count] })
     }
