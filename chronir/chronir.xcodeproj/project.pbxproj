@@ -24,6 +24,8 @@
 		F1RE0001000100010001000E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE0001000100010001000D /* FirebaseFirestore */; };
 		F1RE00010001000100010010 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE0001000100010001000F /* FirebaseStorage */; };
 		F1RE00010001000100010012 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE00010001000100010011 /* FirebaseCrashlytics */; };
+		G00G0001000100010001000C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000B /* GoogleSignIn */; };
+		G00G0001000100010001000E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000D /* GoogleSignInSwift */; };
 		F25212E45636EEFB17B09CB6 /* ChronirWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C7355E3B1C7FD85B173DCF1 /* ChronirWidgetsBundle.swift */; };
 		F8ABAE9EFBFB07EB9E2D70C9 /* NextAlarmTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF66B8DFDEAAE640923D2790 /* NextAlarmTimelineProvider.swift */; };
 /* End PBXBuildFile section */
@@ -125,6 +127,8 @@
 				F1RE0001000100010001000E /* FirebaseFirestore in Frameworks */,
 				F1RE00010001000100010010 /* FirebaseStorage in Frameworks */,
 				F1RE00010001000100010012 /* FirebaseCrashlytics in Frameworks */,
+				G00G0001000100010001000C /* GoogleSignIn in Frameworks */,
+				G00G0001000100010001000E /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,6 +276,8 @@
 				F1RE0001000100010001000D /* FirebaseFirestore */,
 				F1RE0001000100010001000F /* FirebaseStorage */,
 				F1RE00010001000100010011 /* FirebaseCrashlytics */,
+				G00G0001000100010001000B /* GoogleSignIn */,
+				G00G0001000100010001000D /* GoogleSignInSwift */,
 			);
 			productName = chronir;
 			productReference = B2E5B6EA2F363783002E2448 /* chronir.app */;
@@ -353,6 +359,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F1RE0001000100010001000A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				G00G0001000100010001000A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B2E5B6EB2F363783002E2448 /* Products */;
@@ -863,6 +870,14 @@
 				minimumVersion = 11.0.0;
 			};
 		};
+		G00G0001000100010001000A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -885,6 +900,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F1RE0001000100010001000A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		G00G0001000100010001000B /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = G00G0001000100010001000A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		G00G0001000100010001000D /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = G00G0001000100010001000A /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -19,7 +19,7 @@ struct SubscriptionManagementView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .task {
-            await SubscriptionService.shared.updateSubscriptionStatus()
+            await subscriptionService.updateSubscriptionStatus()
         }
     }
 
@@ -36,13 +36,15 @@ struct SubscriptionManagementView: View {
                 )
             }
 
-            if subscriptionService.isLifetime {
-                HStack {
-                    ChronirText("Duration", style: .bodyPrimary)
-                    Spacer()
-                    ChronirText("Forever", style: .bodySecondary, color: ColorTokens.success)
-                }
-            } else if let renewalDate = subscriptionService.renewalDate {
+            // Lifetime plan commented out until pricing is finalized
+            // if subscriptionService.isLifetime {
+            //     HStack {
+            //         ChronirText("Duration", style: .bodyPrimary)
+            //         Spacer()
+            //         ChronirText("Forever", style: .bodySecondary, color: ColorTokens.success)
+            //     }
+            // } else
+            if let renewalDate = subscriptionService.renewalDate {
                 HStack {
                     ChronirText("Renews", style: .bodyPrimary)
                     Spacer()
@@ -113,7 +115,7 @@ struct SubscriptionManagementView: View {
 
     private var actionsSection: some View {
         Section {
-            if !subscriptionService.currentTier.isFreeTier && !subscriptionService.isLifetime {
+            if !subscriptionService.currentTier.isFreeTier /* && !subscriptionService.isLifetime */ {
                 Button {
                     Task {
                         guard let scene = windowScene else { return }
@@ -130,7 +132,7 @@ struct SubscriptionManagementView: View {
 
             Button {
                 Task {
-                    await SubscriptionService.shared.restorePurchases()
+                    await subscriptionService.restorePurchases()
                     if subscriptionService.currentTier.isFreeTier {
                         restoreMessage = "No active subscriptions found."
                     } else {

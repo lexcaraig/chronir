@@ -274,6 +274,10 @@ struct ChronirApp: App {
             }
             #endif
             .onChange(of: scenePhase) {
+                // Trigger cloud sync when returning to foreground
+                if scenePhase == .active, AuthService.shared.isSignedIn {
+                    Task { try? await CloudSyncService.shared.syncAlarms() }
+                }
                 // Fallback for edge cases where willEnterForeground didn't fire.
                 guard scenePhase == .active,
                       coordinator.isFiring else { return }

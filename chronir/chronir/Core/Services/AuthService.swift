@@ -1,12 +1,15 @@
 import Foundation
 import FirebaseAuth
+import FirebaseCore
 import AuthenticationServices
+import GoogleSignIn
 import Observation
 
 protocol AuthServiceProtocol: Sendable {
     func signIn(email: String, password: String) async throws -> UserProfile
     func signUp(email: String, password: String, displayName: String) async throws -> UserProfile
     func signInWithApple(credential: ASAuthorizationAppleIDCredential, nonce: String) async throws -> UserProfile
+    func signInWithGoogle() async throws -> UserProfile
     func signOut() throws
     func currentUser() -> UserProfile?
     func deleteAccount() async throws
@@ -96,12 +99,52 @@ final class AuthService: AuthServiceProtocol, @unchecked Sendable {
         return profile
     }
 
+    // MARK: - Google Sign In
+
+    @discardableResult
+    func signInWithGoogle() async throws -> UserProfile {
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            throw AuthError.invalidCredential
+        }
+
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+
+        guard let windowScene = await MainActor.run(body: {
+            UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .first
+        }),
+        let rootVC = await MainActor.run(body: {
+            windowScene.windows.first?.rootViewController
+        }) else {
+            throw AuthError.invalidCredential
+        }
+
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
+        guard let idToken = result.user.idToken?.tokenString else {
+            throw AuthError.invalidCredential
+        }
+
+        let credential = GoogleAuthProvider.credential(
+            withIDToken: idToken,
+            accessToken: result.user.accessToken.tokenString
+        )
+        let authResult = try await Auth.auth().signIn(with: credential)
+        let profile = UserProfile(from: authResult.user)
+        await MainActor.run {
+            self.userProfile = profile
+            self.isSignedIn = true
+        }
+        return profile
+    }
+
     // MARK: - Sign Out
 
     func signOut() throws {
         try Auth.auth().signOut()
         userProfile = nil
         isSignedIn = false
+        CloudSyncService.shared.resetState()
     }
 
     // MARK: - Current User
@@ -148,12 +191,12 @@ final class AuthService: AuthServiceProtocol, @unchecked Sendable {
 import CryptoKit
 
 enum AppleSignInHelper {
-    static func randomNonceString(length: Int = 32) -> String {
-        precondition(length > 0)
+    static func randomNonceString(length: Int = 32) throws -> String {
+        guard length > 0 else { throw AuthService.AuthError.invalidCredential }
         var randomBytes = [UInt8](repeating: 0, count: length)
         let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
         guard errorCode == errSecSuccess else {
-            preconditionFailure("Unable to generate secure random bytes: \(errorCode)")
+            throw AuthService.AuthError.invalidCredential
         }
         let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
         return String(randomBytes.map { charset[Int($0) % charset.count] })

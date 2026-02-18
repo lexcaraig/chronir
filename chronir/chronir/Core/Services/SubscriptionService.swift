@@ -14,7 +14,7 @@ final class SubscriptionService {
     }
     private(set) var activeProductID: String?
     private(set) var renewalDate: Date?
-    var isLoading = false
+    private(set) var isLoading = false
     var errorMessage: String?
     private(set) var statusChecked = false
 
@@ -23,8 +23,8 @@ final class SubscriptionService {
     // TODO: Add premium product IDs when Premium tier is built (Phase 4, Sprint 11+)
     static let productIDs: Set<String> = [
         "com.chronir.plus.annual",
-        "com.chronir.plus.monthly",
-        "com.chronir.plus.lifetime"
+        "com.chronir.plus.monthly"
+        // "com.chronir.plus.lifetime" — commented out until pricing is finalized
     ]
 
     private init() {}
@@ -159,7 +159,7 @@ final class SubscriptionService {
 
     var plusMonthly: Product? { product(for: "com.chronir.plus.monthly") }
     var plusAnnual: Product? { product(for: "com.chronir.plus.annual") }
-    var plusLifetime: Product? { product(for: "com.chronir.plus.lifetime") }
+    // var plusLifetime: Product? { product(for: "com.chronir.plus.lifetime") }
     // TODO: Add premium product accessors when Premium tier is built (Phase 4, Sprint 11+)
 }
 

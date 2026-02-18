@@ -1,18 +1,16 @@
 import SwiftUI
+import SwiftData
 import AuthenticationServices
 
 struct AccountView: View {
     @State private var authService = AuthService.shared
     @State private var syncService = CloudSyncService.shared
-    @State private var email = ""
-    @State private var password = ""
-    @State private var displayName = ""
-    @State private var isSignUp = false
     @State private var errorMessage: String?
     @State private var isLoading = false
     @State private var showDeleteConfirmation = false
     @State private var currentNonce: String?
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     var body: some View {
         List {
@@ -136,7 +134,7 @@ struct AccountView: View {
     private var signInContent: some View {
         Section {
             SignInWithAppleButton(.signIn) { request in
-                let nonce = AppleSignInHelper.randomNonceString()
+                guard let nonce = try? AppleSignInHelper.randomNonceString() else { return }
                 currentNonce = nonce
                 request.requestedScopes = [.fullName, .email]
                 request.nonce = AppleSignInHelper.sha256(nonce)
@@ -145,70 +143,43 @@ struct AccountView: View {
             }
             .signInWithAppleButtonStyle(.whiteOutline)
             .frame(height: 50)
-        } header: {
-            ChronirText("Quick Sign In", style: .labelLarge, color: ColorTokens.textSecondary)
-        }
-        .listRowBackground(ColorTokens.surfaceCard)
-
-        Section {
-            if isSignUp {
-                TextField("Display Name", text: $displayName)
-                    .textContentType(.name)
-            }
-            TextField("Email", text: $email)
-                .textContentType(.emailAddress)
-                .keyboardType(.emailAddress)
-                .autocorrectionDisabled()
-                #if os(iOS)
-                .textInputAutocapitalization(.never)
-                #endif
-            SecureField("Password", text: $password)
-                .textContentType(isSignUp ? .newPassword : .password)
 
             Button {
-                Task { await performEmailAuth() }
+                Task { await handleGoogleSignIn() }
             } label: {
-                if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                } else {
-                    Text(isSignUp ? "Create Account" : "Sign In")
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(ColorTokens.primary)
+                HStack {
+                    Image(systemName: "g.circle.fill")
+                        .font(.title2)
+                    Text("Sign in with Google")
                 }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .foregroundStyle(ColorTokens.textPrimary)
             }
-            .disabled(isLoading || email.isEmpty || password.isEmpty)
+            .disabled(isLoading)
         } header: {
-            ChronirText("Email", style: .labelLarge, color: ColorTokens.textSecondary)
+            ChronirText("Sign In", style: .labelLarge, color: ColorTokens.textSecondary)
         }
         .listRowBackground(ColorTokens.surfaceCard)
 
-        Section {
-            Button {
-                isSignUp.toggle()
-                errorMessage = nil
-            } label: {
-                Text(isSignUp ? "Already have an account? Sign in" : "Don't have an account? Create one")
-                    .chronirFont(.caption)
-                    .foregroundStyle(ColorTokens.primary)
+        if isLoading {
+            Section {
+                ProgressView()
                     .frame(maxWidth: .infinity)
             }
+            .listRowBackground(ColorTokens.surfaceCard)
         }
-        .listRowBackground(ColorTokens.surfaceCard)
     }
 
     // MARK: - Auth Actions
 
-    private func performEmailAuth() async {
+    private func handleGoogleSignIn() async {
         isLoading = true
         defer { isLoading = false }
 
         do {
-            if isSignUp {
-                try await authService.signUp(email: email, password: password, displayName: displayName)
-            } else {
-                try await authService.signIn(email: email, password: password)
-            }
+            try await authService.signInWithGoogle()
+            await performInitialSync()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -226,6 +197,7 @@ struct AccountView: View {
             defer { isLoading = false }
             do {
                 try await authService.signInWithApple(credential: appleCredential, nonce: nonce)
+                await performInitialSync()
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -234,6 +206,30 @@ struct AccountView: View {
             if (error as NSError).code != ASAuthorizationError.canceled.rawValue {
                 errorMessage = error.localizedDescription
             }
+        }
+    }
+
+    /// After sign-in, upload all local alarms to cloud and restore any remote-only alarms.
+    private func performInitialSync() async {
+        let descriptor = FetchDescriptor<Alarm>()
+        guard let localAlarms = try? modelContext.fetch(descriptor) else { return }
+
+        // Upload local alarms to cloud
+        await syncService.uploadAllAlarms(localAlarms)
+
+        // Pull remote alarms that don't exist locally and insert them
+        guard let remotePayloads = try? await syncService.fetchAllRemoteAlarms() else { return }
+        let localIDs = Set(localAlarms.map { $0.id.uuidString })
+        let newPayloads = remotePayloads.filter { !localIDs.contains($0.id) }
+
+        for payload in newPayloads {
+            if let alarm = payload.toAlarm() {
+                modelContext.insert(alarm)
+            }
+        }
+        if !newPayloads.isEmpty {
+            try? modelContext.save()
+            try? await AlarmScheduler.shared.rescheduleAllAlarms()
         }
     }
 }

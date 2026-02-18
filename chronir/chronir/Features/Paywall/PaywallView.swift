@@ -7,7 +7,8 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
 
     enum PlanOption {
-        case monthly, annual, lifetime
+        case monthly, annual
+        // case lifetime — commented out until pricing is finalized
     }
 
     var body: some View {
@@ -118,12 +119,13 @@ struct PaywallView: View {
                 price: viewModel.plusMonthly?.displayPrice ?? "$1.99",
                 badge: nil
             )
-            planRow(
-                plan: .lifetime,
-                label: "Lifetime",
-                price: viewModel.plusLifetime?.displayPrice ?? "$49.99",
-                badge: "One-Time"
-            )
+            // Lifetime plan commented out until pricing is finalized
+            // planRow(
+            //     plan: .lifetime,
+            //     label: "Lifetime",
+            //     price: viewModel.plusLifetime?.displayPrice ?? "$49.99",
+            //     badge: "One-Time"
+            // )
         }
     }
 
@@ -240,8 +242,8 @@ struct PaywallView: View {
             let price = viewModel.plusAnnual?.displayPrice ?? "$19.99"
             return "Auto-renews at \(price)/year. "
                 + "Cancel anytime in Settings > Apple ID > Subscriptions."
-        case .lifetime:
-            return "One-time purchase. No subscription, no renewals — yours forever."
+        // case .lifetime:
+        //     return "One-time purchase. No subscription, no renewals — yours forever."
         }
     }
 
@@ -253,9 +255,9 @@ struct PaywallView: View {
         case .annual:
             let p = viewModel.plusAnnual?.displayPrice ?? "$19.99"
             return "Subscribe — \(p)/yr"
-        case .lifetime:
-            let p = viewModel.plusLifetime?.displayPrice ?? "$49.99"
-            return "Buy Once — \(p)"
+        // case .lifetime:
+        //     let p = viewModel.plusLifetime?.displayPrice ?? "$49.99"
+        //     return "Buy Once — \(p)"
         }
     }
 
@@ -264,7 +266,7 @@ struct PaywallView: View {
         switch selectedPlan {
         case .monthly: product = viewModel.plusMonthly
         case .annual: product = viewModel.plusAnnual
-        case .lifetime: product = viewModel.plusLifetime
+        // case .lifetime: product = viewModel.plusLifetime
         }
         guard let product else { return }
         await viewModel.purchase(product)

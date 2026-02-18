@@ -4,5 +4,17 @@
     "location": "nam5",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Chronir",
+        "supportEmail": "lexphicableme@gmail.com"
+      }
+    }
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }

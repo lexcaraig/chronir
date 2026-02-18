@@ -11,8 +11,7 @@ final class PaywallViewModel {
     }
 
     var isLoading: Bool {
-        get { subscriptionService.isLoading }
-        set { subscriptionService.isLoading = newValue }
+        subscriptionService.isLoading
     }
 
     var errorMessage: String? {
@@ -57,5 +56,5 @@ final class PaywallViewModel {
     // Convenience accessors
     var plusMonthly: Product? { subscriptionService.plusMonthly }
     var plusAnnual: Product? { subscriptionService.plusAnnual }
-    var plusLifetime: Product? { subscriptionService.plusLifetime }
+    // var plusLifetime: Product? { subscriptionService.plusLifetime }
 }

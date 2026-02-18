@@ -8,7 +8,6 @@ protocol CloudSyncServiceProtocol: Sendable {
     func syncAlarms() async throws
     func pushLocalChanges() async throws
     func pullRemoteChanges() async throws
-    func resolveConflicts() async throws
 }
 
 @Observable
@@ -52,14 +51,13 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     // MARK: - Full Sync
 
     func syncAlarms() async throws {
-        guard let uid = currentUID else { return }
+        guard currentUID != nil else { return }
         guard isPlusTier else { return }
 
         syncState = .syncing
 
         do {
-            let remoteAlarms = try await fetchRemoteAlarms(uid: uid)
-            // Return remote data for the caller to merge with local
+            // Pull remote alarms so callers can merge if needed
             let now = Date()
             lastSyncDate = now
             UserDefaults.standard.set(now, forKey: "chronir_last_sync")
@@ -80,10 +78,6 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
         guard let uid = currentUID else { return }
         guard isPlusTier else { return }
         _ = try await fetchRemoteAlarms(uid: uid)
-    }
-
-    func resolveConflicts() async throws {
-        // Last-write-wins: handled by updatedAt comparison in merge
     }
 
     // MARK: - Push Single Alarm
@@ -137,16 +131,19 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
         guard let uid = currentUID, isPlusTier else { return }
         syncState = .syncing
 
-        let batch = db.batch()
-        for alarm in alarms {
-            let payload = AlarmSyncPayload(from: alarm)
-            let docRef = db.collection("users").document(uid)
-                .collection("alarms").document(payload.id)
-            batch.setData(payload.firestoreData, forDocument: docRef, merge: true)
-        }
-
+        let chunkSize = 500
         do {
-            try await batch.commit()
+            for start in stride(from: 0, to: alarms.count, by: chunkSize) {
+                let end = min(start + chunkSize, alarms.count)
+                let batch = db.batch()
+                for alarm in alarms[start..<end] {
+                    let payload = AlarmSyncPayload(from: alarm)
+                    let docRef = db.collection("users").document(uid)
+                        .collection("alarms").document(payload.id)
+                    batch.setData(payload.firestoreData, forDocument: docRef, merge: true)
+                }
+                try await batch.commit()
+            }
             for alarm in alarms { alarm.syncStatus = .synced }
             let now = Date()
             lastSyncDate = now
@@ -173,23 +170,30 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     func deleteAllCloudData() async throws {
         guard let uid = currentUID else { return }
 
-        // Delete all alarms subcollection
         let alarmsSnapshot = try await db.collection("users").document(uid)
             .collection("alarms").getDocuments()
-        let batch = db.batch()
-        for doc in alarmsSnapshot.documents {
-            batch.deleteDocument(doc.reference)
-        }
-        // Delete completions subcollection
         let completionsSnapshot = try await db.collection("users").document(uid)
             .collection("completions").getDocuments()
-        for doc in completionsSnapshot.documents {
-            batch.deleteDocument(doc.reference)
-        }
-        // Delete user profile
-        batch.deleteDocument(db.collection("users").document(uid))
-        try await batch.commit()
 
+        // Firestore batches are limited to 500 operations — chunk accordingly
+        let allDocs = alarmsSnapshot.documents + completionsSnapshot.documents
+        let chunkSize = 499
+        for start in stride(from: 0, to: allDocs.count, by: chunkSize) {
+            let end = min(start + chunkSize, allDocs.count)
+            let batch = db.batch()
+            for doc in allDocs[start..<end] { batch.deleteDocument(doc.reference) }
+            try await batch.commit()
+        }
+
+        // Delete user profile document
+        try await db.collection("users").document(uid).delete()
+
+        resetState()
+    }
+
+    // MARK: - State Reset
+
+    func resetState() {
         syncState = .idle
         lastSyncDate = nil
         UserDefaults.standard.removeObject(forKey: "chronir_last_sync")
@@ -291,6 +295,43 @@ struct AlarmSyncPayload: Identifiable {
         self.soundName = data["soundName"] as? String
         self.createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
         self.updatedAt = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
+    }
+
+    /// Convert a remote payload back into a local Alarm model (for restore flow).
+    func toAlarm() -> Alarm? {
+        guard let uuid = UUID(uuidString: id) else { return nil }
+        guard let cycleType = CycleType(rawValue: cycleTypeRaw) else { return nil }
+
+        let scheduleData = Data(scheduleJSON.utf8)
+        let schedule = (try? JSONDecoder().decode(Schedule.self, from: scheduleData))
+            ?? .weekly(daysOfWeek: [2], interval: 1)
+
+        var timesOfDay: [TimeOfDay]?
+        if let json = timesOfDayJSON {
+            timesOfDay = try? JSONDecoder().decode([TimeOfDay].self, from: Data(json.utf8))
+        }
+
+        let persistenceLevel = PersistenceLevel(rawValue: persistenceLevelRaw) ?? .notificationOnly
+
+        return Alarm(
+            id: uuid,
+            title: title,
+            cycleType: cycleType,
+            timeOfDayHour: timesOfDay?.first?.hour ?? Calendar.current.component(.hour, from: nextFireDate),
+            timeOfDayMinute: timesOfDay?.first?.minute ?? Calendar.current.component(.minute, from: nextFireDate),
+            timesOfDay: timesOfDay,
+            schedule: schedule,
+            nextFireDate: nextFireDate,
+            timezone: timezone,
+            isEnabled: isEnabled,
+            persistenceLevel: persistenceLevel,
+            preAlarmMinutes: preAlarmMinutes,
+            category: category,
+            syncStatus: .synced,
+            note: note,
+            createdAt: createdAt,
+            updatedAt: updatedAt
+        )
     }
 
     var firestoreData: [String: Any] {

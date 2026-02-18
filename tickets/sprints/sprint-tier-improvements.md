@@ -2,7 +2,7 @@
 
 **Goal:** Strengthen Free and Plus tier value propositions — fix gating bugs, add high-impact features, improve conversion.
 **Branch:** `sprint-tier-improvements`
-**Status:** QA Gate Passed
+**Status:** Sprint Complete
 
 ---
 
@@ -36,7 +36,7 @@
 
 | Ticket | Title | Tier | Effort | Status |
 |--------|-------|------|--------|--------|
-| [TIER-02](../untested/TIER-02-cloud-backup.md) | Cloud backup | Plus | High | **Untested** |
+| [TIER-02](../completed/TIER-02-cloud-backup.md) | Cloud backup | Plus | High | **QA Passed** |
 
 ### Deferred to Next Sprint
 
