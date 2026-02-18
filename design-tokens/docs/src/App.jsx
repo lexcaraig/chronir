@@ -7,6 +7,8 @@ import RadiusSection from './components/RadiusSection'
 import AnimationSection from './components/AnimationSection'
 import ComponentsSection from './components/ComponentsSection'
 import ScreensSection from './components/ScreensSection'
+import MarketingSection from './components/MarketingSection'
+import IosArchitectureSection from './components/IosArchitectureSection'
 
 const sections = {
   colors: { component: ColorSection, title: 'Color Palette', description: 'A selection of colors that work together to create consistency in apps.' },
@@ -16,6 +18,8 @@ const sections = {
   animation: { component: AnimationSection, title: 'Animation', description: 'Duration presets and spring physics parameters for interactive animations.' },
   components: { component: ComponentsSection, title: 'Component Catalog', description: 'Atomic Design components from tokens through organisms.' },
   screens: { component: ScreensSection, title: 'App Screens', description: 'Live previews of Chronir screens at iPhone resolution.' },
+  marketing: { component: MarketingSection, title: 'Marketing', description: 'Launch copy, promotional content, and go-to-market strategy.' },
+  iosArchitecture: { component: IosArchitectureSection, title: 'iOS Architecture', description: 'MVVM + Repository + Service pattern, SwiftData, AlarmKit, and feature implementation details.' },
 }
 
 export default function App() {
@@ -67,7 +71,7 @@ export default function App() {
         </div>
         <nav className="toolbar-nav">
           <a
-            className={!['components', 'screens'].includes(active) ? 'active' : ''}
+            className={!['components', 'screens', 'marketing', 'iosArchitecture'].includes(active) ? 'active' : ''}
             onClick={() => navigate('colors')}
           >
             Foundations
@@ -83,6 +87,18 @@ export default function App() {
             onClick={() => navigate('screens')}
           >
             Screens
+          </a>
+          <a
+            className={active === 'marketing' ? 'active' : ''}
+            onClick={() => navigate('marketing')}
+          >
+            Marketing
+          </a>
+          <a
+            className={active === 'iosArchitecture' ? 'active' : ''}
+            onClick={() => navigate('iosArchitecture')}
+          >
+            Architecture
           </a>
           <button
             className="theme-toggle"

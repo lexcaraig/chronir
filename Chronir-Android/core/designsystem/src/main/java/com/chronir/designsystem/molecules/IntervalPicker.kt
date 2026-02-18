@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.theme.ChronirTheme
-import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
@@ -41,7 +41,7 @@ fun IntervalPicker(
         ChronirText(
             text = "Repeat",
             style = ChronirTextStyle.LabelMedium,
-            color = ColorTokens.TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Row(horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Small)) {
             options.forEach { option ->
@@ -49,10 +49,10 @@ fun IntervalPicker(
                 ChronirText(
                     text = option.label,
                     style = ChronirTextStyle.LabelLarge,
-                    color = if (isSelected) Color.White else ColorTokens.TextSecondary,
+                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .clip(RoundedCornerShape(RadiusTokens.Sm))
-                        .background(if (isSelected) ColorTokens.AccentPrimary else ColorTokens.BackgroundTertiary)
+                        .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
                         .clickable { onOptionSelected(option) }
                         .padding(horizontal = SpacingTokens.Medium, vertical = SpacingTokens.Small)
                 )

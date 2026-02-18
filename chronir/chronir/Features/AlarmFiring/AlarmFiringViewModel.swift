@@ -33,9 +33,16 @@ final class AlarmFiringViewModel {
         alarm = try? await repo.fetch(by: id)
     }
 
+    /// Call `AlarmFiringCoordinator.shared.stoppedForCustomSound.insert(alarm.id)`
+    /// from the MainActor call site BEFORE calling this method, so that the
+    /// `alarmUpdates` handler doesn't dismiss the firing view when AlarmKit stops.
     func startFiring() {
         isFiring = true
-        soundService.startPlaying(soundName: nil)
+        // Stop AlarmKit's system alarm sound so the user's chosen sound plays instead.
+        if let alarm {
+            try? AlarmManager.shared.stop(id: alarm.id)
+        }
+        soundService.startPlaying(soundName: alarm?.soundName)
         if UserSettings.shared.hapticsEnabled {
             hapticService.startAlarmVibrationLoop()
         }
@@ -75,6 +82,38 @@ final class AlarmFiringViewModel {
         stopFiring()
 
         await MainActor.run {
+            AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id)
+            AlarmFiringCoordinator.shared.markHandled(alarm.id)
+            AlarmFiringCoordinator.shared.dismissFiring()
+        }
+
+        if UserSettings.shared.hapticsEnabled { hapticService.playSuccess() }
+    }
+
+    // MARK: - Skip
+
+    func skip() async {
+        guard let alarm, !isCompleted else { return }
+        guard alarm.cycleType != .oneTime else { return }
+        isCompleted = true
+
+        try? AlarmManager.shared.stop(id: alarm.id)
+
+        alarm.snoozeCount = 0
+        alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: alarm.nextFireDate)
+
+        try? await scheduler.cancelAlarm(alarm)
+        try? await scheduler.scheduleAlarm(alarm)
+
+        saveCompletionLog(alarmID: alarm.id, action: .skipped)
+
+        try? modelContext?.save()
+
+        stopFiring()
+
+        await MainActor.run {
+            AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id)
+            AlarmFiringCoordinator.shared.markHandled(alarm.id)
             AlarmFiringCoordinator.shared.dismissFiring()
         }
 
@@ -90,6 +129,7 @@ final class AlarmFiringViewModel {
         try? AlarmManager.shared.stop(id: alarm.id)
 
         alarm.lastFiredDate = Date()
+        alarm.lastCompletedAt = Date()
         alarm.snoozeCount = 0
 
         if alarm.cycleType == .oneTime {
@@ -110,6 +150,8 @@ final class AlarmFiringViewModel {
         stopFiring()
 
         await MainActor.run {
+            AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id)
+            AlarmFiringCoordinator.shared.markHandled(alarm.id)
             AlarmFiringCoordinator.shared.dismissFiring()
             AppReviewService.recordCompletion()
         }
@@ -126,6 +168,7 @@ final class AlarmFiringViewModel {
 
         // Atomically check-and-set handled state to prevent any double-processing
         let alreadyHandled = await MainActor.run {
+            AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id)
             if AlarmFiringCoordinator.shared.isHandled(alarm.id) {
                 return true
             }
@@ -148,6 +191,7 @@ final class AlarmFiringViewModel {
             saveCompletionLog(alarmID: alarm.id, action: .snoozed)
         } else {
             alarm.lastFiredDate = Date()
+            alarm.lastCompletedAt = Date()
             alarm.snoozeCount = 0
 
             if alarm.cycleType == .oneTime {

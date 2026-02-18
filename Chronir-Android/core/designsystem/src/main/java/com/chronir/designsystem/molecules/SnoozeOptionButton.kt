@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.theme.ChronirTheme
-import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
@@ -33,7 +33,7 @@ fun SnoozeOptionButton(
         modifier = modifier
             .size(72.dp, 64.dp)
             .clip(RoundedCornerShape(RadiusTokens.Md))
-            .background(ColorTokens.BackgroundTertiary)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -42,7 +42,7 @@ fun SnoozeOptionButton(
         ChronirText(
             text = sublabel,
             style = ChronirTextStyle.LabelSmall,
-            color = ColorTokens.TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

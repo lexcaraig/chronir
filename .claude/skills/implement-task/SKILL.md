@@ -5,10 +5,12 @@ Main orchestrator command for implementing sprint tasks. Takes a task ID and dri
 ## Usage
 
 ```
-/implement-task [task-id]
+/implement-task [ticket-id]
 ```
 
-Example: `/implement-task S4-01`
+Examples:
+- `/implement-task TIER-01` — Ticket from the ticket system
+- `/implement-task S4-01` — Legacy roadmap task ID (still supported)
 
 ## Workflow
 
@@ -16,12 +18,26 @@ Example: `/implement-task S4-01`
 **Immediately** use the `EnterPlanMode` tool before doing anything else. All research and planning (Steps 1–4) happen inside plan mode. Use `ExitPlanMode` after Step 4 to get user approval before implementing.
 
 ### Step 1: Parse Task
-Read `docs/detailed-project-roaadmap.md` and find the task matching the given ID. Extract:
+
+**Ticket-first workflow:** All work must have a ticket before implementation begins.
+
+**If the ID matches a ticket (e.g., `TIER-01`, `LAUNCH-03`, `QA-01`, `FEAT-02`):**
+1. Search `tickets/` folders for the matching ticket file
+2. Read the ticket's description, acceptance criteria, dependencies, orchestration, and technical notes
+3. Move the ticket file from its current folder to `tickets/in-progress/` (if not already there)
+
+**If the ID matches a legacy roadmap task (e.g., `S4-01`):**
+1. Read `docs/detailed-project-roaadmap.md` and find the task matching the given ID
+2. **Create a ticket** in `tickets/in-progress/` for this task before proceeding
+3. Use the appropriate prefix: `FEAT-XX`, `BUG-XX`, `QA-XX`, etc.
+
+Extract from the ticket/task:
 - Task description and acceptance criteria
 - Target platform(s): iOS, Android, or both
-- Sprint number and phase
-- Story points (complexity indicator)
-- Dependencies on other tasks
+- Sprint context and phase
+- Effort estimate
+- Dependencies on other tickets
+- **Orchestration:** agents, commands, plugins, pre/post-flight checks
 
 ### Step 2: Gather Context
 Read the relevant spec documents based on the task domain:
@@ -101,11 +117,14 @@ This step preserves exact functionality while cleaning up implementation verbosi
 ### Step 10: Re-run Quality Gate
 After review and simplification may have changed code, **re-run the full quality gate from Step 7** to ensure nothing was broken. All checks must still pass.
 
-### Step 11: Commit
+### Step 11: Commit & Update Ticket
 Stage all changes and create a commit:
-- Commit message format: `feat(platform): [TASK-ID] description`
-- Example: `feat(ios): [S4-01] implement alarm scheduling service`
+- Commit message format: `feat(platform): [TICKET-ID] description`
+- Example: `feat(ios): [TIER-01] fix photo/note tier gating`
 - Include all modified files, excluding any temporary or generated files
+
+After committing, move the ticket file from `tickets/in-progress/` to `tickets/untested/`.
+The ticket moves to `tickets/completed/` only after QA verification.
 
 ## Plugins
 

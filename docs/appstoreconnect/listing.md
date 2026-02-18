@@ -1,19 +1,39 @@
 # Chronir — App Store Connect Listing
 
-**Last Updated:** February 14, 2026
+**Last Updated:** February 17, 2026
+
+---
+
+## Where to Paste in App Store Connect
+
+| Field              | ASC Location                                                                 |
+| ------------------ | ---------------------------------------------------------------------------- |
+| Name               | **App Store** tab → your version → **Name** field (top of page)              |
+| Subtitle           | **App Store** tab → your version → **Subtitle** field (below Name)           |
+| Promotional Text   | **App Store** tab → your version → **Promotional Text** (above Description)  |
+| Description        | **App Store** tab → your version → **Description**                           |
+| Keywords           | **App Store** tab → your version → **Keywords** (bottom of Localizable Info) |
+| Support URL        | **App Store** tab → your version → **Support URL**                           |
+| Marketing URL      | **App Store** tab → your version → **Marketing URL**                         |
+| Primary Category   | **General** → **App Information** → **Category** → Primary                   |
+| Secondary Category | **General** → **App Information** → **Category** → Secondary                 |
+| Copyright          | **General** → **App Information** → **Copyright**                            |
 
 ---
 
 ## App Information
 
-| Field            | Value              |
-| ---------------- | ------------------ |
-| Platform         | iOS                |
-| Name             | Chronir            |
-| Primary Language | English (U.S.)     |
-| Bundle ID        | com.chronir.ios    |
-| SKU              | chronir-ios        |
-| User Access      | Full Access        |
+| Field              | Value                     |
+| ------------------ | ------------------------- |
+| Platform           | iOS                       |
+| Name               | Chronir: Recurring Alarms |
+| Subtitle           | Never Forget What Matters |
+| Primary Language   | English (U.S.)            |
+| Bundle ID          | com.chronir.ios           |
+| SKU                | chronir-ios               |
+| User Access        | Full Access               |
+| Primary Category   | Productivity              |
+| Secondary Category | Utilities                 |
 
 ---
 
@@ -64,7 +84,7 @@ Built for homeowners, caregivers, pet owners, freelancers, and anyone who needs 
 ### Keywords
 
 ```
-alarm,recurring,reminder,monthly,weekly,annual,persistent,schedule,siri,one-time
+bill,rent,insurance,medication,pet,chore,due,overdue,task,household,caregiver,periodic,reminder,schedule
 ```
 
 ### Support URL
@@ -129,11 +149,11 @@ Manually release this version
 
 ## Screenshots (Dimensions)
 
-| Device       | Size             |
-| ------------ | ---------------- |
-| iPhone 6.5"  | 1284 × 2778 px  |
-| iPhone 6.7"  | 1290 × 2796 px  |
-| iPad 12.9"   | 2048 × 2732 px  |
+| Device      | Size           |
+| ----------- | -------------- |
+| iPhone 6.5" | 1284 × 2778 px |
+| iPhone 6.7" | 1290 × 2796 px |
+| iPad 12.9"  | 2048 × 2732 px |
 
 **Note:** Screenshots should be captured from the app once the UI is finalized (Phase 5). Recommended screens to capture:
 
@@ -149,20 +169,22 @@ Manually release this version
 
 ### Subscription Group: `Chronir Pro`
 
-| Product                | Product ID                    | Price      | Duration | V1.0 Status |
-| ---------------------- | ----------------------------- | ---------- | -------- | ----------- |
-| Chronir Plus Monthly   | `com.chronir.plus.monthly`    | $1.99/mo   | 1 month  | Submit |
-| Chronir Plus Annual    | `com.chronir.plus.annual`     | $19.99/yr  | 1 year   | Submit |
-| Chronir Premium Monthly| `com.chronir.premium.monthly` | $3.99/mo   | 1 month  | DO NOT SUBMIT (Phase 4) |
-| Chronir Premium Annual | `com.chronir.premium.annual`  | $39.99/yr  | 1 year   | DO NOT SUBMIT (Phase 4) |
+| Product                 | Product ID                    | Price     | Duration | V1.0 Status             |
+| ----------------------- | ----------------------------- | --------- | -------- | ----------------------- |
+| Chronir Plus Monthly    | `com.chronir.plus.monthly`    | $1.99/mo  | 1 month  | Submit                  |
+| Chronir Plus Annual     | `com.chronir.plus.annual`     | $19.99/yr | 1 year   | Submit                  |
+| Chronir Premium Monthly | `com.chronir.premium.monthly` | $3.99/mo  | 1 month  | DO NOT SUBMIT (Phase 4) |
+| Chronir Premium Annual  | `com.chronir.premium.annual`  | $39.99/yr | 1 year   | DO NOT SUBMIT (Phase 4) |
 
 ### Subscription Display Names & Descriptions
 
 **Chronir Plus Monthly**
+
 - Display Name: `Chronir Plus`
 - Description: `Unlimited alarms, custom snooze, pre-alarm warnings, photo attachments, completion history & streaks.`
 
 **Chronir Plus Annual**
+
 - Display Name: `Chronir Plus (Annual)`
 - Description: `Unlimited alarms, custom snooze, pre-alarm warnings, photo attachments, completion history & streaks. Save over 15% with annual billing.`
 

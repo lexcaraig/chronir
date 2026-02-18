@@ -17,7 +17,8 @@
 | **Phase 3 — V1.0 Plus Tier**    | Sprint 8–10  | Unlimited alarms, attachments, pre-alarms, history | Plus tier IAP on both platforms        |
 | **Phase 4 — V1.1 Premium Tier** | Sprint 11–13 | Firebase backend, auth, shared alarms, groups      | Premium tier subscription              |
 | **Phase 5 — Polish & Launch**   | Sprint 14–16 | QA, accessibility audit, store submissions         | App Store + Play Store live            |
-| **Phase 6 — Post-Launch**       | Sprint 17+   | Analytics-driven iteration, V2.0 features          | Continuous improvement                 |
+| **Phase 6 — Post-Launch**       | Sprint 17–20 | Analytics-driven iteration, V2.0 features          | Continuous improvement                 |
+| **Phase 7 — Smart Speaker**     | Sprint 21–22 | Alexa integration for pre-alarm speaker announcements | Premium speaker announcements         |
 
 ---
 
@@ -404,6 +405,21 @@
 | S19-03 | Calendar integration (import recurring events as alarms) | P2       | Cross-app utility          |
 | S19-04 | Apple Watch / Wear OS companion app                      | P2       | Platform extension         |
 | S19-05 | Contextual wake-up messages (weather, calendar preview)  | P2       | Delight feature            |
+
+### Sprint 21–22: Alexa Smart Speaker Integration (Premium)
+
+**Goal:** Premium users can receive pre-alarm announcements on Alexa-enabled speakers.
+
+| ID     | Task                                                                                          | Platform | Priority | Description                                                                                      |
+| ------ | --------------------------------------------------------------------------------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------ |
+| S21-01 | Build Alexa Skill with account linking (OAuth via Firebase Auth)                              | Backend  | P0       | Alexa Skill that pairs a user's Alexa account with their Chronir account                         |
+| S21-02 | Implement Cloud Function for pre-alarm → Alexa Proactive Events API                          | Backend  | P0       | When a pre-alarm fires, trigger a server-side call to announce on the user's linked Alexa device |
+| S21-03 | Design and build Alexa linking UI in Settings (link/unlink, connection status)                | Both     | P0       | In-app settings for managing Alexa speaker connection                                            |
+| S21-04 | Per-alarm speaker announcement toggle (opt-in on create/edit)                                 | Both     | P0       | Users choose which alarms announce on speakers                                                   |
+| S21-05 | Implement TTS message templates ("Reminder: [alarm title] is due in [time]")                  | Backend  | P1       | Configurable announcement message format                                                         |
+| S21-06 | Handle Alexa edge cases (device offline, skill disabled, token expiry)                        | Both     | P1       | Graceful fallback — phone notification still fires even if speaker fails                         |
+| S21-07 | Submit Alexa Skill for Amazon certification                                                   | Backend  | P0       | Amazon reviews and certifies the skill for public availability                                   |
+| S21-08 | End-to-end QA — pre-alarm → Cloud Function → Alexa announcement on physical device           | Both     | P0       | Validate full pipeline on real Echo/Alexa hardware                                               |
 
 ---
 

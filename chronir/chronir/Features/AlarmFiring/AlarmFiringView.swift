@@ -57,9 +57,14 @@ struct AlarmFiringView: View {
                 let isAlerting = akAlarms.contains { $0.id == alarmID && $0.state == .alerting }
                 if isAlerting {
                     isReady = true
+                    // Mark before startFiring() so alarmUpdates handler doesn't
+                    // dismiss the firing view when AlarmKit's alarm is stopped.
+                    AlarmFiringCoordinator.shared.stoppedForCustomSound.insert(alarmID)
                     viewModel.startFiring()
                 } else {
-                    // Alarm was already handled on lock screen — dismiss without showing content.
+                    // Alarm was already handled on lock screen — complete before dismissing
+                    // to prevent stale-data overdue flash on the alarm list.
+                    await viewModel.completeIfNeeded()
                     AlarmFiringCoordinator.shared.dismissFiring()
                 }
             }
@@ -136,6 +141,19 @@ struct AlarmFiringView: View {
                     showCustomButton: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                     onCustomTap: { showCustomSnoozePicker = true }
                 )
+            }
+
+            if alarm.cycleType != .oneTime {
+                Button {
+                    Task { await viewModel.skip() }
+                } label: {
+                    HStack(spacing: SpacingTokens.xs) {
+                        Image(systemName: "forward.end")
+                        Text("Skip This Occurrence")
+                    }
+                    .foregroundStyle(ColorTokens.firingForeground.opacity(0.7))
+                    .chronirFont(.bodyMedium)
+                }
             }
 
             dismissButton

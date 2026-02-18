@@ -30,6 +30,10 @@ final class Alarm: Identifiable {
     var persistenceLevel: PersistenceLevel
     var dismissMethod: DismissMethod
     var preAlarmMinutes: Int
+    var preAlarmOffsetsData: Data?
+
+    // MARK: - Sound
+    var soundName: String?
 
     // MARK: - Attachments
     var photoFileName: String?
@@ -49,6 +53,7 @@ final class Alarm: Identifiable {
     // MARK: - Completion History
     @Relationship(deleteRule: .cascade, inverse: \CompletionLog.alarm)
     var completionLogs: [CompletionLog] = []
+    var lastCompletedAt: Date?
 
     // MARK: - Metadata
     var createdAt: Date
@@ -116,6 +121,24 @@ final class Alarm: Identifiable {
     @Transient
     var isPersistent: Bool {
         persistenceLevel == .full
+    }
+
+    @Transient
+    var preAlarmOffsets: [PreAlarmOffset] {
+        get {
+            if let data = preAlarmOffsetsData,
+               let decoded = try? JSONDecoder().decode([PreAlarmOffset].self, from: data) {
+                return decoded.sorted()
+            }
+            // Migrate legacy field
+            if preAlarmMinutes == 1440 { return [.oneDay] }
+            return []
+        }
+        set {
+            preAlarmOffsetsData = try? JSONEncoder().encode(newValue.sorted())
+            // Keep legacy field in sync for backward compat
+            preAlarmMinutes = newValue.contains(.oneDay) ? 1440 : (newValue.isEmpty ? 0 : 1)
+        }
     }
 
     @Transient

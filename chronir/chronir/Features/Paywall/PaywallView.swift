@@ -7,7 +7,7 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
 
     enum PlanOption {
-        case monthly, annual
+        case monthly, annual, lifetime
     }
 
     var body: some View {
@@ -118,6 +118,12 @@ struct PaywallView: View {
                 price: viewModel.plusMonthly?.displayPrice ?? "$1.99",
                 badge: nil
             )
+            planRow(
+                plan: .lifetime,
+                label: "Lifetime",
+                price: viewModel.plusLifetime?.displayPrice ?? "$49.99",
+                badge: "One-Time"
+            )
         }
     }
 
@@ -225,18 +231,18 @@ struct PaywallView: View {
     // MARK: - Helpers
 
     private var renewalTermsText: String {
-        let price: String
-        let period: String
         switch selectedPlan {
         case .monthly:
-            price = viewModel.plusMonthly?.displayPrice ?? "$1.99"
-            period = "month"
+            let price = viewModel.plusMonthly?.displayPrice ?? "$1.99"
+            return "Auto-renews at \(price)/month. "
+                + "Cancel anytime in Settings > Apple ID > Subscriptions."
         case .annual:
-            price = viewModel.plusAnnual?.displayPrice ?? "$19.99"
-            period = "year"
+            let price = viewModel.plusAnnual?.displayPrice ?? "$19.99"
+            return "Auto-renews at \(price)/year. "
+                + "Cancel anytime in Settings > Apple ID > Subscriptions."
+        case .lifetime:
+            return "One-time purchase. No subscription, no renewals — yours forever."
         }
-        return "Auto-renews at \(price)/\(period). "
-            + "Cancel anytime in Settings > Apple ID > Subscriptions."
     }
 
     private var purchaseButtonTitle: String {
@@ -247,6 +253,9 @@ struct PaywallView: View {
         case .annual:
             let p = viewModel.plusAnnual?.displayPrice ?? "$19.99"
             return "Subscribe — \(p)/yr"
+        case .lifetime:
+            let p = viewModel.plusLifetime?.displayPrice ?? "$49.99"
+            return "Buy Once — \(p)"
         }
     }
 
@@ -255,6 +264,7 @@ struct PaywallView: View {
         switch selectedPlan {
         case .monthly: product = viewModel.plusMonthly
         case .annual: product = viewModel.plusAnnual
+        case .lifetime: product = viewModel.plusLifetime
         }
         guard let product else { return }
         await viewModel.purchase(product)

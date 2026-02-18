@@ -384,6 +384,94 @@
 
 ---
 
+## 24. Last Completed Date (Sprint Tier Improvements — TIER-07)
+
+| #    | Step                              | Expected Result                                    | Pass? |
+| ---- | --------------------------------- | -------------------------------------------------- | ----- |
+| 24.1 | Complete an alarm (let it fire, slide to stop) | Card shows "Last: today" or similar date text | PASS |
+| 24.2 | New alarm (never completed)       | No "Last completed" shown (no noise)               | PASS |
+| 24.3 | Verify time not reset             | Alarm card shows original set time (not 8:00)      | PASS |
+
+---
+
+## 25. Overdue Visual State (Sprint Tier Improvements — TIER-12)
+
+| #    | Step                                          | Expected Result                                       | Pass? |
+| ---- | --------------------------------------------- | ----------------------------------------------------- | ----- |
+| 25.1 | Set alarm, force-kill app, let it fire on lock screen, stop on lock screen, reopen app | Overdue badge + red tint on alarm card | PASS |
+| 25.2 | Lock screen stop → return to app (app backgrounded, not killed) | Alarm auto-completes, no overdue badge (slide-to-stop = acknowledgment) | PASS |
+| 25.3 | Overdue alarm persists across app launches    | Overdue state survives cold launch                    | PASS |
+| 25.4 | Swipe-to-done on overdue alarm card           | Alarm completes, reschedules to next occurrence       | PASS |
+
+---
+
+## 26. Extended Pre-Alarms (Sprint Tier Improvements — TIER-05)
+
+> **Note:** Extended options are Plus-gated. Free users see only "1 day".
+
+| #    | Step                                               | Expected Result                              | Pass? |
+| ---- | -------------------------------------------------- | -------------------------------------------- | ----- |
+| 26.1 | Free user → create/edit alarm                      | Only "1 day" pre-alarm option selectable     | PASS |
+| 26.2 | Free user → extended options (1h, 3d, 7d)          | Show lock icon or not selectable             | PASS |
+
+---
+
+## 27. Skip This Occurrence (Sprint Tier Improvements — TIER-06)
+
+| #    | Step                                      | Expected Result                                 | Pass? |
+| ---- | ----------------------------------------- | ----------------------------------------------- | ----- |
+| 27.1 | Find enabled recurring alarm              | Alarm visible in list                           | PASS |
+| 27.2 | Look for "Skip" action (swipe or detail)  | Skip action available                           | PASS |
+| 27.3 | Tap Skip                                  | Next fire date advances to occurrence after next | PASS |
+| 27.4 | Alarm remains enabled after skip          | Toggle still ON                                 | PASS |
+| 27.5 | One-time alarm does NOT show skip option  | Skip not available for one-time alarms          | PASS |
+
+---
+
+## 28. Lifetime Purchase (Sprint Tier Improvements — TIER-08)
+
+| #    | Step                                                     | Expected Result                                           | Pass? |
+| ---- | -------------------------------------------------------- | --------------------------------------------------------- | ----- |
+| 28.1 | Open Paywall (upgrade banner or Settings > Subscription) | Paywall opens                                             | PASS |
+| 28.2 | Verify 3 plan options: Monthly, Annual, Lifetime         | Monthly ($1.99), Annual ($19.99), Lifetime ($49.99)       | PASS |
+| 28.3 | Lifetime badge displays                                  | "One-Time" or "Best Value" badge visible                  | PASS |
+| 28.4 | Select Lifetime                                          | Button says "Buy Once — $49.99"                           | PASS |
+| 28.5 | Renewal terms text correct                               | "One-time purchase. No subscription, no renewals — yours forever." | PASS |
+| 28.6 | Purchase in sandbox                                      | Plus features unlock permanently                          | PASS |
+| 28.7 | Settings > Subscription                                  | Shows "Plus" with "Forever" duration, no "Change Plan"    | PASS |
+| 28.8 | Kill and relaunch app                                    | Lifetime entitlement persists                             | PASS |
+
+---
+
+## 29. Alarm Templates Library (Sprint Tier Improvements — TIER-04)
+
+| #    | Step                                               | Expected Result                                     | Pass? |
+| ---- | -------------------------------------------------- | --------------------------------------------------- | ----- |
+| 29.1 | Tap "+" to create a new alarm                      | Creation form opens                                 | PASS |
+| 29.2 | Tap Templates button in top-left toolbar           | Template library sheet appears                      | PASS |
+| 29.3 | Verify template categories                         | Home, Auto, Health, Finance categories shown        | PASS |
+| 29.4 | Search for "oil"                                   | Filters to "Oil Change Reminder"                    | PASS |
+| 29.5 | Tap a template (e.g., "HVAC Filter Replacement")   | Template selected                                   | PASS |
+| 29.6 | Form pre-fills from template                       | Title, cycle type, category, suggested note filled  | PASS |
+| 29.7 | Edit any pre-filled field before saving            | Fields are editable                                 | PASS |
+| 29.8 | Save the templated alarm                           | Alarm saves normally                                | PASS |
+| 29.9 | Free user at 3-alarm limit uses template           | Paywall triggered                                   | PASS |
+
+---
+
+## 30. Custom Alarm Sounds (Sprint Tier Improvements — TIER-09)
+
+> **Note:** Free users can select Classic Alarm or Gentle Chime. Plus-only sounds show a lock icon.
+
+| #    | Step                                               | Expected Result                                     | Pass? |
+| ---- | -------------------------------------------------- | --------------------------------------------------- | ----- |
+| 30.1 | Create or edit alarm → tap Sound row               | Sound picker sheet appears                          | PASS |
+| 30.2 | Verify 6 sounds: 2 free, 4 Plus-locked             | Correct sounds listed with lock icons               | PASS |
+| 30.3 | Free user taps Plus-only sound                     | Paywall triggered                                   | PASS |
+| 30.4 | Settings > Alarm Sound — change app-wide default   | Default sound updated                               | PASS |
+
+---
+
 ## Test Summary
 
 | Category                      | Total Tests | Passed  | Failed | Notes                                              |
@@ -411,7 +499,14 @@
 | Archived Section UI           | 6           | 6       | 0      | All pass                                           |
 | Siri Integration              | 8           | 8       | 0      | All pass                                           |
 | One-Time Edit Flow            | 6           | 6       | 0      | All pass                                           |
-| **TOTAL**                     | **169**     | **156** | **0**  | All tests passing                                  |
+| Last Completed (Tier Impr.)   | 3           | 3       | 0      | TIER-07 — all pass                                 |
+| Overdue Visual State (Tier)   | 4           | 4       | 0      | TIER-12 — all pass                                 |
+| Extended Pre-Alarms (Tier)    | 2           | 2       | 0      | TIER-05 Free tier checks — all pass                |
+| Skip Occurrence (Tier)        | 5           | 5       | 0      | TIER-06 — all pass                                 |
+| Lifetime Purchase (Tier)      | 8           | 8       | 0      | TIER-08 — all pass                                 |
+| Alarm Templates (Tier)        | 9           | 9       | 0      | TIER-04 — all pass                                 |
+| Custom Sounds (Tier)          | 4           | 4       | 0      | TIER-09 — all pass                                 |
+| **TOTAL**                     | **204**     | **191** | **0**  | All tests passing                                  |
 
 ---
 

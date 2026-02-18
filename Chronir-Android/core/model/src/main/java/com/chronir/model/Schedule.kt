@@ -41,4 +41,10 @@ sealed class Schedule {
     ) : Schedule() {
         override val cycleType = CycleType.CUSTOM_DAYS
     }
+
+    data class OneTime(
+        val fireDate: Instant
+    ) : Schedule() {
+        override val cycleType = CycleType.ONE_TIME
+    }
 }

@@ -51,9 +51,13 @@ final class AlarmScheduler: AlarmScheduling {
             )
         }
 
-        // Schedule pre-alarm notification if enabled
-        if alarm.preAlarmMinutes > 0 && alarm.snoozeCount == 0 {
-            await notificationService.schedulePreAlarmNotification(for: alarm)
+        // Schedule pre-alarm notifications if enabled
+        if alarm.snoozeCount == 0 {
+            if !alarm.preAlarmOffsets.isEmpty {
+                await notificationService.schedulePreAlarmNotifications(for: alarm)
+            } else if alarm.preAlarmMinutes > 0 {
+                await notificationService.schedulePreAlarmNotification(for: alarm)
+            }
         }
 
         await WidgetDataService.shared.refresh()
@@ -119,7 +123,7 @@ final class AlarmScheduler: AlarmScheduling {
             try? AlarmManager.shared.stop(id: id)
             try? AlarmManager.shared.cancel(id: id)
         }
-        notificationService.cancelPreAlarmNotification(for: alarm)
+        notificationService.cancelAllPreAlarmNotifications(for: alarm)
     }
 
     func rescheduleAllAlarms() async throws {
@@ -132,9 +136,11 @@ final class AlarmScheduler: AlarmScheduling {
 
         // Only reschedule enabled, non-snoozed alarms.
         // Snoozed alarms retain their snooze countdown nextFireDate.
+        // Past-due alarms are left as overdue — user must acknowledge them.
+        let now = Date()
         let enabledAlarms = allAlarms.filter { $0.isEnabled && $0.snoozeCount == 0 }
-        for alarm in enabledAlarms {
-            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+        for alarm in enabledAlarms where alarm.nextFireDate >= now {
+            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: now)
             try await scheduleAlarm(alarm)
         }
     }

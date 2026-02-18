@@ -11,14 +11,31 @@ protocol AlarmSoundServiceProtocol {
 final class AlarmSoundService: AlarmSoundServiceProtocol {
     static let shared = AlarmSoundService()
 
-    static let availableSounds: [(name: String, displayName: String)] = [
-        ("alarm", "Alarm"),
-        ("Tritone", "Tritone"),
-        ("tweet_sent", "Tweet"),
-        ("sms-received1", "Note"),
-        ("sms-received5", "Pulse"),
-        ("New/Anticipate", "Anticipate")
+    struct SoundOption: Identifiable {
+        let name: String
+        let displayName: String
+        let iconName: String
+        let requiresPlus: Bool
+        var id: String { name }
+    }
+
+    static let allSounds: [SoundOption] = [
+        SoundOption(name: "alarm", displayName: "Classic Alarm", iconName: "alarm.fill", requiresPlus: false),
+        SoundOption(name: "Tritone", displayName: "Gentle Chime", iconName: "bell.fill", requiresPlus: false),
+        SoundOption(name: "sms-received5", displayName: "Digital Pulse", iconName: "waveform", requiresPlus: true),
+        SoundOption(name: "sms-received1", displayName: "Soft Note", iconName: "music.note", requiresPlus: true),
+        SoundOption(name: "tweet_sent", displayName: "Quick Alert", iconName: "bolt.fill", requiresPlus: true),
+        SoundOption(name: "anticipate", displayName: "Anticipate", iconName: "sparkles", requiresPlus: true),
     ]
+
+    /// Backward-compatible accessor
+    static var availableSounds: [(name: String, displayName: String)] {
+        allSounds.map { ($0.name, $0.displayName) }
+    }
+
+    static var freeSounds: [SoundOption] {
+        allSounds.filter { !$0.requiresPlus }
+    }
 
     private var audioPlayer: AVAudioPlayer?
 
@@ -73,19 +90,15 @@ final class AlarmSoundService: AlarmSoundServiceProtocol {
     }
 
     private func findSoundURL(name: String) -> URL? {
+        // Check app bundle first (all sounds should be bundled)
         if let bundledURL = Bundle.main.url(forResource: name, withExtension: "caf") {
             return bundledURL
         }
 
-        let systemPath = "/System/Library/Audio/UISounds/\(name).caf"
-        if FileManager.default.fileExists(atPath: systemPath) {
-            return URL(fileURLWithPath: systemPath)
-        }
-
-        // Fallback to default alarm sound
-        let fallbackPath = "/System/Library/Audio/UISounds/alarm.caf"
-        if name != "alarm", FileManager.default.fileExists(atPath: fallbackPath) {
-            return URL(fileURLWithPath: fallbackPath)
+        // Fallback to bundled default alarm sound
+        if name != "alarm",
+           let fallback = Bundle.main.url(forResource: "alarm", withExtension: "caf") {
+            return fallback
         }
 
         return nil

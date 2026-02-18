@@ -30,6 +30,9 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:data"))
 
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
 

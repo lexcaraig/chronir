@@ -20,7 +20,7 @@ enum AlarmVisualState {
         case .active: return nil
         case .inactive: return nil
         case .snoozed: return ("Snoozed", ColorTokens.badgeWarning)
-        case .overdue: return ("Missed", ColorTokens.badgeError)
+        case .overdue: return ("Overdue", ColorTokens.badgeError)
         }
     }
 }
@@ -30,9 +30,57 @@ struct AlarmCard: View {
     let visualState: AlarmVisualState
     @Binding var isEnabled: Bool
     var streak: Int = 0
+    var isPlusUser: Bool = false
 
     private var textOpacity: Double {
         visualState == .inactive ? 0.5 : 1.0
+    }
+
+    private var lastCompletedText: String? {
+        guard let date = alarm.lastCompletedAt else { return nil }
+        let now = Date()
+        let cal = Calendar.current
+        let daysDiff = cal.dateComponents([.day], from: date, to: now).day ?? 0
+
+        if cal.isDateInYesterday(date) {
+            return "Last completed: Yesterday"
+        } else if cal.isDateInToday(date) {
+            return "Last completed: Today"
+        } else if daysDiff <= 7 {
+            return "Last completed: \(daysDiff) days ago"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = cal.isDate(date, equalTo: now, toGranularity: .year) ? "MMM d" : "MMM d, yyyy"
+            return "Last completed: \(formatter.string(from: date))"
+        }
+    }
+
+    private var overdueText: String? {
+        guard visualState == .overdue else { return nil }
+        let date = alarm.nextFireDate
+        let now = Date()
+        let cal = Calendar.current
+        let daysDiff = cal.dateComponents([.day], from: date, to: now).day ?? 0
+
+        if cal.isDateInYesterday(date) {
+            return "Overdue since yesterday"
+        } else if cal.isDateInToday(date) {
+            let hours = cal.dateComponents([.hour], from: date, to: now).hour ?? 0
+            if hours > 0 {
+                return "Overdue by \(hours)h"
+            }
+            return "Overdue"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = cal.isDate(date, equalTo: now, toGranularity: .year) ? "MMM d" : "MMM d, yyyy"
+            return "Overdue since \(formatter.string(from: date))"
+        }
+    }
+
+    private var streakBadgeColor: Color {
+        if streak >= 10 { return ColorTokens.warning } // gold
+        if streak >= 5 { return ColorTokens.success } // accent green
+        return ColorTokens.badgeSuccess // neutral
     }
 
     private var countdownText: String? {
@@ -98,7 +146,7 @@ struct AlarmCard: View {
                 if visualState != .inactive {
                     AlarmTimeDisplay(
                         time: alarm.scheduledTime,
-                        countdownText: countdownText
+                        countdownText: overdueText ?? countdownText
                     )
                     if alarm.hasMultipleTimes {
                         ChronirBadge(
@@ -120,12 +168,17 @@ struct AlarmCard: View {
                     }
                 }
                 Spacer()
-                if streak >= 2 {
-                    ChronirBadge("\(streak) streak", color: ColorTokens.badgeSuccess)
+                if isPlusUser && streak >= 2 {
+                    ChronirBadge("\(streak) streak", color: streakBadgeColor)
+                } else if !isPlusUser && streak >= 3 {
+                    ChronirBadge("streak", color: ColorTokens.textDisabled)
                 }
                 if alarm.isPersistent {
                     ChronirBadge("Persistent", color: ColorTokens.badgeWarning)
                 }
+            }
+            if let text = lastCompletedText {
+                ChronirText(text, style: .bodySmall, color: ColorTokens.textTertiary)
             }
         }
         .padding(SpacingTokens.cardPadding)

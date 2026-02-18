@@ -25,8 +25,9 @@ final class AlarmDetailViewModel {
     var startMonth: Int = Calendar.current.component(.month, from: Date())
     var startYear: Int = Calendar.current.component(.year, from: Date())
     var category: AlarmCategory?
-    var preAlarmEnabled: Bool = false
+    var preAlarmOffsets: Set<PreAlarmOffset> = []
     var oneTimeDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+    var soundName: String = UserSettings.shared.selectedAlarmSound
     var selectedImage: UIImage?
     var removePhoto = false
     var isLoading: Bool = false
@@ -56,7 +57,8 @@ final class AlarmDetailViewModel {
             self.isPersistent = alarm.persistenceLevel == .full
             self.note = alarm.note ?? ""
             self.category = alarm.alarmCategory
-            self.preAlarmEnabled = alarm.preAlarmMinutes > 0
+            self.preAlarmOffsets = Set(alarm.preAlarmOffsets)
+            self.soundName = alarm.soundName ?? UserSettings.shared.selectedAlarmSound
             self.timesOfDay = alarm.timesOfDay
             #if os(iOS)
             if alarm.photoFileName != nil {
@@ -157,7 +159,8 @@ final class AlarmDetailViewModel {
         alarm.schedule = schedule
         alarm.persistenceLevel = isPersistent ? .full : .notificationOnly
         alarm.note = trimmedNote
-        alarm.preAlarmMinutes = preAlarmEnabled ? 1440 : 0
+        alarm.preAlarmOffsets = Array(preAlarmOffsets)
+        alarm.soundName = soundName == UserSettings.shared.selectedAlarmSound ? nil : soundName
         alarm.category = category?.rawValue
         alarm.updatedAt = Date()
         if cycleType == .oneTime {
@@ -219,6 +222,7 @@ final class AlarmDetailViewModel {
                 } catch {
                     // Reschedule failed — alarm will fire on next app launch
                 }
+                await CloudSyncService.shared.pushAlarmModel(alarmToSchedule)
             }
             return true
         } catch {
@@ -242,6 +246,7 @@ final class AlarmDetailViewModel {
                 let center = UNUserNotificationCenter.current()
                 center.removePendingNotificationRequests(withIdentifiers: [alarmIDString])
                 center.removeDeliveredNotifications(withIdentifiers: [alarmIDString])
+                try? await CloudSyncService.shared.deleteRemoteAlarm(id: alarmIDString)
             }
             #endif
         } catch {

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +36,7 @@ fun ChronirIcon(
     contentDescription: String?,
     modifier: Modifier = Modifier,
     size: ChronirIconSize = ChronirIconSize.Medium,
-    tint: Color = ColorTokens.TextPrimary
+    tint: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Icon(
         imageVector = imageVector,
@@ -51,9 +52,9 @@ fun ChronirIcon(
 private fun ChronirIconSizesPreview() {
     ChronirTheme(dynamicColor = false) {
         Row(modifier = Modifier.padding(SpacingTokens.Medium)) {
-            ChronirIcon(Icons.Default.Alarm, "Alarm", size = ChronirIconSize.Small, tint = ColorTokens.TextSecondary)
+            ChronirIcon(Icons.Default.Alarm, "Alarm", size = ChronirIconSize.Small)
             Spacer(Modifier.width(SpacingTokens.Large))
-            ChronirIcon(Icons.Default.Alarm, "Alarm", size = ChronirIconSize.Medium, tint = ColorTokens.AccentPrimary)
+            ChronirIcon(Icons.Default.Alarm, "Alarm", size = ChronirIconSize.Medium)
             Spacer(Modifier.width(SpacingTokens.Large))
             ChronirIcon(Icons.Default.Alarm, "Alarm", size = ChronirIconSize.Large, tint = ColorTokens.Warning)
         }
@@ -65,7 +66,7 @@ private fun ChronirIconSizesPreview() {
 private fun ChronirIconColorsPreview() {
     ChronirTheme(dynamicColor = false) {
         Row(modifier = Modifier.padding(SpacingTokens.Medium)) {
-            ChronirIcon(Icons.Default.Notifications, "Bell", tint = ColorTokens.AccentPrimary)
+            ChronirIcon(Icons.Default.Notifications, "Bell")
             Spacer(Modifier.width(SpacingTokens.Large))
             ChronirIcon(Icons.Default.CheckCircle, "Check", tint = ColorTokens.Success)
             Spacer(Modifier.width(SpacingTokens.Large))

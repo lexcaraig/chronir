@@ -14,6 +14,7 @@
         android:name=".ChronirApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Chronir">
@@ -37,6 +38,10 @@
 
         <receiver
             android:name="com.chronir.services.AlarmReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name="com.chronir.services.PreAlarmReceiver"
             android:exported="false" />
 
         <receiver

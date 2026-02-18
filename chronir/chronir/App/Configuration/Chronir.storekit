@@ -4,7 +4,21 @@
 
   ],
   "products" : [
-
+    {
+      "displayPrice" : "49.99",
+      "familyShareable" : false,
+      "internalID" : "6758986864",
+      "localizations" : [
+        {
+          "description" : "One-time purchase. Unlock all Plus features forever.",
+          "displayName" : "Chronir Plus (Lifetime)",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.chronir.plus.lifetime",
+      "referenceName" : "Chronir Plus Lifetime",
+      "type" : "NonConsumable"
+    }
   ],
   "settings" : {
     "_applicationInternalID" : "6738054966",

@@ -64,12 +64,17 @@ Format:
 - Any deferred items or tracked issues (or "None")
 ```
 
-### Step 3: Update Roadmap Status
+### Step 3: Update Roadmap & Ticket Status
 
 Read `docs/detailed-project-roaadmap.md` and update the status of any completed tasks:
 - Mark completed sprints/tasks with a checkmark or "DONE" status
 - Update "Current Status" section if one exists
 - Do NOT change task descriptions or scope — only status markers
+
+Also check `tickets/` for any tickets related to the completed work:
+- If tickets exist in `tickets/untested/` or `tickets/in-progress/` for completed work, move them to `tickets/completed/`
+- Update the sprint file in `tickets/sprints/` if applicable
+- Update `tickets/README.md` ticket counts if they've significantly changed
 
 ### Step 4: Update QA Checklists (if applicable)
 

@@ -18,6 +18,9 @@ struct SubscriptionManagementView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .task {
+            await SubscriptionService.shared.updateSubscriptionStatus()
+        }
     }
 
     // MARK: - Current Plan
@@ -33,7 +36,13 @@ struct SubscriptionManagementView: View {
                 )
             }
 
-            if let renewalDate = subscriptionService.renewalDate {
+            if subscriptionService.isLifetime {
+                HStack {
+                    ChronirText("Duration", style: .bodyPrimary)
+                    Spacer()
+                    ChronirText("Forever", style: .bodySecondary, color: ColorTokens.success)
+                }
+            } else if let renewalDate = subscriptionService.renewalDate {
                 HStack {
                     ChronirText("Renews", style: .bodyPrimary)
                     Spacer()
@@ -104,7 +113,7 @@ struct SubscriptionManagementView: View {
 
     private var actionsSection: some View {
         Section {
-            if !subscriptionService.currentTier.isFreeTier {
+            if !subscriptionService.currentTier.isFreeTier && !subscriptionService.isLifetime {
                 Button {
                     Task {
                         guard let scene = windowScene else { return }

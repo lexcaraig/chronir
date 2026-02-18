@@ -57,4 +57,5 @@ final class PaywallViewModel {
     // Convenience accessors
     var plusMonthly: Product? { subscriptionService.plusMonthly }
     var plusAnnual: Product? { subscriptionService.plusAnnual }
+    var plusLifetime: Product? { subscriptionService.plusLifetime }
 }

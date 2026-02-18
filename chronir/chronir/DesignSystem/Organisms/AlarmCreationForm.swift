@@ -15,10 +15,13 @@ struct AlarmCreationForm: View {
     @Binding var startMonth: Int
     @Binding var startYear: Int
     @Binding var category: AlarmCategory?
-    @Binding var preAlarmEnabled: Bool
+    @Binding var preAlarmOffsets: Set<PreAlarmOffset>
     @Binding var oneTimeDate: Date
+    @Binding var soundName: String
     var isPlusTier: Bool = false
     var titleError: String?
+    @State private var showPaywallForSound = false
+    @State private var showSoundPicker = false
     @State private var savedIntervals: [CycleType: Int] = [:]
 
     var body: some View {
@@ -71,9 +74,9 @@ struct AlarmCreationForm: View {
 
             ChronirToggle(label: "Persistent (requires dismissal)", isOn: $isPersistent)
 
-            if isPlusTier {
-                ChronirToggle(label: "24h Pre-Alarm Warning", isOn: $preAlarmEnabled)
-            }
+            preAlarmSection
+
+            soundSection
 
             if isPlusTier {
                 LabeledTextField(
@@ -239,6 +242,84 @@ struct AlarmCreationForm: View {
         }
     }
 
+    @State private var showPaywallFromPreAlarm = false
+
+    private var preAlarmSection: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            ChronirText("Pre-Alarm Warnings", style: .labelMedium, color: ColorTokens.textSecondary)
+            HStack(spacing: SpacingTokens.sm) {
+                ForEach(PreAlarmOffset.allCases) { offset in
+                    let isSelected = preAlarmOffsets.contains(offset)
+                    let isLocked = offset.requiresPlus && !isPlusTier
+                    Button {
+                        if isLocked {
+                            showPaywallFromPreAlarm = true
+                        } else if isSelected {
+                            preAlarmOffsets.remove(offset)
+                        } else {
+                            preAlarmOffsets.insert(offset)
+                        }
+                    } label: {
+                        HStack(spacing: SpacingTokens.xxs) {
+                            if isLocked {
+                                Image(systemName: "lock.fill")
+                                    .font(.caption2)
+                            }
+                            Text(offset.displayName)
+                                .chronirFont(.labelLarge)
+                        }
+                        .foregroundStyle(isSelected ? .white : (isLocked ? ColorTokens.textDisabled : ColorTokens.textSecondary))
+                        .padding(.horizontal, SpacingTokens.md)
+                        .padding(.vertical, SpacingTokens.sm)
+                        .background(isSelected ? ColorTokens.primary : ColorTokens.backgroundTertiary)
+                        .clipShape(Capsule())
+                    }
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showPaywallFromPreAlarm) {
+            PaywallView()
+        }
+    }
+
+    private var soundSection: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            ChronirText("Sound", style: .labelMedium, color: ColorTokens.textSecondary)
+            Button {
+                showSoundPicker = true
+            } label: {
+                HStack {
+                    let displayName = AlarmSoundService.allSounds
+                        .first { $0.name == soundName }?.displayName ?? "Default"
+                    ChronirText(displayName, style: .bodyPrimary)
+                    Spacer()
+                    ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textTertiary)
+                }
+                .padding(SpacingTokens.md)
+                .background(ColorTokens.surfaceCard, in: .rect(cornerRadius: RadiusTokens.md))
+            }
+        }
+        .sheet(isPresented: $showSoundPicker) {
+            NavigationStack {
+                SoundPicker(
+                    selectedSound: $soundName,
+                    isPlusTier: isPlusTier,
+                    showPaywall: { showPaywallForSound = true }
+                )
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { showSoundPicker = false }
+                            .foregroundStyle(ColorTokens.primary)
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .fullScreenCover(isPresented: $showPaywallForSound) {
+            PaywallView()
+        }
+    }
+
     private var repeatIntervalPicker: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Repeat Every", style: .labelMedium, color: ColorTokens.textSecondary)
@@ -289,8 +370,9 @@ struct AlarmCreationForm: View {
     @Previewable @State var startMonth = Calendar.current.component(.month, from: Date())
     @Previewable @State var startYear = Calendar.current.component(.year, from: Date())
     @Previewable @State var category: AlarmCategory?
-    @Previewable @State var preAlarmEnabled = false
+    @Previewable @State var preAlarmOffsets: Set<PreAlarmOffset> = []
     @Previewable @State var oneTimeDate = Date()
+    @Previewable @State var soundName = "alarm"
 
     ScrollView {
         AlarmCreationForm(
@@ -308,8 +390,9 @@ struct AlarmCreationForm: View {
             startMonth: $startMonth,
             startYear: $startYear,
             category: $category,
-            preAlarmEnabled: $preAlarmEnabled,
+            preAlarmOffsets: $preAlarmOffsets,
             oneTimeDate: $oneTimeDate,
+            soundName: $soundName,
             isPlusTier: true
         )
     }

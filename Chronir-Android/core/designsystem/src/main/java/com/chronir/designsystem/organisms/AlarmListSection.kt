@@ -10,12 +10,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.MaterialTheme
 import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.theme.ChronirPreview
 import com.chronir.designsystem.theme.ChronirTheme
-import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.Alarm
 import com.chronir.model.CycleType
@@ -47,12 +47,12 @@ fun AlarmListSection(
             ChronirText(
                 text = sectionTitle.uppercase(),
                 style = ChronirTextStyle.LabelLarge,
-                color = ColorTokens.TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.width(SpacingTokens.XSmall))
             ChronirBadge(
                 label = "${alarms.size}",
-                containerColor = ColorTokens.BackgroundTertiary
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         }
 

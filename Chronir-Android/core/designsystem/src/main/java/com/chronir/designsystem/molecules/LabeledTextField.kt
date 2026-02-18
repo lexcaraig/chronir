@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.tokens.SpacingTokens
@@ -17,7 +18,10 @@ fun LabeledTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = ""
+    placeholder: String = "",
+    maxLength: Int = 0,
+    singleLine: Boolean = true,
+    minLines: Int = 1
 ) {
     Column(modifier = modifier) {
         Text(
@@ -27,11 +31,25 @@ fun LabeledTextField(
         )
         OutlinedTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = { newValue ->
+                if (maxLength > 0 && newValue.length > maxLength) return@OutlinedTextField
+                onValueChange(newValue)
+            },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(placeholder) },
-            singleLine = true
+            singleLine = singleLine,
+            minLines = if (singleLine) 1 else minLines
         )
+        if (maxLength > 0) {
+            Text(
+                text = "${value.length}/$maxLength",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = SpacingTokens.XXSmall)
+            )
+        }
     }
 }
 
@@ -43,5 +61,17 @@ private fun LabeledTextFieldPreview() {
         value = "",
         onValueChange = {},
         placeholder = "Enter alarm name"
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LabeledTextFieldWithMaxLengthPreview() {
+    LabeledTextField(
+        label = "Alarm Title",
+        value = "Morning Workout",
+        onValueChange = {},
+        placeholder = "Enter alarm name",
+        maxLength = 60
     )
 }
