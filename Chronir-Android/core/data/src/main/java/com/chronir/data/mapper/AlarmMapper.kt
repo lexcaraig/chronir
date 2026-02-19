@@ -100,6 +100,10 @@ private fun serializeSchedule(schedule: Schedule): String {
             json.put("intervalDays", schedule.intervalDays)
             json.put("startDate", schedule.startDate.toEpochMilli())
         }
+        is Schedule.OneTime -> {
+            json.put("type", "oneTime")
+            json.put("fireDate", schedule.fireDate.toEpochMilli())
+        }
     }
     return json.toString()
 }
@@ -135,6 +139,9 @@ private fun deserializeSchedule(json: String, cycleType: CycleType): Schedule {
                 intervalDays = obj.getInt("intervalDays"),
                 startDate = Instant.ofEpochMilli(obj.getLong("startDate"))
             )
+            "oneTime" -> Schedule.OneTime(
+                fireDate = Instant.ofEpochMilli(obj.getLong("fireDate"))
+            )
             else -> defaultScheduleForCycleType(cycleType)
         }
     } catch (_: Exception) {
@@ -144,6 +151,7 @@ private fun deserializeSchedule(json: String, cycleType: CycleType): Schedule {
 
 private fun defaultScheduleForCycleType(cycleType: CycleType): Schedule {
     return when (cycleType) {
+        CycleType.ONE_TIME -> Schedule.OneTime(fireDate = Instant.now())
         CycleType.WEEKLY -> Schedule.Weekly(daysOfWeek = listOf(2), interval = 1)
         CycleType.MONTHLY_DATE -> Schedule.MonthlyDate(dayOfMonth = 1, interval = 1)
         CycleType.MONTHLY_RELATIVE -> Schedule.MonthlyRelative(

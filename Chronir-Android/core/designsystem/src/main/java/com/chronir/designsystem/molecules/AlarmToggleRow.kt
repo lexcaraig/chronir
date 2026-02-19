@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.MaterialTheme
 import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
@@ -34,7 +35,7 @@ fun AlarmToggleRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(SpacingTokens.Medium),
+            .padding(vertical = SpacingTokens.Medium),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -48,7 +49,7 @@ fun AlarmToggleRow(
                 ChronirText(
                     text = subtitle,
                     style = ChronirTextStyle.BodySmall,
-                    color = ColorTokens.TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

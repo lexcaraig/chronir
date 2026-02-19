@@ -7,6 +7,7 @@ enum StreakCalculator {
         let sorted = logs.sorted { $0.completedAt > $1.completedAt }
         var count = 0
         for log in sorted {
+            if log.action == .skipped { continue }
             guard log.action == .completed else { break }
             count += 1
         }
@@ -19,6 +20,7 @@ enum StreakCalculator {
         var longest = 0
         var current = 0
         for log in sorted {
+            if log.action == .skipped { continue }
             if log.action == .completed {
                 current += 1
                 longest = max(longest, current)

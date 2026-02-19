@@ -4,6 +4,10 @@ struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     @Bindable private var settings = UserSettings.shared
 
+    private var isPlusTier: Bool {
+        SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
+    }
+
     var body: some View {
         List {
             alarmBehaviorSection
@@ -32,7 +36,7 @@ struct SettingsView: View {
             ChronirToggle(label: "Snooze Enabled", isOn: $settings.snoozeEnabled)
             ChronirToggle(label: "Slide to Stop", isOn: $settings.slideToStopEnabled)
             ChronirToggle(label: "Haptic Feedback", isOn: $settings.hapticsEnabled)
-            NavigationLink(destination: SoundPicker()) {
+            NavigationLink(destination: DefaultSoundPicker()) {
                 HStack {
                     ChronirText("Alarm Sound", style: .bodyPrimary)
                     Spacer()
@@ -180,11 +184,25 @@ struct SettingsView: View {
                 }
             }
 
-            NavigationLink(destination: LocalBackupInfoView()) {
-                HStack {
-                    ChronirText("Backup & Sync", style: .bodyPrimary)
-                    Spacer()
-                    ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
+            if isPlusTier {
+                NavigationLink(destination: AccountView()) {
+                    HStack {
+                        ChronirText("Account & Sync", style: .bodyPrimary)
+                        Spacer()
+                        if AuthService.shared.isSignedIn {
+                            ChronirBadge("Signed In", color: ColorTokens.success)
+                        } else {
+                            ChronirText("Sign In", style: .bodySecondary, color: ColorTokens.textSecondary)
+                        }
+                    }
+                }
+            } else {
+                NavigationLink(destination: LocalBackupInfoView()) {
+                    HStack {
+                        ChronirText("Backup & Sync", style: .bodyPrimary)
+                        Spacer()
+                        ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
+                    }
                 }
             }
         } header: {

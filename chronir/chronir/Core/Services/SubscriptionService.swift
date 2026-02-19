@@ -14,7 +14,7 @@ final class SubscriptionService {
     }
     private(set) var activeProductID: String?
     private(set) var renewalDate: Date?
-    var isLoading = false
+    private(set) var isLoading = false
     var errorMessage: String?
     private(set) var statusChecked = false
 
@@ -24,6 +24,7 @@ final class SubscriptionService {
     static let productIDs: Set<String> = [
         "com.chronir.plus.annual",
         "com.chronir.plus.monthly"
+        // "com.chronir.plus.lifetime" — commented out until pricing is finalized
     ]
 
     private init() {}
@@ -80,14 +81,25 @@ final class SubscriptionService {
 
     // MARK: - Subscription Status
 
+    private(set) var isLifetime: Bool = UserDefaults.standard.bool(forKey: "chronir_is_lifetime") {
+        didSet {
+            UserDefaults.standard.set(isLifetime, forKey: "chronir_is_lifetime")
+        }
+    }
+
     func updateSubscriptionStatus() async {
         var highestTier: SubscriptionTier = .free
         var latestProductID: String?
         var latestRenewalDate: Date?
+        var foundLifetime = false
 
         for await result in StoreKit.Transaction.currentEntitlements {
             guard let transaction = try? checkVerified(result) else { continue }
             guard transaction.revocationDate == nil else { continue }
+
+            if transaction.productID == "com.chronir.plus.lifetime" {
+                foundLifetime = true
+            }
 
             let tier = Self.tierForProductID(transaction.productID)
             if tier.rank > highestTier.rank {
@@ -97,9 +109,10 @@ final class SubscriptionService {
             }
         }
 
+        isLifetime = foundLifetime
         currentTier = highestTier
         activeProductID = latestProductID
-        renewalDate = latestRenewalDate
+        renewalDate = foundLifetime ? nil : latestRenewalDate
 
         statusChecked = true
     }
@@ -146,6 +159,7 @@ final class SubscriptionService {
 
     var plusMonthly: Product? { product(for: "com.chronir.plus.monthly") }
     var plusAnnual: Product? { product(for: "com.chronir.plus.annual") }
+    // var plusLifetime: Product? { product(for: "com.chronir.plus.lifetime") }
     // TODO: Add premium product accessors when Premium tier is built (Phase 4, Sprint 11+)
 }
 

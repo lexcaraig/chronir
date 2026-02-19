@@ -36,15 +36,30 @@ class AlarmSchedulerImpl @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val showIntent = PendingIntent.getActivity(
+        // Show intent opens the firing activity when the user taps the alarm icon in status bar
+        val showIntent = Intent().apply {
+            setClassName(context.packageName, "com.chronir.feature.alarmfiring.AlarmFiringActivity")
+            putExtra(AlarmReceiver.EXTRA_ALARM_ID, alarm.id)
+        }
+        val showPendingIntent = PendingIntent.getActivity(
             context,
-            alarm.id.hashCode(),
-            context.packageManager.getLaunchIntentForPackage(context.packageName),
+            alarm.id.hashCode() + 1,
+            showIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val clockInfo = AlarmClockInfo(triggerAtMillis, showIntent)
+        val clockInfo = AlarmClockInfo(triggerAtMillis, showPendingIntent)
         alarmManager.setAlarmClock(clockInfo, pendingIntent)
+
+        // Schedule pre-alarm notification if enabled
+        if (alarm.preAlarmMinutes > 0) {
+            val preAlarmMillis = triggerAtMillis - (alarm.preAlarmMinutes * 60 * 1000L)
+            if (preAlarmMillis > System.currentTimeMillis()) {
+                schedulePreAlarm(alarm.id, alarm.title, preAlarmMillis)
+            }
+        } else {
+            cancelPreAlarm(alarm.id)
+        }
     }
 
     override fun cancel(alarmId: String) {
@@ -52,6 +67,36 @@ class AlarmSchedulerImpl @Inject constructor(
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             alarmId.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.cancel(pendingIntent)
+        cancelPreAlarm(alarmId)
+    }
+
+    private fun schedulePreAlarm(alarmId: String, alarmTitle: String, triggerAtMillis: Long) {
+        val intent = Intent(context, PreAlarmReceiver::class.java).apply {
+            putExtra(PreAlarmReceiver.EXTRA_ALARM_ID, alarmId)
+            putExtra(PreAlarmReceiver.EXTRA_ALARM_TITLE, alarmTitle)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            alarmId.hashCode() + 2,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            triggerAtMillis,
+            pendingIntent
+        )
+    }
+
+    private fun cancelPreAlarm(alarmId: String) {
+        val intent = Intent(context, PreAlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            alarmId.hashCode() + 2,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

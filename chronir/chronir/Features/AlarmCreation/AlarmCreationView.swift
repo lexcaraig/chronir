@@ -19,14 +19,16 @@ struct AlarmCreationView: View {
     @State private var startMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var startYear: Int = Calendar.current.component(.year, from: Date())
     @State private var category: AlarmCategory?
-    @State private var preAlarmEnabled: Bool = false
+    @State private var preAlarmOffsets: Set<PreAlarmOffset> = []
     @State private var oneTimeDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+    @State private var soundName: String = UserSettings.shared.selectedAlarmSound
     @State private var saveError: String?
     @State private var titleError: String?
     @State private var showWarningDialog = false
     @State private var warningMessage = ""
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
+    @State private var showTemplateLibrary = false
     @Environment(\.dismiss) private var dismiss
 
     private var hasUnsavedChanges: Bool {
@@ -60,11 +62,26 @@ struct AlarmCreationView: View {
                     startMonth: $startMonth,
                     startYear: $startYear,
                     category: $category,
-                    preAlarmEnabled: $preAlarmEnabled,
+                    preAlarmOffsets: $preAlarmOffsets,
                     oneTimeDate: $oneTimeDate,
+                    soundName: $soundName,
                     isPlusTier: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                     titleError: titleError
                 )
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            showTemplateLibrary = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "doc.on.doc")
+                                Text("Templates")
+                            }
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(ColorTokens.primary)
+                        }
+                    }
+                }
 
                 if SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank {
                     photoSection
@@ -72,6 +89,11 @@ struct AlarmCreationView: View {
                 }
             }
         )
+        .sheet(isPresented: $showTemplateLibrary) {
+            TemplateLibraryView { template in
+                applyTemplate(template)
+            }
+        }
         .interactiveDismissDisabled(hasUnsavedChanges)
         .alert("Save Failed", isPresented: .constant(saveError != nil)) {
             Button("OK") { saveError = nil }
@@ -189,10 +211,14 @@ struct AlarmCreationView: View {
             timesOfDay: timesOfDay,
             schedule: schedule,
             persistenceLevel: isPersistent ? .full : .notificationOnly,
-            preAlarmMinutes: preAlarmEnabled ? 1440 : 0,
+            preAlarmMinutes: preAlarmOffsets.contains(.oneDay) ? 1440 : (preAlarmOffsets.isEmpty ? 0 : 1),
             category: category?.rawValue,
             note: trimmedNote
         )
+        alarm.preAlarmOffsets = Array(preAlarmOffsets)
+        if soundName != UserSettings.shared.selectedAlarmSound {
+            alarm.soundName = soundName
+        }
 
         if cycleType == .oneTime {
             let firstTime = timesOfDay.min() ?? TimeOfDay(hour: 8, minute: 0)
@@ -234,17 +260,30 @@ struct AlarmCreationView: View {
             if UserSettings.shared.hapticsEnabled {
                 HapticService.shared.playSuccess()
             }
+            let alarmToSync = alarm
             Task {
                 do {
                     _ = await PermissionManager.shared.requestAlarmPermission()
-                    try await AlarmScheduler.shared.scheduleAlarm(alarm)
+                    try await AlarmScheduler.shared.scheduleAlarm(alarmToSync)
                 } catch {
                     // Schedule failed — alarm will fire on next app launch
                 }
+                await CloudSyncService.shared.pushAlarmModel(alarmToSync)
             }
             dismiss()
         } catch {
             saveError = error.localizedDescription
+        }
+    }
+
+    private func applyTemplate(_ template: AlarmTemplate) {
+        title = template.title
+        cycleType = template.cycleType
+        repeatInterval = template.repeatInterval
+        category = template.category
+        note = template.suggestedNote
+        if !template.daysOfMonth.isEmpty {
+            daysOfMonth = template.daysOfMonth
         }
     }
 

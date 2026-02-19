@@ -14,12 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 import com.chronir.designsystem.atoms.ChronirButton
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.theme.ChronirPreview
 import com.chronir.designsystem.theme.ChronirTheme
-import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @Composable
@@ -38,7 +38,7 @@ fun EmptyStateView(
             imageVector = Icons.Outlined.NotificationsOff,
             contentDescription = "No alarms",
             modifier = Modifier.size(64.dp),
-            tint = ColorTokens.TextSecondary
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(Modifier.height(SpacingTokens.Large))
@@ -53,7 +53,7 @@ fun EmptyStateView(
         ChronirText(
             text = "Set recurring alarms that fire weekly, monthly, or yearly.",
             style = ChronirTextStyle.BodySecondary,
-            color = ColorTokens.TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 

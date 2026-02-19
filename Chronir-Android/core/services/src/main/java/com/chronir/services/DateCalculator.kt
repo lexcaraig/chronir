@@ -55,6 +55,7 @@ class DateCalculator @Inject constructor() {
                 startDate = schedule.startDate,
                 timeOfDay = timeOfDay
             )
+            is Schedule.OneTime -> schedule.fireDate.atZone(zoneId)
         }
 
         return result.toInstant()

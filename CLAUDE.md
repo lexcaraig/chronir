@@ -62,6 +62,13 @@ Chronir/
 │   ├── tokens/               # Source JSON (color, spacing, radius, typography, animation)
 │   ├── build/ios/            # Generated Swift token files
 │   └── build/android/        # Generated Kotlin token files
+├── tickets/                  # Ticket-first workflow system
+│   ├── open/                   # Tickets ready for sprint
+│   ├── in-progress/            # Actively being worked on
+│   ├── untested/               # Done, pending QA
+│   ├── completed/              # Done and verified
+│   ├── backlogs/               # Not yet prioritized
+│   └── sprints/                # Sprint definitions
 ├── .github/workflows/        # CI: ios.yml, android.yml, design-tokens.yml
 ├── firestore.rules           # Firestore security rules
 └── docs/                     # Spec documents
@@ -77,7 +84,7 @@ Features are organized by screen: `AlarmList`, `AlarmDetail`, `AlarmCreation`, `
 
 ### Monetization Tiers
 
-- **Free:** 2 alarms max, local-only, basic features
+- **Free:** 3 alarms max (after TIER-03), local-only, basic features
 - **Plus ($1.99/mo):** Unlimited alarms, photo attachments, custom snooze, pre-alarm warnings, completion history, streaks
 - **Premium ($3.99/mo):** _(Not yet available — Phase 4, Sprint 11+)_ Shared alarms, groups, push notifications, Live Activities
 
@@ -202,13 +209,45 @@ All planning documents are in `docs/`:
 
 When implementing a feature, cross-reference `docs/technical-spec.md` (architecture), `docs/data-schema.md` (data model), and `docs/design-system.md` (UI components).
 
+## Ticket-First Workflow
+
+**RULE: Nothing gets worked on without a ticket.** Before starting any task, feature, or bug fix:
+
+1. **Check for existing ticket** — Search `tickets/` folders for a matching ticket
+2. **Create if missing** — If no ticket exists, create one in `tickets/open/` (or `tickets/backlogs/` if not sprint-scoped)
+3. **Move to in-progress** — When starting work, move the `.md` file to `tickets/in-progress/`
+4. **Follow orchestration** — Each ticket specifies agents, commands, plugins, and pre/post-flight checks
+5. **Move through lifecycle** — `in-progress/` → `untested/` (after commit) → `completed/` (after QA)
+
+### Ticket Naming Convention
+
+| Prefix | Category |
+|--------|----------|
+| `TIER-XX` | Free/Plus tier improvements |
+| `LAUNCH-XX` | iOS App Store launch tasks |
+| `QA-XX` | Testing, profiling, accessibility |
+| `FEAT-XX` | New features |
+| `ANDROID-XX` | Android platform work |
+| `PREMIUM-XX` | Premium tier (Phase 4) |
+| `BUG-XX` | Bug fixes |
+| `INFRA-XX` | CI/CD, build, tooling |
+
+### Sprint Definitions
+
+Sprint files live in `tickets/sprints/` and reference tickets by path. When a sprint starts:
+1. Tickets move from `backlogs/` to `open/`
+2. Sprint file tracks scope, phases, and status
+3. `/sprint-kickoff` reads from the sprint file
+
+See `tickets/README.md` for full documentation.
+
 ## Workflows (Custom Commands & Agents)
 
 ### Slash Commands
 
 | Command              | Usage                                             | Purpose                                                                                                |
 | -------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `/implement-task`    | `/implement-task S4-01`                           | Main orchestrator. Reads specs, plans, implements, tests, reviews, and commits a sprint task.          |
+| `/implement-task`    | `/implement-task TIER-01`                         | Main orchestrator. Reads ticket, moves to in-progress, implements, tests, reviews, commits, moves to untested. |
 | `/sprint-kickoff`    | `/sprint-kickoff 4`                               | Initialize a sprint: read roadmap, create branch, build task list, run baseline builds.                |
 | `/phase-qa-gate`     | `/phase-qa-gate 1`                                | Quality gate: lint, test, build, security review, QA plan cross-reference. Generates pass/fail report. |
 | `/implement-ios`     | `/implement-ios Add ChronirButton atom`           | iOS-focused workflow: implement in SwiftUI, lint, test, review.                                        |
@@ -239,10 +278,12 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 
 ### Typical Sprint Flow
 
-1. `/sprint-kickoff {N}` — Initialize sprint, create branch, build task list
-2. `/implement-task {task-id}` — Implement each task (includes auto-simplification before commit)
-3. `/build-all` — Verify all platforms build after changes
-4. `/phase-qa-gate {N}` — Run quality gate at end of phase (includes simplification audit)
+1. **Ticket-first:** Ensure all tasks have tickets in `tickets/open/` (or create them)
+2. `/sprint-kickoff {N}` — Read sprint file from `tickets/sprints/`, create branch, build task list
+3. `/implement-task {ticket-id}` — Move ticket to in-progress, implement, test, review, commit, move to untested
+4. `/build-all` — Verify all platforms build after changes
+5. `/phase-qa-gate {N}` — Run quality gate, move passing tickets to completed
+6. When done: all sprint tickets should be in `tickets/completed/`
 
 ## Self-Learning Protocol
 

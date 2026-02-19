@@ -4,6 +4,7 @@ import StoreKit
 struct SubscriptionManagementView: View {
     private let subscriptionService = SubscriptionService.shared
     @State private var restoreMessage: String?
+    @State private var showPaywall = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -18,6 +19,12 @@ struct SubscriptionManagementView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+        }
+        .task {
+            await subscriptionService.updateSubscriptionStatus()
+        }
     }
 
     // MARK: - Current Plan
@@ -33,6 +40,14 @@ struct SubscriptionManagementView: View {
                 )
             }
 
+            // Lifetime plan commented out until pricing is finalized
+            // if subscriptionService.isLifetime {
+            //     HStack {
+            //         ChronirText("Duration", style: .bodyPrimary)
+            //         Spacer()
+            //         ChronirText("Forever", style: .bodySecondary, color: ColorTokens.success)
+            //     }
+            // } else
             if let renewalDate = subscriptionService.renewalDate {
                 HStack {
                     ChronirText("Renews", style: .bodyPrimary)
@@ -104,7 +119,15 @@ struct SubscriptionManagementView: View {
 
     private var actionsSection: some View {
         Section {
-            if !subscriptionService.currentTier.isFreeTier {
+            if subscriptionService.currentTier.isFreeTier {
+                Button { showPaywall = true } label: {
+                    HStack {
+                        ChronirText("Upgrade to Plus", style: .bodyPrimary, color: ColorTokens.primary)
+                        Spacer()
+                        ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
+                    }
+                }
+            } else /* if !subscriptionService.isLifetime */ {
                 Button {
                     Task {
                         guard let scene = windowScene else { return }
@@ -121,7 +144,7 @@ struct SubscriptionManagementView: View {
 
             Button {
                 Task {
-                    await SubscriptionService.shared.restorePurchases()
+                    await subscriptionService.restorePurchases()
                     if subscriptionService.currentTier.isFreeTier {
                         restoreMessage = "No active subscriptions found."
                     } else {

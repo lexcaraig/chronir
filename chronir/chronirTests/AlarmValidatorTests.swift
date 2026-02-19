@@ -291,6 +291,50 @@ struct AlarmValidatorTests {
         #expect(!hasDuplicate)
     }
 
+}
+
+// MARK: - Same-Time Conflict, Monthly, Combined, Edge Cases
+
+extension AlarmListValidatorConflictTests {
+    private func makeAlarm(
+        id: UUID = UUID(),
+        title: String = "Test",
+        cycleType: CycleType = .weekly,
+        timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)],
+        schedule: Schedule = .weekly(daysOfWeek: [2], interval: 1)
+    ) -> Alarm {
+        Alarm(
+            id: id,
+            title: title,
+            cycleType: cycleType,
+            timesOfDay: timesOfDay,
+            schedule: schedule
+        )
+    }
+
+    private func validate(
+        title: String = "Test Alarm",
+        note: String = "",
+        cycleType: CycleType = .weekly,
+        schedule: Schedule = .weekly(daysOfWeek: [2], interval: 1),
+        timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)],
+        daysOfMonth: [Int] = [],
+        existingAlarms: [Alarm] = []
+    ) -> AlarmValidator.ValidationResult {
+        AlarmValidator.validate(
+            title: title,
+            note: note,
+            cycleType: cycleType,
+            schedule: schedule,
+            timesOfDay: timesOfDay,
+            daysOfMonth: daysOfMonth,
+            existingAlarms: existingAlarms
+        )
+    }
+}
+
+struct AlarmListValidatorConflictTests {
+
     // MARK: - Same-Time Conflict Warning
 
     @Test func sameTimeConflictOverlappingWeeklyDays() {
@@ -483,8 +527,6 @@ struct AlarmValidatorTests {
     }
 
     @Test func noMonthlyDay31WarningForWeeklySchedule() {
-        // Weekly schedules should not trigger monthlyDay31 even if daysOfMonth
-        // happens to contain > 28 (which shouldn't normally happen, but test defensively)
         let result = validate(
             cycleType: .weekly,
             schedule: .weekly(daysOfWeek: [2], interval: 1),
@@ -630,7 +672,6 @@ struct AlarmValidatorTests {
     }
 
     @Test func validationWithEmptyTimesOfDay() {
-        // Empty timesOfDay means no firstTime, so no duplicate/conflict checks on time
         let result = validate(
             title: "New Alarm",
             timesOfDay: []

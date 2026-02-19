@@ -16,13 +16,18 @@ Example: `/sprint-kickoff 4`
 **Immediately** use the `EnterPlanMode` tool before doing anything else. Read the roadmap (Step 1) inside plan mode and present the sprint scope for approval. Use `ExitPlanMode` after Step 1 to get user approval before creating branches or tasks.
 
 ### Step 1: Read Sprint Scope
-Read `docs/detailed-project-roaadmap.md` and extract all tasks for the specified sprint:
-- Task IDs, descriptions, and story points
-- Target platforms per task
-- Dependencies between tasks
-- Phase this sprint belongs to
 
-Summarize the sprint scope for the user.
+**Check for an existing sprint file first:**
+1. Look in `tickets/sprints/` for a sprint definition file matching the sprint name/number
+2. If found, read the sprint file — it references tickets in `tickets/open/` and `tickets/backlogs/`
+3. Read each referenced ticket for full details (description, acceptance criteria, orchestration)
+
+**If no sprint file exists:**
+1. Read `docs/detailed-project-roaadmap.md` and extract tasks for the specified sprint
+2. Create tickets in `tickets/open/` for each task (using appropriate prefix: TIER, FEAT, QA, LAUNCH, etc.)
+3. Create a sprint definition file in `tickets/sprints/sprint-{name}.md` referencing all tickets
+
+Summarize the sprint scope for the user, listing all tickets.
 
 ### Step 2: Create Feature Branch
 Create a feature branch from `develop`:
@@ -33,11 +38,11 @@ git checkout -b sprint-{N}
 ```
 
 ### Step 3: Build Task List
-Create a structured task list using the TaskCreate tool for each sprint task:
+Create a structured task list using the TaskCreate tool for each sprint ticket:
 - Order tasks by dependencies (blocked tasks listed after their blockers)
 - Set up blockedBy relationships where applicable
 - Include platform designation in each task description
-- Include story points for effort tracking
+- Reference the ticket ID (e.g., TIER-01, LAUNCH-03) in each task
 
 ### Step 4: Run Baseline Quality Gate
 Run the full quality gate on all platforms to establish a green baseline. **All checks must pass before sprint work begins.**
@@ -82,5 +87,8 @@ Use these installed plugins during sprint kickoff:
 
 ## Notes
 - If baseline builds fail, fix them before proceeding with sprint tasks
-- The sprint branch naming convention is `sprint-{N}` (e.g., `sprint-4`)
-- Task IDs follow the pattern `S{sprint}-{number}` (e.g., `S4-01`)
+- The sprint branch naming convention is `sprint-{N}` or `sprint-{name}` (e.g., `sprint-4`, `sprint-tier-improvements`)
+- **Ticket-first:** All sprint tasks must have tickets in `tickets/open/` before work begins
+- Ticket IDs use prefixes: `TIER-XX`, `LAUNCH-XX`, `QA-XX`, `FEAT-XX`, `BUG-XX`, etc.
+- Legacy task IDs (`S4-01`) are still supported but should be converted to tickets
+- Sprint definition files live in `tickets/sprints/`

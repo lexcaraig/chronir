@@ -12,7 +12,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.chronir"
+        applicationId = "com.chronir.android"
         minSdk = 31
         targetSdk = 35
         versionCode = 1

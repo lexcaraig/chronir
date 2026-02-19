@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.MaterialTheme
 import com.chronir.designsystem.theme.ChronirTheme
-import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @Composable
@@ -35,8 +35,8 @@ fun ChronirToggle(
         modifier = modifier,
         enabled = enabled,
         colors = SwitchDefaults.colors(
-            checkedTrackColor = ColorTokens.AccentPrimary,
-            checkedThumbColor = ColorTokens.OnPrimary
+            checkedTrackColor = MaterialTheme.colorScheme.primary,
+            checkedThumbColor = MaterialTheme.colorScheme.onPrimary
         )
     )
 }

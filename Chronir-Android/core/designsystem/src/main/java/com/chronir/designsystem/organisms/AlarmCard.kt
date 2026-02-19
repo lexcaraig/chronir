@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.MaterialTheme
 import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
@@ -70,6 +71,7 @@ enum class AlarmVisualState {
 
 private val cycleTypeBadgeColor: (CycleType) -> Color = { cycleType ->
     when (cycleType) {
+        CycleType.ONE_TIME -> ColorTokens.BadgeOneTime
         CycleType.WEEKLY -> ColorTokens.BadgeWeekly
         CycleType.MONTHLY_DATE, CycleType.MONTHLY_RELATIVE -> ColorTokens.BadgeMonthly
         CycleType.ANNUAL -> ColorTokens.BadgeAnnual
@@ -79,6 +81,7 @@ private val cycleTypeBadgeColor: (CycleType) -> Color = { cycleType ->
 
 private val cycleTypeLabel: (CycleType) -> String = { cycleType ->
     when (cycleType) {
+        CycleType.ONE_TIME -> "One-Time"
         CycleType.WEEKLY -> "Weekly"
         CycleType.MONTHLY_DATE -> "Monthly"
         CycleType.MONTHLY_RELATIVE -> "Monthly"
@@ -104,7 +107,7 @@ fun AlarmCard(
                 .fillMaxWidth()
                 .alpha(if (visualState == AlarmVisualState.Inactive) 0.5f else 1f),
             shape = RoundedCornerShape(RadiusTokens.Md),
-            colors = CardDefaults.cardColors(containerColor = ColorTokens.SurfaceCard),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             border = visualState.accentColor?.let {
                 androidx.compose.foundation.BorderStroke(2.dp, it)
             }
@@ -122,7 +125,7 @@ fun AlarmCard(
                         ChronirText(
                             text = alarm.title,
                             style = ChronirTextStyle.TitleMedium,
-                            color = if (visualState == AlarmVisualState.Inactive) ColorTokens.TextDisabled else ColorTokens.TextPrimary
+                            color = if (visualState == AlarmVisualState.Inactive) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(SpacingTokens.XXSmall))
                         Row {
@@ -161,7 +164,7 @@ fun AlarmCard(
                         ChronirText(
                             text = alarm.timeOfDay.format(timeFormatter),
                             style = ChronirTextStyle.HeadlineTime,
-                            color = ColorTokens.TextDisabled
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                         )
                     }
                     Spacer(Modifier.weight(1f))

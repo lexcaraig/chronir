@@ -381,8 +381,9 @@ private struct CatalogAlarmCreationFormView: View {
                 startMonth: $startMonth,
                 startYear: $startYear,
                 category: $category,
-                preAlarmEnabled: .constant(false),
+                preAlarmOffsets: .constant([]),
                 oneTimeDate: .constant(Date()),
+                soundName: .constant("alarm"),
                 titleError: nil
             )
         }

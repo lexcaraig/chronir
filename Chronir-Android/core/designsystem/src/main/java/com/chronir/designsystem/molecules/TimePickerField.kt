@@ -20,7 +20,7 @@ fun TimePickerField(
     Column(
         modifier = modifier
             .clickable(onClick = onClick)
-            .padding(SpacingTokens.Default)
+            .padding(vertical = SpacingTokens.Default)
     ) {
         Text(
             text = label,

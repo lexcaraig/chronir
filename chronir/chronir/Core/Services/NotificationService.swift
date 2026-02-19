@@ -4,7 +4,9 @@ import Foundation
 protocol NotificationServiceProtocol: Sendable {
     func requestAuthorization() async throws -> Bool
     func schedulePreAlarmNotification(for alarm: Alarm) async
+    func schedulePreAlarmNotifications(for alarm: Alarm) async
     func cancelPreAlarmNotification(for alarm: Alarm)
+    func cancelAllPreAlarmNotifications(for alarm: Alarm)
 }
 
 #if os(iOS)
@@ -57,10 +59,54 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         try? await notificationCenter.add(request)
     }
 
+    func schedulePreAlarmNotifications(for alarm: Alarm) async {
+        let offsets = alarm.preAlarmOffsets
+        guard !offsets.isEmpty, alarm.isEnabled else { return }
+
+        let settings = await notificationCenter.notificationSettings()
+        if settings.authorizationStatus == .notDetermined {
+            _ = try? await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
+        }
+        guard settings.authorizationStatus != .denied else { return }
+
+        // Cancel existing before rescheduling
+        cancelAllPreAlarmNotifications(for: alarm)
+
+        for offset in offsets {
+            let preAlarmDate = alarm.nextFireDate.addingTimeInterval(-offset.timeInterval)
+            guard preAlarmDate > Date() else { continue }
+
+            let content = UNMutableNotificationContent()
+            content.title = "\(alarm.title) \(offset.notificationBody)"
+            content.body = "Scheduled for \(alarm.scheduledTime.formatted(date: .omitted, time: .shortened))"
+            content.sound = .default
+
+            let components = Calendar.current.dateComponents(
+                [.year, .month, .day, .hour, .minute, .second],
+                from: preAlarmDate
+            )
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+
+            let request = UNNotificationRequest(
+                identifier: "pre-alarm-\(alarm.id.uuidString)-\(offset.rawValue)",
+                content: content,
+                trigger: trigger
+            )
+
+            try? await notificationCenter.add(request)
+        }
+    }
+
     func cancelPreAlarmNotification(for alarm: Alarm) {
         notificationCenter.removePendingNotificationRequests(
             withIdentifiers: ["pre-alarm-\(alarm.id.uuidString)"]
         )
+    }
+
+    func cancelAllPreAlarmNotifications(for alarm: Alarm) {
+        let ids = PreAlarmOffset.allCases.map { "pre-alarm-\(alarm.id.uuidString)-\($0.rawValue)" }
+            + ["pre-alarm-\(alarm.id.uuidString)"] // Legacy single notification
+        notificationCenter.removePendingNotificationRequests(withIdentifiers: ids)
     }
 
     // MARK: - UNUserNotificationCenterDelegate
@@ -86,6 +132,8 @@ final class NotificationService: NotificationServiceProtocol {
     static let shared = NotificationService()
     func requestAuthorization() async throws -> Bool { false }
     func schedulePreAlarmNotification(for alarm: Alarm) async {}
+    func schedulePreAlarmNotifications(for alarm: Alarm) async {}
     func cancelPreAlarmNotification(for alarm: Alarm) {}
+    func cancelAllPreAlarmNotifications(for alarm: Alarm) {}
 }
 #endif

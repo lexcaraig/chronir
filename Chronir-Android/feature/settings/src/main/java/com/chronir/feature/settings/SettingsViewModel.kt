@@ -1,25 +1,51 @@
 package com.chronir.feature.settings
 
 import androidx.lifecycle.ViewModel
-import com.chronir.data.repository.UserRepository
+import androidx.lifecycle.viewModelScope
+import com.chronir.data.repository.SettingsRepository
+import com.chronir.data.repository.UserSettings
+import com.chronir.model.TextSizePreference
+import com.chronir.model.ThemePreference
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class SettingsUiState(
-    val isDynamicColorEnabled: Boolean = true,
-    val isNotificationsEnabled: Boolean = true,
-    val defaultSnoozeMinutes: Int = 5,
-    val isAuthenticated: Boolean = false
-)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SettingsUiState())
-    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<UserSettings> = settingsRepository.settings
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())
+
+    fun setSnoozeEnabled(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setSnoozeEnabled(enabled) }
+    }
+
+    fun setSlideToStop(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setSlideToStop(enabled) }
+    }
+
+    fun setHapticFeedback(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setHapticFeedback(enabled) }
+    }
+
+    fun setFixedTimezone(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setFixedTimezone(enabled) }
+    }
+
+    fun setThemePreference(theme: ThemePreference) {
+        viewModelScope.launch { settingsRepository.setThemePreference(theme) }
+    }
+
+    fun setTextSizePreference(size: TextSizePreference) {
+        viewModelScope.launch { settingsRepository.setTextSizePreference(size) }
+    }
+
+    fun setGroupByCategory(enabled: Boolean) {
+        viewModelScope.launch { settingsRepository.setGroupByCategory(enabled) }
+    }
 }

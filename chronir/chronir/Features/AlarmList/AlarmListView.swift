@@ -284,7 +284,12 @@ struct AlarmListView: View {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         if !isEnabled { return .inactive }
         if alarm.snoozeCount > 0 { return .snoozed }
-        if alarm.nextFireDate < Date() { return .overdue }
+        if alarm.nextFireDate < Date() {
+            // Don't flash overdue for an alarm that was just completed —
+            // nextFireDate hasn't been recalculated on the main context yet.
+            if firingCoordinator.isHandled(alarm.id) { return .active }
+            return .overdue
+        }
         return .active
     }
 
@@ -316,9 +321,8 @@ struct AlarmListView: View {
                 alarm: alarm,
                 visualState: visualState(for: alarm),
                 isEnabled: enabledBinding(for: alarm),
-                streak: subscriptionService.currentTier.rank >= SubscriptionTier.plus.rank
-                    ? StreakCalculator.currentStreak(from: alarm.completionLogs)
-                    : 0
+                streak: StreakCalculator.currentStreak(from: alarm.completionLogs),
+                isPlusUser: subscriptionService.currentTier.rank >= SubscriptionTier.plus.rank
             )
         }
         .contentShape(Rectangle())
@@ -348,26 +352,43 @@ struct AlarmListView: View {
                 Label("Edit", systemImage: "pencil")
             }
             .tint(ColorTokens.info)
+            if alarm.cycleType != .oneTime && alarm.isEnabled {
+                Button {
+                    skipOccurrence(alarm)
+                } label: {
+                    Label("Skip", systemImage: "forward.end")
+                }
+                .tint(ColorTokens.warning)
+            }
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            Button {
-                let current = enabledStates[alarm.id] ?? alarm.isEnabled
-                if !current && !canEnableMoreAlarms() {
-                    showUpgradePrompt = true
-                } else {
-                    enabledStates[alarm.id] = !current
+            if visualState(for: alarm) == .overdue {
+                Button {
+                    markOverdueAsDone(alarm)
+                } label: {
+                    Label("Done", systemImage: "checkmark.circle")
                 }
-            } label: {
-                let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-                Label(
-                    isEnabled ? "Disable" : "Enable",
-                    systemImage: isEnabled ? "bell.slash" : "bell"
+                .tint(ColorTokens.success)
+            } else {
+                Button {
+                    let current = enabledStates[alarm.id] ?? alarm.isEnabled
+                    if !current && !canEnableMoreAlarms() {
+                        showUpgradePrompt = true
+                    } else {
+                        enabledStates[alarm.id] = !current
+                    }
+                } label: {
+                    let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
+                    Label(
+                        isEnabled ? "Disable" : "Enable",
+                        systemImage: isEnabled ? "bell.slash" : "bell"
+                    )
+                }
+                .tint(
+                    enabledStates[alarm.id] ?? alarm.isEnabled
+                        ? ColorTokens.textSecondary : ColorTokens.success
                 )
             }
-            .tint(
-                enabledStates[alarm.id] ?? alarm.isEnabled
-                    ? ColorTokens.textSecondary : ColorTokens.success
-            )
         }
     }
 
@@ -404,8 +425,18 @@ struct AlarmListView: View {
 
     private var filteredAlarms: [Alarm] {
         let source = activeAlarms
-        guard let filter = selectedCategoryFilter else { return source }
-        return source.filter { $0.alarmCategory == filter }
+        let filtered = if let filter = selectedCategoryFilter {
+            source.filter { $0.alarmCategory == filter }
+        } else {
+            source
+        }
+        let now = Date()
+        return filtered.sorted { a, b in
+            let aOverdue = a.isEnabled && a.nextFireDate < now
+            let bOverdue = b.isEnabled && b.nextFireDate < now
+            if aOverdue != bOverdue { return aOverdue }
+            return a.nextFireDate < b.nextFireDate
+        }
     }
 
     private var activeCategories: [AlarmCategory] {
@@ -413,6 +444,11 @@ struct AlarmListView: View {
         return AlarmCategory.allCases.filter { cats.contains($0) }
     }
 
+}
+
+// MARK: - Helpers
+
+extension AlarmListView {
     private enum SmartListItem: Identifiable {
         case grouped(AlarmCategory, [Alarm])
         case individual(Alarm)
@@ -457,6 +493,60 @@ struct AlarmListView: View {
         }
     }
 
+    private func skipOccurrence(_ alarm: Alarm) {
+        let log = CompletionLog(
+            alarmID: alarm.id,
+            scheduledDate: alarm.nextFireDate,
+            completedAt: Date(),
+            action: .skipped,
+            snoozeCount: alarm.snoozeCount
+        )
+        log.alarm = alarm
+        modelContext.insert(log)
+
+        alarm.snoozeCount = 0
+        alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: alarm.nextFireDate)
+
+        Task {
+            try? await AlarmScheduler.shared.cancelAlarm(alarm)
+            try? await AlarmScheduler.shared.scheduleAlarm(alarm)
+        }
+
+        try? modelContext.save()
+        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
+    }
+
+    private func markOverdueAsDone(_ alarm: Alarm) {
+        let log = CompletionLog(
+            alarmID: alarm.id,
+            scheduledDate: alarm.nextFireDate,
+            completedAt: Date(),
+            action: .completed,
+            snoozeCount: alarm.snoozeCount
+        )
+        log.alarm = alarm
+        modelContext.insert(log)
+
+        alarm.lastCompletedAt = Date()
+        alarm.lastFiredDate = Date()
+        alarm.snoozeCount = 0
+
+        if alarm.cycleType == .oneTime {
+            alarm.isEnabled = false
+            alarm.nextFireDate = .distantFuture
+            Task { try? await AlarmScheduler.shared.cancelAlarm(alarm) }
+        } else {
+            alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
+            Task {
+                try? await AlarmScheduler.shared.cancelAlarm(alarm)
+                try? await AlarmScheduler.shared.scheduleAlarm(alarm)
+            }
+        }
+
+        try? modelContext.save()
+        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSuccess() }
+    }
+
     private func deleteAlarm(_ alarm: Alarm) {
         Task {
             try? await AlarmScheduler.shared.cancelAlarm(alarm)
@@ -469,6 +559,9 @@ struct AlarmListView: View {
         let calculator = DateCalculator()
         let now = Date()
         for alarm in alarms where alarm.isEnabled && alarm.cycleType != .oneTime && alarm.snoozeCount == 0 {
+            // Skip past-due alarms — they should remain overdue until the user
+            // explicitly acknowledges them (swipe-to-done or firing view dismiss).
+            guard alarm.nextFireDate >= now else { continue }
             let correct = calculator.calculateNextFireDate(for: alarm, from: now)
             if alarm.nextFireDate != correct {
                 alarm.nextFireDate = correct
@@ -492,7 +585,6 @@ struct AlarmListView: View {
             }
         }
     }
-
 }
 
 #Preview {

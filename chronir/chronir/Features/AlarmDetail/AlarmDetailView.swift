@@ -94,8 +94,9 @@ struct AlarmDetailView: View {
                 startMonth: $viewModel.startMonth,
                 startYear: $viewModel.startYear,
                 category: $viewModel.category,
-                preAlarmEnabled: $viewModel.preAlarmEnabled,
+                preAlarmOffsets: $viewModel.preAlarmOffsets,
                 oneTimeDate: $viewModel.oneTimeDate,
+                soundName: $viewModel.soundName,
                 isPlusTier: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                 titleError: viewModel.titleError
             )

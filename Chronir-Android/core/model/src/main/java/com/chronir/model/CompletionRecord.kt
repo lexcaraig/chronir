@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.UUID
 
 enum class CompletionAction {
-    DISMISSED,
+    COMPLETED,
     SNOOZED,
     MISSED
 }

@@ -371,6 +371,71 @@
 
 ---
 
+## 26. Streak Badge on Alarm Card (Sprint Tier Improvements — TIER-07)
+
+| #    | Step                                  | Expected Result                                    | Pass? |
+| ---- | ------------------------------------- | -------------------------------------------------- | ----- |
+| 26.1 | Plus user → alarm with completions   | Streak badge visible on alarm card ("Nx" with flame) | PASS |
+| 26.2 | Free user → alarm with completions   | Streak badge hidden (streak passed as 0)           | PASS |
+| 26.3 | Card shows "Last: [date]" subtitle   | Last completed date visible below countdown        | PASS |
+
+---
+
+## 27. Extended Pre-Alarms (Sprint Tier Improvements — TIER-05)
+
+| #    | Step                                           | Expected Result                                   | Pass? |
+| ---- | ---------------------------------------------- | ------------------------------------------------- | ----- |
+| 27.1 | Plus user → create/edit alarm                  | Extended pre-alarm options visible (1h, 1d, 3d, 7d) | PASS |
+| 27.2 | Select "7 days" and "3 days", save             | Both selections saved                             | PASS |
+| 27.3 | Reopen alarm                                   | Pre-alarm selections persisted                    | PASS |
+| 27.4 | Free user → extended options locked            | Only "1 day" selectable                           | PASS |
+
+---
+
+## 28. Skip This Occurrence — Firing Screen (Sprint Tier Improvements — TIER-06)
+
+| #    | Step                                              | Expected Result                                  | Pass? |
+| ---- | ------------------------------------------------- | ------------------------------------------------ | ----- |
+| 28.1 | Recurring alarm fires → firing screen             | "Skip This Occurrence" button visible            | PASS |
+| 28.2 | Tap Skip                                          | Alarm advances to next occurrence, firing dismisses | PASS |
+| 28.3 | One-time alarm fires                              | No skip button on firing screen                  | PASS |
+
+---
+
+## 29. Lifetime Purchase (Sprint Tier Improvements — TIER-08)
+
+| #    | Step                                                     | Expected Result                                           | Pass? |
+| ---- | -------------------------------------------------------- | --------------------------------------------------------- | ----- |
+| 29.1 | Open Paywall → select Lifetime ($49.99)                  | "Buy Once — $49.99" button shown                          | PASS |
+| 29.2 | Purchase Lifetime in sandbox                             | Plus features unlock permanently                          | PASS |
+| 29.3 | Settings > Subscription                                  | Shows "Plus" with "Forever" duration, no "Change Plan"    | PASS |
+| 29.4 | Kill and relaunch → Settings > Subscription              | Lifetime entitlement persists across cold launch          | PASS |
+
+---
+
+## 30. Alarm Templates Library (Sprint Tier Improvements — TIER-04)
+
+| #    | Step                                               | Expected Result                                     | Pass? |
+| ---- | -------------------------------------------------- | --------------------------------------------------- | ----- |
+| 30.1 | Plus user → "+" → Templates button                | Template library sheet appears                      | PASS |
+| 30.2 | Select template → form pre-fills                   | Title, cycle type, category, note filled            | PASS |
+| 30.3 | Edit pre-filled fields and save                    | Alarm saves with modified template values           | PASS |
+| 30.4 | Search templates                                   | Search filters correctly                            | PASS |
+
+---
+
+## 31. Custom Alarm Sounds (Sprint Tier Improvements — TIER-09)
+
+| #    | Step                                               | Expected Result                                     | Pass? |
+| ---- | -------------------------------------------------- | --------------------------------------------------- | ----- |
+| 31.1 | Plus user → create/edit alarm → tap Sound row      | Sound picker sheet with 6 sounds, all selectable    | PASS |
+| 31.2 | Tap each sound — preview plays                     | Distinct preview for each sound                     | PASS |
+| 31.3 | Select non-default sound, save alarm               | Sound persists on reopen                            | PASS |
+| 31.4 | Let alarm fire                                     | Plays selected custom sound, not default            | PASS |
+| 31.5 | Settings > Alarm Sound — change default            | App-wide default updated                            | PASS |
+
+---
+
 ## Test Summary
 
 | Category                      | Total Tests | Passed  | Failed | Notes                                |
@@ -400,7 +465,13 @@
 | One-Time Plus Features (Siri) | 8           | 8       | 0      | All pass                             |
 | Siri Integration Plus (Siri)  | 7           | 5       | 0      | 24.6-24.7 pending (archive exclude)  |
 | One-Time Display (Siri)       | 4           | 3       | 0      | 25.4 untested (category group)       |
-| **TOTAL**                     | **164**     | **157** | **0**  | 3 tests pending (24.6-24.7, 25.4)   |
+| Streak Badge (Tier Impr.)     | 3           | 3       | 0      | TIER-07 Plus checks — all pass       |
+| Extended Pre-Alarms (Tier)    | 4           | 4       | 0      | TIER-05 — all pass                   |
+| Skip Occurrence Firing (Tier) | 3           | 3       | 0      | TIER-06 firing screen — all pass     |
+| Lifetime Purchase (Tier)      | 4           | 4       | 0      | TIER-08 — all pass                   |
+| Alarm Templates (Tier)        | 4           | 4       | 0      | TIER-04 — all pass                   |
+| Custom Sounds (Tier)          | 5           | 5       | 0      | TIER-09 — all pass                   |
+| **TOTAL**                     | **187**     | **180** | **0**  | 3 tests pending (24.6-24.7, 25.4)   |
 
 ---
 

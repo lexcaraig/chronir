@@ -168,4 +168,27 @@ object TypographyTokens {
         labelMedium = LabelMedium,
         labelSmall = LabelSmall
     )
+
+    fun scaledTypography(scale: Float): Typography {
+        fun TextStyle.scaled() = copy(
+            fontSize = fontSize * scale,
+            lineHeight = lineHeight * scale
+        )
+        return Typography(
+            displayLarge = DisplayMedium.scaled(),
+            displayMedium = DisplaySmall.scaled(),
+            headlineLarge = HeadlineLarge.scaled(),
+            headlineMedium = HeadlineMedium.scaled(),
+            headlineSmall = HeadlineSmall.scaled(),
+            titleLarge = TitleLarge.scaled(),
+            titleMedium = TitleMedium.scaled(),
+            titleSmall = TitleSmall.scaled(),
+            bodyLarge = BodyLarge.scaled(),
+            bodyMedium = BodyMedium.scaled(),
+            bodySmall = BodySmall.scaled(),
+            labelLarge = LabelLarge.scaled(),
+            labelMedium = LabelMedium.scaled(),
+            labelSmall = LabelSmall.scaled()
+        )
+    }
 }

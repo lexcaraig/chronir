@@ -13,7 +13,7 @@ Example: `/phase-qa-gate 1`
 ## Workflow
 
 ### Step 0: Enter Plan Mode
-**Immediately** use the `EnterPlanMode` tool before doing anything else. Identify which sprints belong to the specified phase, outline what checks will run, and present the QA scope. Use `ExitPlanMode` to get user approval before running checks.
+**Immediately** use the `EnterPlanMode` tool before doing anything else. Identify which sprints belong to the specified phase, check `tickets/sprints/` for the relevant sprint file, list all tickets in `tickets/untested/` that need QA verification, outline what checks will run, and present the QA scope. Use `ExitPlanMode` to get user approval before running checks.
 
 ### Step 1: Format & Lint
 Run auto-format first, then lint on both platforms:
@@ -148,7 +148,12 @@ Use these installed plugins during QA gate:
 - **swift-lsp** / **kotlin-lsp** — Use LSP diagnostics as an additional signal for code health
 - **claude-md-management** — After gate passes, run `/revise-claude-md` to capture any lessons learned during the phase
 
+### Step 8: Update Ticket Status
+After the gate passes:
+- Move all tickets in `tickets/untested/` that were part of this phase to `tickets/completed/`
+- Update the sprint file in `tickets/sprints/` with final status
+
 ## Gate Criteria
-- **PASS:** Zero blocking issues. Lint clean, all tests pass, builds succeed, no critical security findings.
-- **FAIL:** Any blocking issue present. Must be resolved before phase progression.
+- **PASS:** Zero blocking issues. Lint clean, all tests pass, builds succeed, no critical security findings. All phase tickets move to `completed/`.
+- **FAIL:** Any blocking issue present. Must be resolved before phase progression. Tickets remain in `untested/`.
 - **Warnings** do not block but should be tracked for resolution.

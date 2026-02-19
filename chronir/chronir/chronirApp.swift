@@ -3,6 +3,7 @@ import SwiftData
 import AlarmKit
 import StoreKit
 import AppIntents
+import FirebaseCore
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -17,6 +18,9 @@ struct ChronirApp: App {
     @State private var deepLinkAlarmID: UUID?
 
     init() {
+        FirebaseApp.configure()
+        AuthService.shared.restoreSessionIfNeeded()
+
         do {
             container = try ModelContainer(for: Alarm.self, CompletionLog.self)
         } catch {
@@ -192,7 +196,10 @@ struct ChronirApp: App {
                                         AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
                                     }
                                 } else if alarm.id == AlarmFiringCoordinator.shared.firingAlarmID {
-                                    AlarmFiringCoordinator.shared.dismissFiring()
+                                    // Don't dismiss if we intentionally stopped AlarmKit to play custom sound.
+                                    if AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id) == nil {
+                                        AlarmFiringCoordinator.shared.dismissFiring()
+                                    }
                                 }
                             }
                         }
@@ -248,12 +255,16 @@ struct ChronirApp: App {
                             coordinator.snoozedInBackground.remove(model.id)
                             coordinator.presentAlarm(id: model.id)
                         } else {
-                            // Alarm is past due but not actively alerting.
-                            // This can mean the user tapped Done on lock screen OR
-                            // just swiped up to unlock. Present the firing view
-                            // so the user must explicitly acknowledge the alarm.
+                            // Alarm fired while backgrounded and user stopped on lock screen.
+                            // Slide-to-stop IS the acknowledgment — auto-complete here.
+                            // (True "missed" overdue only shows on cold launch.)
                             coordinator.snoozedInBackground.remove(model.id)
-                            coordinator.presentAlarm(id: model.id)
+                            handleLockScreenAction(
+                                model: model,
+                                wasSnoozed: false,
+                                context: context
+                            )
+                            coordinator.markHandled(model.id)
                         }
                     }
                 }
@@ -263,6 +274,10 @@ struct ChronirApp: App {
             }
             #endif
             .onChange(of: scenePhase) {
+                // Trigger cloud sync when returning to foreground
+                if scenePhase == .active, AuthService.shared.isSignedIn {
+                    Task { try? await CloudSyncService.shared.syncAlarms() }
+                }
                 // Fallback for edge cases where willEnterForeground didn't fire.
                 guard scenePhase == .active,
                       coordinator.isFiring else { return }
@@ -334,12 +349,18 @@ extension ChronirApp {
             log.alarm = model
             context.insert(log)
             model.lastFiredDate = Date()
+            model.lastCompletedAt = Date()
             model.snoozeCount = 0
             if model.cycleType == .oneTime {
                 model.isEnabled = false
                 model.nextFireDate = .distantFuture
+                Task { try? await AlarmScheduler.shared.cancelAlarm(model) }
             } else {
                 model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
+                Task {
+                    try? await AlarmScheduler.shared.cancelAlarm(model)
+                    try? await AlarmScheduler.shared.scheduleAlarm(model)
+                }
             }
             AppReviewService.recordCompletion()
         }

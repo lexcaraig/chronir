@@ -109,6 +109,7 @@ fun AlarmFiringView(
 // Helper functions to avoid circular dependency with AlarmCard
 private val cycleTypeBadgeColor: (CycleType) -> androidx.compose.ui.graphics.Color = { cycleType ->
     when (cycleType) {
+        CycleType.ONE_TIME -> ColorTokens.BadgeOneTime
         CycleType.WEEKLY -> ColorTokens.BadgeWeekly
         CycleType.MONTHLY_DATE, CycleType.MONTHLY_RELATIVE -> ColorTokens.BadgeMonthly
         CycleType.ANNUAL -> ColorTokens.BadgeAnnual
@@ -118,6 +119,7 @@ private val cycleTypeBadgeColor: (CycleType) -> androidx.compose.ui.graphics.Col
 
 private val cycleTypeLabel: (CycleType) -> String = { cycleType ->
     when (cycleType) {
+        CycleType.ONE_TIME -> "One-Time"
         CycleType.WEEKLY -> "Weekly"
         CycleType.MONTHLY_DATE -> "Monthly"
         CycleType.MONTHLY_RELATIVE -> "Monthly"

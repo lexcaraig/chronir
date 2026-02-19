@@ -23,6 +23,18 @@ const navTree = [
       { id: 'screens', label: 'App Screens' },
     ],
   },
+  {
+    label: 'Marketing',
+    children: [
+      { id: 'marketing', label: 'Launch Posts' },
+    ],
+  },
+  {
+    label: 'Architecture',
+    children: [
+      { id: 'iosArchitecture', label: 'iOS Architecture' },
+    ],
+  },
 ]
 
 export default function Sidebar({ active, onNavigate }) {

@@ -5,6 +5,7 @@ import java.time.LocalTime
 import java.util.UUID
 
 enum class CycleType {
+    ONE_TIME,
     WEEKLY,
     MONTHLY_DATE,
     MONTHLY_RELATIVE,
@@ -13,6 +14,7 @@ enum class CycleType {
 
     val displayName: String
         get() = when (this) {
+            ONE_TIME -> "One-Time"
             WEEKLY -> "Weekly"
             MONTHLY_DATE -> "Monthly"
             MONTHLY_RELATIVE -> "Monthly"

@@ -23,6 +23,8 @@ struct ChronirBadge: View {
         Text(text)
             .chronirFont(.labelSmall)
             .foregroundStyle(.white)
+            .lineLimit(1)
+            .fixedSize()
             .padding(.horizontal, SpacingTokens.sm)
             .padding(.vertical, SpacingTokens.xs)
             .background(color)

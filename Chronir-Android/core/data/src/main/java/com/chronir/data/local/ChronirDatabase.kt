@@ -43,15 +43,28 @@ data class AlarmEntity(
     val updatedAt: Long
 )
 
+@Entity(
+    tableName = "completions",
+    indices = [Index(value = ["alarmId"])]
+)
+data class CompletionEntity(
+    @PrimaryKey val id: String,
+    val alarmId: String,
+    val action: String,
+    val timestamp: Long,
+    val snoozeDurationMinutes: Int? = null
+)
+
 @Database(
-    entities = [AlarmEntity::class],
-    version = 2,
+    entities = [AlarmEntity::class, CompletionEntity::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class ChronirDatabase : RoomDatabase() {
 
     abstract fun alarmDao(): AlarmDao
+    abstract fun completionDao(): CompletionDao
 
     companion object {
         fun create(context: Context): ChronirDatabase {

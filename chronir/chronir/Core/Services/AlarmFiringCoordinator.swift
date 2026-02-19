@@ -17,6 +17,10 @@ final class AlarmFiringCoordinator {
     private var handledAlarmEntries: [UUID: Date] = [:]
     private let handledExpiry: TimeInterval = 30
 
+    /// Alarm IDs where we intentionally stopped AlarmKit to play a custom sound.
+    /// The `alarmUpdates` default handler should NOT dismiss the firing view for these.
+    var stoppedForCustomSound: Set<UUID> = []
+
     /// Set to `true` when the app resigns active (via `willResignActiveNotification`).
     /// Prevents stale `.alerting` events from presenting the firing screen when
     /// `alarmUpdates` resumes. Reset to `false` by the foreground handler after
