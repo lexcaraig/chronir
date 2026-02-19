@@ -4,6 +4,7 @@ import StoreKit
 struct SubscriptionManagementView: View {
     private let subscriptionService = SubscriptionService.shared
     @State private var restoreMessage: String?
+    @State private var showPaywall = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -18,6 +19,9 @@ struct SubscriptionManagementView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
+        }
         .task {
             await subscriptionService.updateSubscriptionStatus()
         }
@@ -115,7 +119,15 @@ struct SubscriptionManagementView: View {
 
     private var actionsSection: some View {
         Section {
-            if !subscriptionService.currentTier.isFreeTier /* && !subscriptionService.isLifetime */ {
+            if subscriptionService.currentTier.isFreeTier {
+                Button { showPaywall = true } label: {
+                    HStack {
+                        ChronirText("Upgrade to Plus", style: .bodyPrimary, color: ColorTokens.primary)
+                        Spacer()
+                        ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
+                    }
+                }
+            } else /* if !subscriptionService.isLifetime */ {
                 Button {
                     Task {
                         guard let scene = windowScene else { return }
