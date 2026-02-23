@@ -318,7 +318,7 @@ extension AlarmListValidatorConflictTests {
         cycleType: CycleType = .weekly,
         schedule: Schedule = .weekly(daysOfWeek: [2], interval: 1),
         timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)],
-        daysOfMonth: [Int] = [],
+        daysOfMonth: Set<Int> = [],
         existingAlarms: [Alarm] = []
     ) -> AlarmValidator.ValidationResult {
         AlarmValidator.validate(
