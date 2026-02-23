@@ -6,12 +6,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chronir.designsystem.organisms.AlarmFiringView
 import com.chronir.designsystem.templates.FullScreenAlarmTemplate
+import com.chronir.model.CycleType
 
 @Composable
 fun AlarmFiringScreen(
@@ -21,6 +25,7 @@ fun AlarmFiringScreen(
     viewModel: AlarmFiringViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showCustomSnooze by remember { mutableStateOf(false) }
 
     LaunchedEffect(alarmId) {
         alarmId?.let { viewModel.loadAlarm(it) }
@@ -39,7 +44,13 @@ fun AlarmFiringScreen(
                 alarm = alarm,
                 onDismiss = viewModel::dismissAlarm,
                 onSnooze = viewModel::snoozeAlarm,
-                snoozeCount = alarm.snoozeCount
+                snoozeCount = alarm.snoozeCount,
+                onCustomSnooze = if (viewModel.isCustomSnoozeAvailable) {
+                    { showCustomSnooze = true }
+                } else null,
+                onSkip = if (alarm.cycleType != CycleType.ONE_TIME) {
+                    { viewModel.skipOccurrence() }
+                } else null
             )
         } else {
             Box(
@@ -49,5 +60,15 @@ fun AlarmFiringScreen(
                 CircularProgressIndicator()
             }
         }
+    }
+
+    if (showCustomSnooze) {
+        CustomSnoozeSheet(
+            onDismiss = { showCustomSnooze = false },
+            onConfirm = { minutes ->
+                showCustomSnooze = false
+                viewModel.snoozeCustom(minutes)
+            }
+        )
     }
 }

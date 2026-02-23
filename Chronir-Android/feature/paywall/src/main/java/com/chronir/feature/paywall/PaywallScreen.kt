@@ -48,18 +48,22 @@ import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-private enum class PlanOption(val label: String, val price: String, val period: String) {
-    ANNUAL("Annual", "$19.99", "year"),
-    MONTHLY("Monthly", "$1.99", "month")
+private enum class PlanOption(val label: String, val period: String) {
+    ANNUAL("Annual", "year"),
+    MONTHLY("Monthly", "month")
 }
 
 @Composable
 fun PaywallScreen(
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: PaywallViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var selectedPlan by remember { mutableStateOf(PlanOption.ANNUAL) }
 
     Box(
@@ -102,8 +106,11 @@ fun PaywallScreen(
             Spacer(Modifier.height(SpacingTokens.XLarge))
 
             // Plan selector
+            val annualPrice = uiState.annualPrice
+            val monthlyPrice = uiState.monthlyPrice
             PlanRow(
                 plan = PlanOption.ANNUAL,
+                price = annualPrice,
                 isSelected = selectedPlan == PlanOption.ANNUAL,
                 badge = "Best Deal",
                 onClick = { selectedPlan = PlanOption.ANNUAL }
@@ -111,6 +118,7 @@ fun PaywallScreen(
             Spacer(Modifier.height(SpacingTokens.Small))
             PlanRow(
                 plan = PlanOption.MONTHLY,
+                price = monthlyPrice,
                 isSelected = selectedPlan == PlanOption.MONTHLY,
                 badge = null,
                 onClick = { selectedPlan = PlanOption.MONTHLY }
@@ -118,9 +126,11 @@ fun PaywallScreen(
 
             Spacer(Modifier.height(SpacingTokens.Large))
 
+            val selectedPrice = if (selectedPlan == PlanOption.ANNUAL) annualPrice else monthlyPrice
+
             // Renewal terms
             ChronirText(
-                text = "Auto-renews at ${selectedPlan.price}/${selectedPlan.period}. " +
+                text = "Auto-renews at $selectedPrice/${selectedPlan.period}. " +
                     "Cancel anytime in Google Play > Subscriptions.",
                 style = ChronirTextStyle.LabelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -132,8 +142,15 @@ fun PaywallScreen(
 
             // CTA Button
             ChronirButton(
-                text = "Subscribe — ${selectedPlan.price}/${if (selectedPlan == PlanOption.MONTHLY) "mo" else "yr"}",
-                onClick = { /* Google Play Billing not yet wired */ },
+                text = "Subscribe — $selectedPrice/${if (selectedPlan == PlanOption.MONTHLY) "mo" else "yr"}",
+                onClick = {
+                    val activity = context as? android.app.Activity ?: return@ChronirButton
+                    if (selectedPlan == PlanOption.ANNUAL) {
+                        viewModel.purchaseAnnual(activity)
+                    } else {
+                        viewModel.purchaseMonthly(activity)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -144,7 +161,7 @@ fun PaywallScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                TextButton(onClick = { /* Restore not yet implemented */ }) {
+                TextButton(onClick = { viewModel.restorePurchases() }) {
                     ChronirText(
                         text = "Restore Purchases",
                         style = ChronirTextStyle.LabelSmall,
@@ -155,7 +172,7 @@ fun PaywallScreen(
                     TextButton(onClick = {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("https://gist.github.com/lexcaraig/88de245f9c109c4936efa515a3fb0b28")
+                            Uri.parse("https://gist.github.com/lexcaraig/b5087828d62c2f0aa190b9814f57bcf9")
                         )
                         context.startActivity(intent)
                     }) {
@@ -168,7 +185,7 @@ fun PaywallScreen(
                     TextButton(onClick = {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("https://gist.github.com/lexcaraig/88de245f9c109c4936efa515a3fb0b28")
+                            Uri.parse("https://gist.github.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c")
                         )
                         context.startActivity(intent)
                     }) {
@@ -249,6 +266,7 @@ private fun FeatureRow(
 @Composable
 private fun PlanRow(
     plan: PlanOption,
+    price: String,
     isSelected: Boolean,
     badge: String?,
     onClick: () -> Unit,
@@ -295,7 +313,7 @@ private fun PlanRow(
             }
             Spacer(Modifier.weight(1f))
             ChronirText(
-                text = plan.price,
+                text = price,
                 style = ChronirTextStyle.TitleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

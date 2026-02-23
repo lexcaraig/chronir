@@ -91,6 +91,14 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.analytics)
 
+    // Google Sign-In
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services)
+    implementation(libs.googleid)
+
+    // Billing
+    implementation(libs.billing.ktx)
+
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

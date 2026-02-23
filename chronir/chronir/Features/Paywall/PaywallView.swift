@@ -273,9 +273,9 @@ struct PaywallView: View {
     }
 
     // swiftlint:disable:next force_unwrapping
-    private let termsURL = URL(string: "https://gist.github.com/lexcaraig/88de245f9c109c4936efa515a3fb0b28")!
+    private let termsURL = URL(string: "https://gist.github.com/lexcaraig/b5087828d62c2f0aa190b9814f57bcf9")!
     // swiftlint:disable:next force_unwrapping
-    private let privacyURL = URL(string: "https://gist.github.com/lexcaraig/88de245f9c109c4936efa515a3fb0b28")!
+    private let privacyURL = URL(string: "https://gist.github.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c")!
 }
 
 #Preview("Light") {

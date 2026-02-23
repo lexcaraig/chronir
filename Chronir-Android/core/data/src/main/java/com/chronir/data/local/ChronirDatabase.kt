@@ -38,6 +38,7 @@ data class AlarmEntity(
     val syncStatus: String = "LOCAL_ONLY",
     @ColumnInfo(name = "ownerID") val ownerID: String? = null,
     val sharedWithJson: String = "[]",
+    val additionalTimesJson: String = "[]",
     val note: String = "",
     val createdAt: Long,
     val updatedAt: Long
@@ -57,7 +58,7 @@ data class CompletionEntity(
 
 @Database(
     entities = [AlarmEntity::class, CompletionEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

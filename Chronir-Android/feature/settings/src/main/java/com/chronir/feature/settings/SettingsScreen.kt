@@ -36,6 +36,11 @@ import com.chronir.model.ThemePreference
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
+    onNavigateToHistory: () -> Unit = {},
+    onNavigateToSoundPicker: () -> Unit = {},
+    onNavigateToWallpaper: () -> Unit = {},
+    onNavigateToAccount: () -> Unit = {},
+    onNavigateToSubscription: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -72,7 +77,7 @@ fun SettingsScreen(
                 SettingsNavigationRow(
                     title = "Alarm Sound",
                     value = uiState.alarmSound.replaceFirstChar { it.uppercase() },
-                    onClick = { /* Sound picker not yet implemented */ }
+                    onClick = onNavigateToSoundPicker
                 )
             }
 
@@ -116,6 +121,11 @@ fun SettingsScreen(
                     subtitle = "Organize alarms by their category",
                     isEnabled = uiState.groupByCategory,
                     onToggle = viewModel::setGroupByCategory
+                )
+                SettingsNavigationRow(
+                    title = "Alarm Wallpaper",
+                    value = "Customize",
+                    onClick = onNavigateToWallpaper
                 )
             }
 
@@ -165,6 +175,24 @@ fun SettingsScreen(
                 }
             }
 
+            // History & Streaks (Plus only)
+            SettingsSection(header = "History") {
+                SettingsNavigationRow(
+                    title = "Completion History",
+                    value = if (viewModel.isPlusUser) "View" else "Plus",
+                    onClick = if (viewModel.isPlusUser) onNavigateToHistory else onNavigateToSubscription
+                )
+            }
+
+            // Subscription
+            SettingsSection(header = "Account") {
+                SettingsNavigationRow(
+                    title = "Subscription",
+                    value = "Manage",
+                    onClick = onNavigateToSubscription
+                )
+            }
+
             // About
             SettingsSection(header = "About") {
                 Row(
@@ -186,7 +214,7 @@ fun SettingsScreen(
                     onClick = {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("https://gist.github.com/lexcaraig/88de245f9c109c4936efa515a3fb0b28")
+                            Uri.parse("https://gist.github.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c")
                         )
                         context.startActivity(intent)
                     }
@@ -197,7 +225,7 @@ fun SettingsScreen(
                     onClick = {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("https://gist.github.com/lexcaraig/88de245f9c109c4936efa515a3fb0b28")
+                            Uri.parse("https://gist.github.com/lexcaraig/b5087828d62c2f0aa190b9814f57bcf9")
                         )
                         context.startActivity(intent)
                     }

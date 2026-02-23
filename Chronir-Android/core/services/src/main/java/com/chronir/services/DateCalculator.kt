@@ -20,9 +20,23 @@ class DateCalculator @Inject constructor() {
     fun calculateNextFireDate(alarm: Alarm, from: Instant): Instant {
         val zoneId = ZoneId.of(alarm.timezone)
         val fromZoned = from.atZone(zoneId)
-        val timeOfDay = alarm.timeOfDay
 
-        val result = when (val schedule = alarm.schedule) {
+        // Compute next fire date for each time of day, return the earliest
+        val allTimes = alarm.allTimesOfDay
+        val candidates = allTimes.map { timeOfDay ->
+            calculateNextForTime(alarm.schedule, fromZoned, timeOfDay, zoneId)
+        }
+
+        return candidates.minByOrNull { it.toEpochMilli() } ?: from
+    }
+
+    private fun calculateNextForTime(
+        schedule: Schedule,
+        fromZoned: ZonedDateTime,
+        timeOfDay: LocalTime,
+        zoneId: ZoneId
+    ): Instant {
+        val result = when (schedule) {
             is Schedule.Weekly -> nextWeekly(
                 from = fromZoned,
                 daysOfWeek = schedule.daysOfWeek,
@@ -57,7 +71,6 @@ class DateCalculator @Inject constructor() {
             )
             is Schedule.OneTime -> schedule.fireDate.atZone(zoneId)
         }
-
         return result.toInstant()
     }
 

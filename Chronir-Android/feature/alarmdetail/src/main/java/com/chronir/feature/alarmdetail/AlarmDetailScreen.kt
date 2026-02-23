@@ -721,12 +721,14 @@ private fun CompletionHistorySection(
                         CompletionAction.COMPLETED -> "Completed"
                         CompletionAction.SNOOZED -> "Snoozed"
                         CompletionAction.MISSED -> "Missed"
+                        CompletionAction.SKIPPED -> "Skipped"
                     },
                     style = ChronirTextStyle.BodyMedium,
                     color = when (record.action) {
                         CompletionAction.COMPLETED -> ColorTokens.Success
                         CompletionAction.SNOOZED -> ColorTokens.Warning
                         CompletionAction.MISSED -> ColorTokens.Error
+                        CompletionAction.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
                     }
                 )
                 ChronirText(

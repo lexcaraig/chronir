@@ -6,7 +6,8 @@ import java.util.UUID
 enum class CompletionAction {
     COMPLETED,
     SNOOZED,
-    MISSED
+    MISSED,
+    SKIPPED
 }
 
 data class CompletionRecord(

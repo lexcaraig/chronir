@@ -59,8 +59,10 @@ import com.chronir.designsystem.molecules.TimePickerField
 import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.CycleType
+import com.chronir.model.PreAlarmOffset
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -73,7 +75,9 @@ fun AlarmCreationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showTimePicker by remember { mutableStateOf(false) }
+    var showAdditionalTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showTemplates by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.saveSuccess) {
         if (uiState.saveSuccess) onDismiss()
@@ -108,6 +112,11 @@ fun AlarmCreationScreen(
                 .padding(horizontal = SpacingTokens.Default),
             verticalArrangement = Arrangement.spacedBy(SpacingTokens.Medium)
         ) {
+            // Use Template button
+            TextButton(onClick = { showTemplates = true }) {
+                Text("Use a template")
+            }
+
             // Alarm Name
             LabeledTextField(
                 label = "Alarm Name",
@@ -174,6 +183,13 @@ fun AlarmCreationScreen(
                 onClick = { showTimePicker = true }
             )
 
+            // Additional Times of Day
+            AdditionalTimesSection(
+                additionalTimes = uiState.additionalTimes,
+                onAddTime = { showAdditionalTimePicker = true },
+                onRemoveTime = viewModel::removeAdditionalTime
+            )
+
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
             // Persistent toggle
@@ -184,12 +200,10 @@ fun AlarmCreationScreen(
                 onToggle = viewModel::togglePersistence
             )
 
-            // Pre-alarm warning toggle
-            AlarmToggleRow(
-                title = "24h Pre-Alarm Warning",
-                subtitle = "Get notified 24 hours before",
-                isEnabled = uiState.preAlarmEnabled,
-                onToggle = viewModel::updatePreAlarmEnabled
+            // Pre-alarm offset selector
+            PreAlarmOffsetSelector(
+                selectedMinutes = uiState.preAlarmMinutes,
+                onSelect = viewModel::updatePreAlarmMinutes
             )
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
@@ -260,6 +274,30 @@ fun AlarmCreationScreen(
         ) {
             DatePicker(state = datePickerState)
         }
+    }
+
+    // Additional time picker dialog
+    if (showAdditionalTimePicker) {
+        TimePickerDialog(
+            initialHour = 12,
+            initialMinute = 0,
+            onConfirm = { hour, minute ->
+                viewModel.addAdditionalTime(hour, minute)
+                showAdditionalTimePicker = false
+            },
+            onDismiss = { showAdditionalTimePicker = false }
+        )
+    }
+
+    // Template library sheet
+    if (showTemplates) {
+        TemplateLibrarySheet(
+            onDismiss = { showTemplates = false },
+            onSelectTemplate = { template ->
+                showTemplates = false
+                viewModel.loadTemplate(template)
+            }
+        )
     }
 }
 
@@ -614,6 +652,95 @@ private fun RepeatIntervalStepper(
                     modifier = Modifier.padding(6.dp)
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PreAlarmOffsetSelector(
+    selectedMinutes: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val offsets = listOf(
+        PreAlarmOffset.NONE,
+        PreAlarmOffset.FIFTEEN_MINUTES,
+        PreAlarmOffset.THIRTY_MINUTES,
+        PreAlarmOffset.ONE_HOUR,
+        PreAlarmOffset.TWELVE_HOURS,
+        PreAlarmOffset.ONE_DAY,
+        PreAlarmOffset.ONE_WEEK
+    )
+    Column(modifier = modifier.fillMaxWidth()) {
+        ChronirText(
+            text = "Pre-Alarm Warning",
+            style = ChronirTextStyle.LabelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(SpacingTokens.XXSmall))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.XSmall),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.XSmall)
+        ) {
+            offsets.forEach { offset ->
+                FilterChip(
+                    selected = selectedMinutes == offset.minutes,
+                    onClick = { onSelect(offset.minutes) },
+                    label = { Text(offset.displayName) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AdditionalTimesSection(
+    additionalTimes: List<LocalTime>,
+    onAddTime: () -> Unit,
+    onRemoveTime: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        if (additionalTimes.isNotEmpty()) {
+            ChronirText(
+                text = "Additional Times",
+                style = ChronirTextStyle.LabelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(SpacingTokens.XXSmall))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(SpacingTokens.XSmall),
+                verticalArrangement = Arrangement.spacedBy(SpacingTokens.XSmall)
+            ) {
+                additionalTimes.forEachIndexed { index, time ->
+                    FilterChip(
+                        selected = true,
+                        onClick = { onRemoveTime(index) },
+                        label = { Text(formatTime(time.hour, time.minute)) },
+                        trailingIcon = {
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = "Remove",
+                                modifier = Modifier.size(16.dp)
+                            )
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    )
+                }
+            }
+            Spacer(Modifier.height(SpacingTokens.XSmall))
+        }
+        TextButton(onClick = onAddTime) {
+            Text("+ Add another time")
         }
     }
 }

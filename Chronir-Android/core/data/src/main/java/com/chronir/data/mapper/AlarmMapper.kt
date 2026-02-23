@@ -34,6 +34,7 @@ fun AlarmEntity.toDomain(): Alarm {
         syncStatus = SyncStatus.valueOf(syncStatus),
         ownerID = ownerID,
         sharedWith = deserializeStringList(sharedWithJson),
+        additionalTimesOfDay = deserializeTimesOfDay(additionalTimesJson),
         note = note,
         createdAt = Instant.ofEpochMilli(createdAt),
         updatedAt = Instant.ofEpochMilli(updatedAt)
@@ -62,6 +63,7 @@ fun Alarm.toEntity(): AlarmEntity {
         syncStatus = syncStatus.name,
         ownerID = ownerID,
         sharedWithJson = serializeStringList(sharedWith),
+        additionalTimesJson = serializeTimesOfDay(additionalTimesOfDay),
         note = note,
         createdAt = createdAt.toEpochMilli(),
         updatedAt = updatedAt.toEpochMilli()
@@ -168,6 +170,25 @@ private fun defaultScheduleForCycleType(cycleType: CycleType): Schedule {
 
 private fun serializeStringList(list: List<String>): String {
     return JSONArray(list).toString()
+}
+
+private fun serializeTimesOfDay(times: List<LocalTime>): String {
+    val arr = JSONArray()
+    times.forEach { arr.put("%02d:%02d".format(it.hour, it.minute)) }
+    return arr.toString()
+}
+
+private fun deserializeTimesOfDay(json: String): List<LocalTime> {
+    if (json.isBlank() || json == "[]") return emptyList()
+    return try {
+        val arr = JSONArray(json)
+        (0 until arr.length()).map { i ->
+            val parts = arr.getString(i).split(":")
+            LocalTime.of(parts[0].toInt(), parts[1].toInt())
+        }
+    } catch (_: Exception) {
+        emptyList()
+    }
 }
 
 private fun deserializeStringList(json: String): List<String> {
