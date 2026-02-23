@@ -31,6 +31,13 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    // Billing
+    implementation(libs.billing.ktx)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+
     // Coroutines
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)

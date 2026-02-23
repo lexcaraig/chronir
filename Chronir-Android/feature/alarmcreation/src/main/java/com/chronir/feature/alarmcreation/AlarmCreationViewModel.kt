@@ -5,15 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.chronir.data.repository.AlarmRepository
 import com.chronir.model.Alarm
 import com.chronir.model.AlarmCategory
+import com.chronir.model.AlarmTemplate
 import com.chronir.model.CycleType
 import com.chronir.model.PersistenceLevel
 import com.chronir.model.Schedule
 import com.chronir.services.AlarmScheduler
+import com.chronir.services.BillingService
 import com.chronir.services.DateCalculator
+import com.chronir.services.SubscriptionTier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -35,7 +39,8 @@ data class AlarmCreationUiState(
     val annualDay: Int = LocalDate.now().dayOfMonth,
     val oneTimeDate: LocalDate = LocalDate.now().plusDays(1),
     val category: AlarmCategory? = null,
-    val preAlarmEnabled: Boolean = false,
+    val additionalTimes: List<LocalTime> = emptyList(),
+    val preAlarmMinutes: Int = 0,
     val repeatInterval: Int = 1,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
@@ -46,8 +51,13 @@ data class AlarmCreationUiState(
 class AlarmCreationViewModel @Inject constructor(
     private val alarmRepository: AlarmRepository,
     private val dateCalculator: DateCalculator,
-    private val alarmScheduler: AlarmScheduler
+    private val alarmScheduler: AlarmScheduler,
+    private val billingService: BillingService
 ) : ViewModel() {
+
+    companion object {
+        private const val FREE_TIER_ALARM_LIMIT = 3
+    }
 
     private val _uiState = MutableStateFlow(AlarmCreationUiState())
     val uiState: StateFlow<AlarmCreationUiState> = _uiState.asStateFlow()
@@ -107,8 +117,67 @@ class AlarmCreationViewModel @Inject constructor(
         _uiState.update { it.copy(category = category) }
     }
 
-    fun updatePreAlarmEnabled(enabled: Boolean) {
-        _uiState.update { it.copy(preAlarmEnabled = enabled) }
+    fun updatePreAlarmMinutes(minutes: Int) {
+        // Extended pre-alarm offsets (>30min) require Plus
+        val isFree = billingService.subscriptionState.value.tier == SubscriptionTier.FREE
+        if (isFree && minutes > 30) {
+            _uiState.update {
+                it.copy(errorMessage = "Extended pre-alarm offsets require Plus subscription.")
+            }
+            return
+        }
+        _uiState.update { it.copy(preAlarmMinutes = minutes) }
+    }
+
+    fun addAdditionalTime(hour: Int, minute: Int) {
+        _uiState.update { state ->
+            val newTime = LocalTime.of(hour, minute)
+            if (state.additionalTimes.contains(newTime)) state
+            else state.copy(additionalTimes = state.additionalTimes + newTime)
+        }
+    }
+
+    fun removeAdditionalTime(index: Int) {
+        _uiState.update { state ->
+            state.copy(additionalTimes = state.additionalTimes.toMutableList().apply { removeAt(index) })
+        }
+    }
+
+    fun loadTemplate(template: AlarmTemplate) {
+        _uiState.update {
+            it.copy(
+                title = template.name,
+                cycleType = template.cycleType,
+                hour = template.timeOfDay.hour,
+                minute = template.timeOfDay.minute,
+                persistenceLevel = template.persistenceLevel,
+                preAlarmMinutes = template.preAlarmMinutes,
+                note = template.note,
+                category = template.category,
+                selectedDays = when (val s = template.schedule) {
+                    is Schedule.Weekly -> s.daysOfWeek.toSet()
+                    else -> it.selectedDays
+                },
+                dayOfMonth = when (val s = template.schedule) {
+                    is Schedule.MonthlyDate -> s.dayOfMonth
+                    else -> it.dayOfMonth
+                },
+                annualMonth = when (val s = template.schedule) {
+                    is Schedule.Annual -> s.month
+                    else -> it.annualMonth
+                },
+                annualDay = when (val s = template.schedule) {
+                    is Schedule.Annual -> s.dayOfMonth
+                    else -> it.annualDay
+                },
+                repeatInterval = when (val s = template.schedule) {
+                    is Schedule.Weekly -> s.interval
+                    is Schedule.MonthlyDate -> s.interval
+                    is Schedule.Annual -> s.interval
+                    else -> it.repeatInterval
+                }
+            )
+        }
     }
 
     fun updateRepeatInterval(interval: Int) {
@@ -134,6 +203,20 @@ class AlarmCreationViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
+                // Free tier: 3-alarm limit
+                val tier = billingService.subscriptionState.value.tier
+                if (tier == SubscriptionTier.FREE) {
+                    val existingCount = alarmRepository.observeAlarms().first().size
+                    if (existingCount >= FREE_TIER_ALARM_LIMIT) {
+                        _uiState.update {
+                            it.copy(
+                                isSaving = false,
+                                errorMessage = "Free plan is limited to $FREE_TIER_ALARM_LIMIT alarms. Upgrade to Plus for unlimited alarms."
+                            )
+                        }
+                        return@launch
+                    }
+                }
                 val schedule = buildSchedule(state)
                 val timeOfDay = LocalTime.of(state.hour, state.minute)
 
@@ -143,7 +226,8 @@ class AlarmCreationViewModel @Inject constructor(
                     timeOfDay = timeOfDay,
                     schedule = schedule,
                     persistenceLevel = state.persistenceLevel,
-                    preAlarmMinutes = if (state.preAlarmEnabled) 1440 else 0,
+                    preAlarmMinutes = state.preAlarmMinutes,
+                    additionalTimesOfDay = state.additionalTimes,
                     colorTag = state.category?.colorTag,
                     iconName = state.category?.iconKey,
                     note = state.note.trim()
@@ -160,7 +244,7 @@ class AlarmCreationViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        errorMessage = e.message ?: "Failed to save alarm"
+                        errorMessage = "Failed to save alarm. Please try again."
                     )
                 }
             }

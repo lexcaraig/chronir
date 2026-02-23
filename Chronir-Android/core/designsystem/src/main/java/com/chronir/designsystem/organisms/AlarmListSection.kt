@@ -60,6 +60,7 @@ fun AlarmListSection(
             val isEnabled = enabledStates[alarm.id] ?: alarm.isEnabled
             val visualState = when {
                 !isEnabled -> AlarmVisualState.Inactive
+                alarm.snoozeCount > 0 -> AlarmVisualState.Snoozed
                 alarm.nextFireDate.isBefore(Instant.now()) -> AlarmVisualState.Overdue
                 else -> AlarmVisualState.Active
             }

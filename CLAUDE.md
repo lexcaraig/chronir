@@ -221,20 +221,21 @@ When implementing a feature, cross-reference `docs/technical-spec.md` (architect
 
 ### Ticket Naming Convention
 
-| Prefix | Category |
-|--------|----------|
-| `TIER-XX` | Free/Plus tier improvements |
-| `LAUNCH-XX` | iOS App Store launch tasks |
-| `QA-XX` | Testing, profiling, accessibility |
-| `FEAT-XX` | New features |
-| `ANDROID-XX` | Android platform work |
-| `PREMIUM-XX` | Premium tier (Phase 4) |
-| `BUG-XX` | Bug fixes |
-| `INFRA-XX` | CI/CD, build, tooling |
+| Prefix       | Category                          |
+| ------------ | --------------------------------- |
+| `TIER-XX`    | Free/Plus tier improvements       |
+| `LAUNCH-XX`  | iOS App Store launch tasks        |
+| `QA-XX`      | Testing, profiling, accessibility |
+| `FEAT-XX`    | New features                      |
+| `ANDROID-XX` | Android platform work             |
+| `PREMIUM-XX` | Premium tier (Phase 4)            |
+| `BUG-XX`     | Bug fixes                         |
+| `INFRA-XX`   | CI/CD, build, tooling             |
 
 ### Sprint Definitions
 
 Sprint files live in `tickets/sprints/` and reference tickets by path. When a sprint starts:
+
 1. Tickets move from `backlogs/` to `open/`
 2. Sprint file tracks scope, phases, and status
 3. `/sprint-kickoff` reads from the sprint file
@@ -245,19 +246,19 @@ See `tickets/README.md` for full documentation.
 
 ### Slash Commands
 
-| Command              | Usage                                             | Purpose                                                                                                |
-| -------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Command              | Usage                                             | Purpose                                                                                                        |
+| -------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `/implement-task`    | `/implement-task TIER-01`                         | Main orchestrator. Reads ticket, moves to in-progress, implements, tests, reviews, commits, moves to untested. |
-| `/sprint-kickoff`    | `/sprint-kickoff 4`                               | Initialize a sprint: read roadmap, create branch, build task list, run baseline builds.                |
-| `/phase-qa-gate`     | `/phase-qa-gate 1`                                | Quality gate: lint, test, build, security review, QA plan cross-reference. Generates pass/fail report. |
-| `/implement-ios`     | `/implement-ios Add ChronirButton atom`           | iOS-focused workflow: implement in SwiftUI, lint, test, review.                                        |
-| `/implement-android` | `/implement-android Add ChronirButton composable` | Android-focused workflow: implement in Compose, lint, test, review.                                    |
-| `/sync-tokens`       | `/sync-tokens`                                    | Rebuild design tokens and copy to both platforms.                                                      |
-| `/build-all`         | `/build-all`                                      | Full quality verification (format, lint, test, build) across all platforms.                            |
-| `/fix-tests`         | `/fix-tests ios`                                  | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg.               |
-| `/pre-submit-audit`  | `/pre-submit-audit`                               | App Store Review compliance audit: crash stubs, non-functional UI, feature accuracy, debug visibility. |
-| `/release`           | `/release 1.1 ios`                                | End-to-end release: version bump, quality gates, store metadata, docs, git tag, checklist.             |
-| `/update-docs`       | `/update-docs Completed Sprint Siri+OneTime`      | Updates docs/, CLAUDE.md, and README.md to reflect completed work (changelog, roadmap, specs, etc.).   |
+| `/sprint-kickoff`    | `/sprint-kickoff 4`                               | Initialize a sprint: read roadmap, create branch, build task list, run baseline builds.                        |
+| `/phase-qa-gate`     | `/phase-qa-gate 1`                                | Quality gate: lint, test, build, security review, QA plan cross-reference. Generates pass/fail report.         |
+| `/implement-ios`     | `/implement-ios Add ChronirButton atom`           | iOS-focused workflow: implement in SwiftUI, lint, test, review.                                                |
+| `/implement-android` | `/implement-android Add ChronirButton composable` | Android-focused workflow: implement in Compose, lint, test, review.                                            |
+| `/sync-tokens`       | `/sync-tokens`                                    | Rebuild design tokens and copy to both platforms.                                                              |
+| `/build-all`         | `/build-all`                                      | Full quality verification (format, lint, test, build) across all platforms.                                    |
+| `/fix-tests`         | `/fix-tests ios`                                  | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg.                       |
+| `/pre-submit-audit`  | `/pre-submit-audit`                               | App Store Review compliance audit: crash stubs, non-functional UI, feature accuracy, debug visibility.         |
+| `/release`           | `/release 1.1 ios`                                | End-to-end release: version bump, quality gates, store metadata, docs, git tag, checklist.                     |
+| `/update-docs`       | `/update-docs Completed Sprint Siri+OneTime`      | Updates docs/, CLAUDE.md, and README.md to reflect completed work (changelog, roadmap, specs, etc.).           |
 
 ### Custom Agents
 
@@ -323,5 +324,15 @@ Record a learning whenever:
 - Update or remove entries that turn out to be wrong or outdated
 - Keep MEMORY.md concise — detailed notes go in topic files
 - Never duplicate information already in CLAUDE.md or spec docs — only record surprises and gotchas
+
+---
+
+Sandbox account:
+lexpresswayyy@gmail.com
+ABCTest123!
+
+To test the full purchase flow, go to Settings > Subscription > Upgrade to Plus.
+
+Sandbox subscriptions auto-renew every ~3 minutes and expire automatically, so both active and expired states can be observed within one review session.
 
 ---

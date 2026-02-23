@@ -43,10 +43,14 @@ data class Alarm(
     val syncStatus: SyncStatus = SyncStatus.LOCAL_ONLY,
     val ownerID: String? = null,
     val sharedWith: List<String> = emptyList(),
+    val additionalTimesOfDay: List<LocalTime> = emptyList(),
     val note: String = "",
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
 ) {
     val isPersistent: Boolean
         get() = persistenceLevel == PersistenceLevel.FULL
+
+    val allTimesOfDay: List<LocalTime>
+        get() = listOf(timeOfDay) + additionalTimesOfDay
 }

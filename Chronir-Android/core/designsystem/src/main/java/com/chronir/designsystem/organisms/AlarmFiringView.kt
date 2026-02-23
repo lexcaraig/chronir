@@ -15,6 +15,7 @@ import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirButton
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
+import com.chronir.designsystem.molecules.HoldToCompleteButton
 import com.chronir.designsystem.molecules.SnoozeInterval
 import com.chronir.designsystem.molecules.SnoozeOptionBar
 import com.chronir.designsystem.theme.ChronirPreview
@@ -35,7 +36,9 @@ fun AlarmFiringView(
     onDismiss: () -> Unit,
     onSnooze: (SnoozeInterval) -> Unit,
     modifier: Modifier = Modifier,
-    snoozeCount: Int = 0
+    snoozeCount: Int = 0,
+    onCustomSnooze: (() -> Unit)? = null,
+    onSkip: (() -> Unit)? = null
 ) {
     val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 
@@ -92,15 +95,44 @@ fun AlarmFiringView(
 
         SnoozeOptionBar(onSnooze = onSnooze)
 
+        if (onCustomSnooze != null) {
+            Spacer(Modifier.height(SpacingTokens.Small))
+            androidx.compose.material3.TextButton(onClick = onCustomSnooze) {
+                ChronirText(
+                    text = "Custom snooze...",
+                    style = ChronirTextStyle.LabelMedium,
+                    color = ColorTokens.FiringForeground.copy(alpha = 0.7f)
+                )
+            }
+        }
+
         Spacer(Modifier.height(SpacingTokens.Medium))
 
-        ChronirButton(
-            text = "Dismiss",
-            onClick = onDismiss,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = SpacingTokens.XXLarge)
-        )
+        if (alarm.isPersistent) {
+            HoldToCompleteButton(
+                onComplete = onDismiss,
+                label = "Hold to Dismiss"
+            )
+        } else {
+            ChronirButton(
+                text = "Dismiss",
+                onClick = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingTokens.XXLarge)
+            )
+        }
+
+        if (onSkip != null) {
+            Spacer(Modifier.height(SpacingTokens.Small))
+            androidx.compose.material3.TextButton(onClick = onSkip) {
+                ChronirText(
+                    text = "Skip this occurrence",
+                    style = ChronirTextStyle.LabelMedium,
+                    color = ColorTokens.FiringForeground.copy(alpha = 0.7f)
+                )
+            }
+        }
 
         Spacer(Modifier.weight(0.5f))
     }

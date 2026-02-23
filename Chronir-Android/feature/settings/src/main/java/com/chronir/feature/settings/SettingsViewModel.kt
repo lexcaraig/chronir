@@ -6,6 +6,8 @@ import com.chronir.data.repository.SettingsRepository
 import com.chronir.data.repository.UserSettings
 import com.chronir.model.TextSizePreference
 import com.chronir.model.ThemePreference
+import com.chronir.services.BillingService
+import com.chronir.services.SubscriptionTier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +17,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val billingService: BillingService
 ) : ViewModel() {
+
+    val isPlusUser: Boolean
+        get() = billingService.subscriptionState.value.tier != SubscriptionTier.FREE
 
     val uiState: StateFlow<UserSettings> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())

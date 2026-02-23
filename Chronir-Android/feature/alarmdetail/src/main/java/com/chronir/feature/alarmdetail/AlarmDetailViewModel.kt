@@ -233,7 +233,7 @@ class AlarmDetailViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        errorMessage = e.message ?: "Failed to save alarm"
+                        errorMessage = "Failed to save alarm. Please try again."
                     )
                 }
             }
