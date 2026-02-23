@@ -233,6 +233,9 @@ final class AlarmDetailViewModel {
 
     func deleteAlarm(context: ModelContext) {
         guard let alarm else { return }
+        AnalyticsService.shared.logEvent(AnalyticsEvent.alarmDeleted, parameters: [
+            "cycle_type": alarm.cycleType.rawValue
+        ])
         // Clean up photo file
         PhotoStorageService.deletePhoto(for: alarm.id)
         // Capture ID before deletion — accessing SwiftData object after delete crashes

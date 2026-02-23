@@ -4,6 +4,7 @@ import AlarmKit
 import StoreKit
 import AppIntents
 import FirebaseCore
+import FirebaseCrashlytics
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -19,6 +20,7 @@ struct ChronirApp: App {
 
     init() {
         FirebaseApp.configure()
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
         AuthService.shared.restoreSessionIfNeeded()
 
         do {
@@ -268,6 +270,9 @@ struct ChronirApp: App {
                         }
                     }
                 }
+
+                // Audit: re-register any future alarms that AlarmKit dropped
+                Task { await AlarmScheduler.shared.auditAlarmRegistrations() }
 
                 // Re-enable alarmUpdates presentation now that stale events have been processed.
                 coordinator.appIsInBackground = false

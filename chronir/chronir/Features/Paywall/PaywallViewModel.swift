@@ -39,11 +39,15 @@ final class PaywallViewModel {
     func loadSubscriptionStatus() async {
         await subscriptionService.loadProducts()
         await subscriptionService.updateSubscriptionStatus()
+        AnalyticsService.shared.logEvent(AnalyticsEvent.upgradePromptShown, parameters: nil)
     }
 
     func purchase(_ product: Product) async {
         do {
             try await subscriptionService.purchase(product)
+            AnalyticsService.shared.logEvent(AnalyticsEvent.upgradeCompleted, parameters: [
+                "product_id": product.id
+            ])
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -41,23 +41,29 @@ final class AlarmScheduler: AlarmScheduling {
         let ids = alarmIDs(for: alarm)
 
         for (index, fireDate) in fireDates.enumerated() where index < ids.count {
-            _ = try await alarmManager.schedule(
-                id: ids[index],
-                configuration: .init(
-                    countdownDuration: snoozeDuration,
-                    schedule: .fixed(fireDate),
-                    attributes: buildAttributes(for: alarm)
+            do {
+                _ = try await alarmManager.schedule(
+                    id: ids[index],
+                    configuration: .init(
+                        countdownDuration: snoozeDuration,
+                        schedule: .fixed(fireDate),
+                        attributes: buildAttributes(for: alarm)
+                    )
                 )
-            )
+            } catch {
+                AnalyticsService.shared.recordError(error, context: "alarm_schedule")
+                throw error
+            }
         }
 
-        // Schedule pre-alarm notifications if enabled
+        // Schedule pre-alarm and backup notifications if enabled
         if alarm.snoozeCount == 0 {
             if !alarm.preAlarmOffsets.isEmpty {
                 await notificationService.schedulePreAlarmNotifications(for: alarm)
             } else if alarm.preAlarmMinutes > 0 {
                 await notificationService.schedulePreAlarmNotification(for: alarm)
             }
+            await notificationService.scheduleBackupNotification(for: alarm)
         }
 
         await WidgetDataService.shared.refresh()
@@ -80,14 +86,19 @@ final class AlarmScheduler: AlarmScheduling {
             postAlert: 540
         )
 
-        _ = try await alarmManager.schedule(
-            id: id,
-            configuration: .init(
-                countdownDuration: snoozeDuration,
-                schedule: .fixed(fireDate),
-                attributes: buildAttributes(title: title, alarmID: id)
+        do {
+            _ = try await alarmManager.schedule(
+                id: id,
+                configuration: .init(
+                    countdownDuration: snoozeDuration,
+                    schedule: .fixed(fireDate),
+                    attributes: buildAttributes(title: title, alarmID: id)
+                )
             )
-        )
+        } catch {
+            AnalyticsService.shared.recordError(error, context: "snooze_refire")
+            throw error
+        }
     }
 
     private func buildAttributes(title: String, alarmID: UUID) -> AlarmAttributes<AlarmMetadataPayload> {
@@ -142,6 +153,27 @@ final class AlarmScheduler: AlarmScheduling {
         for alarm in enabledAlarms where alarm.nextFireDate >= now {
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: now)
             try await scheduleAlarm(alarm)
+        }
+    }
+
+    // MARK: - Audit
+
+    /// Detect alarms that should be registered with AlarmKit but aren't, and re-register them.
+    func auditAlarmRegistrations() async {
+        let akAlarms = (try? AlarmManager.shared.alarms) ?? []
+        let akIDs = Set(akAlarms.map { $0.id })
+        let now = Date()
+
+        let allAlarms = try? await repository.fetchAll()
+        let needsScheduling = allAlarms?.filter { alarm in
+            alarm.isEnabled &&
+            alarm.snoozeCount == 0 &&
+            alarm.nextFireDate > now &&
+            !akIDs.contains(alarm.id)
+        } ?? []
+
+        for alarm in needsScheduling {
+            try? await scheduleAlarm(alarm)
         }
     }
 

@@ -36,6 +36,7 @@ final class SubscriptionService {
             products = try await Product.products(for: Self.productIDs)
                 .sorted { $0.price > $1.price }
         } catch {
+            AnalyticsService.shared.recordError(error, context: "load_products")
             errorMessage = "Failed to load products: \(error.localizedDescription)"
         }
     }
@@ -113,6 +114,7 @@ final class SubscriptionService {
         currentTier = highestTier
         activeProductID = latestProductID
         renewalDate = foundLifetime ? nil : latestRenewalDate
+        AnalyticsService.shared.setUserProperty(highestTier.rawValue, forName: "subscription_tier")
 
         statusChecked = true
     }
@@ -127,6 +129,7 @@ final class SubscriptionService {
             try await AppStore.sync()
             await updateSubscriptionStatus()
         } catch {
+            AnalyticsService.shared.recordError(error, context: "restore_purchases")
             errorMessage = "Failed to restore purchases: \(error.localizedDescription)"
         }
     }

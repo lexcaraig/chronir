@@ -46,6 +46,10 @@ final class AlarmCreationViewModel {
 
         do {
             try context.save()
+            AnalyticsService.shared.logEvent(AnalyticsEvent.alarmCreated, parameters: [
+                "cycle_type": cycleType.rawValue,
+                "tier": SubscriptionService.shared.currentTier.rawValue
+            ])
         } catch {
             errorMessage = error.localizedDescription
         }

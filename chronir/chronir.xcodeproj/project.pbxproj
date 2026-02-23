@@ -24,6 +24,7 @@
 		F1RE0001000100010001000E /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE0001000100010001000D /* FirebaseFirestore */; };
 		F1RE00010001000100010010 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE0001000100010001000F /* FirebaseStorage */; };
 		F1RE00010001000100010012 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE00010001000100010011 /* FirebaseCrashlytics */; };
+		F1RE00010001000100010014 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F1RE00010001000100010013 /* FirebaseAnalytics */; };
 		G00G0001000100010001000C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000B /* GoogleSignIn */; };
 		G00G0001000100010001000E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000D /* GoogleSignInSwift */; };
 		F25212E45636EEFB17B09CB6 /* ChronirWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C7355E3B1C7FD85B173DCF1 /* ChronirWidgetsBundle.swift */; };
@@ -127,6 +128,7 @@
 				F1RE0001000100010001000E /* FirebaseFirestore in Frameworks */,
 				F1RE00010001000100010010 /* FirebaseStorage in Frameworks */,
 				F1RE00010001000100010012 /* FirebaseCrashlytics in Frameworks */,
+				F1RE00010001000100010014 /* FirebaseAnalytics in Frameworks */,
 				G00G0001000100010001000C /* GoogleSignIn in Frameworks */,
 				G00G0001000100010001000E /* GoogleSignInSwift in Frameworks */,
 			);
@@ -276,6 +278,7 @@
 				F1RE0001000100010001000D /* FirebaseFirestore */,
 				F1RE0001000100010001000F /* FirebaseStorage */,
 				F1RE00010001000100010011 /* FirebaseCrashlytics */,
+				F1RE00010001000100010013 /* FirebaseAnalytics */,
 				G00G0001000100010001000B /* GoogleSignIn */,
 				G00G0001000100010001000D /* GoogleSignInSwift */,
 			);
@@ -900,6 +903,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F1RE0001000100010001000A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		F1RE00010001000100010013 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F1RE0001000100010001000A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 		G00G0001000100010001000B /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

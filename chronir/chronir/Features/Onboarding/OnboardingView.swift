@@ -90,6 +90,9 @@ struct OnboardingView: View {
             Spacer()
             if permissionGranted {
                 ChronirButton("Get Started") {
+                    AnalyticsService.shared.logEvent(AnalyticsEvent.onboardingCompleted, parameters: [
+                        "skipped_permission": false
+                    ])
                     settings.hasCompletedOnboarding = true
                 }
             } else {
@@ -98,11 +101,17 @@ struct OnboardingView: View {
                         let granted = await PermissionManager.shared.requestAlarmPermission()
                         permissionGranted = granted
                         if granted {
+                            AnalyticsService.shared.logEvent(AnalyticsEvent.onboardingCompleted, parameters: [
+                                "skipped_permission": false
+                            ])
                             settings.hasCompletedOnboarding = true
                         }
                     }
                 }
                 Button {
+                    AnalyticsService.shared.logEvent(AnalyticsEvent.onboardingCompleted, parameters: [
+                        "skipped_permission": true
+                    ])
                     settings.hasCompletedOnboarding = true
                 } label: {
                     ChronirText("Skip for now", style: .bodySecondary, color: ColorTokens.textSecondary)

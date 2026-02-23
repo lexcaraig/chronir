@@ -41,6 +41,9 @@ final class AlarmFiringViewModel {
         // Stop AlarmKit's system alarm sound so the user's chosen sound plays instead.
         if let alarm {
             try? AlarmManager.shared.stop(id: alarm.id)
+            AnalyticsService.shared.logEvent(AnalyticsEvent.alarmFired, parameters: [
+                "cycle_type": alarm.cycleType.rawValue
+            ])
         }
         soundService.startPlaying(soundName: alarm?.soundName)
         if UserSettings.shared.hapticsEnabled {
@@ -59,6 +62,10 @@ final class AlarmFiringViewModel {
     func snooze(interval: SnoozeOptionBar.SnoozeInterval) async {
         guard let alarm, !isCompleted else { return }
         isCompleted = true
+
+        AnalyticsService.shared.logEvent(AnalyticsEvent.alarmSnoozed, parameters: [
+            "snooze_count": alarm.snoozeCount + 1
+        ])
 
         let seconds: TimeInterval = switch interval {
         case .oneHour: 3600
@@ -97,6 +104,10 @@ final class AlarmFiringViewModel {
         guard alarm.cycleType != .oneTime else { return }
         isCompleted = true
 
+        AnalyticsService.shared.logEvent(AnalyticsEvent.alarmSkipped, parameters: [
+            "cycle_type": alarm.cycleType.rawValue
+        ])
+
         try? AlarmManager.shared.stop(id: alarm.id)
 
         alarm.snoozeCount = 0
@@ -125,6 +136,10 @@ final class AlarmFiringViewModel {
     func dismiss() async {
         guard let alarm, !isCompleted else { return }
         isCompleted = true
+
+        AnalyticsService.shared.logEvent(AnalyticsEvent.alarmCompleted, parameters: [
+            "snooze_count": alarm.snoozeCount
+        ])
 
         try? AlarmManager.shared.stop(id: alarm.id)
 
