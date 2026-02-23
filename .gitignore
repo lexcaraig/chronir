@@ -66,6 +66,9 @@ ui-debug.log
 .secret
 credentials.json
 
+# === Marketing ===
+marketing-videos/
+
 # === Build artifacts ===
 *.log
 *.tmp
