@@ -70,5 +70,6 @@ credentials.json
 marketing-videos/
 
 # === Build artifacts ===
+build/
 *.log
 *.tmp
