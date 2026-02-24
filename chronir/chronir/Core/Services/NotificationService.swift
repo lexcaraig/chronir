@@ -7,6 +7,8 @@ protocol NotificationServiceProtocol: Sendable {
     func schedulePreAlarmNotifications(for alarm: Alarm) async
     func cancelPreAlarmNotification(for alarm: Alarm)
     func cancelAllPreAlarmNotifications(for alarm: Alarm)
+    func scheduleBackupNotification(for alarm: Alarm) async
+    func cancelBackupNotification(for alarm: Alarm)
 }
 
 #if os(iOS)
@@ -106,7 +108,44 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
     func cancelAllPreAlarmNotifications(for alarm: Alarm) {
         let ids = PreAlarmOffset.allCases.map { "pre-alarm-\(alarm.id.uuidString)-\($0.rawValue)" }
             + ["pre-alarm-\(alarm.id.uuidString)"] // Legacy single notification
+            + ["backup-alarm-\(alarm.id.uuidString)"]
         notificationCenter.removePendingNotificationRequests(withIdentifiers: ids)
+    }
+
+    // MARK: - Backup Notifications
+
+    func scheduleBackupNotification(for alarm: Alarm) async {
+        guard alarm.isEnabled, alarm.nextFireDate > Date() else { return }
+
+        let settings = await notificationCenter.notificationSettings()
+        guard settings.authorizationStatus != .denied else { return }
+
+        cancelBackupNotification(for: alarm)
+
+        let content = UNMutableNotificationContent()
+        content.title = alarm.title
+        content.body = "Alarm firing — open Chronir"
+        content.sound = .defaultCritical
+
+        let components = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: alarm.nextFireDate
+        )
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+
+        let request = UNNotificationRequest(
+            identifier: "backup-alarm-\(alarm.id.uuidString)",
+            content: content,
+            trigger: trigger
+        )
+
+        try? await notificationCenter.add(request)
+    }
+
+    func cancelBackupNotification(for alarm: Alarm) {
+        notificationCenter.removePendingNotificationRequests(
+            withIdentifiers: ["backup-alarm-\(alarm.id.uuidString)"]
+        )
     }
 
     // MARK: - UNUserNotificationCenterDelegate
@@ -135,5 +174,7 @@ final class NotificationService: NotificationServiceProtocol {
     func schedulePreAlarmNotifications(for alarm: Alarm) async {}
     func cancelPreAlarmNotification(for alarm: Alarm) {}
     func cancelAllPreAlarmNotifications(for alarm: Alarm) {}
+    func scheduleBackupNotification(for alarm: Alarm) async {}
+    func cancelBackupNotification(for alarm: Alarm) {}
 }
 #endif
