@@ -5,9 +5,12 @@ import StoreKit
 import AppIntents
 import FirebaseCore
 import FirebaseCrashlytics
+import os.signpost
 #if canImport(UIKit)
 import UIKit
 #endif
+
+private let perfLog = OSLog(subsystem: "com.chronir.ios", category: .pointsOfInterest)
 
 @main
 struct ChronirApp: App {
@@ -90,21 +93,36 @@ struct ChronirApp: App {
             .preferredColorScheme(settings.themePreference.colorScheme)
             .tint(ColorTokens.primary)
             .task {
-                try? await Task.sleep(for: .seconds(2))
+                try? await Task.sleep(for: .seconds(0.8))
                 withAnimation(.easeInOut(duration: 0.5)) {
                     showSplash = false
                 }
             }
             .modelContainer(container)
             .task {
+                os_signpost(.begin, log: perfLog, name: "subscriptionCheck")
                 SubscriptionService.shared.listenForTransactions()
                 await SubscriptionService.shared.updateSubscriptionStatus()
+                os_signpost(.end, log: perfLog, name: "subscriptionCheck")
             }
             .task {
+                os_signpost(.begin, log: perfLog, name: "coldStartSetup")
+                defer { os_signpost(.end, log: perfLog, name: "coldStartSetup") }
+
                 guard settings.hasCompletedOnboarding else { return }
+
+                os_signpost(.begin, log: perfLog, name: "alarmPermission")
                 _ = await PermissionManager.shared.requestAlarmPermission()
-                try? await AlarmScheduler.shared.rescheduleAllAlarms()
+                os_signpost(.end, log: perfLog, name: "alarmPermission")
+
+                os_signpost(.begin, log: perfLog, name: "alarmScheduling")
+                if AlarmScheduler.shared.shouldFullReschedule {
+                    try? await AlarmScheduler.shared.rescheduleAllAlarms()
+                } else {
+                    await AlarmScheduler.shared.auditAlarmRegistrations()
+                }
                 await WidgetDataService.shared.refresh()
+                os_signpost(.end, log: perfLog, name: "alarmScheduling")
 
                 // Restore in-memory snooze tracking on cold launch.
                 // snoozedInBackground is lost when the app is killed.

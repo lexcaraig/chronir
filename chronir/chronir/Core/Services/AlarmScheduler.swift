@@ -1,15 +1,26 @@
 import Foundation
 @preconcurrency import AlarmKit
 import SwiftUI
+import os.signpost
+
+private let perfLog = OSLog(subsystem: "com.chronir.ios", category: .pointsOfInterest)
 
 protocol AlarmScheduling: Sendable {
-    func scheduleAlarm(_ alarm: Alarm) async throws
+    func scheduleAlarm(_ alarm: Alarm, refreshWidget: Bool) async throws
     func cancelAlarm(_ alarm: Alarm) async throws
     func rescheduleAllAlarms() async throws
 }
 
+extension AlarmScheduling {
+    func scheduleAlarm(_ alarm: Alarm) async throws {
+        try await scheduleAlarm(alarm, refreshWidget: true)
+    }
+}
+
 final class AlarmScheduler: AlarmScheduling {
     static let shared = AlarmScheduler()
+
+    private static let lastRescheduleKey = "chronir_last_reschedule"
 
     private let repository: AlarmRepositoryProtocol
     private let dateCalculator: DateCalculator
@@ -26,7 +37,18 @@ final class AlarmScheduler: AlarmScheduling {
         self.notificationService = notificationService
     }
 
-    func scheduleAlarm(_ alarm: Alarm) async throws {
+    var shouldFullReschedule: Bool {
+        guard let last = UserDefaults.standard.object(forKey: Self.lastRescheduleKey) as? Date else {
+            return true
+        }
+        return Date().timeIntervalSince(last) > 900 // 15 minutes
+    }
+
+    private func markRescheduled() {
+        UserDefaults.standard.set(Date(), forKey: Self.lastRescheduleKey)
+    }
+
+    func scheduleAlarm(_ alarm: Alarm, refreshWidget: Bool = true) async throws {
         if alarmManager.authorizationState != .authorized {
             let state = try await alarmManager.requestAuthorization()
             guard state == .authorized else { return }
@@ -66,7 +88,9 @@ final class AlarmScheduler: AlarmScheduling {
             await notificationService.scheduleBackupNotification(for: alarm)
         }
 
-        await WidgetDataService.shared.refresh()
+        if refreshWidget {
+            await WidgetDataService.shared.refresh()
+        }
     }
 
     /// Schedule a fresh AlarmKit alarm at the snooze expiry time.
@@ -138,6 +162,9 @@ final class AlarmScheduler: AlarmScheduling {
     }
 
     func rescheduleAllAlarms() async throws {
+        os_signpost(.begin, log: perfLog, name: "rescheduleAllAlarms")
+        defer { os_signpost(.end, log: perfLog, name: "rescheduleAllAlarms") }
+
         // Cancel ALL alarms first (including disabled/archived) to clear stale AlarmKit registrations,
         // but skip snoozed alarms — their AlarmKit countdown is still active.
         let allAlarms = try await repository.fetchAll()
@@ -152,8 +179,10 @@ final class AlarmScheduler: AlarmScheduling {
         let enabledAlarms = allAlarms.filter { $0.isEnabled && $0.snoozeCount == 0 }
         for alarm in enabledAlarms where alarm.nextFireDate >= now {
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: now)
-            try await scheduleAlarm(alarm)
+            try await scheduleAlarm(alarm, refreshWidget: false)
         }
+
+        markRescheduled()
     }
 
     // MARK: - Audit
@@ -173,7 +202,10 @@ final class AlarmScheduler: AlarmScheduling {
         } ?? []
 
         for alarm in needsScheduling {
-            try? await scheduleAlarm(alarm)
+            try? await scheduleAlarm(alarm, refreshWidget: false)
+        }
+        if !needsScheduling.isEmpty {
+            await WidgetDataService.shared.refresh()
         }
     }
 
