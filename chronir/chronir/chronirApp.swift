@@ -226,6 +226,10 @@ struct ChronirApp: App {
                                     }
                                 }
                             }
+                            // Alarm stopped/cancelled — end or refresh the Live Activity.
+                            // Critical for the background case: .alerting skips when
+                            // appIsInBackground, so this is the only cleanup path.
+                            await LiveActivityService.shared.refreshLiveActivity()
                         }
                     }
                 }

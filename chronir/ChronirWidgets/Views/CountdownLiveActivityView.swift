@@ -25,34 +25,33 @@ struct CountdownLiveActivityWidget: Widget {
                 DynamicIslandExpandedRegion(.leading) {
                     Image(systemName: "alarm.fill")
                         .font(.title2)
-                        .foregroundStyle(WidgetTokens.accent)
+                        .foregroundStyle(.white)
                 }
                 DynamicIslandExpandedRegion(.center) {
-                    VStack(spacing: 2) {
+                    VStack(spacing: 4) {
                         Text(context.state.alarmTitle)
                             .font(.headline)
                             .lineLimit(1)
                         Text(context.state.fireDate, style: .timer)
                             .font(.title2.monospacedDigit())
-                            .foregroundStyle(WidgetTokens.accent)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                        Text(context.attributes.cycleType)
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.6))
                     }
-                }
-                DynamicIslandExpandedRegion(.trailing) {
-                    Text(context.attributes.cycleType)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
                 }
             } compactLeading: {
                 Image(systemName: "alarm.fill")
-                    .foregroundStyle(WidgetTokens.accent)
+                    .foregroundStyle(.white)
             } compactTrailing: {
                 Text(context.state.fireDate, style: .timer)
                     .monospacedDigit()
-                    .foregroundStyle(WidgetTokens.accent)
+                    .foregroundStyle(.white)
                     .frame(minWidth: 40)
             } minimal: {
                 Image(systemName: "alarm.fill")
-                    .foregroundStyle(WidgetTokens.accent)
+                    .foregroundStyle(.white)
             }
         }
     }
@@ -67,7 +66,6 @@ private struct LockScreenLiveActivityView: View {
         HStack(spacing: WidgetTokens.spacingMD) {
             Image(systemName: "alarm.fill")
                 .font(.title2)
-                .foregroundStyle(WidgetTokens.accent)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(context.state.alarmTitle)
@@ -82,7 +80,6 @@ private struct LockScreenLiveActivityView: View {
 
             Text(context.state.fireDate, style: .timer)
                 .font(.title.monospacedDigit())
-                .foregroundStyle(WidgetTokens.accent)
         }
         .padding(WidgetTokens.spacingLG)
     }

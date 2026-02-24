@@ -155,7 +155,7 @@ struct SettingsView: View {
             ChronirText("Notifications", style: .labelLarge, color: ColorTokens.textSecondary)
         } footer: {
             ChronirText(
-                "Shows a countdown on your Lock Screen when an alarm is within 24 hours.",
+                "Shows a countdown on your Lock Screen when an alarm is within 1 hour.",
                 style: .caption,
                 color: ColorTokens.textSecondary
             )

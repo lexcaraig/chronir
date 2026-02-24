@@ -28,7 +28,7 @@ final class LiveActivityService {
         }
 
         let now = Date()
-        let cutoff = now.addingTimeInterval(24 * 60 * 60) // 24 hours
+        let cutoff = now.addingTimeInterval(60 * 60) // 1 hour
 
         guard let nextAlarm = await findNextImminentAlarm(before: cutoff, now: now) else {
             await endCurrentActivity()
