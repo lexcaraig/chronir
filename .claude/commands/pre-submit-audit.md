@@ -117,7 +117,26 @@ grep "ITSAppUsesNonExemptEncryption" chronir/Info.plist
 
 Must be `<false/>` unless using custom encryption beyond HTTPS.
 
-### Step 10: Generate Report
+### Step 10: Version Consistency
+
+Verify all version strings are aligned across the project:
+
+```bash
+# Extract all MARKETING_VERSION values from Xcode project
+grep "MARKETING_VERSION" chronir/chronir.xcodeproj/project.pbxproj
+```
+
+All targets (chronir, chronirTests, chronirUITests, ChronirWidgets) must have the same `MARKETING_VERSION`. Mismatched widget versions cause App Store rejection.
+
+Also check `CURRENT_PROJECT_VERSION` (build number) is consistent:
+
+```bash
+grep "CURRENT_PROJECT_VERSION" chronir/chronir.xcodeproj/project.pbxproj
+```
+
+If any versions differ, fix them to match before proceeding.
+
+### Step 11: Generate Report
 
 Output a pass/fail summary table:
 
@@ -135,6 +154,7 @@ Output a pass/fail summary table:
 | Subscription compliance      | PASS/FAIL | ... |
 | App completeness             | PASS/FAIL | ... |
 | Encryption compliance        | PASS/FAIL | ... |
+| Version consistency          | PASS/FAIL | ... |
 ```
 
 If ANY check fails, list the specific files and lines that need fixing. Do NOT proceed with submission until all checks pass.
