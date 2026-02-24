@@ -251,10 +251,15 @@ struct ChronirApp: App {
                 )
                 if let models = try? context.fetch(enabledDesc) {
                     let pastDue = models.filter { $0.nextFireDate < now }
-                    for model in pastDue {
-                        // Skip if ViewModel's completeIfNeeded() already handled this
-                        guard !coordinator.isHandled(model.id) else { continue }
 
+                    // Mark all past-due alarms as handled BEFORE processing so the UI
+                    // suppresses the "Overdue" badge immediately (visualState checks isHandled).
+                    // presentAlarm() clears this flag for alarms that need the firing screen.
+                    for model in pastDue where !coordinator.isHandled(model.id) {
+                        coordinator.markHandled(model.id)
+                    }
+
+                    for model in pastDue {
                         let akAlarm = akAlarms.first { $0.id == model.id }
 
                         if akAlarm?.state == .alerting {
@@ -268,7 +273,6 @@ struct ChronirApp: App {
                                     context: context
                                 )
                             }
-                            coordinator.markHandled(model.id)
                         } else if coordinator.snoozedInBackground.contains(model.id) {
                             // Snooze countdown ended while backgrounded — re-present
                             // (AlarmKit .fixed() schedules don't re-alert after snooze)
@@ -284,7 +288,6 @@ struct ChronirApp: App {
                                 wasSnoozed: false,
                                 context: context
                             )
-                            coordinator.markHandled(model.id)
                         }
                     }
                 }
