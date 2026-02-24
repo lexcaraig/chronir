@@ -144,8 +144,21 @@ struct SettingsView: View {
                 label: "Notifications",
                 status: viewModel.notificationStatus
             )
+            ChronirToggle(
+                label: "Live Activity Countdown",
+                isOn: $settings.liveActivityEnabled
+            )
+            .onChange(of: settings.liveActivityEnabled) {
+                Task { await LiveActivityService.shared.refreshLiveActivity() }
+            }
         } header: {
             ChronirText("Notifications", style: .labelLarge, color: ColorTokens.textSecondary)
+        } footer: {
+            ChronirText(
+                "Shows a countdown on your Lock Screen when an alarm is within 24 hours.",
+                style: .caption,
+                color: ColorTokens.textSecondary
+            )
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }

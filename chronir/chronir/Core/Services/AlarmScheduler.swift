@@ -90,6 +90,7 @@ final class AlarmScheduler: AlarmScheduling {
 
         if refreshWidget {
             await WidgetDataService.shared.refresh()
+            await LiveActivityService.shared.refreshLiveActivity()
         }
     }
 
@@ -159,6 +160,7 @@ final class AlarmScheduler: AlarmScheduling {
             try? AlarmManager.shared.cancel(id: id)
         }
         notificationService.cancelAllPreAlarmNotifications(for: alarm)
+        await LiveActivityService.shared.refreshLiveActivity()
     }
 
     func rescheduleAllAlarms() async throws {
@@ -183,6 +185,7 @@ final class AlarmScheduler: AlarmScheduling {
         }
 
         markRescheduled()
+        await LiveActivityService.shared.refreshLiveActivity()
     }
 
     // MARK: - Audit

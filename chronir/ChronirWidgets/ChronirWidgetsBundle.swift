@@ -6,6 +6,7 @@ struct ChronirWidgetsBundle: WidgetBundle {
     var body: some Widget {
         NextAlarmWidget()
         AlarmListWidget()
+        CountdownLiveActivityWidget()
     }
 }
 

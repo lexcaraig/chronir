@@ -122,6 +122,8 @@ struct ChronirApp: App {
                     await AlarmScheduler.shared.auditAlarmRegistrations()
                 }
                 await WidgetDataService.shared.refresh()
+                await LiveActivityService.shared.cleanupOrphanedActivities()
+                await LiveActivityService.shared.refreshLiveActivity()
                 os_signpost(.end, log: perfLog, name: "alarmScheduling")
 
                 // Restore in-memory snooze tracking on cold launch.
@@ -160,6 +162,7 @@ struct ChronirApp: App {
                                     return
                                 }
                                 AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
+                                Task { await LiveActivityService.shared.endCurrentActivity() }
                             }
                         case .countdown:
                             // Snoozed — dismiss firing UI, update model, and schedule
@@ -202,6 +205,7 @@ struct ChronirApp: App {
                                     at: Date().addingTimeInterval(540)
                                 )
                             }
+                            await LiveActivityService.shared.refreshLiveActivity()
                         default:
                             await MainActor.run {
                                 // If this alarm was snoozed and its countdown just ended
@@ -293,7 +297,10 @@ struct ChronirApp: App {
                 }
 
                 // Audit: re-register any future alarms that AlarmKit dropped
-                Task { await AlarmScheduler.shared.auditAlarmRegistrations() }
+                Task {
+                    await AlarmScheduler.shared.auditAlarmRegistrations()
+                    await LiveActivityService.shared.refreshLiveActivity()
+                }
 
                 // Re-enable alarmUpdates presentation now that stale events have been processed.
                 coordinator.appIsInBackground = false
@@ -391,7 +398,10 @@ extension ChronirApp {
             AppReviewService.recordCompletion()
         }
         try? context.save()
-        Task { await WidgetDataService.shared.refresh() }
+        Task {
+            await WidgetDataService.shared.refresh()
+            await LiveActivityService.shared.refreshLiveActivity()
+        }
     }
 }
 

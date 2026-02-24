@@ -106,6 +106,10 @@ final class UserSettings {
         didSet { Self.defaults.set(themePreference.rawValue, forKey: "themePreference") }
     }
 
+    var liveActivityEnabled: Bool {
+        didSet { Self.defaults.set(liveActivityEnabled, forKey: "liveActivityEnabled") }
+    }
+
     private init() {
         Self.defaults.register(defaults: [
             "snoozeEnabled": true,
@@ -115,7 +119,8 @@ final class UserSettings {
             "hasCompletedOnboarding": false,
             "wallpaperScale": 1.0,
             "groupAlarmsByCategory": false,
-            "hapticsEnabled": true
+            "hapticsEnabled": true,
+            "liveActivityEnabled": true
         ])
 
         snoozeEnabled = Self.defaults.bool(forKey: "snoozeEnabled")
@@ -136,5 +141,6 @@ final class UserSettings {
         textSizePreference = TextSizePreference(rawValue: textSizeRaw) ?? .standard
         let themeRaw = Self.defaults.string(forKey: "themePreference") ?? ThemePreference.light.rawValue
         themePreference = ThemePreference(rawValue: themeRaw) ?? .light
+        liveActivityEnabled = Self.defaults.bool(forKey: "liveActivityEnabled")
     }
 }
