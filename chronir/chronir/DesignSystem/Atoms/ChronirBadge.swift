@@ -3,10 +3,12 @@ import SwiftUI
 struct ChronirBadge: View {
     let text: String
     var color: Color
+    var icon: String?
 
-    init(_ text: String, color: Color = ColorTokens.primary) {
+    init(_ text: String, color: Color = ColorTokens.primary, icon: String? = nil) {
         self.text = text
         self.color = color
+        self.icon = icon
     }
 
     init(cycleType: CycleType) {
@@ -20,15 +22,21 @@ struct ChronirBadge: View {
     }
 
     var body: some View {
-        Text(text)
-            .chronirFont(.labelSmall)
-            .foregroundStyle(.white)
-            .lineLimit(1)
-            .fixedSize()
-            .padding(.horizontal, SpacingTokens.sm)
-            .padding(.vertical, SpacingTokens.xs)
-            .background(color)
-            .clipShape(Capsule())
+        HStack(spacing: 4) {
+            if let icon {
+                Image(systemName: icon)
+                    .font(.system(size: 10, weight: .semibold))
+            }
+            Text(text)
+                .chronirFont(.labelSmall)
+        }
+        .foregroundStyle(.white)
+        .lineLimit(1)
+        .fixedSize()
+        .padding(.horizontal, SpacingTokens.sm)
+        .padding(.vertical, SpacingTokens.xs)
+        .background(color)
+        .clipShape(Capsule())
     }
 
     private static func color(for cycleType: CycleType) -> Color {
@@ -57,8 +65,8 @@ struct ChronirBadge: View {
 #Preview("Status Badges") {
     HStack(spacing: SpacingTokens.sm) {
         ChronirBadge("Active", color: ColorTokens.badgeSuccess)
-        ChronirBadge("Persistent", color: ColorTokens.badgeWarning)
-        ChronirBadge("Missed", color: ColorTokens.badgeError)
+        ChronirBadge("Persistent", color: ColorTokens.badgeWarning, icon: "bell.badge.fill")
+        ChronirBadge("Missed", color: ColorTokens.badgeError, icon: "exclamationmark.triangle.fill")
     }
     .padding()
     .background(ColorTokens.backgroundPrimary)

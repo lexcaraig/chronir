@@ -15,12 +15,12 @@ enum AlarmVisualState {
         }
     }
 
-    var statusBadge: (text: String, color: Color)? {
+    var statusBadge: (text: String, color: Color, icon: String?)? {
         switch self {
         case .active: return nil
         case .inactive: return nil
-        case .snoozed: return ("Snoozed", ColorTokens.badgeWarning)
-        case .overdue: return ("Overdue", ColorTokens.badgeError)
+        case .snoozed: return ("Snoozed", ColorTokens.badgeWarning, "zzz")
+        case .overdue: return ("Overdue", ColorTokens.badgeError, "exclamationmark.triangle.fill")
         }
     }
 }
@@ -83,6 +83,12 @@ struct AlarmCard: View {
         return ColorTokens.badgeSuccess // neutral
     }
 
+    private var streakBadgeIcon: String {
+        if streak >= 10 { return "flame.fill" }
+        if streak >= 5 { return "star.fill" }
+        return "arrow.up.right"
+    }
+
     private var countdownText: String? {
         guard visualState == .active || visualState == .snoozed else { return nil }
         let now = Date()
@@ -132,7 +138,7 @@ struct AlarmCard: View {
                             ChronirBadge(cat.displayName, color: cat.color)
                         }
                         if let badge = visualState.statusBadge {
-                            ChronirBadge(badge.text, color: badge.color)
+                            ChronirBadge(badge.text, color: badge.color, icon: badge.icon)
                         }
                     }
                 }
@@ -169,12 +175,12 @@ struct AlarmCard: View {
                 }
                 Spacer()
                 if isPlusUser && streak >= 2 {
-                    ChronirBadge("\(streak) streak", color: streakBadgeColor)
+                    ChronirBadge("\(streak) streak", color: streakBadgeColor, icon: streakBadgeIcon)
                 } else if !isPlusUser && streak >= 3 {
                     ChronirBadge("streak", color: ColorTokens.textDisabled)
                 }
                 if alarm.isPersistent {
-                    ChronirBadge("Persistent", color: ColorTokens.badgeWarning)
+                    ChronirBadge("Persistent", color: ColorTokens.badgeWarning, icon: "bell.badge.fill")
                 }
             }
             if let text = lastCompletedText {

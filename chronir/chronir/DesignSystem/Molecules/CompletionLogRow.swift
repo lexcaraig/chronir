@@ -58,7 +58,7 @@ struct CompletionLogRow: View {
                         color: ColorTokens.badgeWarning
                     )
                 }
-                ChronirBadge(actionLabel, color: actionColor)
+                ChronirBadge(actionLabel, color: actionColor, icon: actionIcon)
             }
         }
         .padding(.vertical, SpacingTokens.xs)
