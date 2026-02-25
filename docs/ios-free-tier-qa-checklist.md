@@ -222,7 +222,7 @@
 | ---- | ------------------------ | ---------------------------------------------------------------- | ------------------------------------------ |
 | 13.1 | Card colors              | Active = normal, Inactive = muted/transparent                    | PASS (confirmed via toggle disable/enable) |
 | 13.2 | Cycle badges             | Weekly = blue-ish, Monthly = different color, Annual = different | PASS (Weekly + Monthly badges visible)     |
-| 13.3 | Status badges            | Snoozed = warning/yellow, Missed = error/red                     | PASS (both confirmed on device)            |
+| 13.3 | Status badges            | Snoozed = warning/yellow (overdue badge removed — past-due alarms fire instead) | PASS (snoozed confirmed on device)         |
 | 13.4 | Firing screen background | True black (OLED-friendly)                                       | PASS                                       |
 | 13.5 | Design tokens applied    | Consistent colors, spacing, typography across all views          | PASS (consistent across all tested views)  |
 | 13.6 | Empty state              | Illustration + CTA when no alarms                                | PASS (confirmed after deleting all alarms) |
@@ -394,14 +394,16 @@
 
 ---
 
-## 25. Overdue Visual State (Sprint Tier Improvements — TIER-12)
+## 25. Past-Due Alarm Firing (Replaces TIER-12 Overdue State)
 
-| #    | Step                                          | Expected Result                                       | Pass? |
-| ---- | --------------------------------------------- | ----------------------------------------------------- | ----- |
-| 25.1 | Set alarm, force-kill app, let it fire on lock screen, stop on lock screen, reopen app | Overdue badge + red tint on alarm card | PASS |
-| 25.2 | Lock screen stop → return to app (app backgrounded, not killed) | Alarm auto-completes, no overdue badge (slide-to-stop = acknowledgment) | PASS |
-| 25.3 | Overdue alarm persists across app launches    | Overdue state survives cold launch                    | PASS |
-| 25.4 | Swipe-to-done on overdue alarm card           | Alarm completes, reschedules to next occurrence       | PASS |
+> Overdue badge removed. Past-due alarms now present the full firing screen (sound + haptics).
+
+| #    | Step                                          | Expected Result                                                                     | Pass? |
+| ---- | --------------------------------------------- | ----------------------------------------------------------------------------------- | ----- |
+| 25.1 | Set alarm 1 min in future, background app, let it fire, ignore lock screen alert, open app | Full firing screen with sound + haptics |       |
+| 25.2 | Lock screen stop → return to app (app backgrounded, not killed) | Alarm auto-completes, no firing screen (lock screen stop = acknowledgment)    |       |
+| 25.3 | Kill app, wait for alarm to pass, cold launch | Firing screen presented for missed alarm                                            |       |
+| 25.4 | Two past-due alarms → dismiss first           | Second presents on next foreground                                                  |       |
 
 ---
 
@@ -482,7 +484,7 @@
 | 31.2 | Free user → delete alarm                      | No Firestore delete triggered                                |       |
 | 31.3 | Free user → toggle alarm on/off               | No Firestore write triggered                                 |       |
 | 31.4 | Free user → skip occurrence                   | No Firestore write triggered                                 |       |
-| 31.5 | Free user → mark overdue as done              | No Firestore write triggered                                 |       |
+| 31.5 | _(Removed — overdue swipe-to-done action deleted)_ | N/A                                                      | N/A   |
 | 31.6 | Free user → alarm fires → dismiss/snooze      | No Firestore write triggered                                 |       |
 | 31.7 | Free user → foreground app (scenePhase check) | `syncAlarms()` called but returns early (isPlusTier = false) |       |
 | 31.8 | Settings → Backup & Sync                      | Shows LocalBackupInfoView (iCloud info, not cloud sync)      |       |

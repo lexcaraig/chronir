@@ -4,14 +4,12 @@ enum AlarmVisualState {
     case active
     case inactive
     case snoozed
-    case overdue
 
     var accentColor: Color? {
         switch self {
         case .active: return nil
         case .inactive: return nil
         case .snoozed: return ColorTokens.warning
-        case .overdue: return ColorTokens.error
         }
     }
 
@@ -20,7 +18,6 @@ enum AlarmVisualState {
         case .active: return nil
         case .inactive: return nil
         case .snoozed: return ("Snoozed", ColorTokens.badgeWarning, "zzz")
-        case .overdue: return ("Overdue", ColorTokens.badgeError, "exclamationmark.triangle.fill")
         }
     }
 }
@@ -52,28 +49,6 @@ struct AlarmCard: View {
             let formatter = DateFormatter()
             formatter.dateFormat = cal.isDate(date, equalTo: now, toGranularity: .year) ? "MMM d" : "MMM d, yyyy"
             return "Last completed: \(formatter.string(from: date))"
-        }
-    }
-
-    private var overdueText: String? {
-        guard visualState == .overdue else { return nil }
-        let date = alarm.nextFireDate
-        let now = Date()
-        let cal = Calendar.current
-        let daysDiff = cal.dateComponents([.day], from: date, to: now).day ?? 0
-
-        if cal.isDateInYesterday(date) {
-            return "Overdue since yesterday"
-        } else if cal.isDateInToday(date) {
-            let hours = cal.dateComponents([.hour], from: date, to: now).hour ?? 0
-            if hours > 0 {
-                return "Overdue by \(hours)h"
-            }
-            return "Overdue"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = cal.isDate(date, equalTo: now, toGranularity: .year) ? "MMM d" : "MMM d, yyyy"
-            return "Overdue since \(formatter.string(from: date))"
         }
     }
 
@@ -152,7 +127,7 @@ struct AlarmCard: View {
                 if visualState != .inactive {
                     AlarmTimeDisplay(
                         time: alarm.scheduledTime,
-                        countdownText: overdueText ?? countdownText
+                        countdownText: countdownText
                     )
                     if alarm.hasMultipleTimes {
                         ChronirBadge(
@@ -251,28 +226,15 @@ private extension AlarmCard {
     .background(ColorTokens.backgroundPrimary)
 }
 
-#Preview("Overdue") {
-    @Previewable @State var isEnabled = true
-    AlarmCard(
-        alarm: AlarmCard.sampleAlarmMonthly,
-        visualState: .overdue,
-        isEnabled: $isEnabled
-    )
-    .padding()
-    .background(ColorTokens.backgroundPrimary)
-}
-
 #Preview("Dark — All States") {
     @Previewable @State var enabled1 = true
     @Previewable @State var enabled2 = false
     @Previewable @State var enabled3 = true
-    @Previewable @State var enabled4 = true
     DarkPreview {
         VStack(spacing: SpacingTokens.md) {
             AlarmCard(alarm: AlarmCard.sampleAlarm, visualState: .active, isEnabled: $enabled1)
             AlarmCard(alarm: AlarmCard.sampleAlarmMonthly, visualState: .inactive, isEnabled: $enabled2)
             AlarmCard(alarm: AlarmCard.sampleAlarm, visualState: .snoozed, isEnabled: $enabled3)
-            AlarmCard(alarm: AlarmCard.sampleAlarmMonthly, visualState: .overdue, isEnabled: $enabled4)
         }
         .padding()
     }

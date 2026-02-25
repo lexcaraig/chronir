@@ -231,7 +231,6 @@ private struct CatalogAlarmCardView: View {
     @State private var enabled1 = true
     @State private var enabled2 = false
     @State private var enabled3 = true
-    @State private var enabled4 = true
 
     var body: some View {
         ScrollView {
@@ -254,15 +253,6 @@ private struct CatalogAlarmCardView: View {
                         alarm: Alarm(title: "Snoozed Card", cycleType: .weekly),
                         visualState: .snoozed,
                         isEnabled: $enabled3
-                    )
-                    AlarmCard(
-                        alarm: Alarm(
-                            title: "Overdue Card", cycleType: .annual,
-                            schedule: .annual(month: 1, dayOfMonth: 1, interval: 1),
-                            nextFireDate: Date().addingTimeInterval(-3600)
-                        ),
-                        visualState: .overdue,
-                        isEnabled: $enabled4
                     )
                 }
                 .padding()

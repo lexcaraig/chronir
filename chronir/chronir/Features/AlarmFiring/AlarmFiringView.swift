@@ -50,20 +50,20 @@ struct AlarmFiringView: View {
                 #endif
             }
             if viewModel.alarm != nil {
-                // Only show content and start sound/haptics if AlarmKit confirms the alarm
-                // is still alerting. Prevents a visible flash of the firing UI when returning
-                // from a lock screen stop.
                 let akAlarms = (try? AlarmManager.shared.alarms) ?? []
                 let isAlerting = akAlarms.contains { $0.id == alarmID && $0.state == .alerting }
                 if isAlerting {
+                    // Normal firing — AlarmKit confirms alarm is active
                     isReady = true
-                    // Mark before startFiring() so alarmUpdates handler doesn't
-                    // dismiss the firing view when AlarmKit's alarm is stopped.
                     AlarmFiringCoordinator.shared.stoppedForCustomSound.insert(alarmID)
                     viewModel.startFiring()
+                } else if AlarmFiringCoordinator.shared.stoppedForCustomSound.contains(alarmID)
+                            || AlarmFiringCoordinator.shared.presentingPastDue.contains(alarmID) {
+                    // Past-due re-presentation (flags set before presentAlarm call)
+                    isReady = true
+                    viewModel.startFiring()
                 } else {
-                    // Alarm was already handled on lock screen — complete before dismissing
-                    // to prevent stale-data overdue flash on the alarm list.
+                    // Alarm was already handled on lock screen — complete and dismiss
                     await viewModel.completeIfNeeded()
                     AlarmFiringCoordinator.shared.dismissFiring()
                 }

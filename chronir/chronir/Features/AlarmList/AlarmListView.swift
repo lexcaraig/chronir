@@ -285,12 +285,6 @@ struct AlarmListView: View {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         if !isEnabled { return .inactive }
         if alarm.snoozeCount > 0 { return .snoozed }
-        if alarm.nextFireDate < Date() {
-            // Don't flash overdue for an alarm that was just completed —
-            // nextFireDate hasn't been recalculated on the main context yet.
-            if firingCoordinator.isHandled(alarm.id) { return .active }
-            return .overdue
-        }
         return .active
     }
 
@@ -363,33 +357,24 @@ struct AlarmListView: View {
             }
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            if visualState(for: alarm) == .overdue {
-                Button {
-                    markOverdueAsDone(alarm)
-                } label: {
-                    Label("Done", systemImage: "checkmark.circle")
+            Button {
+                let current = enabledStates[alarm.id] ?? alarm.isEnabled
+                if !current && !canEnableMoreAlarms() {
+                    showUpgradePrompt = true
+                } else {
+                    enabledStates[alarm.id] = !current
                 }
-                .tint(ColorTokens.success)
-            } else {
-                Button {
-                    let current = enabledStates[alarm.id] ?? alarm.isEnabled
-                    if !current && !canEnableMoreAlarms() {
-                        showUpgradePrompt = true
-                    } else {
-                        enabledStates[alarm.id] = !current
-                    }
-                } label: {
-                    let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-                    Label(
-                        isEnabled ? "Disable" : "Enable",
-                        systemImage: isEnabled ? "bell.slash" : "bell"
-                    )
-                }
-                .tint(
-                    enabledStates[alarm.id] ?? alarm.isEnabled
-                        ? ColorTokens.textSecondary : ColorTokens.success
+            } label: {
+                let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
+                Label(
+                    isEnabled ? "Disable" : "Enable",
+                    systemImage: isEnabled ? "bell.slash" : "bell"
                 )
             }
+            .tint(
+                enabledStates[alarm.id] ?? alarm.isEnabled
+                    ? ColorTokens.textSecondary : ColorTokens.success
+            )
         }
     }
 
@@ -518,38 +503,6 @@ extension AlarmListView {
         if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
     }
 
-    private func markOverdueAsDone(_ alarm: Alarm) {
-        let log = CompletionLog(
-            alarmID: alarm.id,
-            scheduledDate: alarm.nextFireDate,
-            completedAt: Date(),
-            action: .completed,
-            snoozeCount: alarm.snoozeCount
-        )
-        log.alarm = alarm
-        modelContext.insert(log)
-
-        alarm.lastCompletedAt = Date()
-        alarm.lastFiredDate = Date()
-        alarm.snoozeCount = 0
-
-        if alarm.cycleType == .oneTime {
-            alarm.isEnabled = false
-            alarm.nextFireDate = .distantFuture
-            Task { try? await AlarmScheduler.shared.cancelAlarm(alarm) }
-        } else {
-            alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
-            Task {
-                try? await AlarmScheduler.shared.cancelAlarm(alarm)
-                try? await AlarmScheduler.shared.scheduleAlarm(alarm)
-            }
-        }
-
-        try? modelContext.save()
-        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
-        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSuccess() }
-    }
-
     private func deleteAlarm(_ alarm: Alarm) {
         let alarmID = alarm.id.uuidString
         Task {
@@ -564,8 +517,6 @@ extension AlarmListView {
         let calculator = DateCalculator()
         let now = Date()
         for alarm in alarms where alarm.isEnabled && alarm.cycleType != .oneTime && alarm.snoozeCount == 0 {
-            // Skip past-due alarms — they should remain overdue until the user
-            // explicitly acknowledges them (swipe-to-done or firing view dismiss).
             guard alarm.nextFireDate >= now else { continue }
             let correct = calculator.calculateNextFireDate(for: alarm, from: now)
             if alarm.nextFireDate != correct {

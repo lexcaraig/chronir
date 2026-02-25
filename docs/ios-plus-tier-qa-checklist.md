@@ -450,7 +450,7 @@
 | 32A.4 | Toggle alarm off                   | Alarm pushed with `isEnabled: false`                  | PASS  |
 | 32A.5 | Toggle alarm on                    | Alarm pushed with `isEnabled: true`                   | PASS  |
 | 32A.6 | Skip occurrence                    | Alarm pushed with updated `nextFireDate`              | PASS  |
-| 32A.7 | Mark overdue as done               | Alarm pushed with updated completion data             | PASS  |
+| 32A.7 | _(Removed — overdue swipe-to-done action deleted; past-due alarms fire instead)_ | N/A | N/A |
 
 ### 32B. Sync Hooks — Alarm Firing Actions
 

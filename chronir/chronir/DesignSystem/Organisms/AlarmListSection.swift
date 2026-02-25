@@ -35,7 +35,6 @@ struct AlarmListSection: View {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         if !isEnabled { return .inactive }
         if alarm.snoozeCount > 0 { return .snoozed }
-        if alarm.nextFireDate < Date() { return .overdue }
         return .active
     }
 

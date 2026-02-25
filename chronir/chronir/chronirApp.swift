@@ -139,6 +139,28 @@ struct ChronirApp: App {
                         }
                     }
                 }
+
+                // Cold launch past-due detection.
+                // willEnterForeground doesn't fire on cold launch, so past-due
+                // missed alarms must be detected here. Present one at a time.
+                await MainActor.run {
+                    guard !AlarmFiringCoordinator.shared.isFiring else { return }
+                    let enabledDesc = FetchDescriptor<Alarm>(
+                        predicate: #Predicate<Alarm> { $0.isEnabled == true }
+                    )
+                    guard let models = try? self.container.mainContext.fetch(enabledDesc) else { return }
+                    let now = Date()
+                    let akAlarms = (try? AlarmManager.shared.alarms) ?? []
+                    for model in models where model.nextFireDate < now && model.snoozeCount == 0 {
+                        let akAlarm = akAlarms.first { $0.id == model.id }
+                        // Skip if AlarmKit is handling it (will come through alarmUpdates)
+                        if akAlarm?.state == .alerting || akAlarm?.state == .countdown { continue }
+                        AlarmFiringCoordinator.shared.stoppedForCustomSound.insert(model.id)
+                        AlarmFiringCoordinator.shared.presentingPastDue.insert(model.id)
+                        AlarmFiringCoordinator.shared.presentAlarm(id: model.id)
+                        break
+                    }
+                }
             }
             .task {
                 for await alarms in AlarmManager.shared.alarmUpdates {
@@ -225,6 +247,9 @@ struct ChronirApp: App {
                                     if AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id) == nil {
                                         AlarmFiringCoordinator.shared.dismissFiring()
                                     }
+                                } else {
+                                    // Alarm stopped that wasn't fired in-app — user handled on lock screen
+                                    AlarmFiringCoordinator.shared.stoppedOnLockScreen.insert(alarm.id)
                                 }
                             }
                             // Alarm stopped/cancelled — end or refresh the Live Activity.
@@ -249,7 +274,9 @@ struct ChronirApp: App {
                 // Data is handled by completeIfNeeded() via onDisappear — just dismiss here.
                 if coordinator.isFiring, let firingID = coordinator.firingAlarmID {
                     let akAlarm = akAlarms.first { $0.id == firingID }
-                    if akAlarm?.state != .alerting {
+                    if akAlarm?.state != .alerting
+                        && !coordinator.stoppedForCustomSound.contains(firingID)
+                        && !coordinator.presentingPastDue.contains(firingID) {
                         coordinator.dismissFiring()
                     }
                 }
@@ -260,13 +287,6 @@ struct ChronirApp: App {
                 )
                 if let models = try? context.fetch(enabledDesc) {
                     let pastDue = models.filter { $0.nextFireDate < now }
-
-                    // Mark all past-due alarms as handled BEFORE processing so the UI
-                    // suppresses the "Overdue" badge immediately (visualState checks isHandled).
-                    // presentAlarm() clears this flag for alarms that need the firing screen.
-                    for model in pastDue where !coordinator.isHandled(model.id) {
-                        coordinator.markHandled(model.id)
-                    }
 
                     for model in pastDue {
                         let akAlarm = akAlarms.first { $0.id == model.id }
@@ -287,16 +307,19 @@ struct ChronirApp: App {
                             // (AlarmKit .fixed() schedules don't re-alert after snooze)
                             coordinator.snoozedInBackground.remove(model.id)
                             coordinator.presentAlarm(id: model.id)
-                        } else {
-                            // Alarm fired while backgrounded and user stopped on lock screen.
-                            // Slide-to-stop IS the acknowledgment — auto-complete here.
-                            // (True "missed" overdue only shows on cold launch.)
-                            coordinator.snoozedInBackground.remove(model.id)
+                        } else if coordinator.stoppedOnLockScreen.remove(model.id) != nil {
+                            // User acknowledged on lock screen — auto-complete
                             handleLockScreenAction(
                                 model: model,
                                 wasSnoozed: false,
                                 context: context
                             )
+                        } else if model.id != coordinator.firingAlarmID {
+                            // Alarm was missed — present firing screen
+                            coordinator.stoppedForCustomSound.insert(model.id)
+                            coordinator.presentingPastDue.insert(model.id)
+                            coordinator.presentAlarm(id: model.id)
+                            break // Only present one at a time
                         }
                     }
                 }
@@ -326,7 +349,10 @@ struct ChronirApp: App {
                 let stillAlerting = alarms.contains {
                     $0.id == coordinator.firingAlarmID && $0.state == .alerting
                 }
-                if !stillAlerting {
+                if !stillAlerting,
+                   let firingID = coordinator.firingAlarmID,
+                   !coordinator.stoppedForCustomSound.contains(firingID),
+                   !coordinator.presentingPastDue.contains(firingID) {
                     coordinator.dismissFiring()
                 }
             }
