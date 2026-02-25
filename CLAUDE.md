@@ -2,6 +2,78 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Workflow Orchestration
+
+### 1. Plan Node Default
+
+- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
+- If something goes sideways, STOP and re-plan immediately - don't keep pushing
+- Use plan mode for verification steps, not just building
+- Write detailed specs upfront to reduce ambiguity
+
+### 2. Subagent Strategy
+
+- Use subagents liberally to keep main context window clean
+- Offload research, exploration, and parallel analysis to subagents
+- For complex problems, throw more compute at it via subagents
+- One tack per subagent for focused execution
+
+### 3.
+
+Self-Improvement Loop
+
+- After ANY correction from the user: update `tasks/lessons.md`
+- Write rules for yourself that prevent the same mistake
+- Ruthlessly iterate on these lessons until mistake rate drops
+- Review lessons at session start for relevant project
+  with the pattern
+
+### 4. Verification Before Done
+
+- Never mark a task complete without proving it works
+- Diff behavior between main and your changes when relevant
+- Ask yourself:
+  "Would a staff engineer approve this?"
+- Run tests, check Logs, demonstrate correctness
+
+### 5. Demand Elegance (Balanced)
+
+- For non-trivial changes: pause and ask "is there a more elegant way?"
+- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
+- Skip this for simple, obvious fixes - don't over-engineer
+- Challenge your own work before presenting it
+
+### 6. Autonomous Bug Fizing
+
+- When given a bug report: just fix it. Don't ask for hand-holding
+- Point at logs, errors, failing tests - then resolve them
+- Zero context switching required from the user
+- Go fix failing CI tests without being told how
+
+## Task Management
+
+All working artifacts live in `tasks/` (gitignored, project-scoped):
+
+- **Plans**: `tasks/plan-{feature-or-ticket}.md` — implementation plans with checkable items
+- **Lessons**: `tasks/lessons.md` — debugging rules and lessons learned
+- **Notes**: `tasks/notes-{topic}.md` — ad-hoc research or working notes
+
+Workflow:
+
+1. **Plan First**: Write plan to `tasks/plan-{name}.md` with checkable items
+2. **Verify Plan**: Check in before starting implementation
+3. **Track Progress**: Mark items complete as you go
+4. **Explain Changes**: High-level summary at each step
+5. **Document Results**: Add review section to the plan file
+6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
+
+## Core Principles
+
+- **Simplicity First**: Make every change as simple as possible. Impact minimal code.
+- **No Laziness**: Find root causes. No temporary fixes.
+  Senior developer standards.
+- **Minimat Impact**; Changes should only touch what's necessary. Avoid introducing bugs.
+
 ## Project Overview
 
 Chronir is a high-persistence alarm app for long-cycle recurring tasks (weekly, monthly, annually). It treats long-term obligations with the urgency of a morning wake-up alarm — full-screen, persistent, undeniable.
@@ -167,29 +239,9 @@ PR triggers lint + tests; merge to main triggers release build.
 
 ## Lessons Learned
 
-Rules discovered through debugging. These override any conflicting assumptions.
+All debugging rules and lessons are maintained in [`tasks/lessons.md`](tasks/lessons.md). These override any conflicting assumptions. Review before starting work on alarm engine, concurrency, or pre-launch tasks.
 
-- **AlarmKit lock screen event handling:** Multiple independent handlers race on MainActor when the app returns from background:
-    - `alarmUpdates` buffered events execute their `await MainActor.run` blocks BEFORE `willEnterForegroundNotification` fires — never assume the foreground handler runs first.
-    - Track background state via `willResignActiveNotification` (fires before backgrounding), not via the foreground handler (fires too late).
-    - Search ALL callers of state-changing functions (like `presentAlarm`) before assuming a fix works — `AlarmListView.checkForFiringAlarms()` timer was an independent presenter missed through multiple fix attempts.
-    - Always check `AlarmKit.Alarm.State` specifically (`.countdown` for snooze) rather than using presence checks (`akAlarm != nil`) which conflate rescheduled alarms with snoozed ones.
-- **Dedup flags must never be cleared before a guard:** If a handler clears a dedup flag (e.g., `handledAlarmIDs.remove()`) BEFORE a guard that might skip the action, the side-effect persists even when the guard skips. Always place side-effects AFTER all guards pass. For time-sensitive dedup, use expiring entries (`[UUID: Date]` with a TTL) instead of a simple `Set<UUID>`.
-- **Before fixing any bug:** Always `grep` for ALL callers of the function/property you're modifying. Hidden callers (timers, observers, other views) can bypass your fix entirely.
-- **Swift concurrency on MainActor:** `await MainActor.run` does NOT execute immediately — it queues work. UIKit notification handlers (`.onReceive`) can preempt or be preempted by queued MainActor blocks in unpredictable order. Design for any ordering.
-- **SwiftData `@ModelActor` context boundaries:** Never return `@Model` objects from a `@ModelActor` method to the main thread. They become detached from the actor's background `ModelContext` and crash on attribute access. Fetch on the same context where objects will be used (use the view's `@Environment(\.modelContext)` for UI).
-
-- **Pre-launch audit for stub/placeholder debt:** Scaffold code (`fatalError` stubs, non-functional UI links, aspirational feature lists in paywalls) accumulates silently across sprints. Before any App Store submission, audit for: (1) `fatalError`/`preconditionFailure` in non-test code, (2) UI elements that look interactive but aren't wired up, (3) feature descriptions that promise unbuilt capabilities, (4) developer-only sections visible to end users. Each individually seems harmless but collectively causes App Store rejection.
-- **QA gates must fix, not just report:** When a QA gate or audit identifies blocking issues, fix them immediately in the same session — don't just report findings and wait for the user to ask. The purpose of a QA gate is to ship clean, not to generate a document. Always: run audit → fix blockers → rebuild → confirm green → then report results.
-- **Never ship debug `print()` statements:** Debug prints leak internal state (alarm titles, snooze counts, scheduling details) to device console logs visible via Xcode/Console.app. Before every commit, run `grep -r "print(" chronir/chronir/ --include="*.swift" | grep -v "Tests/" | grep -v "Preview"` to catch stray prints. Replace with either nothing (silent failure is fine for non-critical paths) or structured logging behind a `#if DEBUG` guard. `try?` is preferable to `do/catch` with a print when the error is non-actionable.
-
-- **AlarmKit `.fixed()` snooze doesn't re-alert with sound:** When an alarm uses `.fixed()` schedule and the user snoozes (enters `.countdown`), AlarmKit does NOT re-alert after the countdown expires — no system sound, no re-fire. The workaround is to replace the countdown with a fresh `.fixed()` alarm at the snooze expiry time via `scheduleSnoozeRefire()`. Never rely on in-app fallbacks (`AVAudioPlayer`) for lock screen behavior — they can't play from the background.
-- **Grep for ALL writers to a field before adding new state:** When snooze was added, three independent code paths (`rescheduleAllAlarms()`, `refreshNextFireDates()`, `snoozedInBackground` loss on kill) all overwrote `nextFireDate` without checking `snoozeCount > 0`. Before introducing a new state that reuses an existing field, grep for every location that writes to that field and add guards.
-- **System-level fallbacks for system-level problems:** When a system API (AlarmKit) has a limitation (no re-alert after countdown), the fallback must operate at the same privilege level (schedule a new AlarmKit alarm), not a lower one (in-app `AVAudioPlayer` + `fullScreenCover`). In-app mechanisms don't work from the lock screen or background.
-
-- **iOS launch screen `UIColorName` is unreliable on iOS 26:** Don't use `UIColorName` in `UILaunchScreen` — asset catalog colors may not render (falls back to black). Use an empty `UILaunchScreen` dict (`<dict/>`) for default white/black, and let `SplashView` handle branding. Additionally, iOS caches launch screens keyed by the `UILaunchScreen` dict content: changing an asset's colors without changing the `UIColorName` string won't invalidate the cache. Only changing the dict structure itself (adding/removing/renaming keys) busts the cache.
-
-**IMPORTANT:** When a bug fix requires more than one attempt, or the user confirms a mistake was made that needed correction, automatically run `/learn-from-mistake` to capture the lesson. Do not wait to be asked — proactively trigger it whenever a confirmed mistake scenario is resolved.
+**IMPORTANT:** When a bug fix requires more than one attempt, or the user confirms a mistake was made that needed correction, automatically run `/learn-from-mistake` to capture the lesson in `tasks/lessons.md`. Do not wait to be asked — proactively trigger it whenever a confirmed mistake scenario is resolved.
 
 ## Spec Documents
 

@@ -257,7 +257,7 @@ struct SettingsView: View {
             HStack {
                 ChronirText("Version", style: .bodyPrimary)
                 Spacer()
-                ChronirText("1.0.0", style: .bodySecondary, color: ColorTokens.textSecondary)
+                ChronirText("1.1.0", style: .bodySecondary, color: ColorTokens.textSecondary)
             }
             Link(destination: privacyURL) {
                 HStack {

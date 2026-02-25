@@ -37,12 +37,12 @@
 
 ---
 
-## Version 1.0 — Metadata
+## Version 1.1 — Metadata
 
 ### Promotional Text
 
 ```
-Never miss what matters. Chronir turns long-cycle tasks into real alarms that demand action.
+Live Activity countdown on your lock screen — always know when your next alarm fires.
 ```
 
 ### Description
@@ -102,7 +102,7 @@ https://chronir.app
 ### Version
 
 ```
-1.0
+1.1
 ```
 
 ### Copyright
