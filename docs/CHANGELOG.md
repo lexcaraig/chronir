@@ -8,11 +8,12 @@ All notable changes to the Chronir project are documented here.
 
 **Type:** Release
 **Branch:** main
-**Tags:** v1.0 (9b1b3cc), v1.1 (330735f)
-**Commit(s):** 7d37c18, 9014081, 6d9d16d, ea6c02b, ed8dc5f, 3fd9de4, 0daf462, 330735f
+**Tags:** v1.0 (9b1b3cc), v1.1 (re-tagged to include cloud sync fix)
+**Commit(s):** 7d37c18, 9014081, 6d9d16d, ea6c02b, ed8dc5f, 3fd9de4, 0daf462, 330735f, 8e8a910, 57d89d3
 **App Store:** [Chronir on App Store](https://apps.apple.com/ph/app/chronir/id6758985902)
 
 ### Changes
+- **Cloud sync fix** — Rewrote `syncAlarms()` with proper Firestore read/write, fixed subscription timing race, wired 8 mutation sites for real-time push (build 2)
 - **Live Activity & Dynamic Island countdown** — persistent countdown on lock screen and Dynamic Island when alarm is within 1 hour (FEAT-01)
 - **Live Activity persistence fix** — banner clears immediately when alarm is stopped from lock screen
 - **Overdue badge flash fix** — no more brief overdue state when dismissing alarm from Dynamic Island
