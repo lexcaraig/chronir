@@ -85,6 +85,7 @@ final class AlarmFiringViewModel {
 
         // Save on the view's main context (not the actor's background context)
         try? modelContext?.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
 
         stopFiring()
 
@@ -119,6 +120,7 @@ final class AlarmFiringViewModel {
         saveCompletionLog(alarmID: alarm.id, action: .skipped)
 
         try? modelContext?.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
 
         stopFiring()
 
@@ -161,6 +163,7 @@ final class AlarmFiringViewModel {
 
         // Save on the view's main context (not the actor's background context)
         try? modelContext?.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
 
         stopFiring()
 
@@ -224,6 +227,7 @@ final class AlarmFiringViewModel {
 
         // Save on the view's main context (not the actor's background context)
         try? modelContext?.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
     }
 
     // MARK: - Private

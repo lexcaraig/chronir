@@ -472,6 +472,23 @@
 
 ---
 
+## 31. Cloud Sync — Free Tier Gating
+
+> **Note:** Cloud sync is Plus-only. Free users should never trigger Firestore reads/writes.
+
+| #    | Step                                          | Expected Result                                              | Pass? |
+| ---- | --------------------------------------------- | ------------------------------------------------------------ | ----- |
+| 31.1 | Free user → create alarm                      | No Firestore write triggered (sync silently skipped)         |       |
+| 31.2 | Free user → delete alarm                      | No Firestore delete triggered                                |       |
+| 31.3 | Free user → toggle alarm on/off               | No Firestore write triggered                                 |       |
+| 31.4 | Free user → skip occurrence                   | No Firestore write triggered                                 |       |
+| 31.5 | Free user → mark overdue as done              | No Firestore write triggered                                 |       |
+| 31.6 | Free user → alarm fires → dismiss/snooze      | No Firestore write triggered                                 |       |
+| 31.7 | Free user → foreground app (scenePhase check) | `syncAlarms()` called but returns early (isPlusTier = false) |       |
+| 31.8 | Settings → Backup & Sync                      | Shows LocalBackupInfoView (iCloud info, not cloud sync)      |       |
+
+---
+
 ## Test Summary
 
 | Category                      | Total Tests | Passed  | Failed | Notes                                              |
@@ -506,7 +523,8 @@
 | Lifetime Purchase (Tier)      | 8           | 8       | 0      | TIER-08 — all pass                                 |
 | Alarm Templates (Tier)        | 9           | 9       | 0      | TIER-04 — all pass                                 |
 | Custom Sounds (Tier)          | 4           | 4       | 0      | TIER-09 — all pass                                 |
-| **TOTAL**                     | **204**     | **191** | **0**  | All tests passing                                  |
+| Cloud Sync Free Gating        | 8           | —       | —      | Verify sync is Plus-gated                          |
+| **TOTAL**                     | **212**     | **191** | **0**  | 8 cloud sync tests pending                        |
 
 ---
 

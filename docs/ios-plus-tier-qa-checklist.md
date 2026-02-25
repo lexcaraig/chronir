@@ -350,13 +350,13 @@
 
 | #    | Step                                               | Expected Result                              | Pass? |
 | ---- | -------------------------------------------------- | -------------------------------------------- | ----- |
-| 24.1 | "Hey Siri, create an alarm in Chronir"             | Alarm created without tier limit error       | PASS |
-| 24.2 | Create 5+ alarms via Siri                          | All created successfully (no limit for Plus) | PASS |
-| 24.3 | "Hey Siri, what's my next alarm in Chronir"        | Returns correct next alarm from 5+ alarms    | PASS |
-| 24.4 | "Hey Siri, list my alarms in Chronir"              | Lists up to 5 active alarms                  | PASS |
-| 24.5 | Create one-time alarm via Siri (specify fire date) | One-time alarm created with correct date     | PASS |
-| 24.6 | Archived one-time alarms excluded from "next"      | GetNextAlarm skips disabled one-time alarms  |      |
-| 24.7 | Archived one-time alarms excluded from "list"      | ListAlarms only shows active alarms          |      |
+| 24.1 | "Hey Siri, create an alarm in Chronir"             | Alarm created without tier limit error       | PASS  |
+| 24.2 | Create 5+ alarms via Siri                          | All created successfully (no limit for Plus) | PASS  |
+| 24.3 | "Hey Siri, what's my next alarm in Chronir"        | Returns correct next alarm from 5+ alarms    | PASS  |
+| 24.4 | "Hey Siri, list my alarms in Chronir"              | Lists up to 5 active alarms                  | PASS  |
+| 24.5 | Create one-time alarm via Siri (specify fire date) | One-time alarm created with correct date     | PASS  |
+| 24.6 | Archived one-time alarms excluded from "next"      | GetNextAlarm skips disabled one-time alarms  |       |
+| 24.7 | Archived one-time alarms excluded from "list"      | ListAlarms only shows active alarms          |       |
 
 ---
 
@@ -373,105 +373,167 @@
 
 ## 26. Streak Badge on Alarm Card (Sprint Tier Improvements — TIER-07)
 
-| #    | Step                                  | Expected Result                                    | Pass? |
-| ---- | ------------------------------------- | -------------------------------------------------- | ----- |
-| 26.1 | Plus user → alarm with completions   | Streak badge visible on alarm card ("Nx" with flame) | PASS |
-| 26.2 | Free user → alarm with completions   | Streak badge hidden (streak passed as 0)           | PASS |
-| 26.3 | Card shows "Last: [date]" subtitle   | Last completed date visible below countdown        | PASS |
+| #    | Step                               | Expected Result                                      | Pass? |
+| ---- | ---------------------------------- | ---------------------------------------------------- | ----- |
+| 26.1 | Plus user → alarm with completions | Streak badge visible on alarm card ("Nx" with flame) | PASS  |
+| 26.2 | Free user → alarm with completions | Streak badge hidden (streak passed as 0)             | PASS  |
+| 26.3 | Card shows "Last: [date]" subtitle | Last completed date visible below countdown          | PASS  |
 
 ---
 
 ## 27. Extended Pre-Alarms (Sprint Tier Improvements — TIER-05)
 
-| #    | Step                                           | Expected Result                                   | Pass? |
-| ---- | ---------------------------------------------- | ------------------------------------------------- | ----- |
-| 27.1 | Plus user → create/edit alarm                  | Extended pre-alarm options visible (1h, 1d, 3d, 7d) | PASS |
-| 27.2 | Select "7 days" and "3 days", save             | Both selections saved                             | PASS |
-| 27.3 | Reopen alarm                                   | Pre-alarm selections persisted                    | PASS |
-| 27.4 | Free user → extended options locked            | Only "1 day" selectable                           | PASS |
+| #    | Step                                | Expected Result                                     | Pass? |
+| ---- | ----------------------------------- | --------------------------------------------------- | ----- |
+| 27.1 | Plus user → create/edit alarm       | Extended pre-alarm options visible (1h, 1d, 3d, 7d) | PASS  |
+| 27.2 | Select "7 days" and "3 days", save  | Both selections saved                               | PASS  |
+| 27.3 | Reopen alarm                        | Pre-alarm selections persisted                      | PASS  |
+| 27.4 | Free user → extended options locked | Only "1 day" selectable                             | PASS  |
 
 ---
 
 ## 28. Skip This Occurrence — Firing Screen (Sprint Tier Improvements — TIER-06)
 
-| #    | Step                                              | Expected Result                                  | Pass? |
-| ---- | ------------------------------------------------- | ------------------------------------------------ | ----- |
-| 28.1 | Recurring alarm fires → firing screen             | "Skip This Occurrence" button visible            | PASS |
-| 28.2 | Tap Skip                                          | Alarm advances to next occurrence, firing dismisses | PASS |
-| 28.3 | One-time alarm fires                              | No skip button on firing screen                  | PASS |
+| #    | Step                                  | Expected Result                                     | Pass? |
+| ---- | ------------------------------------- | --------------------------------------------------- | ----- |
+| 28.1 | Recurring alarm fires → firing screen | "Skip This Occurrence" button visible               | PASS  |
+| 28.2 | Tap Skip                              | Alarm advances to next occurrence, firing dismisses | PASS  |
+| 28.3 | One-time alarm fires                  | No skip button on firing screen                     | PASS  |
 
 ---
 
 ## 29. Lifetime Purchase (Sprint Tier Improvements — TIER-08)
 
-| #    | Step                                                     | Expected Result                                           | Pass? |
-| ---- | -------------------------------------------------------- | --------------------------------------------------------- | ----- |
-| 29.1 | Open Paywall → select Lifetime ($49.99)                  | "Buy Once — $49.99" button shown                          | PASS |
-| 29.2 | Purchase Lifetime in sandbox                             | Plus features unlock permanently                          | PASS |
-| 29.3 | Settings > Subscription                                  | Shows "Plus" with "Forever" duration, no "Change Plan"    | PASS |
-| 29.4 | Kill and relaunch → Settings > Subscription              | Lifetime entitlement persists across cold launch          | PASS |
+| #    | Step                                        | Expected Result                                        | Pass? |
+| ---- | ------------------------------------------- | ------------------------------------------------------ | ----- |
+| 29.1 | Open Paywall → select Lifetime ($49.99)     | "Buy Once — $49.99" button shown                       | PASS  |
+| 29.2 | Purchase Lifetime in sandbox                | Plus features unlock permanently                       | PASS  |
+| 29.3 | Settings > Subscription                     | Shows "Plus" with "Forever" duration, no "Change Plan" | PASS  |
+| 29.4 | Kill and relaunch → Settings > Subscription | Lifetime entitlement persists across cold launch       | PASS  |
 
 ---
 
 ## 30. Alarm Templates Library (Sprint Tier Improvements — TIER-04)
 
-| #    | Step                                               | Expected Result                                     | Pass? |
-| ---- | -------------------------------------------------- | --------------------------------------------------- | ----- |
-| 30.1 | Plus user → "+" → Templates button                | Template library sheet appears                      | PASS |
-| 30.2 | Select template → form pre-fills                   | Title, cycle type, category, note filled            | PASS |
-| 30.3 | Edit pre-filled fields and save                    | Alarm saves with modified template values           | PASS |
-| 30.4 | Search templates                                   | Search filters correctly                            | PASS |
+| #    | Step                               | Expected Result                           | Pass? |
+| ---- | ---------------------------------- | ----------------------------------------- | ----- |
+| 30.1 | Plus user → "+" → Templates button | Template library sheet appears            | PASS  |
+| 30.2 | Select template → form pre-fills   | Title, cycle type, category, note filled  | PASS  |
+| 30.3 | Edit pre-filled fields and save    | Alarm saves with modified template values | PASS  |
+| 30.4 | Search templates                   | Search filters correctly                  | PASS  |
 
 ---
 
 ## 31. Custom Alarm Sounds (Sprint Tier Improvements — TIER-09)
 
-| #    | Step                                               | Expected Result                                     | Pass? |
-| ---- | -------------------------------------------------- | --------------------------------------------------- | ----- |
-| 31.1 | Plus user → create/edit alarm → tap Sound row      | Sound picker sheet with 6 sounds, all selectable    | PASS |
-| 31.2 | Tap each sound — preview plays                     | Distinct preview for each sound                     | PASS |
-| 31.3 | Select non-default sound, save alarm               | Sound persists on reopen                            | PASS |
-| 31.4 | Let alarm fire                                     | Plays selected custom sound, not default            | PASS |
-| 31.5 | Settings > Alarm Sound — change default            | App-wide default updated                            | PASS |
+| #    | Step                                          | Expected Result                                  | Pass? |
+| ---- | --------------------------------------------- | ------------------------------------------------ | ----- |
+| 31.1 | Plus user → create/edit alarm → tap Sound row | Sound picker sheet with 6 sounds, all selectable | PASS  |
+| 31.2 | Tap each sound — preview plays                | Distinct preview for each sound                  | PASS  |
+| 31.3 | Select non-default sound, save alarm          | Sound persists on reopen                         | PASS  |
+| 31.4 | Let alarm fire                                | Plays selected custom sound, not default         | PASS  |
+| 31.5 | Settings > Alarm Sound — change default       | App-wide default updated                         | PASS  |
+
+---
+
+## 32. Cloud Sync — Plus Tier
+
+> **Setup:** Sign in (Settings → Account), subscribe to Plus, ensure network connectivity.
+
+### 32A. Sync Hooks — Alarm Mutations
+
+| #     | Step                               | Expected Result                                       | Pass? |
+| ----- | ---------------------------------- | ----------------------------------------------------- | ----- |
+| 32A.1 | Create alarm                       | Alarm pushed to Firestore (`users/{uid}/alarms/{id}`) | PASS  |
+| 32A.2 | Edit alarm (title, schedule, time) | Updated alarm pushed to Firestore (merge: true)       | PASS  |
+| 32A.3 | Delete alarm                       | Firestore document deleted                            | PASS  |
+| 32A.4 | Toggle alarm off                   | Alarm pushed with `isEnabled: false`                  | PASS  |
+| 32A.5 | Toggle alarm on                    | Alarm pushed with `isEnabled: true`                   | PASS  |
+| 32A.6 | Skip occurrence                    | Alarm pushed with updated `nextFireDate`              | PASS  |
+| 32A.7 | Mark overdue as done               | Alarm pushed with updated completion data             | PASS  |
+
+### 32B. Sync Hooks — Alarm Firing Actions
+
+| #     | Step                                      | Expected Result                                   | Pass? |
+| ----- | ----------------------------------------- | ------------------------------------------------- | ----- |
+| 32B.1 | Alarm fires → tap "Mark as Done"          | Alarm pushed with completed state                 | PASS  |
+| 32B.2 | Alarm fires → snooze (1h)                 | Alarm pushed with snooze count + new nextFireDate | PASS  |
+| 32B.3 | Alarm fires → tap "Skip"                  | Alarm pushed with next occurrence date            | PASS  |
+| 32B.4 | Lock screen → slide to stop               | Alarm pushed via handleLockScreenAction           | PASS  |
+| 32B.5 | Lock screen → snooze                      | Alarm pushed via handleLockScreenAction           | PASS  |
+| 32B.6 | External dismiss (onDisappear safety net) | Alarm pushed via completeIfNeeded                 | PASS  |
+
+### 32C. Full Sync (Bidirectional)
+
+| #     | Step                                           | Expected Result                                      | Pass? |
+| ----- | ---------------------------------------------- | ---------------------------------------------------- | ----- |
+| 32C.1 | App returns to foreground (signed in)          | `syncAlarms()` triggers, pushes local + pulls remote | PASS  |
+| 32C.2 | Settings → Account → "Sync Now"                | Full sync completes, sync state shows timestamp      | PASS  |
+| 32C.3 | Add alarm on another device/Firestore console  | After foreground sync, new alarm appears locally     | PASS  |
+| 32C.4 | Delete all local alarms, sync                  | Remote alarms restored locally                       | PASS  |
+| 32C.5 | Verify syncStatus on all alarms after sync     | All alarms show `.synced` status                     | PASS  |
+| 32C.6 | Verify last sync date persists across launches | Settings → Account shows last sync timestamp         | PASS  |
+
+### 32D. Subscription Timing
+
+| #     | Step                                     | Expected Result                                         | Pass? |
+| ----- | ---------------------------------------- | ------------------------------------------------------- | ----- |
+| 32D.1 | Fresh launch → immediate foreground sync | Waits for subscription status check before syncing      | PASS  |
+| 32D.2 | Purchase Plus → Account → Sync Now       | Sync works immediately (no stale `.free` tier)          | PASS  |
+| 32D.3 | Subscription expires → sync attempt      | Sync returns early (isPlusTier = false), no error shown | PASS  |
+
+### 32E. Error Handling
+
+| #     | Step                                          | Expected Result                                  | Pass? |
+| ----- | --------------------------------------------- | ------------------------------------------------ | ----- |
+| 32E.1 | Airplane mode → mutation (create/edit/delete) | Sync fails silently, alarm marked `.pendingSync` | PASS  |
+| 32E.2 | Airplane mode → full sync                     | Sync state shows error, local data unaffected    | PASS  |
+| 32E.3 | Restore connectivity → foreground             | Next sync succeeds, pending alarms synced        | PASS  |
+| 32E.4 | Sign out → sign in → sync                     | Full sync restores all remote alarms             | PASS  |
 
 ---
 
 ## Test Summary
 
-| Category                      | Total Tests | Passed  | Failed | Notes                                |
-| ----------------------------- | ----------- | ------- | ------ | ------------------------------------ |
-| Purchase Flow                 | 7           | 7       | 0      |                                      |
-| Restore Purchases             | 4           | 4       | 0      | Verified on TestFlight sandbox       |
-| Expiry & Downgrade            | 7           | 7       | 0      |                                      |
-| Alarm Limit Gating            | 5           | 5       | 0      |                                      |
-| Subscription Management       | 5           | 5       | 0      | 5.4 verified on TestFlight sandbox   |
-| Paywall UI                    | 6           | 6       | 0      |                                      |
-| Repeat Interval               | 9           | 8       | 0      | 7.7 deferred (Custom Days not in UI) |
-| Annual First Occurrence       | 9           | 9       | 0      |                                      |
-| Monthly First Occurrence      | 9           | 9       | 0      |                                      |
-| Interval-Aware Badges         | 8           | 8       | 0      |                                      |
-| Countdown Display             | 8           | 8       | 0      |                                      |
-| Photo Attachment              | 8           | 8       | 0      |                                      |
-| Photo/Note on Firing Screen   | 7           | 7       | 0      |                                      |
-| Layout Toggle                 | 5           | 5       | 0      |                                      |
-| Settings Subscription         | 3           | 3       | 0      |                                      |
-| Edge Cases                    | 8           | 8       | 0      |                                      |
-| Pre-Alarm Warning (S9)        | 8           | 8       | 0      | Sprint 9 — all pass                  |
-| Completion History (S9)       | 9           | 8       | 0      | 18.5 SKIP — no UX for `.dismissed`   |
-| Streak Counter (S9)           | 6           | 6       | 0      | Sprint 9 — all pass                  |
-| Plus Gating — History (S9)    | 5           | 5       | 0      | Sprint 9 — all pass                  |
-| Custom Snooze (S9)            | 7           | 7       | 0      | Sprint 9 — all pass                  |
-| Sprint 9 Cross-Cutting        | 1           | —       | —      | Sprint 9 — Plus-specific items       |
-| One-Time Plus Features (Siri) | 8           | 8       | 0      | All pass                             |
-| Siri Integration Plus (Siri)  | 7           | 5       | 0      | 24.6-24.7 pending (archive exclude)  |
-| One-Time Display (Siri)       | 4           | 3       | 0      | 25.4 untested (category group)       |
-| Streak Badge (Tier Impr.)     | 3           | 3       | 0      | TIER-07 Plus checks — all pass       |
-| Extended Pre-Alarms (Tier)    | 4           | 4       | 0      | TIER-05 — all pass                   |
-| Skip Occurrence Firing (Tier) | 3           | 3       | 0      | TIER-06 firing screen — all pass     |
-| Lifetime Purchase (Tier)      | 4           | 4       | 0      | TIER-08 — all pass                   |
-| Alarm Templates (Tier)        | 4           | 4       | 0      | TIER-04 — all pass                   |
-| Custom Sounds (Tier)          | 5           | 5       | 0      | TIER-09 — all pass                   |
-| **TOTAL**                     | **187**     | **180** | **0**  | 3 tests pending (24.6-24.7, 25.4)   |
+| Category                         | Total Tests | Passed  | Failed | Notes                                |
+| -------------------------------- | ----------- | ------- | ------ | ------------------------------------ |
+| Purchase Flow                    | 7           | 7       | 0      |                                      |
+| Restore Purchases                | 4           | 4       | 0      | Verified on TestFlight sandbox       |
+| Expiry & Downgrade               | 7           | 7       | 0      |                                      |
+| Alarm Limit Gating               | 5           | 5       | 0      |                                      |
+| Subscription Management          | 5           | 5       | 0      | 5.4 verified on TestFlight sandbox   |
+| Paywall UI                       | 6           | 6       | 0      |                                      |
+| Repeat Interval                  | 9           | 8       | 0      | 7.7 deferred (Custom Days not in UI) |
+| Annual First Occurrence          | 9           | 9       | 0      |                                      |
+| Monthly First Occurrence         | 9           | 9       | 0      |                                      |
+| Interval-Aware Badges            | 8           | 8       | 0      |                                      |
+| Countdown Display                | 8           | 8       | 0      |                                      |
+| Photo Attachment                 | 8           | 8       | 0      |                                      |
+| Photo/Note on Firing Screen      | 7           | 7       | 0      |                                      |
+| Layout Toggle                    | 5           | 5       | 0      |                                      |
+| Settings Subscription            | 3           | 3       | 0      |                                      |
+| Edge Cases                       | 8           | 8       | 0      |                                      |
+| Pre-Alarm Warning (S9)           | 8           | 8       | 0      | Sprint 9 — all pass                  |
+| Completion History (S9)          | 9           | 8       | 0      | 18.5 SKIP — no UX for `.dismissed`   |
+| Streak Counter (S9)              | 6           | 6       | 0      | Sprint 9 — all pass                  |
+| Plus Gating — History (S9)       | 5           | 5       | 0      | Sprint 9 — all pass                  |
+| Custom Snooze (S9)               | 7           | 7       | 0      | Sprint 9 — all pass                  |
+| Sprint 9 Cross-Cutting           | 1           | —       | —      | Sprint 9 — Plus-specific items       |
+| One-Time Plus Features (Siri)    | 8           | 8       | 0      | All pass                             |
+| Siri Integration Plus (Siri)     | 7           | 5       | 0      | 24.6-24.7 pending (archive exclude)  |
+| One-Time Display (Siri)          | 4           | 3       | 0      | 25.4 untested (category group)       |
+| Streak Badge (Tier Impr.)        | 3           | 3       | 0      | TIER-07 Plus checks — all pass       |
+| Extended Pre-Alarms (Tier)       | 4           | 4       | 0      | TIER-05 — all pass                   |
+| Skip Occurrence Firing (Tier)    | 3           | 3       | 0      | TIER-06 firing screen — all pass     |
+| Lifetime Purchase (Tier)         | 4           | 4       | 0      | TIER-08 — all pass                   |
+| Alarm Templates (Tier)           | 4           | 4       | 0      | TIER-04 — all pass                   |
+| Custom Sounds (Tier)             | 5           | 5       | 0      | TIER-09 — all pass                   |
+| Cloud Sync — Mutations (32A)     | 7           | 7       | 0      | All pass — verified on device        |
+| Cloud Sync — Firing (32B)        | 6           | 6       | 0      | All pass — verified on device        |
+| Cloud Sync — Bidirectional (32C) | 6           | 6       | 0      | All pass — verified on device        |
+| Cloud Sync — Sub Timing (32D)    | 3           | 3       | 0      | All pass — verified on device        |
+| Cloud Sync — Errors (32E)        | 4           | 4       | 0      | All pass — verified on device        |
+| **TOTAL**                        | **213**     | **206** | **0**  | 3 prior pending (24.6-24.7, 25.4)   |
 
 ---
 

@@ -41,6 +41,12 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
         return _storage!
     }
 
+    private var modelContainer: ModelContainer?
+
+    func configure(with container: ModelContainer) {
+        self.modelContainer = container
+    }
+
     private init() {
         lastSyncDate = UserDefaults.standard.object(forKey: "chronir_last_sync") as? Date
         if let date = lastSyncDate {
@@ -51,13 +57,52 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     // MARK: - Full Sync
 
     func syncAlarms() async throws {
-        guard currentUID != nil else { return }
+        await ensureSubscriptionStatusChecked()
+        guard let uid = currentUID else { return }
         guard isPlusTier else { return }
+        guard let container = modelContainer else { return }
 
         syncState = .syncing
 
         do {
-            // Pull remote alarms so callers can merge if needed
+            // Use a background context to avoid blocking the main thread
+            let context = ModelContext(container)
+
+            // 1. Push all local alarms to Firestore (merge: true = idempotent)
+            let descriptor = FetchDescriptor<Alarm>()
+            let localAlarms = try context.fetch(descriptor)
+
+            let chunkSize = 500
+            for start in stride(from: 0, to: localAlarms.count, by: chunkSize) {
+                let end = min(start + chunkSize, localAlarms.count)
+                let batch = db.batch()
+                for alarm in localAlarms[start..<end] {
+                    let payload = AlarmSyncPayload(from: alarm)
+                    let docRef = db.collection("users").document(uid)
+                        .collection("alarms").document(payload.id)
+                    batch.setData(payload.firestoreData, forDocument: docRef, merge: true)
+                }
+                try await batch.commit()
+            }
+
+            // 2. Pull all remote alarms
+            let remotePayloads = try await fetchRemoteAlarms(uid: uid)
+            let localIDs = Set(localAlarms.map { $0.id.uuidString })
+
+            // 3. Insert remote-only alarms locally (cloud restore)
+            for payload in remotePayloads where !localIDs.contains(payload.id) {
+                if let alarm = payload.toAlarm() {
+                    context.insert(alarm)
+                }
+            }
+
+            // 4. Mark all local alarms as synced
+            for alarm in localAlarms {
+                alarm.syncStatus = .synced
+            }
+
+            try context.save()
+
             let now = Date()
             lastSyncDate = now
             UserDefaults.standard.set(now, forKey: "chronir_last_sync")
@@ -83,6 +128,7 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     // MARK: - Push Single Alarm
 
     func pushAlarm(_ alarm: AlarmSyncPayload) async throws {
+        await ensureSubscriptionStatusChecked()
         guard let uid = currentUID else { return }
         guard isPlusTier else { return }
 
@@ -95,6 +141,7 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     // MARK: - Push Alarm from Model
 
     func pushAlarmModel(_ alarm: Alarm) async {
+        await ensureSubscriptionStatusChecked()
         guard currentUID != nil, isPlusTier else { return }
         let payload = AlarmSyncPayload(from: alarm)
         do {
@@ -108,6 +155,7 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     // MARK: - Delete Remote Alarm
 
     func deleteRemoteAlarm(id: String) async throws {
+        await ensureSubscriptionStatusChecked()
         guard let uid = currentUID else { return }
         guard isPlusTier else { return }
 
@@ -119,6 +167,7 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     // MARK: - Fetch Remote Alarms
 
     func fetchAllRemoteAlarms() async throws -> [AlarmSyncPayload] {
+        await ensureSubscriptionStatusChecked()
         guard let uid = currentUID else { return [] }
         guard isPlusTier else { return [] }
 
@@ -128,6 +177,7 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     // MARK: - Full Initial Upload
 
     func uploadAllAlarms(_ alarms: [Alarm]) async {
+        await ensureSubscriptionStatusChecked()
         guard let uid = currentUID, isPlusTier else { return }
         syncState = .syncing
 
@@ -207,6 +257,12 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
 
     private var isPlusTier: Bool {
         SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
+    }
+
+    private func ensureSubscriptionStatusChecked() async {
+        if !SubscriptionService.shared.statusChecked {
+            await SubscriptionService.shared.updateSubscriptionStatus()
+        }
     }
 
     private static func userFriendlyMessage(for error: Error) -> String {

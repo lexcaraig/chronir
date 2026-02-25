@@ -63,6 +63,18 @@ struct AccountView: View {
 
         Section {
             syncStatusRow
+            Button {
+                Task { await performInitialSync() }
+            } label: {
+                HStack {
+                    ChronirText("Sync Now", style: .bodyPrimary, color: ColorTokens.primary)
+                    Spacer()
+                    if syncService.syncState == .syncing {
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(syncService.syncState == .syncing)
         } header: {
             ChronirText("Sync", style: .labelLarge, color: ColorTokens.textSecondary)
         }

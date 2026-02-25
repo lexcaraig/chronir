@@ -40,6 +40,7 @@ struct ChronirApp: App {
             }
         }
         AlarmRepository.configure(with: container)
+        CloudSyncService.shared.configure(with: container)
         Self.migrateCompletionRecords(container: container)
         ChronirShortcuts.updateAppShortcutParameters()
     }
@@ -403,6 +404,7 @@ extension ChronirApp {
         }
         try? context.save()
         Task {
+            await CloudSyncService.shared.pushAlarmModel(model)
             await WidgetDataService.shared.refresh()
             await LiveActivityService.shared.refreshLiveActivity()
         }

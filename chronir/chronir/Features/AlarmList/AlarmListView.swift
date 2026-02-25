@@ -234,6 +234,7 @@ struct AlarmListView: View {
                         } catch {
                             // Toggle failed — alarm state will reconcile on next launch
                         }
+                        await CloudSyncService.shared.pushAlarmModel(alarm)
                     }
                 }
             }
@@ -513,6 +514,7 @@ extension AlarmListView {
         }
 
         try? modelContext.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
         if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
     }
 
@@ -544,15 +546,18 @@ extension AlarmListView {
         }
 
         try? modelContext.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
         if UserSettings.shared.hapticsEnabled { HapticService.shared.playSuccess() }
     }
 
     private func deleteAlarm(_ alarm: Alarm) {
+        let alarmID = alarm.id.uuidString
         Task {
             try? await AlarmScheduler.shared.cancelAlarm(alarm)
         }
         modelContext.delete(alarm)
         try? modelContext.save()
+        Task { try? await CloudSyncService.shared.deleteRemoteAlarm(id: alarmID) }
     }
 
     private func refreshNextFireDates() {
