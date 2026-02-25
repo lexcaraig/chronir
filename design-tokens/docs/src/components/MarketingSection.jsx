@@ -36,7 +36,7 @@ It's a real alarm app (uses AlarmKit, not notifications) for long-cycle recurrin
 
 iOS only right now (requires iOS 26 for AlarmKit). Would love feedback from anyone who also suffers from "I saw the notification but forgot anyway" syndrome.
 
-[App Store link]`,
+https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
   {
     id: 'twitter',
@@ -96,7 +96,7 @@ Plus is $1.99/mo for unlimited alarms + custom snooze, pre-alarm warnings, strea
 
 iOS only (requires iOS 26). Link below.
 
-[App Store link]`,
+https://apps.apple.com/ph/app/chronir/id6758985902`,
       },
     ],
   },
@@ -116,7 +116,7 @@ Free tier: 3 alarms, no account. Plus ($1.99/mo): unlimited alarms, custom snooz
 
 Your calendar tells you what's coming. This makes sure you actually do it.
 
-iOS only right now. [App Store link]`,
+iOS only right now. https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
 ]
 
@@ -136,7 +136,7 @@ The philosophy is simple: systems beat willpower every time. If you build a syst
 
 Free tier gives you 3 alarms, no account needed. iOS only right now (uses AlarmKit which requires iOS 26). Would love to hear how others here approach recurring obligation management.
 
-[App Store link]`,
+https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
   {
     subreddit: 'r/selfimprovement',
@@ -153,7 +153,7 @@ Weekly, monthly, annual, one-time, custom intervals — whatever cadence your li
 
 I'm not saying an app solves self-improvement. But removing "I forgot" from the equation has been genuinely life-changing for me. The 3 alarms on the free tier cover most people's critical obligations.
 
-iOS only (requires iOS 26). [App Store link]`,
+iOS only (requires iOS 26). https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
   {
     subreddit: 'r/ADHD',
@@ -177,7 +177,7 @@ Free tier: 3 alarms, no sign-up. Plus ($1.99/mo) for unlimited + extras. iOS onl
 
 Not a miracle cure — but removing "I forgot" from the equation has helped me more than any productivity hack.
 
-[App Store link]`,
+https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
   {
     subreddit: 'r/Procrastinationism',
@@ -196,7 +196,7 @@ Weekly, monthly, annual, custom intervals — set it once and it recurs forever.
 
 Anyone else here find that the "reminder" isn't the problem — it's the "dismissability"?
 
-[App Store link]`,
+https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
   {
     subreddit: 'r/GetStudying',
@@ -222,7 +222,7 @@ The free tier gives you 3 alarms, which is probably enough for most students (da
 
 iOS only right now (requires iOS 26). Curious if anyone else has found a way to make study reminders actually stick.
 
-[App Store link]`,
+https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
   {
     subreddit: 'r/ProductivityApps',
@@ -254,7 +254,7 @@ iOS only right now (requires iOS 26). Curious if anyone else has found a way to 
 
 **Platform:** iOS only (requires iOS 26 for AlarmKit). No Android version yet.
 
-[App Store link]`,
+https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
   {
     subreddit: 'r/productivity',
@@ -275,7 +275,7 @@ It supports weekly, monthly (specific date or relative like "last Friday"), annu
 
 I've been using it for my own recurring obligations for months now. Late fees: $0. Missed renewals: 0. Follow-through on weekly commitments: near 100%. Not because I'm more disciplined — because the system won't let me forget.
 
-Free: 3 alarms. Plus ($1.99/mo): unlimited + extras. iOS only (iOS 26). [App Store link]`,
+Free: 3 alarms. Plus ($1.99/mo): unlimited + extras. iOS only (iOS 26). https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
   {
     subreddit: 'r/DecidingToBeBetter',
@@ -296,7 +296,7 @@ Free: 3 alarms, no account. Plus ($1.99/mo): unlimited + extras. iOS only (requi
 
 What recurring commitments do you keep breaking? Curious what others here would use this for.
 
-[App Store link]`,
+https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
 ]
 
@@ -456,7 +456,7 @@ export default function MarketingSection() {
           <div className="marketing-claims-header">
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.7 }}>
               Every feature claim in the launch posts maps to a verified source file.
-              <strong style={{ color: 'var(--text)' }}> Not advertised:</strong> Cloud sync, shared alarms, Premium tier, Live Activities, family sharing.
+              <strong style={{ color: 'var(--text)' }}> Not advertised:</strong> Cloud sync, shared alarms, Premium tier, family sharing.
             </p>
           </div>
           <div className="spec-table-wrap">

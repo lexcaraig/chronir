@@ -138,6 +138,7 @@ chronir/chronir/
 │   ├── Services/
 │   │   ├── AlarmScheduler.swift
 │   │   ├── NotificationService.swift
+│   │   ├── LiveActivityService.swift
 │   │   ├── CloudSyncService.swift
 │   │   ├── AuthService.swift
 │   │   ├── StorageService.swift

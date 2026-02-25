@@ -1,7 +1,7 @@
 # Chronir — Detailed Project Roadmap
 
-**Version:** 1.0  
-**Last Updated:** February 6, 2026  
+**Version:** 1.1
+**Last Updated:** February 25, 2026  
 **Methodology:** Atomic Design · Native Dual-Platform · Sprint-Based Agile  
 **Sprint Cadence:** 1-week sprints  
 **Platforms:** iOS (SwiftUI / Liquid Glass / AlarmKit) · Android (Kotlin / Jetpack Compose / Material 3)
@@ -344,11 +344,11 @@
 | ------ | ------------------------------------------------------------------------------ | -------- | -------- | ------------ |
 | S15-01 | Implement iOS Widget (WidgetKit) — next alarm countdown                        | iOS      | P1       | 5            |
 | S15-02 | Implement Android Widget (Glance) — next alarm countdown                       | Android  | P1       | 5            |
-| S15-03 | Implement iOS Live Activity — Dynamic Island countdown for imminent alarms     | iOS      | P2       | 3            |
+| S15-03 | ~~Implement iOS Live Activity — Dynamic Island countdown for imminent alarms~~ **DONE (v1.1)** | iOS      | P2       | 3            |
 | S15-04 | Write unit tests for alarm scheduling logic (interval calculation, edge cases) | Both     | P0       | 5            |
 | S15-05 | Write unit tests for subscription gating logic                                 | Both     | P0       | 2            |
 | S15-06 | Write integration tests for Firebase sync (shared alarms, groups)              | Both     | P0       | 3            |
-| S15-07 | Performance profiling — app launch time (<2s cold start target)                | Both     | P0       | 2            |
+| S15-07 | ~~Performance profiling — app launch time (<2s cold start target)~~ **DONE (v1.1, iOS)** | Both     | P0       | 2            |
 | S15-08 | Memory profiling — alarm firing screen (no leaks during extended ring)         | Both     | P0       | 2            |
 | S15-09 | Battery impact analysis — background alarm scheduling efficiency               | Both     | P0       | 2            |
 

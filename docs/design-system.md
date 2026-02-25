@@ -678,9 +678,12 @@ This is the highest-priority screen in the entire app. It must work flawlessly a
 - Shows "6h 32m" as the primary glanceable information
 - Uses `widgetAccentedRenderingMode(.desaturated)` to harmonize with wallpaper
 
-#### iOS Live Activities (Dynamic Island)
+#### iOS Live Activities (Dynamic Island) — Implemented (v1.1)
 
-- Active alarm countdown in compact mode
+- Countdown displayed on lock screen and Dynamic Island when alarm is within 1 hour
+- Managed by `LiveActivityService` — starts, updates, and stops countdown activities
+- User-configurable via "Live Activity Countdown" toggle in Settings > Notifications
+- Banner clears immediately when alarm is stopped from lock screen
 - Snooze timer status with chronometer
 - CarPlay support via `supplementalActivityFamilies`
 

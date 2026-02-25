@@ -4,21 +4,25 @@
 
 Chronir treats weekly, monthly, and annual obligations with the urgency of a morning wake-up alarm — full-screen, persistent, undeniable. Never forget rent day, insurance renewals, or annual checkups again.
 
+[Download on the App Store](https://apps.apple.com/ph/app/chronir/id6758985902)
+
 ## Features
 
-- **Recurring Alarms** — Weekly, monthly, and annual schedules with smart date handling (month-end overflow, leap years, DST)
+- **Recurring Alarms** — Weekly, monthly, annual, and one-time schedules with smart date handling (month-end overflow, leap years, DST)
 - **Full-Screen Firing** — OLED-friendly firing screen with sound, haptics, and hold-to-dismiss
+- **Live Activity Countdown** — Lock screen and Dynamic Island countdown when alarm is within 1 hour
+- **Siri & Shortcuts** — Create and manage alarms with voice commands
 - **Snooze Options** — 1 hour, 1 day, or 1 week with countdown tracking
 - **Persistence Levels** — Standard or persistent alarms that demand attention
-- **Design Token Pipeline** — Shared design system across iOS and Android via Style Dictionary
+- **Home Screen Widget** — Next alarm countdown at a glance
 - **Free Tier Gating** — 2 alarms free, unlimited with Plus subscription
 
 ## Tech Stack
 
-| Platform | Language | UI | Local DB | Min Target |
-|----------|----------|-----|----------|------------|
-| iOS | Swift 6+ | SwiftUI | SwiftData | iOS 18+ |
-| Android | Kotlin 2.0+ | Jetpack Compose | Room | API 31 |
+| Platform | Language    | UI              | Local DB  | Min Target |
+| -------- | ----------- | --------------- | --------- | ---------- |
+| iOS      | Swift 6+    | SwiftUI         | SwiftData | iOS 26     |
+| Android  | Kotlin 2.0+ | Jetpack Compose | Room      | API 31     |
 
 **Backend:** Firebase (Auth, Firestore, Cloud Storage, Crashlytics)
 **Design Tokens:** Style Dictionary v5 (JSON → Swift + Kotlin)
@@ -64,8 +68,10 @@ cd chronir
 xcodebuild build \
   -project chronir.xcodeproj \
   -scheme chronir \
-  -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
-  CODE_SIGNING_ALLOWED=NO
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
+  -skipMacroValidation \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES
 
 # Android
 cd Chronir-Android && ./gradlew assembleDebug
@@ -79,8 +85,10 @@ cd chronir
 xcodebuild test \
   -project chronir.xcodeproj \
   -scheme chronir \
-  -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
-  CODE_SIGNING_ALLOWED=NO
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
+  -skipMacroValidation \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES
 
 # Android
 cd Chronir-Android && ./gradlew test
@@ -97,14 +105,14 @@ cd Chronir-Android && ./gradlew test
 
 ## Monetization
 
-| Tier | Price | Features |
-|------|-------|----------|
-| Free | $0 | 2 alarms, local-only, basic features |
-| Plus | $1.99/mo | Unlimited alarms, cloud backup, custom snooze, widgets |
-| Premium | $3.99/mo | Shared alarms, groups, push notifications |
+| Tier    | Price    | Features                                               |
+| ------- | -------- | ------------------------------------------------------ |
+| Free    | $0       | 2 alarms, local-only, basic features                   |
+| Plus    | $1.99/mo | Unlimited alarms, cloud backup, custom snooze, widgets |
+| Premium | $3.99/mo | Shared alarms, groups, push notifications              |
 
 ## License
 
-Copyright (c) 2025 Chronir. All rights reserved.
+Copyright (c) 2026 Chronir. All rights reserved.
 
 See [LICENSE](LICENSE) for details.

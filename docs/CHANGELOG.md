@@ -4,6 +4,49 @@ All notable changes to the Chronir project are documented here.
 
 ---
 
+## [2026-02-25] — Release v1.1 (iOS)
+
+**Type:** Release
+**Branch:** main
+**Tags:** v1.0 (9b1b3cc), v1.1 (330735f)
+**Commit(s):** 7d37c18, 9014081, 6d9d16d, ea6c02b, ed8dc5f, 3fd9de4, 0daf462, 330735f
+**App Store:** [Chronir on App Store](https://apps.apple.com/ph/app/chronir/id6758985902)
+
+### Changes
+- **Live Activity & Dynamic Island countdown** — persistent countdown on lock screen and Dynamic Island when alarm is within 1 hour (FEAT-01)
+- **Live Activity persistence fix** — banner clears immediately when alarm is stopped from lock screen
+- **Overdue badge flash fix** — no more brief overdue state when dismissing alarm from Dynamic Island
+- **Color-blind accessibility** — ChronirBadge now includes icons alongside color indicators (QA-04)
+- **Cold start optimization** — staleness gate, batch widget refresh, reduced splash duration (QA-03)
+- **Settings toggle** — "Live Activity Countdown" toggle in Settings > Notifications section
+- **Version bump** — 1.0 → 1.1 across all targets (app, widgets, tests)
+
+### New Files
+- `chronir/chronir/Core/Services/LiveActivityService.swift` — manages Live Activity lifecycle (start, update, stop countdown)
+- `chronir/ChronirWidgets/Views/CountdownLiveActivityView.swift` — lock screen + Dynamic Island countdown UI
+- `docs/appstoreconnect/releases/v1.1.md` — release notes and App Store metadata
+
+### Files Changed
+- `chronir/chronir/Core/Services/AlarmScheduler.swift` — Live Activity integration on alarm schedule/fire
+- `chronir/chronir/Core/Models/UserSettings.swift` — added `isLiveActivityCountdownEnabled` setting
+- `chronir/chronir/DesignSystem/Atoms/ChronirBadge.swift` — icon indicators for color-blind accessibility
+- `chronir/chronir/DesignSystem/Organisms/AlarmCard.swift` — updated badge rendering
+- `chronir/chronir/Features/Settings/SettingsView.swift` — Live Activity toggle, version 1.1.0
+- `chronir/chronir/Widgets/CountdownLiveActivity.swift` — refactored for new view layer
+- `chronir/chronir/chronirApp.swift` — Live Activity lifecycle management on app launch/termination
+- `chronir/chronir.xcodeproj/project.pbxproj` — version bump, new file references
+- `docs/appstoreconnect/listing.md` — updated to v1.1 metadata
+
+### QA Status
+- Build: PASS (xcodebuild, zero errors)
+- SwiftLint: PASS (no new violations)
+- Pre-submit audit: PASS (no fatalError, no stray prints, no force unwraps)
+
+### Known Issues
+- None
+
+---
+
 ## [2026-02-14] — Splash Screen Redesign & Launch Screen Configuration
 
 **Type:** Feature / Infrastructure
