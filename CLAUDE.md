@@ -312,6 +312,8 @@ See `tickets/README.md` for full documentation.
 | `/build-all`         | `/build-all`                                      | Full quality verification (format, lint, test, build) across all platforms.                                    |
 | `/fix-tests`         | `/fix-tests ios`                                  | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg.                       |
 | `/pre-submit-audit`  | `/pre-submit-audit`                               | App Store Review compliance audit: crash stubs, non-functional UI, feature accuracy, debug visibility.         |
+| `/design-audit`      | `/design-audit ios`                               | Token compliance, component naming, atomic hierarchy, dark mode. Report-only, no auto-fixes.                   |
+| `/design-review`     | `/design-review AlarmList`                        | Full design pipeline: audit + Impeccable critique → normalize → polish. Gates on user approval before fixes.   |
 | `/release`           | `/release 1.1 ios`                                | End-to-end release: version bump, quality gates, store metadata, docs, git tag, checklist.                     |
 | `/update-docs`       | `/update-docs Completed Sprint Siri+OneTime`      | Updates docs/, CLAUDE.md, and README.md to reflect completed work (changelog, roadmap, specs, etc.).           |
 
@@ -331,6 +333,7 @@ See `tickets/README.md` for full documentation.
 | Plugin            | Purpose                                                                                                                                                                                                                                                                             |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `code-simplifier` | Runs automatically after ANY code changes, regardless of the task or workflow. Simplifies code for clarity and maintainability while preserving functionality. Must be invoked proactively after writing or modifying code — not just during `/implement-task` or `/phase-qa-gate`. |
+| `impeccable`      | Frontend design quality toolkit. 17 commands (`/normalize`, `/polish`, `/critique`, `/audit`, `/simplify`, `/harden`, `/extract`, etc.) for UX/UI review and fixes. Powers the fix/polish phases of `/design-review`. Use `frontend-design` skill for anti-patterns reference.     |
 
 ### Typical Sprint Flow
 
