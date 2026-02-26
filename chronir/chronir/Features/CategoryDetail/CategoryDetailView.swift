@@ -8,6 +8,7 @@ struct CategoryDetailView: View {
     @State private var enabledStates: [UUID: Bool] = [:]
     @State private var selectedAlarmID: UUID?
     @State private var alarmToDelete: Alarm?
+    @State private var confirmedAlarmIDs: Set<UUID> = []
 
     private var categoryAlarms: [Alarm] {
         allAlarms.filter { $0.alarmCategory == category }
@@ -92,7 +93,7 @@ struct CategoryDetailView: View {
     private func visualState(for alarm: Alarm) -> AlarmVisualState {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         if !isEnabled { return .inactive }
-        if alarm.isPendingConfirmation { return .pending }
+        if alarm.isPendingConfirmation && !confirmedAlarmIDs.contains(alarm.id) { return .pending }
         if alarm.snoozeCount > 0 { return .snoozed }
         return .active
     }
@@ -163,6 +164,7 @@ struct CategoryDetailView: View {
     }
 
     private func confirmPendingAlarm(_ alarm: Alarm) {
+        confirmedAlarmIDs.insert(alarm.id)
         PendingConfirmationService.shared.confirmDone(alarm: alarm)
         alarm.updatedAt = Date()
         try? modelContext.save()

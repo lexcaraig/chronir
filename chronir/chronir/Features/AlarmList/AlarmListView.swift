@@ -19,6 +19,7 @@ struct AlarmListView: View {
     @State private var selectedCategoryFilter: AlarmCategory?
     @State private var selectedCategory: AlarmCategory?
     @State private var showArchived = false
+    @State private var confirmedAlarmIDs: Set<UUID> = []
     @State private var paywallViewModel = PaywallViewModel()
     private let subscriptionService = SubscriptionService.shared
     private var firingCoordinator = AlarmFiringCoordinator.shared
@@ -288,7 +289,7 @@ struct AlarmListView: View {
     private func visualState(for alarm: Alarm) -> AlarmVisualState {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         if !isEnabled { return .inactive }
-        if alarm.isPendingConfirmation { return .pending }
+        if alarm.isPendingConfirmation && !confirmedAlarmIDs.contains(alarm.id) { return .pending }
         if alarm.snoozeCount > 0 { return .snoozed }
         return .active
     }
@@ -417,12 +418,16 @@ struct AlarmListView: View {
         }
     }
 
+    private func isPending(_ alarm: Alarm) -> Bool {
+        alarm.isPendingConfirmation && !confirmedAlarmIDs.contains(alarm.id)
+    }
+
     private var activeAlarms: [Alarm] {
-        alarms.filter { !($0.cycleType == .oneTime && !$0.isEnabled && !$0.isPendingConfirmation) }
+        alarms.filter { !($0.cycleType == .oneTime && !$0.isEnabled && !isPending($0)) }
     }
 
     private var archivedAlarms: [Alarm] {
-        alarms.filter { $0.cycleType == .oneTime && !$0.isEnabled && !$0.isPendingConfirmation }
+        alarms.filter { $0.cycleType == .oneTime && !$0.isEnabled && !isPending($0) }
     }
 
     private var filteredAlarms: [Alarm] {
@@ -520,6 +525,7 @@ extension AlarmListView {
     }
 
     private func confirmPendingAlarm(_ alarm: Alarm) {
+        confirmedAlarmIDs.insert(alarm.id)
         PendingConfirmationService.shared.confirmDone(alarm: alarm)
         alarm.updatedAt = Date()
         try? modelContext.save()
