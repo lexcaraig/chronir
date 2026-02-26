@@ -1,7 +1,7 @@
 # iOS Free Tier QA Checklist
 
-**Sprint:** 7–9 (Phase 2 close + Phase 3 V1.0 Plus Tier), sprint-siri-onetime
-**Branch:** `sprint-7` merged into `main`, `sprint-9` (S9), `sprint-siri-onetime`
+**Sprint:** 7–9 (Phase 2 close + Phase 3 V1.0 Plus Tier), sprint-siri-onetime, v1.2
+**Branch:** `sprint-7` merged into `main`, `sprint-9` (S9), `sprint-siri-onetime`, `main` (v1.2)
 **Device:** iPhone Simulator (iPhone 17 Pro, iOS 26+) + Physical device "lexpresswayyy"
 **Tier:** Free (3-alarm limit, local-only)
 

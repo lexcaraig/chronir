@@ -4,6 +4,52 @@ All notable changes to the Chronir project are documented here.
 
 ---
 
+## [2026-02-26] — Release v1.2 (iOS)
+
+**Type:** Release
+**Branch:** main
+**Tag:** v1.2 (aae8d38)
+**Commit(s):** 3b1819d, fd12a98, 8154837, 5b5ddf1, 1207ba7, 10e3319, cfb536f, 0eb4b5e, 717760b, 25393b9, 9089926
+**App Store:** [Chronir on App Store](https://apps.apple.com/ph/app/chronir/id6758985902)
+
+### Changes
+- **FEAT-04: Completion confirmation** — Plus tier: stopping an alarm enters pending confirmation state. User must explicitly mark as done or snooze. Prevents accidental completions.
+- **Overdue state removed** — Past-due alarms now fire with full sound and full-screen alert instead of showing a passive overdue badge
+- **In-app legal viewer** — FAQ, Privacy Policy, and Terms of Service open in-app via `LegalDocumentView` with Markdown rendering
+- **Notification cleanup** — Delivered notifications clear on all alarm completion paths (dismiss, mark done, lock screen stop)
+- **Pending badge fixes** — Fixed stale badge rendering via identity change, @State optimization, and SwiftData re-render forcing
+- **Firing screen polish** — Time text scales on smaller devices, swipe-to-confirm works in category grouped view, firing view persists when alarm is still past-due on foreground return
+- **Design tokens docs app** — Visual fixes and added pending confirmation screen preview
+
+### New Files
+- `chronir/chronir/Core/Services/PendingConfirmationService.swift` — manages pending confirmation lifecycle, follow-up notifications, auto-expiry
+- `chronir/chronir/Features/Settings/LegalDocumentView.swift` — in-app Markdown viewer for legal documents
+- `chronir/chronir/Features/Settings/MarkdownWebView.swift` — WKWebView wrapper for rendered Markdown
+- `docs/appstoreconnect/releases/v1.2.md` — release notes and App Store metadata
+
+### Files Changed
+- `chronir/chronir/Core/Models/Alarm.swift` — added `isPendingConfirmation` field
+- `chronir/chronir/Core/Models/CompletionRecord.swift` — updated for pending confirmation records
+- `chronir/chronir/Core/Services/AlarmFiringCoordinator.swift` — integrated pending confirmation into firing flow
+- `chronir/chronir/Core/Services/NotificationService.swift` — clear delivered notifications on completion
+- `chronir/chronir/DesignSystem/Organisms/AlarmCard.swift` — pending confirmation badge state
+- `chronir/chronir/DesignSystem/Organisms/AlarmFiringOverlay.swift` — confirmation step UI
+- `chronir/chronir/Features/AlarmFiring/AlarmFiringView.swift` — stop → pending confirmation flow
+- `chronir/chronir/Features/AlarmFiring/AlarmFiringViewModel.swift` — pending confirmation logic
+- `chronir/chronir/Features/AlarmList/AlarmListView.swift` — removed overdue state, added pending badge
+- `chronir/chronir/Features/Settings/SettingsView.swift` — in-app legal links, version 1.2.0
+- `chronir/chronir/chronirApp.swift` — pending confirmation lifecycle management
+
+### QA Status
+- Build: PASS (xcodebuild, zero errors)
+- SwiftLint: PASS (55 warnings, 1 serious — pre-existing, no new violations)
+- Pre-submit audit: PASS (all 10 checks)
+
+### Known Issues
+- None
+
+---
+
 ## [2026-02-25] — Release v1.1 (iOS)
 
 **Type:** Release

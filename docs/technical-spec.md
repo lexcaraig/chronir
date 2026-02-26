@@ -750,11 +750,17 @@ function calculateNextFireDate(alarm, fromDate = now()):
     b. SWIPE HORIZONTALLY → Dismiss (mark as done)
     c. LONG PRESS → Show snooze duration options (1hr / 1day / 1week)
     d. VOICE: "Stop" or "Snooze" (iOS: Siri, Android: Assistant)
-7. On dismiss:
+7. On stop (v1.2+ Plus tier — FEAT-04):
+    - If Plus tier: set `isPendingConfirmation = true`, show confirmation UI (Mark Done / Snooze)
+    - If Free tier: treat stop as done (legacy behavior)
+    - Pending confirmation clears on: explicit done, snooze, or auto-expiry (24h)
+    - All completion paths (dismiss, performDismiss, handleLockScreenAction, etc.) must clear `isPendingConfirmation`
+8. On dismiss (mark as done):
+    - Clear `isPendingConfirmation`
     - Write CompletionRecord
     - Calculate and schedule nextFireDate
     - If shared alarm: sync completion to Firestore
-8. On snooze:
+9. On snooze:
     - Increment snoozeCount
     - Schedule temporary alarm at now + snoozeDuration
     - Keep full-screen alarm in background (return on snooze expiry)

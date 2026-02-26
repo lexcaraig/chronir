@@ -131,6 +131,7 @@ The core entity. Represents a single recurring alarm with its schedule configura
 | `cloud_id`          | String(100)   | ✗        | null                | Firestore document ID if synced (Plus+)                                   |
 | `shared_alarm_id`   | String(100)   | ✗        | null                | Reference to SharedAlarm doc if this is a received shared alarm (Premium) |
 | `is_shared_origin`  | Boolean       | ✓        | false               | True if this user created the shared alarm                                |
+| `is_pending_confirmation` | Boolean  | ✓        | false               | Plus tier: alarm stopped but not yet marked done. Set on stop, cleared on done/snooze/auto-expiry. (Added v1.2, FEAT-04) |
 | `sync_status`       | Enum          | ✓        | `local_only`        | `local_only`, `synced`, `pending_sync`, `conflict`                        |
 | `created_at`        | DateTime      | ✓        | now()               | UTC timestamp                                                             |
 | `updated_at`        | DateTime      | ✓        | now()               | UTC timestamp, updated on any field change                                |

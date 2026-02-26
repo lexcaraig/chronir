@@ -1,7 +1,7 @@
 # iOS Plus Tier QA Checklist
 
-**Sprint:** 8–9 (Phase 3 — V1.0 Plus Tier), sprint-siri-onetime
-**Branch:** `main` (S8), `sprint-9` (S9), `sprint-siri-onetime`
+**Sprint:** 8–9 (Phase 3 — V1.0 Plus Tier), sprint-siri-onetime, v1.2 (FEAT-04)
+**Branch:** `main` (S8), `sprint-9` (S9), `sprint-siri-onetime`, `main` (v1.2)
 **Device:** Physical device "lexpresswayyy" + StoreKit sandbox + TestFlight sandbox
 **Tier:** Plus (unlimited alarms, attachments, cloud backup, history, custom snooze)
 
