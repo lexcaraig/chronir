@@ -8,6 +8,7 @@ const SCALE = 0.55
 const screens = [
   { id: 'alarm-list', label: 'Alarm List' },
   { id: 'alarm-firing', label: 'Alarm Firing' },
+  { id: 'alarm-pending', label: 'Pending Confirm' },
   { id: 'alarm-creation', label: 'New Alarm' },
   { id: 'settings', label: 'Settings' },
 ]
@@ -124,11 +125,11 @@ function AlarmFiringScreen() {
         }}>Monthly &middot; 1st</span>
         <span style={{
           fontSize: 14, opacity: 0.5, marginTop: 16, textAlign: 'center',
-        }}>Don't forget to transfer from savings</span>
+        }}>Don&apos;t forget to transfer from savings</span>
       </div>
       {/* Snooze buttons */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-        {['5m', '9m', '15m'].map(d => (
+        {['1h', '1d', '1w'].map(d => (
           <div key={d} style={{
             padding: '10px 20px', borderRadius: 12,
             background: 'rgba(255,255,255,0.08)',
@@ -137,17 +138,161 @@ function AlarmFiringScreen() {
           }}>{d}</div>
         ))}
       </div>
-      {/* Dismiss button */}
-      <div style={{
-        width: '100%', padding: '16px 0', marginBottom: 36,
-        borderRadius: 16,
-        background: 'rgba(255,255,255,0.08)',
-        border: '0.5px solid rgba(255,255,255,0.1)',
-        textAlign: 'center', fontSize: 16, fontWeight: 600,
-        color: tok('color.firing.foreground'),
-        letterSpacing: 0.3,
-      }}>Hold to Dismiss</div>
+      {/* Plus tier: Mark as Done (primary) + Stop Alarm (secondary) */}
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36 }}>
+        <div style={{
+          width: '100%', padding: '16px 0',
+          borderRadius: 16,
+          background: 'rgba(255,255,255,0.15)',
+          border: '0.5px solid rgba(255,255,255,0.2)',
+          textAlign: 'center', fontSize: 16, fontWeight: 600,
+          color: tok('color.firing.foreground'),
+          letterSpacing: 0.3,
+        }}>Mark as Done</div>
+        <div style={{
+          textAlign: 'center', fontSize: 14, fontWeight: 500,
+          color: 'rgba(255,255,255,0.5)',
+          letterSpacing: 0.2,
+        }}>Stop Alarm</div>
+        <div style={{
+          fontSize: 10, color: 'rgba(255,255,255,0.3)', textAlign: 'center', lineHeight: 1.4,
+        }}>
+          <em>Mark as Done</em> = immediate completion<br />
+          <em>Stop Alarm</em> = silences, enters Pending state
+        </div>
+      </div>
       <HomeIndicator mode="dark" />
+    </div>
+  )
+}
+
+function AlarmPendingScreen({ mode }) {
+  const t = mode === 'dark' ? darkTheme : lightTheme
+  const isLight = mode === 'light'
+  const cardBg = isLight ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.08)'
+  const cardBorder = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)'
+  const infoBorder = isLight ? '#3B82F6' : '#60A5FA'
+  const infoText = isLight ? '#3B82F6' : '#60A5FA'
+  const successBg = isLight ? '#22C55E' : '#4ADE80'
+
+  return (
+    <div className="screen-content" style={{ background: t.background, color: t.textPrimary }}>
+      <StatusBar mode={mode} />
+      <div className="screen-nav" style={{ borderBottom: `0.5px solid ${t.borderDefault}` }}>
+        <span style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.5 }}>Alarms</span>
+      </div>
+
+      {/* Section header */}
+      <div style={{ padding: '16px 20px 8px', fontSize: 11, fontWeight: 600, color: t.textSecondary, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+        Completion Confirmation (Plus)
+      </div>
+
+      {/* Pending alarm card with blue border */}
+      <div style={{ padding: '0 16px 8px' }}>
+        <div style={{
+          background: cardBg,
+          border: `2px solid ${infoBorder}`,
+          backdropFilter: 'blur(20px)',
+          borderRadius: 16,
+          padding: '14px 16px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 13, color: infoText }}>&#128339;</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: infoText }}>Awaiting Confirmation</span>
+              </div>
+              <span style={{ fontSize: 22, fontWeight: 600 }}>9:00 AM</span>
+              <span style={{ fontSize: 15, fontWeight: 500 }}>Pay Rent</span>
+              <span className="screen-badge" style={{
+                fontSize: 11, fontWeight: 600,
+                background: isLight ? t.textPrimary : 'rgba(255,255,255,0.12)',
+                color: isLight ? '#fff' : t.textSecondary,
+                padding: '3px 8px', borderRadius: 6, alignSelf: 'flex-start', marginTop: 4,
+              }}>Monthly &middot; 1st</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* How to confirm section */}
+      <div style={{ padding: '16px 20px 8px', fontSize: 11, fontWeight: 600, color: t.textSecondary, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+        How to Confirm Completion
+      </div>
+
+      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {/* Method 1: Swipe */}
+        <div style={{
+          background: cardBg, border: `0.5px solid ${cardBorder}`,
+          borderRadius: 12, padding: '12px 14px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: successBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 16, color: '#fff', fontWeight: 700,
+            }}>&#10003;</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>Swipe Right on Card</span>
+              <span style={{ fontSize: 12, color: t.textSecondary }}>
+                Swipe alarm card right &rarr; tap green &quot;Done&quot; button
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Method 2: Notification */}
+        <div style={{
+          background: cardBg, border: `0.5px solid ${cardBorder}`,
+          borderRadius: 12, padding: '12px 14px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: infoText, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 14, color: '#fff', fontWeight: 700,
+            }}>&#128276;</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>Notification Action</span>
+              <span style={{ fontSize: 12, color: t.textSecondary }}>
+                Long-press notification &rarr; tap &quot;Done&quot; button
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Notification timeline */}
+        <div style={{
+          background: cardBg, border: `0.5px solid ${cardBorder}`,
+          borderRadius: 12, padding: '12px 14px',
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: t.textSecondary, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            Follow-Up Notifications
+          </div>
+          {[
+            { time: '+30 min', label: '"Did you complete it?"' },
+            { time: '+60 min', label: 'Second reminder' },
+            { time: '+90 min', label: 'Final reminder' },
+          ].map((n, i) => (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0',
+              borderTop: i > 0 ? `0.5px solid ${t.borderDefault}` : 'none',
+            }}>
+              <span style={{
+                fontSize: 11, fontWeight: 600, color: infoText,
+                width: 52, flexShrink: 0,
+              }}>{n.time}</span>
+              <span style={{ fontSize: 13, color: t.textSecondary }}>{n.label}</span>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: successBg, background: isLight ? '#DCFCE7' : 'rgba(74,222,128,0.15)', padding: '2px 6px', borderRadius: 4 }}>Done</span>
+                <span style={{ fontSize: 10, fontWeight: 600, color: t.textSecondary, background: isLight ? '#F3F4F6' : 'rgba(255,255,255,0.08)', padding: '2px 6px', borderRadius: 4 }}>Remind Me</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <HomeIndicator mode={mode} />
     </div>
   )
 }
@@ -408,6 +553,7 @@ export default function ScreensSection({ theme }) {
     switch (screenId) {
       case 'alarm-list': return <AlarmListScreen mode={mode} />
       case 'alarm-firing': return <AlarmFiringScreen />
+      case 'alarm-pending': return <AlarmPendingScreen mode={mode} />
       case 'alarm-creation': return <AlarmCreationScreen mode={mode} />
       case 'settings': return <SettingsScreen mode={mode} />
       default: return null

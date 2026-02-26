@@ -543,9 +543,9 @@
 
 | #     | Step                                                | Expected Result                            | Pass? |
 | ----- | --------------------------------------------------- | ------------------------------------------ | ----- |
-| 33E.1 | Plus user → alarm fires on lock screen → slide stop | Alarm enters Pending state (not completed) |       |
-| 33E.2 | Open app after lock screen stop                     | Alarm shows Pending badge in list          |       |
-| 33E.3 | Follow-up notifications schedule after lock screen  | 3 notifications at +30/+60/+90 minutes     |       |
+| 33E.1 | Plus user → alarm fires on lock screen → slide stop | Alarm enters Pending state (not completed) | PASS  |
+| 33E.2 | Open app after lock screen stop                     | Alarm shows Pending badge in list          | PASS  |
+| 33E.3 | Follow-up notifications schedule after lock screen  | 3 notifications at +30/+60/+90 minutes     | PASS  |
 
 ### 33F. Edge Cases
 
@@ -620,11 +620,11 @@
 | Completion Confirm — Visual (33B) | 6           | 6       | 0      | FEAT-04 — all pass                   |
 | Completion Confirm — Notifs (33C) | 7           | —       | —      | FEAT-04 — follow-up notifications    |
 | Completion Confirm — Swipe (33D)  | 3           | 1       | 0      | FEAT-04 — 33D.1 pass, 33D.2-3 pending |
-| Completion Confirm — Lock (33E)   | 3           | —       | —      | FEAT-04 — lock screen stop           |
+| Completion Confirm — Lock (33E)   | 3           | 3       | 0      | FEAT-04 — all pass                   |
 | Completion Confirm — Edge (33F)   | 6           | —       | —      | FEAT-04 — edge cases                 |
 | Completion Confirm — Hist (33G)   | 3           | —       | —      | FEAT-04 — history integration        |
 | Completion Confirm — Sync (33H)   | 3           | —       | —      | FEAT-04 — cloud sync                 |
-| **TOTAL**                         | **250**     | **219** | **0**  | 24 FEAT-04 + 3 prior pending         |
+| **TOTAL**                         | **250**     | **222** | **0**  | 21 FEAT-04 + 3 prior pending         |
 
 ---
 
