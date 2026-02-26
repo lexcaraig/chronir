@@ -14,9 +14,9 @@ const flatlayRenderers = {
   ChronirButton: () => (
     <div className="flatlay-grid">
       {[
-        { label: 'Primary Action', bg: t.primary, fg: '#fff' },
+        { label: 'Primary Action', bg: t.primary, fg: t.textOnAccent },
         { label: 'Secondary', bg: t.bgTertiary, fg: t.textPrimary },
-        { label: 'Delete', bg: t.error, fg: '#fff' },
+        { label: 'Delete', bg: t.error, fg: t.textOnAccent },
         { label: 'Ghost Action', bg: 'transparent', fg: t.primary, border: true },
       ].map(v => (
         <div key={v.label} className="flatlay-item">
@@ -156,7 +156,7 @@ const flatlayRenderers = {
           marginTop: 8,
           padding: `${t.md}px ${t.lg}px`,
           backgroundColor: t.primary,
-          color: '#fff',
+          color: t.textOnAccent,
           borderRadius: t.radiusSm,
           fontWeight: 600,
           fontSize: 14,

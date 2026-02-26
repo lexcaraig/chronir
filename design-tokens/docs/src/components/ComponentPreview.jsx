@@ -1,7 +1,16 @@
 import { resolvedLookup } from '../tokens'
 
-// Pull actual token values for rendering
-// Theme-aware colors use CSS variables; accent/status colors are theme-independent
+/*
+ * Design token bridge for component previews.
+ *
+ * Colors use CSS custom properties so they respond to theme switching
+ * without re-rendering. Spacing and radius are raw numbers because
+ * React's style prop interprets them as px, making them natural to use
+ * inline (e.g. `padding: t.md` → 16px).
+ *
+ * `resolvedLookup` supplies resolved hex for tokens that don't vary
+ * by theme (firing colors).
+ */
 const t = {
   // Theme-aware colors (CSS variables)
   surfaceCard: 'var(--bg-card)',
@@ -21,6 +30,7 @@ const t = {
   badgeMonthly: 'var(--badge-monthly)',
   badgeAnnual: 'var(--badge-annual)',
   badgeCustom: 'var(--badge-custom)',
+  textOnAccent: '#fff',
   // Spacing
   xxs: 4, xs: 8, sm: 12, md: 16, lg: 24,
   // Radius

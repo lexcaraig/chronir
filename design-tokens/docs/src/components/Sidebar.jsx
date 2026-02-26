@@ -35,6 +35,12 @@ const navTree = [
       { id: 'iosArchitecture', label: 'iOS Architecture' },
     ],
   },
+  {
+    label: 'Support',
+    children: [
+      { id: 'faq', label: 'FAQ' },
+    ],
+  },
 ]
 
 export default function Sidebar({ active, onNavigate }) {

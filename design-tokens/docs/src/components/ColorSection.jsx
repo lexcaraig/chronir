@@ -38,7 +38,11 @@ function PrimitiveStrip({ family, tokens }) {
           <div
             key={t.path}
             className="color-chip"
+            role="button"
+            tabIndex={0}
+            aria-label={`Copy ${family} ${t.name}: ${t.resolvedValue}`}
             onClick={() => copy(t.resolvedValue)}
+            onKeyDown={e => e.key === 'Enter' && copy(t.resolvedValue)}
           >
             <div className="color-tooltip">{t.resolvedValue}</div>
             <div
@@ -78,7 +82,11 @@ function NeutralRampStrip({ label, tokens, isDark }) {
           <div
             key={t.path}
             className="color-chip"
+            role="button"
+            tabIndex={0}
+            aria-label={`Copy ${label} ${t.name === 'neg100' ? '-100' : t.name}: ${t.resolvedValue}`}
             onClick={() => copy(t.resolvedValue)}
+            onKeyDown={e => e.key === 'Enter' && copy(t.resolvedValue)}
           >
             <div className="color-tooltip">{t.resolvedValue}</div>
             <div
@@ -120,7 +128,11 @@ function ThemeTokensSection() {
               <div
                 key={`light-${role}`}
                 className="color-token-chip"
+                role="button"
+                tabIndex={0}
+                aria-label={`Copy light ${role}: ${lightTheme[role]}`}
                 onClick={() => copy(lightTheme[role])}
+                onKeyDown={e => e.key === 'Enter' && copy(lightTheme[role])}
                 style={{ flexDirection: 'row', gap: '10px', minWidth: 0, alignItems: 'center', padding: '4px 0' }}
               >
                 <div
@@ -146,7 +158,11 @@ function ThemeTokensSection() {
               <div
                 key={`dark-${role}`}
                 className="color-token-chip"
+                role="button"
+                tabIndex={0}
+                aria-label={`Copy dark ${role}: ${darkTheme[role]}`}
                 onClick={() => copy(darkTheme[role])}
+                onKeyDown={e => e.key === 'Enter' && copy(darkTheme[role])}
                 style={{ flexDirection: 'row', gap: '10px', minWidth: 0, alignItems: 'center', padding: '4px 0' }}
               >
                 <div
@@ -190,7 +206,11 @@ function SemanticStrip({ label, tokens }) {
             <div
               key={t.path}
               className="color-token-chip"
+              role="button"
+              tabIndex={0}
+              aria-label={`Copy ${t.name}: ${t.resolvedValue}`}
               onClick={() => copy(t.resolvedValue)}
+              onKeyDown={e => e.key === 'Enter' && copy(t.resolvedValue)}
             >
               <div className="color-tooltip">{t.resolvedValue}</div>
               <div

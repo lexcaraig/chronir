@@ -5,6 +5,10 @@ const IPHONE_WIDTH = 393
 const IPHONE_HEIGHT = 852
 const SCALE = 0.55
 
+const TOGGLE_OFF_LIGHT = '#ddd'
+const TOGGLE_OFF_DARK = '#444'
+const TEXT_ON_ACCENT = '#fff'
+
 const screens = [
   { id: 'alarm-list', label: 'Alarm List' },
   { id: 'alarm-firing', label: 'Alarm Firing' },
@@ -60,7 +64,7 @@ function AlarmListScreen({ mode }) {
                   fontSize: 11,
                   fontWeight: 600,
                   background: isLight ? t.textPrimary : 'rgba(255,255,255,0.12)',
-                  color: isLight ? '#fff' : t.textSecondary,
+                  color: isLight ? TEXT_ON_ACCENT : t.textSecondary,
                   padding: '3px 8px',
                   borderRadius: 6,
                   alignSelf: 'flex-start',
@@ -69,13 +73,13 @@ function AlarmListScreen({ mode }) {
               </div>
               <div className="screen-toggle" style={{
                 width: 48, height: 28, borderRadius: 14,
-                background: a.active ? tok('color.primitive.green.500') : (isLight ? '#ddd' : '#444'),
+                background: a.active ? tok('color.primitive.green.500') : (isLight ? TOGGLE_OFF_LIGHT : TOGGLE_OFF_DARK),
                 position: 'relative',
                 flexShrink: 0,
               }}>
                 <div style={{
                   width: 22, height: 22, borderRadius: 11,
-                  background: '#fff',
+                  background: TEXT_ON_ACCENT,
                   position: 'absolute', top: 3,
                   left: a.active ? 23 : 3,
                   boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
@@ -94,7 +98,7 @@ function AlarmListScreen({ mode }) {
         backdropFilter: 'blur(20px)',
         border: `0.5px solid ${cardBorder}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: isLight ? '#fff' : t.textPrimary,
+        color: isLight ? TEXT_ON_ACCENT : t.textPrimary,
         fontSize: 24, fontWeight: 300,
         boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
       }}>+</div>
@@ -207,7 +211,7 @@ function AlarmPendingScreen({ mode }) {
               <span className="screen-badge" style={{
                 fontSize: 11, fontWeight: 600,
                 background: isLight ? t.textPrimary : 'rgba(255,255,255,0.12)',
-                color: isLight ? '#fff' : t.textSecondary,
+                color: isLight ? TEXT_ON_ACCENT : t.textSecondary,
                 padding: '3px 8px', borderRadius: 6, alignSelf: 'flex-start', marginTop: 4,
               }}>Monthly &middot; 1st</span>
             </div>
@@ -230,7 +234,7 @@ function AlarmPendingScreen({ mode }) {
             <div style={{
               width: 32, height: 32, borderRadius: 8,
               background: successBg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16, color: '#fff', fontWeight: 700,
+              fontSize: 16, color: TEXT_ON_ACCENT, fontWeight: 700,
             }}>&#10003;</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 14, fontWeight: 600 }}>Swipe Right on Card</span>
@@ -250,7 +254,7 @@ function AlarmPendingScreen({ mode }) {
             <div style={{
               width: 32, height: 32, borderRadius: 8,
               background: infoText, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, color: '#fff', fontWeight: 700,
+              fontSize: 14, color: TEXT_ON_ACCENT, fontWeight: 700,
             }}>&#128276;</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 14, fontWeight: 600 }}>Notification Action</span>
@@ -341,7 +345,7 @@ function AlarmCreationScreen({ mode }) {
               <div key={c} style={{
                 padding: '7px 12px', borderRadius: 8, fontSize: 13, fontWeight: 500,
                 background: i === 1 ? (isLight ? t.textPrimary : 'rgba(255,255,255,0.15)') : fieldBg,
-                color: i === 1 ? (isLight ? '#fff' : t.textPrimary) : t.textSecondary,
+                color: i === 1 ? (isLight ? TEXT_ON_ACCENT : t.textPrimary) : t.textSecondary,
                 border: `0.5px solid ${i === 1 ? 'transparent' : t.borderDefault}`,
               }}>{c}</div>
             ))}
@@ -357,7 +361,7 @@ function AlarmCreationScreen({ mode }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 12, fontWeight: d === 1 ? 600 : 400,
                 background: d === 1 ? (isLight ? t.textPrimary : 'rgba(255,255,255,0.15)') : fieldBg,
-                color: d === 1 ? (isLight ? '#fff' : t.textPrimary) : t.textSecondary,
+                color: d === 1 ? (isLight ? TEXT_ON_ACCENT : t.textPrimary) : t.textSecondary,
               }}>{d}</div>
             ))}
           </div>
@@ -370,7 +374,7 @@ function AlarmCreationScreen({ mode }) {
               <div key={label} style={{
                 padding: '7px 12px', borderRadius: 8, fontSize: 13, fontWeight: 500,
                 background: i === 2 ? (isLight ? t.textPrimary : 'rgba(255,255,255,0.15)') : fieldBg,
-                color: i === 2 ? (isLight ? '#fff' : t.textPrimary) : t.textSecondary,
+                color: i === 2 ? (isLight ? TEXT_ON_ACCENT : t.textPrimary) : t.textSecondary,
                 border: `0.5px solid ${i === 2 ? 'transparent' : t.borderDefault}`,
               }}>{icon} {label}</div>
             ))}
@@ -446,12 +450,12 @@ function SettingsScreen({ mode }) {
                   {r.toggle ? (
                     <div style={{
                       width: 44, height: 26, borderRadius: 13,
-                      background: r.on ? tok('color.primitive.green.500') : (isLight ? '#ddd' : '#444'),
+                      background: r.on ? tok('color.primitive.green.500') : (isLight ? TOGGLE_OFF_LIGHT : TOGGLE_OFF_DARK),
                       position: 'relative', flexShrink: 0,
                     }}>
                       <div style={{
                         width: 20, height: 20, borderRadius: 10,
-                        background: '#fff', position: 'absolute', top: 3,
+                        background: TEXT_ON_ACCENT, position: 'absolute', top: 3,
                         left: r.on ? 21 : 3,
                         boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
                       }} />
@@ -460,7 +464,7 @@ function SettingsScreen({ mode }) {
                     <span style={{
                       fontSize: 12, fontWeight: 600, padding: '2px 8px',
                       borderRadius: 6, background: isLight ? t.textPrimary : 'rgba(255,255,255,0.12)',
-                      color: isLight ? '#fff' : t.textSecondary,
+                      color: isLight ? TEXT_ON_ACCENT : t.textSecondary,
                     }}>{r.value}</span>
                   ) : r.chevron ? (
                     <span style={{ color: t.textTertiary, fontSize: 14 }}>&#8250;</span>

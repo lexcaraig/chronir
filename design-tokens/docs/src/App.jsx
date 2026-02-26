@@ -9,6 +9,7 @@ import ComponentsSection from './components/ComponentsSection'
 import ScreensSection from './components/ScreensSection'
 import MarketingSection from './components/MarketingSection'
 import IosArchitectureSection from './components/IosArchitectureSection'
+import FaqSection from './components/FaqSection'
 
 const sections = {
   colors: { component: ColorSection, title: 'Color Palette', description: 'A selection of colors that work together to create consistency in apps.' },
@@ -20,6 +21,7 @@ const sections = {
   screens: { component: ScreensSection, title: 'App Screens', description: 'Live previews of Chronir screens at iPhone resolution.' },
   marketing: { component: MarketingSection, title: 'Marketing', description: 'Launch copy, promotional content, and go-to-market strategy.' },
   iosArchitecture: { component: IosArchitectureSection, title: 'iOS Architecture', description: 'MVVM + Repository + Service pattern, SwiftData, AlarmKit, and feature implementation details.' },
+  faq: { component: FaqSection, title: 'FAQ', description: 'Frequently asked questions about Chronir.' },
 }
 
 export default function App() {
@@ -62,6 +64,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <a href="#main-content" className="skip-to-content">Skip to content</a>
       {/* Toolbar */}
       <header className="toolbar">
         <div className="toolbar-brand">
@@ -70,36 +73,42 @@ export default function App() {
           <span className="toolbar-subtitle">Design System</span>
         </div>
         <nav className="toolbar-nav">
-          <a
-            className={!['components', 'screens', 'marketing', 'iosArchitecture'].includes(active) ? 'active' : ''}
+          <button
+            className={!['components', 'screens', 'marketing', 'iosArchitecture', 'faq'].includes(active) ? 'active' : ''}
             onClick={() => navigate('colors')}
           >
             Foundations
-          </a>
-          <a
+          </button>
+          <button
             className={active === 'components' ? 'active' : ''}
             onClick={() => navigate('components')}
           >
             Components
-          </a>
-          <a
+          </button>
+          <button
             className={active === 'screens' ? 'active' : ''}
             onClick={() => navigate('screens')}
           >
             Screens
-          </a>
-          <a
+          </button>
+          <button
             className={active === 'marketing' ? 'active' : ''}
             onClick={() => navigate('marketing')}
           >
             Marketing
-          </a>
-          <a
+          </button>
+          <button
             className={active === 'iosArchitecture' ? 'active' : ''}
             onClick={() => navigate('iosArchitecture')}
           >
             Architecture
-          </a>
+          </button>
+          <button
+            className={active === 'faq' ? 'active' : ''}
+            onClick={() => navigate('faq')}
+          >
+            FAQ
+          </button>
           <button
             className="theme-toggle"
             onClick={toggleTheme}
@@ -113,7 +122,7 @@ export default function App() {
       {/* Body */}
       <div className="body-layout">
         <Sidebar active={active} onNavigate={navigate} />
-        <main className="main-content">
+        <main id="main-content" className="main-content">
           <div className="content-inner">
             <SectionComponent theme={theme} />
           </div>
