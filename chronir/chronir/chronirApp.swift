@@ -284,13 +284,23 @@ struct ChronirApp: App {
                 let now = Date()
 
                 // Case 1: Firing screen was up before backgrounding
-                // Data is handled by completeIfNeeded() via onDisappear — just dismiss here.
+                // Only dismiss if the alarm was handled (lock screen stop/snooze).
+                // If the alarm is still past-due, keep the firing view — user needs to interact.
                 if coordinator.isFiring, let firingID = coordinator.firingAlarmID {
                     let akAlarm = akAlarms.first { $0.id == firingID }
                     if akAlarm?.state != .alerting
                         && !coordinator.stoppedForCustomSound.contains(firingID)
                         && !coordinator.presentingPastDue.contains(firingID) {
-                        coordinator.dismissFiring()
+                        // Check if alarm still needs user action (past-due, not yet completed)
+                        let targetID = firingID
+                        let firingDesc = FetchDescriptor<Alarm>(
+                            predicate: #Predicate<Alarm> { $0.id == targetID }
+                        )
+                        let stillNeedsAction = (try? context.fetch(firingDesc).first)
+                            .map { $0.nextFireDate < now && $0.isEnabled } ?? false
+                        if !stillNeedsAction {
+                            coordinator.dismissFiring()
+                        }
                     }
                 }
 
