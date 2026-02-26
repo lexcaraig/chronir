@@ -313,6 +313,8 @@ struct AlarmSyncPayload: Identifiable {
     let preAlarmMinutes: Int
     let category: String?
     let soundName: String?
+    let isPendingConfirmation: Bool
+    let pendingSince: Date?
     let createdAt: Date
     let updatedAt: Date
 
@@ -330,6 +332,8 @@ struct AlarmSyncPayload: Identifiable {
         self.preAlarmMinutes = alarm.preAlarmMinutes
         self.category = alarm.category
         self.soundName = alarm.soundName
+        self.isPendingConfirmation = alarm.isPendingConfirmation
+        self.pendingSince = alarm.pendingSince
         self.createdAt = alarm.createdAt
         self.updatedAt = alarm.updatedAt
     }
@@ -349,6 +353,8 @@ struct AlarmSyncPayload: Identifiable {
         self.preAlarmMinutes = data["preAlarmMinutes"] as? Int ?? 0
         self.category = data["category"] as? String
         self.soundName = data["soundName"] as? String
+        self.isPendingConfirmation = data["isPendingConfirmation"] as? Bool ?? false
+        self.pendingSince = (data["pendingSince"] as? Timestamp)?.dateValue()
         self.createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
         self.updatedAt = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
     }
@@ -380,6 +386,8 @@ struct AlarmSyncPayload: Identifiable {
             nextFireDate: nextFireDate,
             timezone: timezone,
             isEnabled: isEnabled,
+            isPendingConfirmation: isPendingConfirmation,
+            pendingSince: pendingSince,
             persistenceLevel: persistenceLevel,
             preAlarmMinutes: preAlarmMinutes,
             category: category,
@@ -407,6 +415,8 @@ struct AlarmSyncPayload: Identifiable {
         if let timesOfDayJSON { data["timesOfDayJSON"] = timesOfDayJSON }
         if let category { data["category"] = category }
         if let soundName { data["soundName"] = soundName }
+        data["isPendingConfirmation"] = isPendingConfirmation
+        if let pendingSince { data["pendingSince"] = Timestamp(date: pendingSince) }
         return data
     }
 }

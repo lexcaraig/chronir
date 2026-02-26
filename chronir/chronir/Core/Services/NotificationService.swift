@@ -163,7 +163,26 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        let categoryID = response.notification.request.content.categoryIdentifier
+        let actionID = response.actionIdentifier
+
+        if categoryID == "PENDING_CONFIRMATION",
+           let alarmID = response.notification.request.content.userInfo["alarmID"] as? String {
+            PendingConfirmationService.handleNotificationAction(
+                actionIdentifier: actionID,
+                alarmIDString: alarmID
+            )
+        }
+
         completionHandler()
+    }
+
+    // MARK: - Pending Confirmation Category
+
+    func registerPendingConfirmationCategory() {
+        Task { @MainActor in
+            await PendingConfirmationService.shared.registerNotificationCategory()
+        }
     }
 }
 #else

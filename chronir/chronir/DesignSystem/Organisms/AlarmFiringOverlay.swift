@@ -28,7 +28,7 @@ struct AlarmFiringOverlay: View {
             ChronirText(alarm.title, style: .headlineLarge, color: ColorTokens.firingForeground)
 
             ChronirText(
-                alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
+                alarm.nextFireDate.formatted(date: .omitted, time: .shortened),
                 style: .displayAlarm,
                 color: ColorTokens.firingForeground
             )

@@ -168,10 +168,47 @@ final class AlarmFiringViewModel {
         stopFiring()
 
         await MainActor.run {
+            // Clear any stale pending state from a previous occurrence
+            PendingConfirmationService.shared.cancelPending(alarm: alarm)
             AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id)
             AlarmFiringCoordinator.shared.markHandled(alarm.id)
             AlarmFiringCoordinator.shared.dismissFiring()
             AppReviewService.recordCompletion()
+        }
+
+        if UserSettings.shared.hapticsEnabled { hapticService.playSuccess() }
+    }
+
+    // MARK: - Stop (silence alarm, enter pending for Plus)
+
+    func stop() async {
+        guard let alarm, !isCompleted else { return }
+        isCompleted = true
+
+        try? AlarmManager.shared.stop(id: alarm.id)
+
+        if await MainActor.run(body: { PendingConfirmationService.shared.isPlusUser }) {
+            await PendingConfirmationService.shared.enterPending(alarm: alarm)
+
+            AnalyticsService.shared.logEvent(AnalyticsEvent.alarmCompleted, parameters: [
+                "snooze_count": alarm.snoozeCount,
+                "pending_confirmation": true
+            ])
+        } else {
+            // Free tier — behave like dismiss
+            await performDismiss(alarm: alarm)
+            return
+        }
+
+        try? modelContext?.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
+
+        stopFiring()
+
+        await MainActor.run {
+            AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id)
+            AlarmFiringCoordinator.shared.markHandled(alarm.id)
+            AlarmFiringCoordinator.shared.dismissFiring()
         }
 
         if UserSettings.shared.hapticsEnabled { hapticService.playSuccess() }
@@ -207,25 +244,39 @@ final class AlarmFiringViewModel {
         if wasSnoozed {
             alarm.snoozeCount += 1
             saveCompletionLog(alarmID: alarm.id, action: .snoozed)
+        } else if await MainActor.run(body: { PendingConfirmationService.shared.isPlusUser }) {
+            // Plus tier safety net: enter pending instead of auto-completing
+            await PendingConfirmationService.shared.enterPending(alarm: alarm)
         } else {
-            alarm.lastFiredDate = Date()
-            alarm.lastCompletedAt = Date()
-            alarm.snoozeCount = 0
-
-            if alarm.cycleType == .oneTime {
-                alarm.isEnabled = false
-                alarm.nextFireDate = .distantFuture
-                try? await scheduler.cancelAlarm(alarm)
-            } else {
-                alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
-                try? await scheduler.cancelAlarm(alarm)
-                try? await scheduler.scheduleAlarm(alarm)
-            }
-
-            saveCompletionLog(alarmID: alarm.id, action: .completed)
+            await performDismiss(alarm: alarm)
+            return
         }
 
         // Save on the view's main context (not the actor's background context)
+        try? modelContext?.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
+    }
+
+    /// Shared dismiss logic for Free tier and "Mark as Done" path.
+    private func performDismiss(alarm: Alarm) async {
+        alarm.lastFiredDate = Date()
+        alarm.lastCompletedAt = Date()
+        alarm.snoozeCount = 0
+        alarm.isPendingConfirmation = false
+        alarm.pendingSince = nil
+
+        if alarm.cycleType == .oneTime {
+            alarm.isEnabled = false
+            alarm.nextFireDate = .distantFuture
+            try? await scheduler.cancelAlarm(alarm)
+        } else {
+            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
+            try? await scheduler.cancelAlarm(alarm)
+            try? await scheduler.scheduleAlarm(alarm)
+        }
+
+        saveCompletionLog(alarmID: alarm.id, action: .completed)
+
         try? modelContext?.save()
         Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
     }

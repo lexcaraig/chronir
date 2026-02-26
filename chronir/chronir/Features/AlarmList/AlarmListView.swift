@@ -221,6 +221,10 @@ struct AlarmListView: View {
                 if let alarm = alarms.first(where: { $0.id == id }) {
                     alarm.isEnabled = isEnabled
                     alarm.updatedAt = Date()
+                    // Cancel pending state when disabling
+                    if !isEnabled && alarm.isPendingConfirmation {
+                        PendingConfirmationService.shared.cancelPending(alarm: alarm)
+                    }
                     Task {
                         do {
                             if isEnabled {
@@ -284,6 +288,7 @@ struct AlarmListView: View {
     private func visualState(for alarm: Alarm) -> AlarmVisualState {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         if !isEnabled { return .inactive }
+        if alarm.isPendingConfirmation { return .pending }
         if alarm.snoozeCount > 0 { return .snoozed }
         return .active
     }
@@ -357,6 +362,14 @@ struct AlarmListView: View {
             }
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            if alarm.isPendingConfirmation {
+                Button {
+                    confirmPendingAlarm(alarm)
+                } label: {
+                    Label("Done", systemImage: "checkmark.circle.fill")
+                }
+                .tint(ColorTokens.success)
+            }
             Button {
                 let current = enabledStates[alarm.id] ?? alarm.isEnabled
                 if !current && !canEnableMoreAlarms() {
@@ -402,11 +415,11 @@ struct AlarmListView: View {
     }
 
     private var activeAlarms: [Alarm] {
-        alarms.filter { !($0.cycleType == .oneTime && !$0.isEnabled) }
+        alarms.filter { !($0.cycleType == .oneTime && !$0.isEnabled && !$0.isPendingConfirmation) }
     }
 
     private var archivedAlarms: [Alarm] {
-        alarms.filter { $0.cycleType == .oneTime && !$0.isEnabled }
+        alarms.filter { $0.cycleType == .oneTime && !$0.isEnabled && !$0.isPendingConfirmation }
     }
 
     private var filteredAlarms: [Alarm] {
@@ -503,6 +516,13 @@ extension AlarmListView {
         if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
     }
 
+    private func confirmPendingAlarm(_ alarm: Alarm) {
+        PendingConfirmationService.shared.confirmDone(alarm: alarm)
+        try? modelContext.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
+        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSuccess() }
+    }
+
     private func deleteAlarm(_ alarm: Alarm) {
         let alarmID = alarm.id.uuidString
         Task {
@@ -528,6 +548,10 @@ extension AlarmListView {
     private func enforceAlarmLimit() {
         let tier = subscriptionService.currentTier
         if tier == .free, let limit = tier.alarmLimit {
+            // Clear any pending confirmations on downgrade to Free
+            for alarm in activeAlarms where alarm.isPendingConfirmation {
+                PendingConfirmationService.shared.autoCompletePending(alarm: alarm)
+            }
             let enabled = activeAlarms.filter { enabledStates[$0.id] ?? $0.isEnabled }
             if enabled.count > limit {
                 let sorted = enabled.sorted { $0.createdAt < $1.createdAt }

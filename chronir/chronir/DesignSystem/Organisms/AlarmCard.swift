@@ -4,12 +4,14 @@ enum AlarmVisualState {
     case active
     case inactive
     case snoozed
+    case pending
 
     var accentColor: Color? {
         switch self {
         case .active: return nil
         case .inactive: return nil
         case .snoozed: return ColorTokens.warning
+        case .pending: return ColorTokens.info
         }
     }
 
@@ -18,6 +20,7 @@ enum AlarmVisualState {
         case .active: return nil
         case .inactive: return nil
         case .snoozed: return ("Snoozed", ColorTokens.badgeWarning, "zzz")
+        case .pending: return ("Awaiting Confirmation", ColorTokens.info, "clock.badge.questionmark")
         }
     }
 }
@@ -65,7 +68,7 @@ struct AlarmCard: View {
     }
 
     private var countdownText: String? {
-        guard visualState == .active || visualState == .snoozed else { return nil }
+        guard visualState == .active || visualState == .snoozed || visualState == .pending else { return nil }
         let now = Date()
         guard alarm.nextFireDate > now else { return nil }
 
@@ -126,7 +129,7 @@ struct AlarmCard: View {
             HStack(alignment: .firstTextBaseline) {
                 if visualState != .inactive {
                     AlarmTimeDisplay(
-                        time: alarm.scheduledTime,
+                        time: alarm.nextFireDate,
                         countdownText: countdownText
                     )
                     if alarm.hasMultipleTimes {

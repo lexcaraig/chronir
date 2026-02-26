@@ -13,7 +13,6 @@
 		2D8D898DDC53E540CE88A441 /* AlarmListTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B81735ED2E91B104116A6B /* AlarmListTimelineProvider.swift */; };
 		56F6B993E2676CB5093F6A1A /* SystemSmallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6721AC3A371FCE4AD59D5EE /* SystemSmallView.swift */; };
 		9009073EDDEECD0FE3112FE2 /* AccessoryInlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A128AC3F5D1DE706D3CEEF2 /* AccessoryInlineView.swift */; };
-		LA01CNTDWN000000000000001 /* CountdownLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */; };
 		92166E2F5DF120F27844A9C1 /* WidgetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C5CF0A3715CD9DF481D6FA /* WidgetModels.swift */; };
 		988D2B1CAEEFA318A31FFECE /* SystemMediumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08AE9839E0387CBFD0E77474 /* SystemMediumView.swift */; };
 		9DDCDAB3FC35FE97902B0714 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4D7B09B6AA04389AD4C3A8 /* SwiftUI.framework */; };
@@ -30,6 +29,7 @@
 		F8ABAE9EFBFB07EB9E2D70C9 /* NextAlarmTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF66B8DFDEAAE640923D2790 /* NextAlarmTimelineProvider.swift */; };
 		G00G0001000100010001000C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000B /* GoogleSignIn */; };
 		G00G0001000100010001000E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000D /* GoogleSignInSwift */; };
+		LA01CNTDWN000000000000001 /* CountdownLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,7 +81,6 @@
 		57B81735ED2E91B104116A6B /* AlarmListTimelineProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AlarmListTimelineProvider.swift; sourceTree = "<group>"; };
 		84C31D2FC5398E207C60D5DA /* ChronirWidgets.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ChronirWidgets.entitlements; sourceTree = "<group>"; };
 		8A128AC3F5D1DE706D3CEEF2 /* AccessoryInlineView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccessoryInlineView.swift; sourceTree = "<group>"; };
-		LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CountdownLiveActivityView.swift; sourceTree = "<group>"; };
 		92EA712943C85B9D73E894E3 /* ChronirWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ChronirWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F4D7B09B6AA04389AD4C3A8 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftUI.framework; sourceTree = "<group>"; };
 		B2E5B6EA2F363783002E2448 /* chronir.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chronir.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -91,6 +90,7 @@
 		E6721AC3A371FCE4AD59D5EE /* SystemSmallView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SystemSmallView.swift; sourceTree = "<group>"; };
 		EB0B6A154604127003821537 /* AccessoryCircularView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccessoryCircularView.swift; sourceTree = "<group>"; };
 		F34EC1576DB35B27DD1B996E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WidgetKit.framework; sourceTree = "<group>"; };
+		LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CountdownLiveActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */

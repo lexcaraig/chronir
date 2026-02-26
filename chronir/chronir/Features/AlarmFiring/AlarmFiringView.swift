@@ -96,7 +96,7 @@ struct AlarmFiringView: View {
                     ChronirText(alarm.title, style: .headlineLarge, color: ColorTokens.firingForeground)
 
                     ChronirText(
-                        alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
+                        alarm.nextFireDate.formatted(date: .omitted, time: .shortened),
                         style: .displayAlarm,
                         color: ColorTokens.firingForeground
                     )
@@ -164,19 +164,52 @@ struct AlarmFiringView: View {
         .background(ColorTokens.firingBackground)
     }
 
+    private var isPlusUser: Bool {
+        SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
+    }
+
     @ViewBuilder
     private var dismissButton: some View {
-        if settings.slideToStopEnabled {
-            holdToDismissButton
-        } else {
-            ChronirButton("Mark as Done", style: .primary) {
-                Task { await viewModel.dismiss() }
+        if isPlusUser {
+            // Plus tier: "Mark as Done" (primary) + "Stop Alarm" / "Hold to Stop" (secondary)
+            VStack(spacing: SpacingTokens.sm) {
+                ChronirButton("Mark as Done", style: .primary) {
+                    Task { await viewModel.dismiss() }
+                }
+                .padding(.horizontal, SpacingTokens.xxxl)
+
+                if settings.slideToStopEnabled {
+                    holdButton(label: "Hold to Stop", holdLabel: "Keep holding...") {
+                        Task { await viewModel.stop() }
+                    }
+                } else {
+                    Button {
+                        Task { await viewModel.stop() }
+                    } label: {
+                        ChronirText(
+                            "Stop Alarm",
+                            style: .bodyMedium,
+                            color: ColorTokens.firingForeground.opacity(0.7)
+                        )
+                    }
+                }
             }
-            .padding(.horizontal, SpacingTokens.xxxl)
+        } else {
+            // Free tier: single dismiss action (unchanged)
+            if settings.slideToStopEnabled {
+                holdButton(label: "Hold to Dismiss", holdLabel: "Keep holding...") {
+                    Task { await viewModel.dismiss() }
+                }
+            } else {
+                ChronirButton("Mark as Done", style: .primary) {
+                    Task { await viewModel.dismiss() }
+                }
+                .padding(.horizontal, SpacingTokens.xxxl)
+            }
         }
     }
 
-    private var holdToDismissButton: some View {
+    private func holdButton(label: String, holdLabel: String, action: @escaping () -> Void) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: RadiusTokens.lg)
                 .fill(ColorTokens.backgroundTertiary)
@@ -190,7 +223,7 @@ struct AlarmFiringView: View {
             .frame(height: 56)
 
             ChronirText(
-                isHolding ? "Keep holding..." : "Hold to Dismiss",
+                isHolding ? holdLabel : label,
                 style: .headlineSmall,
                 color: ColorTokens.firingForeground
             )
@@ -199,12 +232,12 @@ struct AlarmFiringView: View {
         .padding(.horizontal, SpacingTokens.xxxl)
         .gesture(
             DragGesture(minimumDistance: 0)
-                .onChanged { _ in startHold() }
+                .onChanged { _ in startHold(action: action) }
                 .onEnded { _ in cancelHold() }
         )
     }
 
-    private func startHold() {
+    private func startHold(action: @escaping () -> Void) {
         guard !isHolding else { return }
         isHolding = true
         withAnimation(.linear(duration: holdDuration)) {
@@ -213,16 +246,16 @@ struct AlarmFiringView: View {
         holdTask = Task {
             try? await Task.sleep(for: .seconds(holdDuration))
             guard !Task.isCancelled else { return }
-            completeHold()
+            completeHold(action: action)
         }
     }
 
-    private func completeHold() {
+    private func completeHold(action: @escaping () -> Void) {
         holdTask?.cancel()
         holdTask = nil
         isHolding = false
         holdProgress = 0
-        Task { await viewModel.dismiss() }
+        action()
     }
 
     private func cancelHold() {

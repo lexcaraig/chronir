@@ -8,6 +8,7 @@ enum CompletionAction: String, Codable, CaseIterable {
     case snoozed
     case completed
     case skipped
+    case pendingConfirmation
 }
 
 // MARK: - SwiftData Model

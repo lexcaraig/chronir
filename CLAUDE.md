@@ -236,6 +236,9 @@ PR triggers lint + tests; merge to main triggers release build.
 - **Firestore security rules** are defined in `technical-spec.md` Section 6.4 — follow them exactly.
 - **Deep links:** `chronir://alarm/{id}`, `chronir://invite/{code}`, `https://chronir.app/invite/{code}`
 - Preview-driven development: every component needs Light/Dark + relevant state previews.
+- **SwiftData new properties MUST have property-level defaults.** `var foo: Bool = false` (not just `init(foo: Bool = false)`). Init defaults are Swift constructs; property-level defaults are schema constructs that CoreData uses for lightweight migration. Without them, existing rows can't migrate and the app crashes on launch.
+- **SQLite store is in the App Group container** (`group.com.chronir.shared`), not `URL.applicationSupportDirectory`. Any code that references the store path (recovery, backup, migration) must use the App Group URL.
+- **New boolean flags must be cleared by ALL completion paths.** When adding a flag like `isPendingConfirmation` to a model, grep for every method that "completes" or "resets" the entity (`dismiss()`, `performDismiss()`, `completeIfNeeded()`, `handleLockScreenAction()`, etc.) and ensure they clear the new flag. Pre-existing paths won't know about the new flag unless explicitly updated. Also ensure that `autoCompletePending` (or equivalent cleanup) is called from ALL alarm presentation paths — not just the `alarmUpdates` handler which is skipped when `appIsInBackground` is true.
 
 ## Lessons Learned
 

@@ -29,10 +29,18 @@ struct ChronirApp: App {
         do {
             container = try ModelContainer(for: Alarm.self, CompletionLog.self)
         } catch {
-            // Corrupted store — delete and recreate to avoid permanent crash loop
+            // Corrupted store — delete and recreate to avoid permanent crash loop.
+            // Try both app sandbox and App Group container (widgets use App Group).
             let defaultURL = URL.applicationSupportDirectory
                 .appendingPathComponent("default.store")
             try? FileManager.default.removeItem(at: defaultURL)
+            if let groupURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: "group.com.chronir.shared"
+            ) {
+                let groupStoreURL = groupURL
+                    .appending(path: "Library/Application Support/default.store")
+                try? FileManager.default.removeItem(at: groupStoreURL)
+            }
             do {
                 container = try ModelContainer(for: Alarm.self, CompletionLog.self)
             } catch {
@@ -43,6 +51,7 @@ struct ChronirApp: App {
         CloudSyncService.shared.configure(with: container)
         Self.migrateCompletionRecords(container: container)
         ChronirShortcuts.updateAppShortcutParameters()
+        NotificationService.shared.registerPendingConfirmationCategory()
     }
 
     /// One-time migration of legacy CompletionRecord from UserDefaults to SwiftData.
@@ -179,11 +188,15 @@ struct ChronirApp: App {
                                 let descriptor = FetchDescriptor<Alarm>(
                                     predicate: #Predicate<Alarm> { $0.id == targetID && $0.isEnabled == true }
                                 )
-                                guard (try? self.container.mainContext.fetch(descriptor).first) != nil else {
+                                guard let model = try? self.container.mainContext.fetch(descriptor).first else {
                                     try? AlarmManager.shared.stop(id: alarm.id)
                                     try? AlarmManager.shared.cancel(id: alarm.id)
                                     return
                                 }
+                                // Auto-complete if alarm was pending from previous occurrence
+                                PendingConfirmationService.shared.autoCompletePending(alarm: model)
+                                try? self.container.mainContext.save()
+
                                 AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
                                 Task { await LiveActivityService.shared.endCurrentActivity() }
                             }
@@ -292,6 +305,8 @@ struct ChronirApp: App {
                         let akAlarm = akAlarms.first { $0.id == model.id }
 
                         if akAlarm?.state == .alerting {
+                            PendingConfirmationService.shared.autoCompletePending(alarm: model)
+                            try? context.save()
                             coordinator.presentAlarm(id: model.id)
                         } else if akAlarm?.state == .countdown {
                             // Still in snooze countdown — process if not already by .countdown handler
@@ -316,6 +331,8 @@ struct ChronirApp: App {
                             )
                         } else if model.id != coordinator.firingAlarmID {
                             // Alarm was missed — present firing screen
+                            PendingConfirmationService.shared.autoCompletePending(alarm: model)
+                            try? context.save()
                             coordinator.stoppedForCustomSound.insert(model.id)
                             coordinator.presentingPastDue.insert(model.id)
                             coordinator.presentAlarm(id: model.id)
@@ -374,6 +391,19 @@ struct ChronirApp: App {
                 OnboardingView()
                     .interactiveDismissDisabled()
             }
+            .onReceive(NotificationCenter.default.publisher(for: PendingConfirmationService.didConfirmFromNotification)) { notification in
+                guard let alarmIDString = notification.object as? String,
+                      let alarmUUID = UUID(uuidString: alarmIDString) else { return }
+                let targetID = alarmUUID
+                let descriptor = FetchDescriptor<Alarm>(
+                    predicate: #Predicate<Alarm> { $0.id == targetID }
+                )
+                if let alarm = try? container.mainContext.fetch(descriptor).first {
+                    PendingConfirmationService.shared.confirmDone(alarm: alarm)
+                    try? container.mainContext.save()
+                    Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
+                }
+            }
         }
     }
 }
@@ -401,8 +431,19 @@ extension ChronirApp {
             )
             log.alarm = model
             context.insert(log)
+        } else if PendingConfirmationService.shared.isPlusUser {
+            // Lock screen stop — Plus tier: enter pending
+            // Await enterPending before saving to ensure pending state persists
+            Task {
+                await PendingConfirmationService.shared.enterPending(alarm: model)
+                try? context.save()
+                await CloudSyncService.shared.pushAlarmModel(model)
+                await WidgetDataService.shared.refresh()
+                await LiveActivityService.shared.refreshLiveActivity()
+            }
+            return
         } else {
-            // Lock screen stop
+            // Lock screen stop — Free tier: complete immediately
             let calc = DateCalculator()
             let log = CompletionLog(
                 alarmID: model.id,

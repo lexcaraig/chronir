@@ -72,13 +72,13 @@
 
 ## 5. Free Tier Limit (3 Alarms)
 
-| #   | Step                          | Expected Result                                               | Pass?                                                             |
-| --- | ----------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------- |
-| 5.1 | With 3 alarms in list, tap +  | PaywallView appears (not creation form)                       | PASS                                                              |
-| 5.2 | Paywall shows limit message   | "You've reached the 3-alarm limit" or similar                 | PASS                                                              |
-| 5.3 | Feature list visible          | Unlimited alarms, cloud backup, custom snooze, widgets listed | PASS                                                              |
-| 5.4 | Tap "Close"                   | Paywall dismisses, back to list (also dismisses via drag)     | PASS                                                              |
-| 5.5 | Delete one alarm, tap + again | AlarmCreationView opens normally (under limit)                | PASS                                                              |
+| #   | Step                          | Expected Result                                               | Pass? |
+| --- | ----------------------------- | ------------------------------------------------------------- | ----- |
+| 5.1 | With 3 alarms in list, tap +  | PaywallView appears (not creation form)                       | PASS  |
+| 5.2 | Paywall shows limit message   | "You've reached the 3-alarm limit" or similar                 | PASS  |
+| 5.3 | Feature list visible          | Unlimited alarms, cloud backup, custom snooze, widgets listed | PASS  |
+| 5.4 | Tap "Close"                   | Paywall dismisses, back to list (also dismisses via drag)     | PASS  |
+| 5.5 | Delete one alarm, tap + again | AlarmCreationView opens normally (under limit)                | PASS  |
 
 ---
 
@@ -218,15 +218,15 @@
 
 ## 13. Visual / UI Checks
 
-| #    | Check                    | Expected Result                                                  | Pass?                                      |
-| ---- | ------------------------ | ---------------------------------------------------------------- | ------------------------------------------ |
-| 13.1 | Card colors              | Active = normal, Inactive = muted/transparent                    | PASS (confirmed via toggle disable/enable) |
-| 13.2 | Cycle badges             | Weekly = blue-ish, Monthly = different color, Annual = different | PASS (Weekly + Monthly badges visible)     |
+| #    | Check                    | Expected Result                                                                 | Pass?                                      |
+| ---- | ------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------ |
+| 13.1 | Card colors              | Active = normal, Inactive = muted/transparent                                   | PASS (confirmed via toggle disable/enable) |
+| 13.2 | Cycle badges             | Weekly = blue-ish, Monthly = different color, Annual = different                | PASS (Weekly + Monthly badges visible)     |
 | 13.3 | Status badges            | Snoozed = warning/yellow (overdue badge removed — past-due alarms fire instead) | PASS (snoozed confirmed on device)         |
-| 13.4 | Firing screen background | True black (OLED-friendly)                                       | PASS                                       |
-| 13.5 | Design tokens applied    | Consistent colors, spacing, typography across all views          | PASS (consistent across all tested views)  |
-| 13.6 | Empty state              | Illustration + CTA when no alarms                                | PASS (confirmed after deleting all alarms) |
-| 13.7 | Navigation titles        | "Alarms" on list, "Settings" on settings, alarm name on detail   | PASS (all titles visible in testing)       |
+| 13.4 | Firing screen background | True black (OLED-friendly)                                                      | PASS                                       |
+| 13.5 | Design tokens applied    | Consistent colors, spacing, typography across all views                         | PASS (consistent across all tested views)  |
+| 13.6 | Empty state              | Illustration + CTA when no alarms                                               | PASS (confirmed after deleting all alarms) |
+| 13.7 | Navigation titles        | "Alarms" on list, "Settings" on settings, alarm name on detail                  | PASS (all titles visible in testing)       |
 
 ---
 
@@ -351,8 +351,8 @@
 | 21.4 | Verify alarm in app                         | "Dentist" alarm appears in list with Weekly default schedule | PASS                                                   |
 | 21.5 | "Hey Siri, what's my next alarm in Chronir" | Siri reads next alarm title and date/time                    | PASS                                                   |
 | 21.6 | "Hey Siri, list my alarms in Chronir"       | Siri reads up to 5 active alarms                             | PASS                                                   |
-| 21.7 | With 3 active alarms, create via Siri       | Siri responds with free tier limit error message             | PASS |
-| 21.8 | SiriTipView visible in empty state          | Siri tip shown near empty state CTA in alarm list            | PASS |
+| 21.7 | With 3 active alarms, create via Siri       | Siri responds with free tier limit error message             | PASS                                                   |
+| 21.8 | SiriTipView visible in empty state          | Siri tip shown near empty state CTA in alarm list            | PASS                                                   |
 
 ---
 
@@ -360,14 +360,14 @@
 
 > **Note:** Photos and notes are Plus-only features. Free users cannot add new photos/notes but can view existing ones (from a downgrade scenario).
 
-| #    | Step                                         | Expected Result                                              | Pass? |
-| ---- | -------------------------------------------- | ------------------------------------------------------------ | ----- |
-| 22.1 | Free tier → Create Alarm                     | Photo section is NOT visible                                 | PASS  |
-| 22.2 | Free tier → Create Alarm                     | Note field is NOT visible                                    | PASS  |
-| 22.3 | Free tier → Edit alarm WITH existing photo   | Photo displayed read-only (no delete button, no PhotosPicker)| PASS  |
-| 22.4 | Free tier → Edit alarm WITH existing note    | Note displayed as read-only text (not editable)              | PASS  |
-| 22.5 | Free tier → Edit alarm WITHOUT photo/note    | Photo section hidden, note field hidden                      | PASS  |
-| 22.6 | Plus tier → Create/Edit alarm                | Photo section + note field fully interactive (no change)     | PASS  |
+| #    | Step                                       | Expected Result                                               | Pass? |
+| ---- | ------------------------------------------ | ------------------------------------------------------------- | ----- |
+| 22.1 | Free tier → Create Alarm                   | Photo section is NOT visible                                  | PASS  |
+| 22.2 | Free tier → Create Alarm                   | Note field is NOT visible                                     | PASS  |
+| 22.3 | Free tier → Edit alarm WITH existing photo | Photo displayed read-only (no delete button, no PhotosPicker) | PASS  |
+| 22.4 | Free tier → Edit alarm WITH existing note  | Note displayed as read-only text (not editable)               | PASS  |
+| 22.5 | Free tier → Edit alarm WITHOUT photo/note  | Photo section hidden, note field hidden                       | PASS  |
+| 22.6 | Plus tier → Create/Edit alarm              | Photo section + note field fully interactive (no change)      | PASS  |
 
 ---
 
@@ -386,11 +386,11 @@
 
 ## 24. Last Completed Date (Sprint Tier Improvements — TIER-07)
 
-| #    | Step                              | Expected Result                                    | Pass? |
-| ---- | --------------------------------- | -------------------------------------------------- | ----- |
-| 24.1 | Complete an alarm (let it fire, slide to stop) | Card shows "Last: today" or similar date text | PASS |
-| 24.2 | New alarm (never completed)       | No "Last completed" shown (no noise)               | PASS |
-| 24.3 | Verify time not reset             | Alarm card shows original set time (not 8:00)      | PASS |
+| #    | Step                                           | Expected Result                               | Pass? |
+| ---- | ---------------------------------------------- | --------------------------------------------- | ----- |
+| 24.1 | Complete an alarm (let it fire, slide to stop) | Card shows "Last: today" or similar date text | PASS  |
+| 24.2 | New alarm (never completed)                    | No "Last completed" shown (no noise)          | PASS  |
+| 24.3 | Verify time not reset                          | Alarm card shows original set time (not 8:00) | PASS  |
 
 ---
 
@@ -398,12 +398,12 @@
 
 > Overdue badge removed. Past-due alarms now present the full firing screen (sound + haptics).
 
-| #    | Step                                          | Expected Result                                                                     | Pass? |
-| ---- | --------------------------------------------- | ----------------------------------------------------------------------------------- | ----- |
-| 25.1 | Set alarm 1 min in future, background app, let it fire, ignore lock screen alert, open app | Full firing screen with sound + haptics |       |
-| 25.2 | Lock screen stop → return to app (app backgrounded, not killed) | Alarm auto-completes, no firing screen (lock screen stop = acknowledgment)    |       |
-| 25.3 | Kill app, wait for alarm to pass, cold launch | Firing screen presented for missed alarm                                            |       |
-| 25.4 | Two past-due alarms → dismiss first           | Second presents on next foreground                                                  |       |
+| #    | Step                                                                                       | Expected Result                                                            | Pass? |
+| ---- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- | ----- |
+| 25.1 | Set alarm 1 min in future, background app, let it fire, ignore lock screen alert, open app | Full firing screen with sound + haptics                                    |       |
+| 25.2 | Lock screen stop → return to app (app backgrounded, not killed)                            | Alarm auto-completes, no firing screen (lock screen stop = acknowledgment) |       |
+| 25.3 | Kill app, wait for alarm to pass, cold launch                                              | Firing screen presented for missed alarm                                   |       |
+| 25.4 | Two past-due alarms → dismiss first                                                        | Second presents on next foreground                                         |       |
 
 ---
 
@@ -411,53 +411,53 @@
 
 > **Note:** Extended options are Plus-gated. Free users see only "1 day".
 
-| #    | Step                                               | Expected Result                              | Pass? |
-| ---- | -------------------------------------------------- | -------------------------------------------- | ----- |
-| 26.1 | Free user → create/edit alarm                      | Only "1 day" pre-alarm option selectable     | PASS |
-| 26.2 | Free user → extended options (1h, 3d, 7d)          | Show lock icon or not selectable             | PASS |
+| #    | Step                                      | Expected Result                          | Pass? |
+| ---- | ----------------------------------------- | ---------------------------------------- | ----- |
+| 26.1 | Free user → create/edit alarm             | Only "1 day" pre-alarm option selectable | PASS  |
+| 26.2 | Free user → extended options (1h, 3d, 7d) | Show lock icon or not selectable         | PASS  |
 
 ---
 
 ## 27. Skip This Occurrence (Sprint Tier Improvements — TIER-06)
 
-| #    | Step                                      | Expected Result                                 | Pass? |
-| ---- | ----------------------------------------- | ----------------------------------------------- | ----- |
-| 27.1 | Find enabled recurring alarm              | Alarm visible in list                           | PASS |
-| 27.2 | Look for "Skip" action (swipe or detail)  | Skip action available                           | PASS |
-| 27.3 | Tap Skip                                  | Next fire date advances to occurrence after next | PASS |
-| 27.4 | Alarm remains enabled after skip          | Toggle still ON                                 | PASS |
-| 27.5 | One-time alarm does NOT show skip option  | Skip not available for one-time alarms          | PASS |
+| #    | Step                                     | Expected Result                                  | Pass? |
+| ---- | ---------------------------------------- | ------------------------------------------------ | ----- |
+| 27.1 | Find enabled recurring alarm             | Alarm visible in list                            | PASS  |
+| 27.2 | Look for "Skip" action (swipe or detail) | Skip action available                            | PASS  |
+| 27.3 | Tap Skip                                 | Next fire date advances to occurrence after next | PASS  |
+| 27.4 | Alarm remains enabled after skip         | Toggle still ON                                  | PASS  |
+| 27.5 | One-time alarm does NOT show skip option | Skip not available for one-time alarms           | PASS  |
 
 ---
 
 ## 28. Lifetime Purchase (Sprint Tier Improvements — TIER-08)
 
-| #    | Step                                                     | Expected Result                                           | Pass? |
-| ---- | -------------------------------------------------------- | --------------------------------------------------------- | ----- |
-| 28.1 | Open Paywall (upgrade banner or Settings > Subscription) | Paywall opens                                             | PASS |
-| 28.2 | Verify 3 plan options: Monthly, Annual, Lifetime         | Monthly ($1.99), Annual ($19.99), Lifetime ($49.99)       | PASS |
-| 28.3 | Lifetime badge displays                                  | "One-Time" or "Best Value" badge visible                  | PASS |
-| 28.4 | Select Lifetime                                          | Button says "Buy Once — $49.99"                           | PASS |
-| 28.5 | Renewal terms text correct                               | "One-time purchase. No subscription, no renewals — yours forever." | PASS |
-| 28.6 | Purchase in sandbox                                      | Plus features unlock permanently                          | PASS |
-| 28.7 | Settings > Subscription                                  | Shows "Plus" with "Forever" duration, no "Change Plan"    | PASS |
-| 28.8 | Kill and relaunch app                                    | Lifetime entitlement persists                             | PASS |
+| #    | Step                                                     | Expected Result                                                    | Pass? |
+| ---- | -------------------------------------------------------- | ------------------------------------------------------------------ | ----- |
+| 28.1 | Open Paywall (upgrade banner or Settings > Subscription) | Paywall opens                                                      | PASS  |
+| 28.2 | Verify 3 plan options: Monthly, Annual, Lifetime         | Monthly ($1.99), Annual ($19.99), Lifetime ($49.99)                | PASS  |
+| 28.3 | Lifetime badge displays                                  | "One-Time" or "Best Value" badge visible                           | PASS  |
+| 28.4 | Select Lifetime                                          | Button says "Buy Once — $49.99"                                    | PASS  |
+| 28.5 | Renewal terms text correct                               | "One-time purchase. No subscription, no renewals — yours forever." | PASS  |
+| 28.6 | Purchase in sandbox                                      | Plus features unlock permanently                                   | PASS  |
+| 28.7 | Settings > Subscription                                  | Shows "Plus" with "Forever" duration, no "Change Plan"             | PASS  |
+| 28.8 | Kill and relaunch app                                    | Lifetime entitlement persists                                      | PASS  |
 
 ---
 
 ## 29. Alarm Templates Library (Sprint Tier Improvements — TIER-04)
 
-| #    | Step                                               | Expected Result                                     | Pass? |
-| ---- | -------------------------------------------------- | --------------------------------------------------- | ----- |
-| 29.1 | Tap "+" to create a new alarm                      | Creation form opens                                 | PASS |
-| 29.2 | Tap Templates button in top-left toolbar           | Template library sheet appears                      | PASS |
-| 29.3 | Verify template categories                         | Home, Auto, Health, Finance categories shown        | PASS |
-| 29.4 | Search for "oil"                                   | Filters to "Oil Change Reminder"                    | PASS |
-| 29.5 | Tap a template (e.g., "HVAC Filter Replacement")   | Template selected                                   | PASS |
-| 29.6 | Form pre-fills from template                       | Title, cycle type, category, suggested note filled  | PASS |
-| 29.7 | Edit any pre-filled field before saving            | Fields are editable                                 | PASS |
-| 29.8 | Save the templated alarm                           | Alarm saves normally                                | PASS |
-| 29.9 | Free user at 3-alarm limit uses template           | Paywall triggered                                   | PASS |
+| #    | Step                                             | Expected Result                                    | Pass? |
+| ---- | ------------------------------------------------ | -------------------------------------------------- | ----- |
+| 29.1 | Tap "+" to create a new alarm                    | Creation form opens                                | PASS  |
+| 29.2 | Tap Templates button in top-left toolbar         | Template library sheet appears                     | PASS  |
+| 29.3 | Verify template categories                       | Home, Auto, Health, Finance categories shown       | PASS  |
+| 29.4 | Search for "oil"                                 | Filters to "Oil Change Reminder"                   | PASS  |
+| 29.5 | Tap a template (e.g., "HVAC Filter Replacement") | Template selected                                  | PASS  |
+| 29.6 | Form pre-fills from template                     | Title, cycle type, category, suggested note filled | PASS  |
+| 29.7 | Edit any pre-filled field before saving          | Fields are editable                                | PASS  |
+| 29.8 | Save the templated alarm                         | Alarm saves normally                               | PASS  |
+| 29.9 | Free user at 3-alarm limit uses template         | Paywall triggered                                  | PASS  |
 
 ---
 
@@ -465,12 +465,12 @@
 
 > **Note:** Free users can select Classic Alarm or Gentle Chime. Plus-only sounds show a lock icon.
 
-| #    | Step                                               | Expected Result                                     | Pass? |
-| ---- | -------------------------------------------------- | --------------------------------------------------- | ----- |
-| 30.1 | Create or edit alarm → tap Sound row               | Sound picker sheet appears                          | PASS |
-| 30.2 | Verify 6 sounds: 2 free, 4 Plus-locked             | Correct sounds listed with lock icons               | PASS |
-| 30.3 | Free user taps Plus-only sound                     | Paywall triggered                                   | PASS |
-| 30.4 | Settings > Alarm Sound — change app-wide default   | Default sound updated                               | PASS |
+| #    | Step                                             | Expected Result                       | Pass? |
+| ---- | ------------------------------------------------ | ------------------------------------- | ----- |
+| 30.1 | Create or edit alarm → tap Sound row             | Sound picker sheet appears            | PASS  |
+| 30.2 | Verify 6 sounds: 2 free, 4 Plus-locked           | Correct sounds listed with lock icons | PASS  |
+| 30.3 | Free user taps Plus-only sound                   | Paywall triggered                     | PASS  |
+| 30.4 | Settings > Alarm Sound — change app-wide default | Default sound updated                 | PASS  |
 
 ---
 
@@ -478,55 +478,73 @@
 
 > **Note:** Cloud sync is Plus-only. Free users should never trigger Firestore reads/writes.
 
-| #    | Step                                          | Expected Result                                              | Pass? |
-| ---- | --------------------------------------------- | ------------------------------------------------------------ | ----- |
-| 31.1 | Free user → create alarm                      | No Firestore write triggered (sync silently skipped)         |       |
-| 31.2 | Free user → delete alarm                      | No Firestore delete triggered                                |       |
-| 31.3 | Free user → toggle alarm on/off               | No Firestore write triggered                                 |       |
-| 31.4 | Free user → skip occurrence                   | No Firestore write triggered                                 |       |
-| 31.5 | _(Removed — overdue swipe-to-done action deleted)_ | N/A                                                      | N/A   |
-| 31.6 | Free user → alarm fires → dismiss/snooze      | No Firestore write triggered                                 |       |
-| 31.7 | Free user → foreground app (scenePhase check) | `syncAlarms()` called but returns early (isPlusTier = false) |       |
-| 31.8 | Settings → Backup & Sync                      | Shows LocalBackupInfoView (iCloud info, not cloud sync)      |       |
+| #    | Step                                               | Expected Result                                              | Pass? |
+| ---- | -------------------------------------------------- | ------------------------------------------------------------ | ----- |
+| 31.1 | Free user → create alarm                           | No Firestore write triggered (sync silently skipped)         |       |
+| 31.2 | Free user → delete alarm                           | No Firestore delete triggered                                |       |
+| 31.3 | Free user → toggle alarm on/off                    | No Firestore write triggered                                 |       |
+| 31.4 | Free user → skip occurrence                        | No Firestore write triggered                                 |       |
+| 31.5 | _(Removed — overdue swipe-to-done action deleted)_ | N/A                                                          | N/A   |
+| 31.6 | Free user → alarm fires → dismiss/snooze           | No Firestore write triggered                                 |       |
+| 31.7 | Free user → foreground app (scenePhase check)      | `syncAlarms()` called but returns early (isPlusTier = false) |       |
+| 31.8 | Settings → Backup & Sync                           | Shows LocalBackupInfoView (iCloud info, not cloud sync)      |       |
+
+---
+
+## 32. Completion Confirmation — Free Tier Unchanged (FEAT-04)
+
+> **Note:** Completion Confirmation is Plus-only. Free tier behavior must remain exactly as before: stopping an alarm = completing it. No pending state, no follow-up notifications.
+
+| #    | Step                                            | Expected Result                                              | Pass? |
+| ---- | ----------------------------------------------- | ------------------------------------------------------------ | ----- |
+| 32.1 | Free user → alarm fires → tap "Mark as Done"    | Alarm completes immediately, no pending state                | PASS  |
+| 32.2 | Free user → alarm fires (slide-to-stop enabled) | Single "Hold to Dismiss" button (no "Stop Alarm" secondary)  | PASS  |
+| 32.3 | Free user → alarm fires → hold to dismiss       | Alarm completes immediately, card shows next occurrence      | PASS  |
+| 32.4 | Free user → lock screen → slide to stop         | Alarm completes immediately, no follow-up notifications      |       |
+| 32.5 | Free user → verify alarm card after stop        | No "Awaiting Confirmation" badge, no `.pending` visual state | PASS  |
+| 32.6 | Free user → verify no follow-up notifications   | No "Did you complete it?" notifications after stopping       |       |
+| 32.7 | Free user → external dismiss (onDisappear)      | Safety net completes alarm immediately (no pending)          | PASS  |
+| 32.8 | Free user → completion history after stop       | Streak + "Last completed: Today" shown (history is Plus-only)| PASS  |
 
 ---
 
 ## Test Summary
 
-| Category                      | Total Tests | Passed  | Failed | Notes                                              |
-| ----------------------------- | ----------- | ------- | ------ | -------------------------------------------------- |
-| Onboarding                    | 11          | 11      | 0      | All passed incl. Skip for now                      |
-| Empty State                   | 2           | 2       | 0      |                                                    |
-| Create Alarm                  | 13          | 9       | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested     |
-| Create Monthly                | 7           | 7       | 0      | "Salary day" monthly alarm created on device       |
-| Tier Gating                   | 5           | 5       | 0      | All passed incl. delete+re-create                  |
-| Edit Alarm                    | 7           | 6       | 0      | 6.4a multi-time edit untested                      |
-| Delete Alarm                  | 4           | 4       | 0      | Swipe right → delete confirmed                     |
-| Toggle                        | 4           | 4       | 0      | Swipe left + toggle switch both work               |
-| Alarm Firing                  | 12          | 12      | 0      | All passed including hold-to-dismiss               |
-| Lock Screen                   | 7           | 6       | 0      | 9D.5 (1hr re-fire) untested — requires wait        |
-| Settings                      | 14          | 14      | 0      | All passed                                         |
-| Persistence                   | 3           | 3       | 0      |                                                    |
-| Edge Cases                    | 8           | 8       | 0      | All covered by 26 unit tests                       |
-| Visual/UI                     | 7           | 7       | 0      | All confirmed from device screenshots              |
-| Notifications                 | 5           | 5       | 0      | All passed                                         |
-| Completion Recording (S9)     | 9           | 6       | 0      | 15.4–15.9 PASS; 15.1–15.3 untested                 |
-| Haptic Feedback (S9)          | 9           | 9       | 0      | All passed on device                               |
-| Sprint 9 Cross-Cutting (Free) | 5           | 2       | 0      | 17.4–17.5 PASS; 17.1–17.3 untested                 |
-| Create One-Time (Siri sprint) | 8           | 8       | 0      | All pass                                           |
-| One-Time Auto-Archive         | 9           | 9       | 0      | All pass incl. lock screen archive                 |
-| Archived Section UI           | 6           | 6       | 0      | All pass                                           |
-| Siri Integration              | 8           | 8       | 0      | All pass                                           |
-| One-Time Edit Flow            | 6           | 6       | 0      | All pass                                           |
-| Last Completed (Tier Impr.)   | 3           | 3       | 0      | TIER-07 — all pass                                 |
-| Overdue Visual State (Tier)   | 4           | 4       | 0      | TIER-12 — all pass                                 |
-| Extended Pre-Alarms (Tier)    | 2           | 2       | 0      | TIER-05 Free tier checks — all pass                |
-| Skip Occurrence (Tier)        | 5           | 5       | 0      | TIER-06 — all pass                                 |
-| Lifetime Purchase (Tier)      | 8           | 8       | 0      | TIER-08 — all pass                                 |
-| Alarm Templates (Tier)        | 9           | 9       | 0      | TIER-04 — all pass                                 |
-| Custom Sounds (Tier)          | 4           | 4       | 0      | TIER-09 — all pass                                 |
-| Cloud Sync Free Gating        | 8           | —       | —      | Verify sync is Plus-gated                          |
-| **TOTAL**                     | **212**     | **191** | **0**  | 8 cloud sync tests pending                        |
+| Category                      | Total Tests | Passed  | Failed | Notes                                          |
+| ----------------------------- | ----------- | ------- | ------ | ---------------------------------------------- |
+| Onboarding                    | 11          | 11      | 0      | All passed incl. Skip for now                  |
+| Empty State                   | 2           | 2       | 0      |                                                |
+| Create Alarm                  | 13          | 9       | 0      | 3.2-3.11 tested; 3.6a-3.6b multi-time untested |
+| Create Monthly                | 7           | 7       | 0      | "Salary day" monthly alarm created on device   |
+| Tier Gating                   | 5           | 5       | 0      | All passed incl. delete+re-create              |
+| Edit Alarm                    | 7           | 6       | 0      | 6.4a multi-time edit untested                  |
+| Delete Alarm                  | 4           | 4       | 0      | Swipe right → delete confirmed                 |
+| Toggle                        | 4           | 4       | 0      | Swipe left + toggle switch both work           |
+| Alarm Firing                  | 12          | 12      | 0      | All passed including hold-to-dismiss           |
+| Lock Screen                   | 7           | 6       | 0      | 9D.5 (1hr re-fire) untested — requires wait    |
+| Settings                      | 14          | 14      | 0      | All passed                                     |
+| Persistence                   | 3           | 3       | 0      |                                                |
+| Edge Cases                    | 8           | 8       | 0      | All covered by 26 unit tests                   |
+| Visual/UI                     | 7           | 7       | 0      | All confirmed from device screenshots          |
+| Notifications                 | 5           | 5       | 0      | All passed                                     |
+| Completion Recording (S9)     | 9           | 6       | 0      | 15.4–15.9 PASS; 15.1–15.3 untested             |
+| Haptic Feedback (S9)          | 9           | 9       | 0      | All passed on device                           |
+| Sprint 9 Cross-Cutting (Free) | 5           | 2       | 0      | 17.4–17.5 PASS; 17.1–17.3 untested             |
+| Create One-Time (Siri sprint) | 8           | 8       | 0      | All pass                                       |
+| One-Time Auto-Archive         | 9           | 9       | 0      | All pass incl. lock screen archive             |
+| Archived Section UI           | 6           | 6       | 0      | All pass                                       |
+| Siri Integration              | 8           | 8       | 0      | All pass                                       |
+| One-Time Edit Flow            | 6           | 6       | 0      | All pass                                       |
+| Last Completed (Tier Impr.)   | 3           | 3       | 0      | TIER-07 — all pass                             |
+| Overdue Visual State (Tier)   | 4           | 4       | 0      | TIER-12 — all pass                             |
+| Extended Pre-Alarms (Tier)    | 2           | 2       | 0      | TIER-05 Free tier checks — all pass            |
+| Skip Occurrence (Tier)        | 5           | 5       | 0      | TIER-06 — all pass                             |
+| Lifetime Purchase (Tier)      | 8           | 8       | 0      | TIER-08 — all pass                             |
+| Alarm Templates (Tier)        | 9           | 9       | 0      | TIER-04 — all pass                             |
+| Custom Sounds (Tier)          | 4           | 4       | 0      | TIER-09 — all pass                             |
+| Cloud Sync Free Gating        | 8           | —       | —      | Verify sync is Plus-gated                      |
+| Completion Confirm Free (F04) | 8           | —       | —      | FEAT-04 — verify Free tier unchanged           |
+| **TOTAL**                     | **220**     | **191** | **0**  | 16 tests pending (cloud sync + FEAT-04)        |
 
 ---
 

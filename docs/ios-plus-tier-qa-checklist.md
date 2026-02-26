@@ -442,15 +442,15 @@
 
 ### 32A. Sync Hooks — Alarm Mutations
 
-| #     | Step                               | Expected Result                                       | Pass? |
-| ----- | ---------------------------------- | ----------------------------------------------------- | ----- |
-| 32A.1 | Create alarm                       | Alarm pushed to Firestore (`users/{uid}/alarms/{id}`) | PASS  |
-| 32A.2 | Edit alarm (title, schedule, time) | Updated alarm pushed to Firestore (merge: true)       | PASS  |
-| 32A.3 | Delete alarm                       | Firestore document deleted                            | PASS  |
-| 32A.4 | Toggle alarm off                   | Alarm pushed with `isEnabled: false`                  | PASS  |
-| 32A.5 | Toggle alarm on                    | Alarm pushed with `isEnabled: true`                   | PASS  |
-| 32A.6 | Skip occurrence                    | Alarm pushed with updated `nextFireDate`              | PASS  |
-| 32A.7 | _(Removed — overdue swipe-to-done action deleted; past-due alarms fire instead)_ | N/A | N/A |
+| #     | Step                                                                             | Expected Result                                       | Pass? |
+| ----- | -------------------------------------------------------------------------------- | ----------------------------------------------------- | ----- |
+| 32A.1 | Create alarm                                                                     | Alarm pushed to Firestore (`users/{uid}/alarms/{id}`) | PASS  |
+| 32A.2 | Edit alarm (title, schedule, time)                                               | Updated alarm pushed to Firestore (merge: true)       | PASS  |
+| 32A.3 | Delete alarm                                                                     | Firestore document deleted                            | PASS  |
+| 32A.4 | Toggle alarm off                                                                 | Alarm pushed with `isEnabled: false`                  | PASS  |
+| 32A.5 | Toggle alarm on                                                                  | Alarm pushed with `isEnabled: true`                   | PASS  |
+| 32A.6 | Skip occurrence                                                                  | Alarm pushed with updated `nextFireDate`              | PASS  |
+| 32A.7 | _(Removed — overdue swipe-to-done action deleted; past-due alarms fire instead)_ | N/A                                                   | N/A   |
 
 ### 32B. Sync Hooks — Alarm Firing Actions
 
@@ -493,47 +493,138 @@
 
 ---
 
+## 33. Completion Confirmation — Plus Tier (FEAT-04)
+
+> **Note:** Plus users can "stop" an alarm without confirming completion. Stopped alarms enter a Pending state with follow-up notification reminders until the user explicitly confirms.
+
+### 33A. Firing Screen — Stop vs Mark as Done
+
+| #     | Step                                       | Expected Result                                                          | Pass? |
+| ----- | ------------------------------------------ | ------------------------------------------------------------------------ | ----- |
+| 33A.1 | Plus user → alarm fires                    | Two dismiss actions: "Mark as Done" (primary) + "Stop Alarm" (secondary) |       |
+| 33A.2 | Tap "Mark as Done"                         | Immediate completion, no pending state, card shows next occurrence       |       |
+| 33A.3 | Tap "Stop Alarm" (slide-to-stop OFF)       | Alarm silenced, enters Pending state                                     |       |
+| 33A.4 | Plus user → slide-to-stop ON → alarm fires | "Mark as Done" (primary) + "Hold to Stop" (secondary hold button)        |       |
+| 33A.5 | Hold "Hold to Stop" for 3 seconds          | Alarm silenced, enters Pending state                                     |       |
+| 33A.6 | Release "Hold to Stop" early               | Progress resets, alarm continues firing                                  |       |
+
+### 33B. Pending Visual State
+
+| #     | Step                                    | Expected Result                                                   | Pass? |
+| ----- | --------------------------------------- | ----------------------------------------------------------------- | ----- |
+| 33B.1 | After "Stop Alarm" → view alarm list    | Alarm card shows "Awaiting Confirmation" badge (blue, clock icon) |       |
+| 33B.2 | Alarm card border                       | Blue accent border (ColorTokens.info)                             |       |
+| 33B.3 | Alarm card countdown                    | Shows countdown to next occurrence (not stuck)                    |       |
+| 33B.4 | Cold launch with pending alarm          | Pending visual state displays correctly on app open               |       |
+| 33B.5 | Category detail view with pending alarm | Same pending visual state shown in category list                  |       |
+| 33B.6 | Grouped list view with pending alarm    | Pending state visible in AlarmListSection                         |       |
+
+### 33C. Follow-Up Notifications
+
+| #     | Step                               | Expected Result                                                      | Pass? |
+| ----- | ---------------------------------- | -------------------------------------------------------------------- | ----- |
+| 33C.1 | Stop alarm → wait 30 minutes       | First notification: "Did you complete it?" with "Done" + "Remind Me" |       |
+| 33C.2 | Tap "Remind Me" on notification    | No action taken, next notification fires at +60m                     |       |
+| 33C.3 | Wait for +60m notification         | Second notification fires                                            |       |
+| 33C.4 | Wait for +90m notification         | Third and final notification fires                                   |       |
+| 33C.5 | After all 3 exhausted              | Alarm stays Pending in list until manual confirmation                |       |
+| 33C.6 | Tap "Done" on notification action  | Alarm completes without opening app, pending state cleared           |       |
+| 33C.7 | Open app after notification "Done" | Alarm shows completed (no pending badge), lastCompletedAt updated    |       |
+
+### 33D. Swipe to Confirm from List
+
+| #     | Step                                      | Expected Result                                         | Pass? |
+| ----- | ----------------------------------------- | ------------------------------------------------------- | ----- |
+| 33D.1 | Pending alarm → swipe left (leading edge) | "Done" action button appears (green checkmark)          |       |
+| 33D.2 | Tap "Done" swipe action                   | Pending state cleared, alarm completed, haptic feedback |       |
+| 33D.3 | Completion history after swipe confirm    | Shows `.completed` action log entry                     |       |
+
+### 33E. Lock Screen Stop
+
+| #     | Step                                                | Expected Result                            | Pass? |
+| ----- | --------------------------------------------------- | ------------------------------------------ | ----- |
+| 33E.1 | Plus user → alarm fires on lock screen → slide stop | Alarm enters Pending state (not completed) |       |
+| 33E.2 | Open app after lock screen stop                     | Alarm shows Pending badge in list          |       |
+| 33E.3 | Follow-up notifications schedule after lock screen  | 3 notifications at +30/+60/+90 minutes     |       |
+
+### 33F. Edge Cases
+
+| #     | Step                                      | Expected Result                                                 | Pass? |
+| ----- | ----------------------------------------- | --------------------------------------------------------------- | ----- |
+| 33F.1 | Disable alarm while pending (toggle OFF)  | Pending state cleared, no follow-up notifications               |       |
+| 33F.2 | Next occurrence fires while still pending | Previous pending auto-completes, new alarm fires normally       |       |
+| 33F.3 | App killed while pending                  | State persists (SwiftData), notifications persist (OS-managed)  |       |
+| 33F.4 | Downgrade Plus → Free while pending       | All pending alarms auto-complete, no pending state remains      |       |
+| 33F.5 | External dismiss (onDisappear safety net) | Plus user enters Pending (not auto-complete)                    |       |
+| 33F.6 | "Mark as Done" from firing screen         | Immediate completion, no Pending state (skips pending entirely) |       |
+
+### 33G. Completion History Integration
+
+| #     | Step                         | Expected Result                                                                 | Pass? |
+| ----- | ---------------------------- | ------------------------------------------------------------------------------- | ----- |
+| 33G.1 | Stop alarm → check history   | `.pendingConfirmation` entry logged (clock icon, blue, "Awaiting Confirmation") |       |
+| 33G.2 | Confirm done → check history | `.completed` entry logged after the pending entry                               |       |
+| 33G.3 | Streak not broken by pending | Streak continues through `.pendingConfirmation` (treated like `.skipped`)       |       |
+
+### 33H. Cloud Sync
+
+| #     | Step                                  | Expected Result                                                      | Pass? |
+| ----- | ------------------------------------- | -------------------------------------------------------------------- | ----- |
+| 33H.1 | Stop alarm → sync                     | `isPendingConfirmation: true` and `pendingSince` pushed to Firestore |       |
+| 33H.2 | Confirm done → sync                   | `isPendingConfirmation: false` pushed to Firestore                   |       |
+| 33H.3 | Restore from cloud with pending alarm | Pending visual state shows correctly after restore                   |       |
+
+---
+
 ## Test Summary
 
-| Category                         | Total Tests | Passed  | Failed | Notes                                |
-| -------------------------------- | ----------- | ------- | ------ | ------------------------------------ |
-| Purchase Flow                    | 7           | 7       | 0      |                                      |
-| Restore Purchases                | 4           | 4       | 0      | Verified on TestFlight sandbox       |
-| Expiry & Downgrade               | 7           | 7       | 0      |                                      |
-| Alarm Limit Gating               | 5           | 5       | 0      |                                      |
-| Subscription Management          | 5           | 5       | 0      | 5.4 verified on TestFlight sandbox   |
-| Paywall UI                       | 6           | 6       | 0      |                                      |
-| Repeat Interval                  | 9           | 8       | 0      | 7.7 deferred (Custom Days not in UI) |
-| Annual First Occurrence          | 9           | 9       | 0      |                                      |
-| Monthly First Occurrence         | 9           | 9       | 0      |                                      |
-| Interval-Aware Badges            | 8           | 8       | 0      |                                      |
-| Countdown Display                | 8           | 8       | 0      |                                      |
-| Photo Attachment                 | 8           | 8       | 0      |                                      |
-| Photo/Note on Firing Screen      | 7           | 7       | 0      |                                      |
-| Layout Toggle                    | 5           | 5       | 0      |                                      |
-| Settings Subscription            | 3           | 3       | 0      |                                      |
-| Edge Cases                       | 8           | 8       | 0      |                                      |
-| Pre-Alarm Warning (S9)           | 8           | 8       | 0      | Sprint 9 — all pass                  |
-| Completion History (S9)          | 9           | 8       | 0      | 18.5 SKIP — no UX for `.dismissed`   |
-| Streak Counter (S9)              | 6           | 6       | 0      | Sprint 9 — all pass                  |
-| Plus Gating — History (S9)       | 5           | 5       | 0      | Sprint 9 — all pass                  |
-| Custom Snooze (S9)               | 7           | 7       | 0      | Sprint 9 — all pass                  |
-| Sprint 9 Cross-Cutting           | 1           | —       | —      | Sprint 9 — Plus-specific items       |
-| One-Time Plus Features (Siri)    | 8           | 8       | 0      | All pass                             |
-| Siri Integration Plus (Siri)     | 7           | 5       | 0      | 24.6-24.7 pending (archive exclude)  |
-| One-Time Display (Siri)          | 4           | 3       | 0      | 25.4 untested (category group)       |
-| Streak Badge (Tier Impr.)        | 3           | 3       | 0      | TIER-07 Plus checks — all pass       |
-| Extended Pre-Alarms (Tier)       | 4           | 4       | 0      | TIER-05 — all pass                   |
-| Skip Occurrence Firing (Tier)    | 3           | 3       | 0      | TIER-06 firing screen — all pass     |
-| Lifetime Purchase (Tier)         | 4           | 4       | 0      | TIER-08 — all pass                   |
-| Alarm Templates (Tier)           | 4           | 4       | 0      | TIER-04 — all pass                   |
-| Custom Sounds (Tier)             | 5           | 5       | 0      | TIER-09 — all pass                   |
-| Cloud Sync — Mutations (32A)     | 7           | 7       | 0      | All pass — verified on device        |
-| Cloud Sync — Firing (32B)        | 6           | 6       | 0      | All pass — verified on device        |
-| Cloud Sync — Bidirectional (32C) | 6           | 6       | 0      | All pass — verified on device        |
-| Cloud Sync — Sub Timing (32D)    | 3           | 3       | 0      | All pass — verified on device        |
-| Cloud Sync — Errors (32E)        | 4           | 4       | 0      | All pass — verified on device        |
-| **TOTAL**                        | **213**     | **206** | **0**  | 3 prior pending (24.6-24.7, 25.4)   |
+| Category                          | Total Tests | Passed  | Failed | Notes                                |
+| --------------------------------- | ----------- | ------- | ------ | ------------------------------------ |
+| Purchase Flow                     | 7           | 7       | 0      |                                      |
+| Restore Purchases                 | 4           | 4       | 0      | Verified on TestFlight sandbox       |
+| Expiry & Downgrade                | 7           | 7       | 0      |                                      |
+| Alarm Limit Gating                | 5           | 5       | 0      |                                      |
+| Subscription Management           | 5           | 5       | 0      | 5.4 verified on TestFlight sandbox   |
+| Paywall UI                        | 6           | 6       | 0      |                                      |
+| Repeat Interval                   | 9           | 8       | 0      | 7.7 deferred (Custom Days not in UI) |
+| Annual First Occurrence           | 9           | 9       | 0      |                                      |
+| Monthly First Occurrence          | 9           | 9       | 0      |                                      |
+| Interval-Aware Badges             | 8           | 8       | 0      |                                      |
+| Countdown Display                 | 8           | 8       | 0      |                                      |
+| Photo Attachment                  | 8           | 8       | 0      |                                      |
+| Photo/Note on Firing Screen       | 7           | 7       | 0      |                                      |
+| Layout Toggle                     | 5           | 5       | 0      |                                      |
+| Settings Subscription             | 3           | 3       | 0      |                                      |
+| Edge Cases                        | 8           | 8       | 0      |                                      |
+| Pre-Alarm Warning (S9)            | 8           | 8       | 0      | Sprint 9 — all pass                  |
+| Completion History (S9)           | 9           | 8       | 0      | 18.5 SKIP — no UX for `.dismissed`   |
+| Streak Counter (S9)               | 6           | 6       | 0      | Sprint 9 — all pass                  |
+| Plus Gating — History (S9)        | 5           | 5       | 0      | Sprint 9 — all pass                  |
+| Custom Snooze (S9)                | 7           | 7       | 0      | Sprint 9 — all pass                  |
+| Sprint 9 Cross-Cutting            | 1           | —       | —      | Sprint 9 — Plus-specific items       |
+| One-Time Plus Features (Siri)     | 8           | 8       | 0      | All pass                             |
+| Siri Integration Plus (Siri)      | 7           | 5       | 0      | 24.6-24.7 pending (archive exclude)  |
+| One-Time Display (Siri)           | 4           | 3       | 0      | 25.4 untested (category group)       |
+| Streak Badge (Tier Impr.)         | 3           | 3       | 0      | TIER-07 Plus checks — all pass       |
+| Extended Pre-Alarms (Tier)        | 4           | 4       | 0      | TIER-05 — all pass                   |
+| Skip Occurrence Firing (Tier)     | 3           | 3       | 0      | TIER-06 firing screen — all pass     |
+| Lifetime Purchase (Tier)          | 4           | 4       | 0      | TIER-08 — all pass                   |
+| Alarm Templates (Tier)            | 4           | 4       | 0      | TIER-04 — all pass                   |
+| Custom Sounds (Tier)              | 5           | 5       | 0      | TIER-09 — all pass                   |
+| Cloud Sync — Mutations (32A)      | 7           | 7       | 0      | All pass — verified on device        |
+| Cloud Sync — Firing (32B)         | 6           | 6       | 0      | All pass — verified on device        |
+| Cloud Sync — Bidirectional (32C)  | 6           | 6       | 0      | All pass — verified on device        |
+| Cloud Sync — Sub Timing (32D)     | 3           | 3       | 0      | All pass — verified on device        |
+| Cloud Sync — Errors (32E)         | 4           | 4       | 0      | All pass — verified on device        |
+| Completion Confirm — Firing (33A) | 6           | —       | —      | FEAT-04 — stop vs mark as done       |
+| Completion Confirm — Visual (33B) | 6           | —       | —      | FEAT-04 — pending badge/state        |
+| Completion Confirm — Notifs (33C) | 7           | —       | —      | FEAT-04 — follow-up notifications    |
+| Completion Confirm — Swipe (33D)  | 3           | —       | —      | FEAT-04 — swipe confirm from list    |
+| Completion Confirm — Lock (33E)   | 3           | —       | —      | FEAT-04 — lock screen stop           |
+| Completion Confirm — Edge (33F)   | 6           | —       | —      | FEAT-04 — edge cases                 |
+| Completion Confirm — Hist (33G)   | 3           | —       | —      | FEAT-04 — history integration        |
+| Completion Confirm — Sync (33H)   | 3           | —       | —      | FEAT-04 — cloud sync                 |
+| **TOTAL**                         | **250**     | **206** | **0**  | 37 FEAT-04 + 3 prior pending         |
 
 ---
 

@@ -34,6 +34,7 @@ struct AlarmListSection: View {
     private func visualState(for alarm: Alarm) -> AlarmVisualState {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         if !isEnabled { return .inactive }
+        if alarm.isPendingConfirmation { return .pending }
         if alarm.snoozeCount > 0 { return .snoozed }
         return .active
     }

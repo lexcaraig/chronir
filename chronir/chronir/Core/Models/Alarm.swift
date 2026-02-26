@@ -25,6 +25,8 @@ final class Alarm: Identifiable {
     // MARK: - State
     var isEnabled: Bool
     var snoozeCount: Int
+    var isPendingConfirmation: Bool = false
+    var pendingSince: Date?
 
     // MARK: - Behavior
     var persistenceLevel: PersistenceLevel
@@ -163,6 +165,8 @@ final class Alarm: Identifiable {
         timezoneMode: TimezoneMode = .floating,
         isEnabled: Bool = true,
         snoozeCount: Int = 0,
+        isPendingConfirmation: Bool = false,
+        pendingSince: Date? = nil,
         persistenceLevel: PersistenceLevel = .notificationOnly,
         dismissMethod: DismissMethod = .swipe,
         preAlarmMinutes: Int = 0,
@@ -197,6 +201,8 @@ final class Alarm: Identifiable {
         self.timezoneMode = timezoneMode
         self.isEnabled = isEnabled
         self.snoozeCount = snoozeCount
+        self.isPendingConfirmation = isPendingConfirmation
+        self.pendingSince = pendingSince
         self.persistenceLevel = persistenceLevel
         self.dismissMethod = dismissMethod
         self.preAlarmMinutes = preAlarmMinutes

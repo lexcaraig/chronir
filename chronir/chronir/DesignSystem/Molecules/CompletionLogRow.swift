@@ -10,6 +10,7 @@ struct CompletionLogRow: View {
         case .snoozed: return "zzz"
         case .dismissed: return "xmark.circle.fill"
         case .skipped: return "forward.end.fill"
+        case .pendingConfirmation: return "clock.badge.questionmark"
         }
     }
 
@@ -19,6 +20,7 @@ struct CompletionLogRow: View {
         case .snoozed: return ColorTokens.badgeWarning
         case .dismissed: return ColorTokens.badgeError
         case .skipped: return ColorTokens.textSecondary
+        case .pendingConfirmation: return ColorTokens.info
         }
     }
 
@@ -28,6 +30,7 @@ struct CompletionLogRow: View {
         case .snoozed: return "Snoozed"
         case .dismissed: return "Dismissed"
         case .skipped: return "Skipped"
+        case .pendingConfirmation: return "Awaiting Confirmation"
         }
     }
 
