@@ -259,19 +259,14 @@ struct SettingsView: View {
                 Spacer()
                 ChronirText("1.1.0", style: .bodySecondary, color: ColorTokens.textSecondary)
             }
-            Link(destination: privacyURL) {
-                HStack {
-                    ChronirText("Privacy Policy", style: .bodyPrimary)
-                    Spacer()
-                    ChronirIcon(systemName: "arrow.up.right", size: .small, color: ColorTokens.textSecondary)
-                }
+            NavigationLink(destination: LegalDocumentView(title: "FAQ", rawURL: faqURL)) {
+                ChronirText("FAQ", style: .bodyPrimary)
             }
-            Link(destination: termsURL) {
-                HStack {
-                    ChronirText("Terms of Service", style: .bodyPrimary)
-                    Spacer()
-                    ChronirIcon(systemName: "arrow.up.right", size: .small, color: ColorTokens.textSecondary)
-                }
+            NavigationLink(destination: LegalDocumentView(title: "Privacy Policy", rawURL: privacyURL)) {
+                ChronirText("Privacy Policy", style: .bodyPrimary)
+            }
+            NavigationLink(destination: LegalDocumentView(title: "Terms of Service", rawURL: termsURL)) {
+                ChronirText("Terms of Service", style: .bodyPrimary)
             }
         } header: {
             ChronirText("About", style: .labelLarge, color: ColorTokens.textSecondary)
@@ -280,9 +275,11 @@ struct SettingsView: View {
     }
 
     // swiftlint:disable:next force_unwrapping
-    private let privacyURL = URL(string: "https://gist.github.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c")!
+    private let faqURL = URL(string: "https://gist.githubusercontent.com/lexcaraig/46b6ba8d4fcfc7768c86e22d7f056f6d/raw/")!
     // swiftlint:disable:next force_unwrapping
-    private let termsURL = URL(string: "https://gist.github.com/lexcaraig/b5087828d62c2f0aa190b9814f57bcf9")!
+    private let privacyURL = URL(string: "https://gist.githubusercontent.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c/raw/")!
+    // swiftlint:disable:next force_unwrapping
+    private let termsURL = URL(string: "https://gist.githubusercontent.com/lexcaraig/b5087828d62c2f0aa190b9814f57bcf9/raw/")!
 }
 
 #Preview {
