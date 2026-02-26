@@ -300,6 +300,142 @@ https://apps.apple.com/ph/app/chronir/id6758985902`,
   },
 ]
 
+const emailTemplates = [
+  {
+    id: 'influencer-initial',
+    label: 'Influencer — Initial Outreach',
+    subject: 'Collab opportunity — free Plus access to Chronir (alarm app for recurring tasks)',
+    body: `Hey {{name}},
+
+I've been following your content on {{platform}} — your post about {{relevant_post_topic}} really resonated with me.
+
+I'm the developer behind Chronir, an iOS app that turns recurring obligations (rent, bills, renewals, etc.) into real full-screen alarms that you can't swipe away. Think of it as your morning alarm clock, but for everything else that matters.
+
+I'd love to offer you free Plus access ($1.99/mo value — unlimited alarms, custom snooze, pre-alarm warnings, completion streaks, photo attachments) in exchange for an honest mention on your {{platform}} page. No script, no talking points — just your genuine experience using it.
+
+Quick stats:
+- iOS only (requires iOS 26)
+- Free tier: 3 alarms, no account needed
+- Plus: unlimited alarms + all premium features
+- Uses real AlarmKit alarms, not notifications — fires through DND
+
+If you're interested, I'll send you a redemption code right away. Happy to answer any questions.
+
+Best,
+Lex
+Chronir — https://apps.apple.com/ph/app/chronir/id6758985902`,
+  },
+  {
+    id: 'influencer-followup',
+    label: 'Influencer — Follow-Up (No Response)',
+    subject: 'Re: Collab opportunity — Chronir',
+    body: `Hey {{name}},
+
+Just bumping this in case it got buried — I know inboxes are brutal.
+
+Quick recap: I built Chronir, an alarm app for recurring tasks (rent, bills, renewals). It fires like a morning alarm — full-screen, persistent, through DND. Not a notification you can swipe away.
+
+I'd love to give you free Plus access if you're open to trying it and sharing your honest experience with your audience. No strings attached — if you try it and it's not for you, no hard feelings.
+
+Here's the App Store link if you want to check it out first: https://apps.apple.com/ph/app/chronir/id6758985902
+
+Let me know either way — appreciate your time.
+
+Lex`,
+  },
+  {
+    id: 'influencer-code-delivery',
+    label: 'Influencer — Sending the Code',
+    subject: 'Your free Chronir Plus code',
+    body: `Hey {{name}},
+
+Awesome — thanks for being down to try Chronir!
+
+Here's your Plus redemption code: {{promo_code}}
+
+To redeem:
+1. Download Chronir from the App Store: https://apps.apple.com/ph/app/chronir/id6758985902
+2. Go to Settings → Apple ID → Subscriptions → Redeem Code
+3. Enter the code above
+
+This gives you full Plus access (unlimited alarms, custom snooze, pre-alarm warnings, completion streaks, photo attachments).
+
+Some ideas for alarms to try:
+- Rent/bills on a specific day of the month
+- "Last Friday of the month" type schedules
+- Annual renewals (insurance, registrations)
+- Weekly check-ins (call parents, weekly review)
+
+No rush on the post — take your time using it first. I'd rather you have a genuine experience to share.
+
+If you run into anything or have feedback, just reply here. I read everything.
+
+Lex`,
+  },
+  {
+    id: 'influencer-thankyou',
+    label: 'Influencer — Post-Promotion Thank You',
+    subject: 'Thanks for the Chronir shoutout!',
+    body: `Hey {{name}},
+
+Just saw your {{post_type}} — thank you! Really appreciate the honest take.
+
+{{optional_specific_callout}}
+
+Your code is active for {{duration}}, and I'm happy to extend it if you want to keep using the app. Just let me know.
+
+If any of your followers reach out with questions or feedback, feel free to point them to me or our App Store page. And if you ever want to do another collab down the road, the door's always open.
+
+Thanks again — this means a lot for a solo dev.
+
+Lex`,
+  },
+  {
+    id: 'adhd-creator',
+    label: 'ADHD / Productivity Creator Outreach',
+    subject: 'Built an alarm app for ADHD brains — would love your take',
+    body: `Hey {{name}},
+
+I've been watching your content about {{adhd_or_productivity_topic}} and it hit close to home.
+
+I have ADHD and built Chronir because notifications are useless for our brains. You see it, think "I'll handle that in 5 minutes," and it's gone forever. Out of sight, out of mind isn't a cliché — it's neurological.
+
+Chronir turns recurring tasks into real full-screen alarms (AlarmKit, not notifications). When it fires:
+- Full-screen takeover — can't miss it
+- Fires through Do Not Disturb
+- Persistent until you interact — no silent dismissal
+- Completion streaks to track follow-through
+
+I think your audience would genuinely benefit from this, and I'd love to offer you free Plus access to try it. No script — just your honest experience. If it doesn't work for you, that's valid feedback too.
+
+iOS only (requires iOS 26). Happy to send a code if you're interested.
+
+Lex
+https://apps.apple.com/ph/app/chronir/id6758985902`,
+  },
+  {
+    id: 'finance-creator',
+    label: 'Finance / Budgeting Creator Outreach',
+    subject: 'An app that makes sure your audience never misses a bill again',
+    body: `Hey {{name}},
+
+Love your content on {{finance_topic}}. One thing I notice across personal finance communities: people know WHAT to pay and WHEN — they just forget to actually do it because phone notifications are too easy to dismiss.
+
+I built Chronir to fix this. It's an alarm app that treats bill due dates, insurance renewals, and financial deadlines like morning wake-up alarms — full-screen, persistent, fires through Do Not Disturb. You can't swipe it away. You have to deal with it.
+
+Scheduling handles the weird stuff: "last Friday of every month," specific dates, annual renewals, custom intervals. Set it once, never miss it again.
+
+I think this would be genuinely useful for your audience, and I'd love to offer you free Plus access (unlimited alarms + all features) if you're open to trying it and sharing your experience.
+
+Free tier: 3 alarms. Plus: $1.99/mo. iOS only (iOS 26).
+
+Happy to send a code if you're interested.
+
+Lex
+https://apps.apple.com/ph/app/chronir/id6758985902`,
+  },
+]
+
 const verifiedClaims = [
   { claim: 'AlarmKit (real alarms, not notifications)', source: 'AlarmService.swift' },
   { claim: 'Full-screen persistent firing', source: 'AlarmFiringView.swift' },
@@ -391,6 +527,25 @@ function ThreadsPost({ post }) {
   )
 }
 
+function EmailTemplate({ template }) {
+  const fullText = `Subject: ${template.subject}\n\n${template.body}`
+  return (
+    <div className="marketing-post-card">
+      <div className="marketing-post-header">
+        <div>
+          <span className="marketing-platform-badge">Email</span>
+          <span className="marketing-post-meta">{template.label}</span>
+        </div>
+        <CopyButton text={fullText} />
+      </div>
+      <div className="marketing-post-title" style={{ fontSize: 14 }}>
+        Subject: {template.subject}
+      </div>
+      <div className="marketing-post-body">{template.body}</div>
+    </div>
+  )
+}
+
 function CommunityRedditPost({ post }) {
   const fullText = `Title: ${post.title}\n\n${post.body}`
   return (
@@ -430,6 +585,10 @@ export default function MarketingSection() {
           onClick={() => setActiveTab('community')}
         >Community Posts</button>
         <button
+          className={`component-tab ${activeTab === 'emails' ? 'active' : ''}`}
+          onClick={() => setActiveTab('emails')}
+        >Email Templates</button>
+        <button
           className={`component-tab ${activeTab === 'claims' ? 'active' : ''}`}
           onClick={() => setActiveTab('claims')}
         >Verified Claims</button>
@@ -447,6 +606,17 @@ export default function MarketingSection() {
         <div className="marketing-posts">
           {communityPosts.map((post, i) => (
             <CommunityRedditPost key={i} post={post} />
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'emails' && (
+        <div className="marketing-posts">
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.7 }}>
+            Outreach templates for influencer and creator partnerships. Replace <code style={{ background: 'var(--surface-alt)', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{'{{placeholders}}'}</code> with actual values before sending.
+          </div>
+          {emailTemplates.map(template => (
+            <EmailTemplate key={template.id} template={template} />
           ))}
         </div>
       )}
