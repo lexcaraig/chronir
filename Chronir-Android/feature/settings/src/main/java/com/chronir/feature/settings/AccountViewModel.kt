@@ -21,55 +21,57 @@ data class AccountUiState(
 )
 
 @HiltViewModel
-class AccountViewModel @Inject constructor(
-    private val userRepository: UserRepository
-) : ViewModel() {
+class AccountViewModel
+    @Inject
+    constructor(
+        private val userRepository: UserRepository
+    ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(AccountUiState())
-    val uiState: StateFlow<AccountUiState> = _uiState.asStateFlow()
+        private val _uiState = MutableStateFlow(AccountUiState())
+        val uiState: StateFlow<AccountUiState> = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            userRepository.currentUserProfile.collect { profile ->
-                _uiState.update {
-                    it.copy(
-                        isSignedIn = profile != null,
-                        displayName = profile?.displayName,
-                        email = profile?.email,
-                        photoUrl = profile?.photoUrl
-                    )
+        init {
+            viewModelScope.launch {
+                userRepository.currentUserProfile.collect { profile ->
+                    _uiState.update {
+                        it.copy(
+                            isSignedIn = profile != null,
+                            displayName = profile?.displayName,
+                            email = profile?.email,
+                            photoUrl = profile?.photoUrl
+                        )
+                    }
+                }
+            }
+        }
+
+        fun signInWithGoogleIdToken(idToken: String) {
+            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            viewModelScope.launch {
+                try {
+                    userRepository.signInWithGoogleIdToken(idToken)
+                    _uiState.update { it.copy(isLoading = false) }
+                } catch (_: Exception) {
+                    _uiState.update {
+                        it.copy(isLoading = false, errorMessage = "Sign-in failed. Please try again.")
+                    }
+                }
+            }
+        }
+
+        fun signOut() {
+            userRepository.signOut()
+        }
+
+        fun deleteAccount() {
+            viewModelScope.launch {
+                try {
+                    userRepository.deleteAccount()
+                } catch (_: Exception) {
+                    _uiState.update {
+                        it.copy(errorMessage = "Failed to delete account. Please sign in again and retry.")
+                    }
                 }
             }
         }
     }
-
-    fun signInWithGoogleIdToken(idToken: String) {
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-        viewModelScope.launch {
-            try {
-                userRepository.signInWithGoogleIdToken(idToken)
-                _uiState.update { it.copy(isLoading = false) }
-            } catch (_: Exception) {
-                _uiState.update {
-                    it.copy(isLoading = false, errorMessage = "Sign-in failed. Please try again.")
-                }
-            }
-        }
-    }
-
-    fun signOut() {
-        userRepository.signOut()
-    }
-
-    fun deleteAccount() {
-        viewModelScope.launch {
-            try {
-                userRepository.deleteAccount()
-            } catch (_: Exception) {
-                _uiState.update {
-                    it.copy(errorMessage = "Failed to delete account. Please sign in again and retry.")
-                }
-            }
-        }
-    }
-}

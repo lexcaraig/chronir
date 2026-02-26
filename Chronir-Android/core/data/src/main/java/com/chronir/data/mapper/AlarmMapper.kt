@@ -8,67 +8,67 @@ import com.chronir.model.PersistenceLevel
 import com.chronir.model.Schedule
 import com.chronir.model.SyncStatus
 import com.chronir.model.TimezoneMode
-import java.time.Instant
-import java.time.LocalTime
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.Instant
+import java.time.LocalTime
 
-fun AlarmEntity.toDomain(): Alarm {
-    return Alarm(
-        id = id,
-        title = title,
-        cycleType = CycleType.valueOf(cycleType),
-        timeOfDay = LocalTime.of(timeOfDayHour, timeOfDayMinute),
-        schedule = deserializeSchedule(scheduleJson, CycleType.valueOf(cycleType)),
-        nextFireDate = Instant.ofEpochMilli(nextFireDate),
-        lastFiredDate = lastFiredDate?.let { Instant.ofEpochMilli(it) },
-        timezone = timezone,
-        timezoneMode = TimezoneMode.valueOf(timezoneMode),
-        isEnabled = isEnabled,
-        snoozeCount = snoozeCount,
-        persistenceLevel = PersistenceLevel.valueOf(persistenceLevel),
-        dismissMethod = DismissMethod.valueOf(dismissMethod),
-        preAlarmMinutes = preAlarmMinutes,
-        colorTag = colorTag,
-        iconName = iconName,
-        syncStatus = SyncStatus.valueOf(syncStatus),
-        ownerID = ownerID,
-        sharedWith = deserializeStringList(sharedWithJson),
-        additionalTimesOfDay = deserializeTimesOfDay(additionalTimesJson),
-        note = note,
-        createdAt = Instant.ofEpochMilli(createdAt),
-        updatedAt = Instant.ofEpochMilli(updatedAt)
-    )
-}
+fun AlarmEntity.toDomain(): Alarm = Alarm(
+    id = id,
+    title = title,
+    cycleType = CycleType.valueOf(cycleType),
+    timeOfDay = LocalTime.of(timeOfDayHour, timeOfDayMinute),
+    schedule = deserializeSchedule(scheduleJson, CycleType.valueOf(cycleType)),
+    nextFireDate = Instant.ofEpochMilli(nextFireDate),
+    lastFiredDate = lastFiredDate?.let { Instant.ofEpochMilli(it) },
+    timezone = timezone,
+    timezoneMode = TimezoneMode.valueOf(timezoneMode),
+    isEnabled = isEnabled,
+    snoozeCount = snoozeCount,
+    persistenceLevel = PersistenceLevel.valueOf(persistenceLevel),
+    dismissMethod = DismissMethod.valueOf(dismissMethod),
+    preAlarmMinutes = preAlarmMinutes,
+    colorTag = colorTag,
+    iconName = iconName,
+    syncStatus = SyncStatus.valueOf(syncStatus),
+    ownerID = ownerID,
+    sharedWith = deserializeStringList(sharedWithJson),
+    additionalTimesOfDay = deserializeTimesOfDay(additionalTimesJson),
+    note = note,
+    isPendingConfirmation = isPendingConfirmation,
+    pendingSince = pendingSince?.let { Instant.ofEpochMilli(it) },
+    createdAt = Instant.ofEpochMilli(createdAt),
+    updatedAt = Instant.ofEpochMilli(updatedAt)
+)
 
-fun Alarm.toEntity(): AlarmEntity {
-    return AlarmEntity(
-        id = id,
-        title = title,
-        cycleType = cycleType.name,
-        timeOfDayHour = timeOfDay.hour,
-        timeOfDayMinute = timeOfDay.minute,
-        scheduleJson = serializeSchedule(schedule),
-        nextFireDate = nextFireDate.toEpochMilli(),
-        lastFiredDate = lastFiredDate?.toEpochMilli(),
-        timezone = timezone,
-        timezoneMode = timezoneMode.name,
-        isEnabled = isEnabled,
-        snoozeCount = snoozeCount,
-        persistenceLevel = persistenceLevel.name,
-        dismissMethod = dismissMethod.name,
-        preAlarmMinutes = preAlarmMinutes,
-        colorTag = colorTag,
-        iconName = iconName,
-        syncStatus = syncStatus.name,
-        ownerID = ownerID,
-        sharedWithJson = serializeStringList(sharedWith),
-        additionalTimesJson = serializeTimesOfDay(additionalTimesOfDay),
-        note = note,
-        createdAt = createdAt.toEpochMilli(),
-        updatedAt = updatedAt.toEpochMilli()
-    )
-}
+fun Alarm.toEntity(): AlarmEntity = AlarmEntity(
+    id = id,
+    title = title,
+    cycleType = cycleType.name,
+    timeOfDayHour = timeOfDay.hour,
+    timeOfDayMinute = timeOfDay.minute,
+    scheduleJson = serializeSchedule(schedule),
+    nextFireDate = nextFireDate.toEpochMilli(),
+    lastFiredDate = lastFiredDate?.toEpochMilli(),
+    timezone = timezone,
+    timezoneMode = timezoneMode.name,
+    isEnabled = isEnabled,
+    snoozeCount = snoozeCount,
+    persistenceLevel = persistenceLevel.name,
+    dismissMethod = dismissMethod.name,
+    preAlarmMinutes = preAlarmMinutes,
+    colorTag = colorTag,
+    iconName = iconName,
+    syncStatus = syncStatus.name,
+    ownerID = ownerID,
+    sharedWithJson = serializeStringList(sharedWith),
+    additionalTimesJson = serializeTimesOfDay(additionalTimesOfDay),
+    note = note,
+    isPendingConfirmation = isPendingConfirmation,
+    pendingSince = pendingSince?.toEpochMilli(),
+    createdAt = createdAt.toEpochMilli(),
+    updatedAt = updatedAt.toEpochMilli()
+)
 
 // region Schedule serialization
 
@@ -151,26 +151,25 @@ private fun deserializeSchedule(json: String, cycleType: CycleType): Schedule {
     }
 }
 
-private fun defaultScheduleForCycleType(cycleType: CycleType): Schedule {
-    return when (cycleType) {
-        CycleType.ONE_TIME -> Schedule.OneTime(fireDate = Instant.now())
-        CycleType.WEEKLY -> Schedule.Weekly(daysOfWeek = listOf(2), interval = 1)
-        CycleType.MONTHLY_DATE -> Schedule.MonthlyDate(dayOfMonth = 1, interval = 1)
-        CycleType.MONTHLY_RELATIVE -> Schedule.MonthlyRelative(
-            weekOfMonth = 1, dayOfWeek = 2, interval = 1
-        )
-        CycleType.ANNUAL -> Schedule.Annual(month = 1, dayOfMonth = 1, interval = 1)
-        CycleType.CUSTOM_DAYS -> Schedule.CustomDays(
-            intervalDays = 7, startDate = Instant.now()
-        )
-    }
+private fun defaultScheduleForCycleType(cycleType: CycleType): Schedule = when (cycleType) {
+    CycleType.ONE_TIME -> Schedule.OneTime(fireDate = Instant.now())
+    CycleType.WEEKLY -> Schedule.Weekly(daysOfWeek = listOf(2), interval = 1)
+    CycleType.MONTHLY_DATE -> Schedule.MonthlyDate(dayOfMonth = 1, interval = 1)
+    CycleType.MONTHLY_RELATIVE -> Schedule.MonthlyRelative(
+        weekOfMonth = 1,
+        dayOfWeek = 2,
+        interval = 1
+    )
+    CycleType.ANNUAL -> Schedule.Annual(month = 1, dayOfMonth = 1, interval = 1)
+    CycleType.CUSTOM_DAYS -> Schedule.CustomDays(
+        intervalDays = 7,
+        startDate = Instant.now()
+    )
 }
 
 // region String list serialization
 
-private fun serializeStringList(list: List<String>): String {
-    return JSONArray(list).toString()
-}
+private fun serializeStringList(list: List<String>): String = JSONArray(list).toString()
 
 private fun serializeTimesOfDay(times: List<LocalTime>): String {
     val arr = JSONArray()

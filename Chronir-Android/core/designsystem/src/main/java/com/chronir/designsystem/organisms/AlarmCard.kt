@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
@@ -20,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.MaterialTheme
 import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
@@ -43,7 +43,8 @@ enum class AlarmVisualState {
     Active,
     Inactive,
     Snoozed,
-    Overdue;
+    Overdue,
+    Pending;
 
     val accentColor: Color?
         get() = when (this) {
@@ -51,6 +52,7 @@ enum class AlarmVisualState {
             Inactive -> null
             Snoozed -> ColorTokens.Warning
             Overdue -> ColorTokens.Error
+            Pending -> ColorTokens.PendingOrange
         }
 
     val statusBadgeLabel: String?
@@ -59,12 +61,14 @@ enum class AlarmVisualState {
             Inactive -> null
             Snoozed -> "Snoozed"
             Overdue -> "Missed"
+            Pending -> "Pending"
         }
 
     val statusBadgeColor: Color
         get() = when (this) {
             Snoozed -> ColorTokens.Warning
             Overdue -> ColorTokens.Error
+            Pending -> ColorTokens.PendingOrange
             else -> Color.Transparent
         }
 }
@@ -125,7 +129,9 @@ fun AlarmCard(
                         ChronirText(
                             text = alarm.title,
                             style = ChronirTextStyle.TitleMedium,
-                            color = if (visualState == AlarmVisualState.Inactive) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurface
+                            color = if (visualState ==
+                                AlarmVisualState.Inactive
+                            ) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f) else MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(SpacingTokens.XXSmall))
                         Row {

@@ -19,22 +19,24 @@ data class CompletionHistoryUiState(
 )
 
 @HiltViewModel
-class CompletionHistoryViewModel @Inject constructor(
-    completionRepository: CompletionRepository,
-    private val streakCalculator: StreakCalculator
-) : ViewModel() {
+class CompletionHistoryViewModel
+    @Inject
+    constructor(
+        completionRepository: CompletionRepository,
+        private val streakCalculator: StreakCalculator
+    ) : ViewModel() {
 
-    val uiState: StateFlow<CompletionHistoryUiState> = completionRepository
-        .observeRecent(100)
-        .map { records ->
-            CompletionHistoryUiState(
-                records = records,
-                streakInfo = streakCalculator.calculateStreak(records)
+        val uiState: StateFlow<CompletionHistoryUiState> = completionRepository
+            .observeRecent(100)
+            .map { records ->
+                CompletionHistoryUiState(
+                    records = records,
+                    streakInfo = streakCalculator.calculateStreak(records)
+                )
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = CompletionHistoryUiState()
             )
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = CompletionHistoryUiState()
-        )
-}
+    }

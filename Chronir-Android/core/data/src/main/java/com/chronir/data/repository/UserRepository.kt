@@ -15,31 +15,33 @@ data class UserProfile(
 )
 
 @Singleton
-class UserRepository @Inject constructor(
-    private val authDataSource: AuthDataSource,
-    private val firestoreDataSource: FirestoreDataSource
-) {
+class UserRepository
+    @Inject
+    constructor(
+        private val authDataSource: AuthDataSource,
+        private val firestoreDataSource: FirestoreDataSource
+    ) {
 
-    val currentUserProfile: Flow<UserProfile?> = authDataSource.currentUser.map { user ->
-        user?.let {
-            UserProfile(
-                uid = it.uid,
-                displayName = it.displayName,
-                email = it.email,
-                photoUrl = it.photoUrl?.toString()
-            )
+        val currentUserProfile: Flow<UserProfile?> = authDataSource.currentUser.map { user ->
+            user?.let {
+                UserProfile(
+                    uid = it.uid,
+                    displayName = it.displayName,
+                    email = it.email,
+                    photoUrl = it.photoUrl?.toString()
+                )
+            }
         }
+
+        fun isAuthenticated(): Boolean = authDataSource.isAuthenticated()
+
+        fun getCurrentUserId(): String? = authDataSource.getCurrentUserId()
+
+        suspend fun signInWithGoogleIdToken(idToken: String) {
+            authDataSource.signInWithGoogleIdToken(idToken)
+        }
+
+        suspend fun deleteAccount() = authDataSource.deleteAccount()
+
+        fun signOut() = authDataSource.signOut()
     }
-
-    fun isAuthenticated(): Boolean = authDataSource.isAuthenticated()
-
-    fun getCurrentUserId(): String? = authDataSource.getCurrentUserId()
-
-    suspend fun signInWithGoogleIdToken(idToken: String) {
-        authDataSource.signInWithGoogleIdToken(idToken)
-    }
-
-    suspend fun deleteAccount() = authDataSource.deleteAccount()
-
-    fun signOut() = authDataSource.signOut()
-}

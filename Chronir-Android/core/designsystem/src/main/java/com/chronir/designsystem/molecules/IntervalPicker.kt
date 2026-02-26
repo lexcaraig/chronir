@@ -24,7 +24,9 @@ import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
-enum class IntervalOption(val label: String) {
+enum class IntervalOption(
+    val label: String
+) {
     Weekly("Weekly"),
     Monthly("Monthly"),
     Yearly("Yearly")

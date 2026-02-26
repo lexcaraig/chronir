@@ -166,6 +166,7 @@ private fun CompletionRecordRow(record: CompletionRecord) {
                     CompletionAction.SNOOZED -> "Snoozed"
                     CompletionAction.MISSED -> "Missed"
                     CompletionAction.SKIPPED -> "Skipped"
+                    CompletionAction.PENDING_CONFIRMATION -> "Pending"
                 },
                 style = ChronirTextStyle.LabelMedium,
                 color = when (record.action) {
@@ -173,6 +174,7 @@ private fun CompletionRecordRow(record: CompletionRecord) {
                     CompletionAction.SNOOZED -> ColorTokens.Warning
                     CompletionAction.MISSED -> ColorTokens.Error
                     CompletionAction.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
+                    CompletionAction.PENDING_CONFIRMATION -> ColorTokens.PendingOrange
                 }
             )
         }

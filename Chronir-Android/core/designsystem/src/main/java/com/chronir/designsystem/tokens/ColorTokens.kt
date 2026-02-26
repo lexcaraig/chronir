@@ -48,53 +48,54 @@ object ColorTokens {
 
     // MARK: - Accent
 
-    val AccentPrimary = Neutral900           // #3B3D42
-    val AccentDestructive = Red400           // #F87171
+    val AccentPrimary = Neutral900 // #3B3D42
+    val AccentDestructive = Red400 // #F87171
 
     // MARK: - Semantic
 
     val Success = Color(0xFF22C55E)
     val Error = Red500
     val Warning = Amber500
+    val PendingOrange = Color(0xFFF97316)
 
     // MARK: - Light Theme Surface
 
-    val LightBackground = Neutral0                // #FFFFFF
-    val LightBackgroundSecondary = Neutral100     // #F8F8F8
-    val LightSurfaceCard = Neutral0               // #FFFFFF
-    val LightSurfaceElevated = Neutral0           // #FFFFFF
-    val LightSurfaceHover = Neutral200            // #F0F1F2
-    val LightSurfacePressed = Neutral300          // #DDDEE1
-    val LightTextPrimary = Neutral1100            // #1E1F21
-    val LightTextSecondary = Neutral700           // #6B6E76
-    val LightTextTertiary = Neutral500            // #8C8F97
-    val LightTextDisabled = Neutral400            // #B7B9BE
-    val LightBorderDefault = Neutral300           // #DDDEE1
-    val LightBorderFocused = Neutral900           // #3B3D42
-    val LightIconPrimary = Neutral900             // #3B3D42
-    val LightIconSecondary = Neutral600           // #7D818A
+    val LightBackground = Neutral0 // #FFFFFF
+    val LightBackgroundSecondary = Neutral100 // #F8F8F8
+    val LightSurfaceCard = Neutral0 // #FFFFFF
+    val LightSurfaceElevated = Neutral0 // #FFFFFF
+    val LightSurfaceHover = Neutral200 // #F0F1F2
+    val LightSurfacePressed = Neutral300 // #DDDEE1
+    val LightTextPrimary = Neutral1100 // #1E1F21
+    val LightTextSecondary = Neutral700 // #6B6E76
+    val LightTextTertiary = Neutral500 // #8C8F97
+    val LightTextDisabled = Neutral400 // #B7B9BE
+    val LightBorderDefault = Neutral300 // #DDDEE1
+    val LightBorderFocused = Neutral900 // #3B3D42
+    val LightIconPrimary = Neutral900 // #3B3D42
+    val LightIconSecondary = Neutral600 // #7D818A
 
     // MARK: - Dark Theme Surface
 
-    val DarkBackground = DarkNeutral200           // #242528
-    val DarkBackgroundSecondary = DarkNeutral100  // #1F1F21
-    val DarkSurfaceCard = DarkNeutral300          // #303134
-    val DarkSurfaceElevated = DarkNeutral100      // #1F1F21
-    val DarkSurfaceHover = DarkNeutral350         // #3D3F43
-    val DarkSurfacePressed = DarkNeutral400       // #4B4D51
-    val DarkTextPrimary = DarkNeutral1100         // #E2E3E4
-    val DarkTextSecondary = DarkNeutral700        // #96999E
-    val DarkTextTertiary = DarkNeutral500         // #63666B
-    val DarkTextDisabled = DarkNeutral400         // #4B4D51
-    val DarkBorderDefault = DarkNeutral300        // #303134
-    val DarkBorderFocused = DarkNeutral700        // #96999E
-    val DarkIconPrimary = DarkNeutral900          // #BFC1C4
-    val DarkIconSecondary = DarkNeutral600        // #7E8188
+    val DarkBackground = DarkNeutral200 // #242528
+    val DarkBackgroundSecondary = DarkNeutral100 // #1F1F21
+    val DarkSurfaceCard = DarkNeutral300 // #303134
+    val DarkSurfaceElevated = DarkNeutral100 // #1F1F21
+    val DarkSurfaceHover = DarkNeutral350 // #3D3F43
+    val DarkSurfacePressed = DarkNeutral400 // #4B4D51
+    val DarkTextPrimary = DarkNeutral1100 // #E2E3E4
+    val DarkTextSecondary = DarkNeutral700 // #96999E
+    val DarkTextTertiary = DarkNeutral500 // #63666B
+    val DarkTextDisabled = DarkNeutral400 // #4B4D51
+    val DarkBorderDefault = DarkNeutral300 // #303134
+    val DarkBorderFocused = DarkNeutral700 // #96999E
+    val DarkIconPrimary = DarkNeutral900 // #BFC1C4
+    val DarkIconSecondary = DarkNeutral600 // #7E8188
 
     // MARK: - Semantic Surface (non-theme-specific)
 
-    val SurfacePrimary = Neutral100               // #F8F8F8
-    val SurfaceElevated = Neutral0                // #FFFFFF
+    val SurfacePrimary = Neutral100 // #F8F8F8
+    val SurfaceElevated = Neutral0 // #FFFFFF
 
     // MARK: - Runtime aliases (dark-mode defaults for components that don't use MaterialTheme)
 
@@ -111,23 +112,23 @@ object ColorTokens {
 
     // MARK: - Alarm State
 
-    val AlarmActiveBackground = Amber500          // #FFB800
-    val AlarmActiveForeground = Neutral1100       // #1E1F21
-    val AlarmInactiveBackground = Neutral200      // #F0F1F2
-    val AlarmInactiveForeground = Neutral500      // #8C8F97
+    val AlarmActiveBackground = Amber500 // #FFB800
+    val AlarmActiveForeground = Neutral1100 // #1E1F21
+    val AlarmInactiveBackground = Neutral200 // #F0F1F2
+    val AlarmInactiveForeground = Neutral500 // #8C8F97
 
     // MARK: - Firing Screen
 
-    val FiringBackground = DarkNeutralNeg100      // #111213
-    val FiringForeground = OffWhite               // #F5F5F5
+    val FiringBackground = DarkNeutralNeg100 // #111213
+    val FiringForeground = OffWhite // #F5F5F5
 
     // MARK: - Cycle Badges (neutral palette)
 
-    val BadgeOneTime = Neutral900                 // #3B3D42
-    val BadgeWeekly = Neutral900                  // #3B3D42
-    val BadgeMonthly = Neutral800                 // #505258
-    val BadgeAnnual = Neutral800                  // #505258
-    val BadgeCustom = Neutral800                  // #505258
+    val BadgeOneTime = Neutral900 // #3B3D42
+    val BadgeWeekly = Neutral900 // #3B3D42
+    val BadgeMonthly = Neutral800 // #505258
+    val BadgeAnnual = Neutral800 // #505258
+    val BadgeCustom = Neutral800 // #505258
 
     // MARK: - Category Colors (neutral — categories use accent tints)
 
@@ -142,35 +143,35 @@ object ColorTokens {
 
     // MARK: - Action Buttons (neutral palette)
 
-    val ButtonSnooze = Neutral800                 // #505258
-    val ButtonDismiss = Neutral800                // #505258
-    val ButtonDestructive = Red500                // #EF4444
+    val ButtonSnooze = Neutral800 // #505258
+    val ButtonDismiss = Neutral800 // #505258
+    val ButtonDestructive = Red500 // #EF4444
 
     // MARK: - Material 3 Scheme Compat — Dark (used by ChronirTheme.kt)
 
-    val Primary = Neutral900                      // #3B3D42
+    val Primary = Neutral900 // #3B3D42
     val OnPrimary = Color.White
-    val PrimaryContainer = Neutral800             // #505258
-    val OnPrimaryContainer = DarkNeutral1100      // #E2E3E4
-    val Secondary = Neutral800                    // #505258
+    val PrimaryContainer = Neutral800 // #505258
+    val OnPrimaryContainer = DarkNeutral1100 // #E2E3E4
+    val Secondary = Neutral800 // #505258
     val OnSecondary = Color.White
-    val SecondaryContainer = DarkNeutral300       // #303134
-    val OnSecondaryContainer = DarkNeutral1100    // #E2E3E4
-    val Tertiary = Amber500                       // #FFB800
-    val OnTertiary = Neutral1100                  // #1E1F21
+    val SecondaryContainer = DarkNeutral300 // #303134
+    val OnSecondaryContainer = DarkNeutral1100 // #E2E3E4
+    val Tertiary = Amber500 // #FFB800
+    val OnTertiary = Neutral1100 // #1E1F21
     val TertiaryContainer = Color(0xFFCC9300)
     val OnTertiaryContainer = Neutral1100
     val OnError = Color.White
     val ErrorContainer = Color(0xFFF9DEDC)
     val OnErrorContainer = Color(0xFF410E0B)
-    val Surface = DarkNeutral200                  // #242528
-    val OnSurface = DarkNeutral1100               // #E2E3E4
-    val SurfaceVariant = DarkNeutral300           // #303134
-    val OnSurfaceVariant = DarkNeutral700         // #96999E
-    val Background = DarkNeutral200               // #242528
-    val OnBackground = DarkNeutral1100            // #E2E3E4
-    val Outline = DarkNeutral300                  // #303134
-    val OutlineVariant = DarkNeutral400           // #4B4D51
+    val Surface = DarkNeutral200 // #242528
+    val OnSurface = DarkNeutral1100 // #E2E3E4
+    val SurfaceVariant = DarkNeutral300 // #303134
+    val OnSurfaceVariant = DarkNeutral700 // #96999E
+    val Background = DarkNeutral200 // #242528
+    val OnBackground = DarkNeutral1100 // #E2E3E4
+    val Outline = DarkNeutral300 // #303134
+    val OutlineVariant = DarkNeutral400 // #4B4D51
 
     // Backward compat aliases
     val AlarmActive = AlarmActiveBackground

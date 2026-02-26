@@ -42,16 +42,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirButton
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-private enum class PlanOption(val label: String, val period: String) {
+private enum class PlanOption(
+    val label: String,
+    val period: String
+) {
     ANNUAL("Annual", "year"),
     MONTHLY("Monthly", "month")
 }

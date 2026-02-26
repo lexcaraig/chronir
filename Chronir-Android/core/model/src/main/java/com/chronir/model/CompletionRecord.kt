@@ -7,7 +7,8 @@ enum class CompletionAction {
     COMPLETED,
     SNOOZED,
     MISSED,
-    SKIPPED
+    SKIPPED,
+    PENDING_CONFIRMATION
 }
 
 data class CompletionRecord(

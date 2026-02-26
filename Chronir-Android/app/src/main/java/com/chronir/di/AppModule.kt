@@ -6,6 +6,8 @@ import com.chronir.data.local.ChronirDatabase
 import com.chronir.data.local.CompletionDao
 import com.chronir.services.AlarmScheduler
 import com.chronir.services.AlarmSchedulerImpl
+import com.chronir.services.NotificationCleanupService
+import com.chronir.services.NotificationCleanupServiceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -20,21 +22,15 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): ChronirDatabase {
-        return ChronirDatabase.create(context)
-    }
+    fun provideDatabase(@ApplicationContext context: Context): ChronirDatabase = ChronirDatabase.create(context)
 
     @Provides
     @Singleton
-    fun provideAlarmDao(database: ChronirDatabase): AlarmDao {
-        return database.alarmDao()
-    }
+    fun provideAlarmDao(database: ChronirDatabase): AlarmDao = database.alarmDao()
 
     @Provides
     @Singleton
-    fun provideCompletionDao(database: ChronirDatabase): CompletionDao {
-        return database.completionDao()
-    }
+    fun provideCompletionDao(database: ChronirDatabase): CompletionDao = database.completionDao()
 }
 
 @Module
@@ -44,4 +40,8 @@ abstract class ServiceBindingsModule {
     @Binds
     @Singleton
     abstract fun bindAlarmScheduler(impl: AlarmSchedulerImpl): AlarmScheduler
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationCleanupService(impl: NotificationCleanupServiceImpl): NotificationCleanupService
 }

@@ -6,4 +6,20 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.ktlint) apply false
+}
+
+subprojects {
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        version.set("1.5.0")
+        android.set(true)
+        verbose.set(true)
+        outputToConsole.set(true)
+        filter {
+            exclude("**/generated/**")
+            exclude("**/build/**")
+        }
+    }
 }

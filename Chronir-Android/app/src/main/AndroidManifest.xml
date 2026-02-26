@@ -54,6 +54,10 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name="com.chronir.services.PendingConfirmationReceiver"
+            android:exported="false" />
+
         <service
             android:name="com.chronir.services.AlarmFiringService"
             android:foregroundServiceType="mediaPlayback"

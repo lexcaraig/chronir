@@ -443,7 +443,13 @@ private fun DayOfWeekPicker(
     modifier: Modifier = Modifier
 ) {
     val dayLabels = listOf(
-        2 to "M", 3 to "T", 4 to "W", 5 to "T", 6 to "F", 7 to "S", 1 to "S"
+        2 to "M",
+        3 to "T",
+        4 to "W",
+        5 to "T",
+        6 to "F",
+        7 to "S",
+        1 to "S"
     )
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -542,8 +548,18 @@ private fun AnnualPicker(
     modifier: Modifier = Modifier
 ) {
     val months = listOf(
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
     )
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -722,6 +738,7 @@ private fun CompletionHistorySection(
                         CompletionAction.SNOOZED -> "Snoozed"
                         CompletionAction.MISSED -> "Missed"
                         CompletionAction.SKIPPED -> "Skipped"
+                        CompletionAction.PENDING_CONFIRMATION -> "Pending"
                     },
                     style = ChronirTextStyle.BodyMedium,
                     color = when (record.action) {
@@ -729,6 +746,7 @@ private fun CompletionHistorySection(
                         CompletionAction.SNOOZED -> ColorTokens.Warning
                         CompletionAction.MISSED -> ColorTokens.Error
                         CompletionAction.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
+                        CompletionAction.PENDING_CONFIRMATION -> ColorTokens.PendingOrange
                     }
                 )
                 ChronirText(

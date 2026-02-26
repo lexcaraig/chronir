@@ -12,47 +12,42 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CompletionRepository @Inject constructor(
-    private val completionDao: CompletionDao
-) {
-
-    fun observeByAlarmId(alarmId: String): Flow<List<CompletionRecord>> {
-        return completionDao.observeByAlarmId(alarmId).map { entities ->
-            entities.map { it.toDomain() }
-        }
-    }
-
-    fun observeRecent(limit: Int = 50): Flow<List<CompletionRecord>> {
-        return completionDao.observeRecent(limit).map { entities ->
-            entities.map { it.toDomain() }
-        }
-    }
-
-    suspend fun recordCompletion(
-        alarmId: String,
-        action: CompletionAction,
-        snoozeDurationMinutes: Int? = null
+class CompletionRepository
+    @Inject
+    constructor(
+        private val completionDao: CompletionDao
     ) {
-        val entity = CompletionEntity(
-            id = UUID.randomUUID().toString(),
-            alarmId = alarmId,
-            action = action.name,
-            timestamp = Instant.now().toEpochMilli(),
-            snoozeDurationMinutes = snoozeDurationMinutes
-        )
-        completionDao.insert(entity)
-    }
 
-    suspend fun getCompletionCount(alarmId: String): Int {
-        return completionDao.getCompletionCount(alarmId)
-    }
+        fun observeByAlarmId(alarmId: String): Flow<List<CompletionRecord>> = completionDao.observeByAlarmId(alarmId).map { entities ->
+            entities.map { it.toDomain() }
+        }
 
-    suspend fun deleteByAlarmId(alarmId: String) {
-        completionDao.deleteByAlarmId(alarmId)
-    }
+        fun observeRecent(limit: Int = 50): Flow<List<CompletionRecord>> = completionDao.observeRecent(limit).map { entities ->
+            entities.map { it.toDomain() }
+        }
 
-    private fun CompletionEntity.toDomain(): CompletionRecord {
-        return CompletionRecord(
+        suspend fun recordCompletion(
+            alarmId: String,
+            action: CompletionAction,
+            snoozeDurationMinutes: Int? = null
+        ) {
+            val entity = CompletionEntity(
+                id = UUID.randomUUID().toString(),
+                alarmId = alarmId,
+                action = action.name,
+                timestamp = Instant.now().toEpochMilli(),
+                snoozeDurationMinutes = snoozeDurationMinutes
+            )
+            completionDao.insert(entity)
+        }
+
+        suspend fun getCompletionCount(alarmId: String): Int = completionDao.getCompletionCount(alarmId)
+
+        suspend fun deleteByAlarmId(alarmId: String) {
+            completionDao.deleteByAlarmId(alarmId)
+        }
+
+        private fun CompletionEntity.toDomain(): CompletionRecord = CompletionRecord(
             id = id,
             alarmId = alarmId,
             userId = "",
@@ -61,4 +56,3 @@ class CompletionRepository @Inject constructor(
             snoozeDurationMinutes = snoozeDurationMinutes
         )
     }
-}

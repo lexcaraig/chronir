@@ -1,7 +1,6 @@
 package com.chronir.feature.settings
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.chronir.data.repository.UserSettings
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.molecules.AlarmToggleRow
@@ -26,7 +25,6 @@ import com.chronir.designsystem.molecules.SegmentedOptionPicker
 import com.chronir.designsystem.molecules.SettingsNavigationRow
 import com.chronir.designsystem.molecules.SettingsSection
 import com.chronir.designsystem.templates.SingleColumnTemplate
-import androidx.compose.material3.MaterialTheme
 import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.TextSizePreference
@@ -41,6 +39,7 @@ fun SettingsScreen(
     onNavigateToWallpaper: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
     onNavigateToSubscription: () -> Unit = {},
+    onNavigateToLegal: (title: String, url: String) -> Unit = { _, _ -> },
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -209,25 +208,33 @@ fun SettingsScreen(
                     )
                 }
                 SettingsNavigationRow(
+                    title = "FAQ",
+                    value = "",
+                    onClick = {
+                        onNavigateToLegal(
+                            "FAQ",
+                            "https://gist.github.com/lexcaraig/chronir-faq"
+                        )
+                    }
+                )
+                SettingsNavigationRow(
                     title = "Privacy Policy",
                     value = "",
                     onClick = {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://gist.github.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c")
+                        onNavigateToLegal(
+                            "Privacy Policy",
+                            "https://gist.github.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c"
                         )
-                        context.startActivity(intent)
                     }
                 )
                 SettingsNavigationRow(
                     title = "Terms of Service",
                     value = "",
                     onClick = {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://gist.github.com/lexcaraig/b5087828d62c2f0aa190b9814f57bcf9")
+                        onNavigateToLegal(
+                            "Terms of Service",
+                            "https://gist.github.com/lexcaraig/b5087828d62c2f0aa190b9814f57bcf9"
                         )
-                        context.startActivity(intent)
                     }
                 )
             }

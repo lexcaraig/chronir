@@ -142,18 +142,18 @@ object TypographyTokens {
 
     // MARK: - Spec-Aligned Aliases (design-system.md Section 3.3)
 
-    val DisplayAlarm = DisplayLarge        // 120sp firing screen time
-    val HeadlineTime = HeadlineLarge       // 32sp alarm card time
-    val HeadlineTitle = HeadlineSmall      // 24sp screen titles
-    val BodyPrimary = BodyLarge            // 16sp labels, descriptions
-    val BodySecondary = BodyMedium         // 14sp metadata
-    val CaptionCountdown = LabelLarge      // 14sp "Alarm in 6h 32m"
-    val CaptionBadge = LabelMedium         // 12sp cycle type badges
+    val DisplayAlarm = DisplayLarge // 120sp firing screen time
+    val HeadlineTime = HeadlineLarge // 32sp alarm card time
+    val HeadlineTitle = HeadlineSmall // 24sp screen titles
+    val BodyPrimary = BodyLarge // 16sp labels, descriptions
+    val BodySecondary = BodyMedium // 14sp metadata
+    val CaptionCountdown = LabelLarge // 14sp "Alarm in 6h 32m"
+    val CaptionBadge = LabelMedium // 12sp cycle type badges
 
     // MARK: - Material 3 Typography
 
     val AppTypography = Typography(
-        displayLarge = DisplayMedium,      // M3 displayLarge = 57sp (not our 120sp alarm)
+        displayLarge = DisplayMedium, // M3 displayLarge = 57sp (not our 120sp alarm)
         displayMedium = DisplaySmall,
         headlineLarge = HeadlineLarge,
         headlineMedium = HeadlineMedium,

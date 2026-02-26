@@ -22,36 +22,38 @@ data class PaywallUiState(
 )
 
 @HiltViewModel
-class PaywallViewModel @Inject constructor(
-    private val billingService: BillingService
-) : ViewModel() {
+class PaywallViewModel
+    @Inject
+    constructor(
+        private val billingService: BillingService
+    ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PaywallUiState())
-    val uiState: StateFlow<PaywallUiState> = _uiState.asStateFlow()
+        private val _uiState = MutableStateFlow(PaywallUiState())
+        val uiState: StateFlow<PaywallUiState> = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            billingService.subscriptionState.collect { state ->
-                _uiState.update {
-                    it.copy(
-                        tier = state.tier,
-                        monthlyPrice = state.monthlyPrice,
-                        annualPrice = state.annualPrice
-                    )
+        init {
+            viewModelScope.launch {
+                billingService.subscriptionState.collect { state ->
+                    _uiState.update {
+                        it.copy(
+                            tier = state.tier,
+                            monthlyPrice = state.monthlyPrice,
+                            annualPrice = state.annualPrice
+                        )
+                    }
                 }
             }
         }
-    }
 
-    fun purchaseMonthly(activity: Activity) {
-        billingService.launchBillingFlow(activity, BillingPlan.MONTHLY)
-    }
+        fun purchaseMonthly(activity: Activity) {
+            billingService.launchBillingFlow(activity, BillingPlan.MONTHLY)
+        }
 
-    fun purchaseAnnual(activity: Activity) {
-        billingService.launchBillingFlow(activity, BillingPlan.ANNUAL)
-    }
+        fun purchaseAnnual(activity: Activity) {
+            billingService.launchBillingFlow(activity, BillingPlan.ANNUAL)
+        }
 
-    fun restorePurchases() {
-        billingService.restorePurchases()
+        fun restorePurchases() {
+            billingService.restorePurchases()
+        }
     }
-}

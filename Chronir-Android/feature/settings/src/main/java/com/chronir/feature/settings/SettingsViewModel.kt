@@ -16,42 +16,44 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository,
-    private val billingService: BillingService
-) : ViewModel() {
+class SettingsViewModel
+    @Inject
+    constructor(
+        private val settingsRepository: SettingsRepository,
+        private val billingService: BillingService
+    ) : ViewModel() {
 
-    val isPlusUser: Boolean
-        get() = billingService.subscriptionState.value.tier != SubscriptionTier.FREE
+        val isPlusUser: Boolean
+            get() = billingService.subscriptionState.value.tier != SubscriptionTier.FREE
 
-    val uiState: StateFlow<UserSettings> = settingsRepository.settings
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())
+        val uiState: StateFlow<UserSettings> = settingsRepository.settings
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())
 
-    fun setSnoozeEnabled(enabled: Boolean) {
-        viewModelScope.launch { settingsRepository.setSnoozeEnabled(enabled) }
+        fun setSnoozeEnabled(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.setSnoozeEnabled(enabled) }
+        }
+
+        fun setSlideToStop(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.setSlideToStop(enabled) }
+        }
+
+        fun setHapticFeedback(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.setHapticFeedback(enabled) }
+        }
+
+        fun setFixedTimezone(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.setFixedTimezone(enabled) }
+        }
+
+        fun setThemePreference(theme: ThemePreference) {
+            viewModelScope.launch { settingsRepository.setThemePreference(theme) }
+        }
+
+        fun setTextSizePreference(size: TextSizePreference) {
+            viewModelScope.launch { settingsRepository.setTextSizePreference(size) }
+        }
+
+        fun setGroupByCategory(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.setGroupByCategory(enabled) }
+        }
     }
-
-    fun setSlideToStop(enabled: Boolean) {
-        viewModelScope.launch { settingsRepository.setSlideToStop(enabled) }
-    }
-
-    fun setHapticFeedback(enabled: Boolean) {
-        viewModelScope.launch { settingsRepository.setHapticFeedback(enabled) }
-    }
-
-    fun setFixedTimezone(enabled: Boolean) {
-        viewModelScope.launch { settingsRepository.setFixedTimezone(enabled) }
-    }
-
-    fun setThemePreference(theme: ThemePreference) {
-        viewModelScope.launch { settingsRepository.setThemePreference(theme) }
-    }
-
-    fun setTextSizePreference(size: TextSizePreference) {
-        viewModelScope.launch { settingsRepository.setTextSizePreference(size) }
-    }
-
-    fun setGroupByCategory(enabled: Boolean) {
-        viewModelScope.launch { settingsRepository.setGroupByCategory(enabled) }
-    }
-}

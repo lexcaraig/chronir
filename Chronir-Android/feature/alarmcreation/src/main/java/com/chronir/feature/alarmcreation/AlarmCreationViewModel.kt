@@ -48,211 +48,213 @@ data class AlarmCreationUiState(
 )
 
 @HiltViewModel
-class AlarmCreationViewModel @Inject constructor(
-    private val alarmRepository: AlarmRepository,
-    private val dateCalculator: DateCalculator,
-    private val alarmScheduler: AlarmScheduler,
-    private val billingService: BillingService
-) : ViewModel() {
+class AlarmCreationViewModel
+    @Inject
+    constructor(
+        private val alarmRepository: AlarmRepository,
+        private val dateCalculator: DateCalculator,
+        private val alarmScheduler: AlarmScheduler,
+        private val billingService: BillingService
+    ) : ViewModel() {
 
-    companion object {
-        private const val FREE_TIER_ALARM_LIMIT = 3
-    }
-
-    private val _uiState = MutableStateFlow(AlarmCreationUiState())
-    val uiState: StateFlow<AlarmCreationUiState> = _uiState.asStateFlow()
-
-    fun updateTitle(title: String) {
-        if (title.length <= 60) {
-            _uiState.update { it.copy(title = title) }
+        companion object {
+            private const val FREE_TIER_ALARM_LIMIT = 3
         }
-    }
 
-    fun updateTime(hour: Int, minute: Int) {
-        _uiState.update { it.copy(hour = hour, minute = minute) }
-    }
+        private val _uiState = MutableStateFlow(AlarmCreationUiState())
+        val uiState: StateFlow<AlarmCreationUiState> = _uiState.asStateFlow()
 
-    fun updateCycleType(cycleType: CycleType) {
-        _uiState.update { it.copy(cycleType = cycleType) }
-    }
-
-    fun updatePersistenceLevel(level: PersistenceLevel) {
-        _uiState.update { it.copy(persistenceLevel = level) }
-    }
-
-    fun updateNote(note: String) {
-        if (note.length <= 500) {
-            _uiState.update { it.copy(note = note) }
-        }
-    }
-
-    fun toggleDay(day: Int) {
-        _uiState.update { state ->
-            val newDays = if (state.selectedDays.contains(day)) {
-                if (state.selectedDays.size > 1) state.selectedDays - day else state.selectedDays
-            } else {
-                state.selectedDays + day
+        fun updateTitle(title: String) {
+            if (title.length <= 60) {
+                _uiState.update { it.copy(title = title) }
             }
-            state.copy(selectedDays = newDays)
         }
-    }
 
-    fun updateDayOfMonth(day: Int) {
-        _uiState.update { it.copy(dayOfMonth = day.coerceIn(1, 31)) }
-    }
+        fun updateTime(hour: Int, minute: Int) {
+            _uiState.update { it.copy(hour = hour, minute = minute) }
+        }
 
-    fun updateAnnualMonth(month: Int) {
-        _uiState.update { it.copy(annualMonth = month.coerceIn(1, 12)) }
-    }
+        fun updateCycleType(cycleType: CycleType) {
+            _uiState.update { it.copy(cycleType = cycleType) }
+        }
 
-    fun updateAnnualDay(day: Int) {
-        _uiState.update { it.copy(annualDay = day.coerceIn(1, 31)) }
-    }
+        fun updatePersistenceLevel(level: PersistenceLevel) {
+            _uiState.update { it.copy(persistenceLevel = level) }
+        }
 
-    fun updateOneTimeDate(date: LocalDate) {
-        _uiState.update { it.copy(oneTimeDate = date) }
-    }
-
-    fun updateCategory(category: AlarmCategory?) {
-        _uiState.update { it.copy(category = category) }
-    }
-
-    fun updatePreAlarmMinutes(minutes: Int) {
-        // Extended pre-alarm offsets (>30min) require Plus
-        val isFree = billingService.subscriptionState.value.tier == SubscriptionTier.FREE
-        if (isFree && minutes > 30) {
-            _uiState.update {
-                it.copy(errorMessage = "Extended pre-alarm offsets require Plus subscription.")
+        fun updateNote(note: String) {
+            if (note.length <= 500) {
+                _uiState.update { it.copy(note = note) }
             }
-            return
         }
-        _uiState.update { it.copy(preAlarmMinutes = minutes) }
-    }
 
-    fun addAdditionalTime(hour: Int, minute: Int) {
-        _uiState.update { state ->
-            val newTime = LocalTime.of(hour, minute)
-            if (state.additionalTimes.contains(newTime)) state
-            else state.copy(additionalTimes = state.additionalTimes + newTime)
-        }
-    }
-
-    fun removeAdditionalTime(index: Int) {
-        _uiState.update { state ->
-            state.copy(additionalTimes = state.additionalTimes.toMutableList().apply { removeAt(index) })
-        }
-    }
-
-    fun loadTemplate(template: AlarmTemplate) {
-        _uiState.update {
-            it.copy(
-                title = template.name,
-                cycleType = template.cycleType,
-                hour = template.timeOfDay.hour,
-                minute = template.timeOfDay.minute,
-                persistenceLevel = template.persistenceLevel,
-                preAlarmMinutes = template.preAlarmMinutes,
-                note = template.note,
-                category = template.category,
-                selectedDays = when (val s = template.schedule) {
-                    is Schedule.Weekly -> s.daysOfWeek.toSet()
-                    else -> it.selectedDays
-                },
-                dayOfMonth = when (val s = template.schedule) {
-                    is Schedule.MonthlyDate -> s.dayOfMonth
-                    else -> it.dayOfMonth
-                },
-                annualMonth = when (val s = template.schedule) {
-                    is Schedule.Annual -> s.month
-                    else -> it.annualMonth
-                },
-                annualDay = when (val s = template.schedule) {
-                    is Schedule.Annual -> s.dayOfMonth
-                    else -> it.annualDay
-                },
-                repeatInterval = when (val s = template.schedule) {
-                    is Schedule.Weekly -> s.interval
-                    is Schedule.MonthlyDate -> s.interval
-                    is Schedule.Annual -> s.interval
-                    else -> it.repeatInterval
+        fun toggleDay(day: Int) {
+            _uiState.update { state ->
+                val newDays = if (state.selectedDays.contains(day)) {
+                    if (state.selectedDays.size > 1) state.selectedDays - day else state.selectedDays
+                } else {
+                    state.selectedDays + day
                 }
-            )
-        }
-    }
-
-    fun updateRepeatInterval(interval: Int) {
-        _uiState.update { it.copy(repeatInterval = interval.coerceIn(1, 52)) }
-    }
-
-    fun togglePersistence(enabled: Boolean) {
-        _uiState.update {
-            it.copy(
-                persistenceLevel = if (enabled) PersistenceLevel.FULL else PersistenceLevel.NOTIFICATION_ONLY
-            )
-        }
-    }
-
-    fun saveAlarm() {
-        val state = _uiState.value
-        if (state.title.isBlank()) {
-            _uiState.update { it.copy(errorMessage = "Title is required") }
-            return
+                state.copy(selectedDays = newDays)
+            }
         }
 
-        _uiState.update { it.copy(isSaving = true, errorMessage = null) }
+        fun updateDayOfMonth(day: Int) {
+            _uiState.update { it.copy(dayOfMonth = day.coerceIn(1, 31)) }
+        }
 
-        viewModelScope.launch {
-            try {
-                // Free tier: 3-alarm limit
-                val tier = billingService.subscriptionState.value.tier
-                if (tier == SubscriptionTier.FREE) {
-                    val existingCount = alarmRepository.observeAlarms().first().size
-                    if (existingCount >= FREE_TIER_ALARM_LIMIT) {
-                        _uiState.update {
-                            it.copy(
-                                isSaving = false,
-                                errorMessage = "Free plan is limited to $FREE_TIER_ALARM_LIMIT alarms. Upgrade to Plus for unlimited alarms."
-                            )
+        fun updateAnnualMonth(month: Int) {
+            _uiState.update { it.copy(annualMonth = month.coerceIn(1, 12)) }
+        }
+
+        fun updateAnnualDay(day: Int) {
+            _uiState.update { it.copy(annualDay = day.coerceIn(1, 31)) }
+        }
+
+        fun updateOneTimeDate(date: LocalDate) {
+            _uiState.update { it.copy(oneTimeDate = date) }
+        }
+
+        fun updateCategory(category: AlarmCategory?) {
+            _uiState.update { it.copy(category = category) }
+        }
+
+        fun updatePreAlarmMinutes(minutes: Int) {
+            // Extended pre-alarm offsets (>30min) require Plus
+            val isFree = billingService.subscriptionState.value.tier == SubscriptionTier.FREE
+            if (isFree && minutes > 30) {
+                _uiState.update {
+                    it.copy(errorMessage = "Extended pre-alarm offsets require Plus subscription.")
+                }
+                return
+            }
+            _uiState.update { it.copy(preAlarmMinutes = minutes) }
+        }
+
+        fun addAdditionalTime(hour: Int, minute: Int) {
+            _uiState.update { state ->
+                val newTime = LocalTime.of(hour, minute)
+                if (state.additionalTimes.contains(newTime)) state
+                else state.copy(additionalTimes = state.additionalTimes + newTime)
+            }
+        }
+
+        fun removeAdditionalTime(index: Int) {
+            _uiState.update { state ->
+                state.copy(additionalTimes = state.additionalTimes.toMutableList().apply { removeAt(index) })
+            }
+        }
+
+        fun loadTemplate(template: AlarmTemplate) {
+            _uiState.update {
+                it.copy(
+                    title = template.name,
+                    cycleType = template.cycleType,
+                    hour = template.timeOfDay.hour,
+                    minute = template.timeOfDay.minute,
+                    persistenceLevel = template.persistenceLevel,
+                    preAlarmMinutes = template.preAlarmMinutes,
+                    note = template.note,
+                    category = template.category,
+                    selectedDays = when (val s = template.schedule) {
+                        is Schedule.Weekly -> s.daysOfWeek.toSet()
+                        else -> it.selectedDays
+                    },
+                    dayOfMonth = when (val s = template.schedule) {
+                        is Schedule.MonthlyDate -> s.dayOfMonth
+                        else -> it.dayOfMonth
+                    },
+                    annualMonth = when (val s = template.schedule) {
+                        is Schedule.Annual -> s.month
+                        else -> it.annualMonth
+                    },
+                    annualDay = when (val s = template.schedule) {
+                        is Schedule.Annual -> s.dayOfMonth
+                        else -> it.annualDay
+                    },
+                    repeatInterval = when (val s = template.schedule) {
+                        is Schedule.Weekly -> s.interval
+                        is Schedule.MonthlyDate -> s.interval
+                        is Schedule.Annual -> s.interval
+                        else -> it.repeatInterval
+                    }
+                )
+            }
+        }
+
+        fun updateRepeatInterval(interval: Int) {
+            _uiState.update { it.copy(repeatInterval = interval.coerceIn(1, 52)) }
+        }
+
+        fun togglePersistence(enabled: Boolean) {
+            _uiState.update {
+                it.copy(
+                    persistenceLevel = if (enabled) PersistenceLevel.FULL else PersistenceLevel.NOTIFICATION_ONLY
+                )
+            }
+        }
+
+        fun saveAlarm() {
+            val state = _uiState.value
+            if (state.title.isBlank()) {
+                _uiState.update { it.copy(errorMessage = "Title is required") }
+                return
+            }
+
+            _uiState.update { it.copy(isSaving = true, errorMessage = null) }
+
+            viewModelScope.launch {
+                try {
+                    // Free tier: 3-alarm limit
+                    val tier = billingService.subscriptionState.value.tier
+                    if (tier == SubscriptionTier.FREE) {
+                        val existingCount = alarmRepository.observeAlarms().first().size
+                        if (existingCount >= FREE_TIER_ALARM_LIMIT) {
+                            _uiState.update {
+                                it.copy(
+                                    isSaving = false,
+                                    errorMessage = "Free plan is limited to $FREE_TIER_ALARM_LIMIT alarms. " +
+                                        "Upgrade to Plus for unlimited alarms."
+                                )
+                            }
+                            return@launch
                         }
-                        return@launch
+                    }
+                    val schedule = buildSchedule(state)
+                    val timeOfDay = LocalTime.of(state.hour, state.minute)
+
+                    val alarm = Alarm(
+                        title = state.title.trim(),
+                        cycleType = state.cycleType,
+                        timeOfDay = timeOfDay,
+                        schedule = schedule,
+                        persistenceLevel = state.persistenceLevel,
+                        preAlarmMinutes = state.preAlarmMinutes,
+                        additionalTimesOfDay = state.additionalTimes,
+                        colorTag = state.category?.colorTag,
+                        iconName = state.category?.iconKey,
+                        note = state.note.trim()
+                    )
+
+                    val nextFireDate = dateCalculator.calculateNextFireDate(alarm, Instant.now())
+                    val alarmWithFireDate = alarm.copy(nextFireDate = nextFireDate)
+
+                    alarmRepository.saveAlarm(alarmWithFireDate)
+                    alarmScheduler.schedule(alarmWithFireDate)
+
+                    _uiState.update { it.copy(isSaving = false, saveSuccess = true) }
+                } catch (e: Exception) {
+                    _uiState.update {
+                        it.copy(
+                            isSaving = false,
+                            errorMessage = "Failed to save alarm. Please try again."
+                        )
                     }
                 }
-                val schedule = buildSchedule(state)
-                val timeOfDay = LocalTime.of(state.hour, state.minute)
-
-                val alarm = Alarm(
-                    title = state.title.trim(),
-                    cycleType = state.cycleType,
-                    timeOfDay = timeOfDay,
-                    schedule = schedule,
-                    persistenceLevel = state.persistenceLevel,
-                    preAlarmMinutes = state.preAlarmMinutes,
-                    additionalTimesOfDay = state.additionalTimes,
-                    colorTag = state.category?.colorTag,
-                    iconName = state.category?.iconKey,
-                    note = state.note.trim()
-                )
-
-                val nextFireDate = dateCalculator.calculateNextFireDate(alarm, Instant.now())
-                val alarmWithFireDate = alarm.copy(nextFireDate = nextFireDate)
-
-                alarmRepository.saveAlarm(alarmWithFireDate)
-                alarmScheduler.schedule(alarmWithFireDate)
-
-                _uiState.update { it.copy(isSaving = false, saveSuccess = true) }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isSaving = false,
-                        errorMessage = "Failed to save alarm. Please try again."
-                    )
-                }
             }
         }
-    }
 
-    private fun buildSchedule(state: AlarmCreationUiState): Schedule {
-        return when (state.cycleType) {
+        private fun buildSchedule(state: AlarmCreationUiState): Schedule = when (state.cycleType) {
             CycleType.ONE_TIME -> {
                 val fireInstant = state.oneTimeDate
                     .atTime(state.hour, state.minute)
@@ -284,4 +286,3 @@ class AlarmCreationViewModel @Inject constructor(
             )
         }
     }
-}

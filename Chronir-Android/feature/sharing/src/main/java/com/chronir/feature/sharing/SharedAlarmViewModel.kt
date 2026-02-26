@@ -15,10 +15,12 @@ data class SharedAlarmUiState(
 )
 
 @HiltViewModel
-class SharedAlarmViewModel @Inject constructor(
-    private val groupRepository: GroupRepository
-) : ViewModel() {
+class SharedAlarmViewModel
+    @Inject
+    constructor(
+        private val groupRepository: GroupRepository
+    ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SharedAlarmUiState())
-    val uiState: StateFlow<SharedAlarmUiState> = _uiState.asStateFlow()
-}
+        private val _uiState = MutableStateFlow(SharedAlarmUiState())
+        val uiState: StateFlow<SharedAlarmUiState> = _uiState.asStateFlow()
+    }

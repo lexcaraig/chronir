@@ -45,6 +45,8 @@ data class Alarm(
     val sharedWith: List<String> = emptyList(),
     val additionalTimesOfDay: List<LocalTime> = emptyList(),
     val note: String = "",
+    val isPendingConfirmation: Boolean = false,
+    val pendingSince: Instant? = null,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
 ) {

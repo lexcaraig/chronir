@@ -24,6 +24,9 @@ class AlarmFiringService : Service() {
         const val CHANNEL_ID = "alarm_firing_channel"
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP_ALARM = "com.chronir.ACTION_STOP_ALARM"
+        const val ACTION_SNOOZE_ALARM = "com.chronir.ACTION_SNOOZE_ALARM"
+        const val EXTRA_ALARM_TITLE = "extra_alarm_title"
+        const val EXTRA_ALARM_TIME = "extra_alarm_time"
     }
 
     private var mediaPlayer: MediaPlayer? = null
@@ -41,8 +44,10 @@ class AlarmFiringService : Service() {
         }
 
         val alarmId = intent?.getStringExtra(AlarmReceiver.EXTRA_ALARM_ID)
+        val alarmTitle = intent?.getStringExtra(EXTRA_ALARM_TITLE)
+        val alarmTime = intent?.getStringExtra(EXTRA_ALARM_TIME)
 
-        val notification = buildNotification(alarmId)
+        val notification = buildNotification(alarmId, alarmTitle, alarmTime)
         startForeground(NOTIFICATION_ID, notification)
 
         // Launch AlarmFiringActivity directly
@@ -142,7 +147,10 @@ class AlarmFiringService : Service() {
         manager.createNotificationChannel(channel)
     }
 
-    private fun buildNotification(alarmId: String?): Notification {
+    private fun buildNotification(alarmId: String?, alarmTitle: String?, alarmTime: String?): Notification {
+        val title = alarmTitle ?: "Alarm Firing"
+        val text = if (alarmTime != null) "Alarm at $alarmTime" else "Alarm is ringing"
+
         // Full-screen intent to launch firing activity
         val fullScreenIntent = Intent().apply {
             setClassName(packageName, "com.chronir.feature.alarmfiring.AlarmFiringActivity")
@@ -155,7 +163,7 @@ class AlarmFiringService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Stop action
+        // Dismiss action
         val stopIntent = Intent(this, AlarmFiringService::class.java).apply {
             action = ACTION_STOP_ALARM
         }
@@ -167,16 +175,19 @@ class AlarmFiringService : Service() {
         )
 
         return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("Alarm Firing")
-            .setContentText("Alarm is ringing")
+            .setContentTitle(title)
+            .setContentText(text)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_ALARM)
             .setFullScreenIntent(fullScreenPendingIntent, true)
+            .setUsesChronometer(true)
+            .setChronometerCountDown(true)
+            .setWhen(System.currentTimeMillis())
             .addAction(
                 Notification.Action.Builder(
                     null,
-                    "Stop",
+                    "Dismiss",
                     stopPendingIntent
                 ).build()
             )

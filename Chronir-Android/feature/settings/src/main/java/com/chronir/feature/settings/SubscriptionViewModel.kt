@@ -17,18 +17,20 @@ data class SubscriptionUiState(
 )
 
 @HiltViewModel
-class SubscriptionViewModel @Inject constructor(
-    private val billingService: BillingService
-) : ViewModel() {
+class SubscriptionViewModel
+    @Inject
+    constructor(
+        private val billingService: BillingService
+    ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SubscriptionUiState())
-    val uiState: StateFlow<SubscriptionUiState> = _uiState.asStateFlow()
+        private val _uiState = MutableStateFlow(SubscriptionUiState())
+        val uiState: StateFlow<SubscriptionUiState> = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            billingService.subscriptionState.collect { state ->
-                _uiState.update { it.copy(tier = state.tier) }
+        init {
+            viewModelScope.launch {
+                billingService.subscriptionState.collect { state ->
+                    _uiState.update { it.copy(tier = state.tier) }
+                }
             }
         }
     }
-}

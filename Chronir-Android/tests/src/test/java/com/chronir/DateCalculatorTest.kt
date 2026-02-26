@@ -9,7 +9,6 @@ import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 
 class DateCalculatorTest {
-
     @Test
     fun `next weekly date is 7 days from now`() {
         val today = LocalDate.now()

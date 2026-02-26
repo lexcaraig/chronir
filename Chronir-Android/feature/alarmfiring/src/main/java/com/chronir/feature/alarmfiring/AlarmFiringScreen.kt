@@ -42,15 +42,19 @@ fun AlarmFiringScreen(
         if (alarm != null) {
             AlarmFiringView(
                 alarm = alarm,
-                onDismiss = viewModel::dismissAlarm,
+                onDismiss = viewModel::stopAlarm,
                 onSnooze = viewModel::snoozeAlarm,
                 snoozeCount = alarm.snoozeCount,
                 onCustomSnooze = if (viewModel.isCustomSnoozeAvailable) {
                     { showCustomSnooze = true }
-                } else null,
+                } else {
+                    null
+                },
                 onSkip = if (alarm.cycleType != CycleType.ONE_TIME) {
                     { viewModel.skipOccurrence() }
-                } else null
+                } else {
+                    null
+                }
             )
         } else {
             Box(

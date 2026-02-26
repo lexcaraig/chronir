@@ -1,6 +1,5 @@
 package com.chronir.designsystem
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,9 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.HorizontalDivider
@@ -35,7 +31,6 @@ import com.chronir.designsystem.molecules.AlarmToggleRow
 import com.chronir.designsystem.molecules.SnoozeOptionBar
 import com.chronir.designsystem.organisms.AlarmCard
 import com.chronir.designsystem.organisms.AlarmVisualState
-import com.chronir.designsystem.organisms.EmptyStateView
 import com.chronir.designsystem.templates.SingleColumnTemplate
 import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.ColorTokens
@@ -57,7 +52,10 @@ fun ComponentCatalog(
         title = "Design System",
         modifier = modifier
     ) {
-        CatalogSection(title = "Atoms", isExpanded = expandedSection == "atoms", onToggle = { expandedSection = if (expandedSection == "atoms") null else "atoms" }) {
+        CatalogSection(title = "Atoms", isExpanded = expandedSection == "atoms", onToggle = {
+            expandedSection =
+                if (expandedSection == "atoms") null else "atoms"
+        }) {
             // ChronirText samples
             ChronirText(text = "Display Alarm", style = ChronirTextStyle.DisplayAlarm)
             ChronirText(text = "Headline Time", style = ChronirTextStyle.HeadlineTime)
@@ -90,17 +88,31 @@ fun ComponentCatalog(
             ChronirToggle(checked = toggleState, onCheckedChange = { toggleState = it })
         }
 
-        CatalogSection(title = "Molecules", isExpanded = expandedSection == "molecules", onToggle = { expandedSection = if (expandedSection == "molecules") null else "molecules" }) {
+        CatalogSection(title = "Molecules", isExpanded = expandedSection == "molecules", onToggle = {
+            expandedSection =
+                if (expandedSection == "molecules") null else "molecules"
+        }) {
             AlarmTimeDisplay(timeText = "3:45 PM", countdownText = "Alarm in 6h 32m")
             Spacer(Modifier.height(SpacingTokens.Medium))
-            AlarmToggleRow(title = "Workout", subtitle = "Every Monday", isEnabled = true, onToggle = {}, badgeLabel = "Weekly", badgeColor = ColorTokens.BadgeWeekly)
+            AlarmToggleRow(title = "Workout", subtitle = "Every Monday", isEnabled = true, onToggle = {
+            }, badgeLabel = "Weekly", badgeColor = ColorTokens.BadgeWeekly)
             Spacer(Modifier.height(SpacingTokens.Medium))
             SnoozeOptionBar(onSnooze = {})
         }
 
-        CatalogSection(title = "Organisms", isExpanded = expandedSection == "organisms", onToggle = { expandedSection = if (expandedSection == "organisms") null else "organisms" }) {
+        CatalogSection(title = "Organisms", isExpanded = expandedSection == "organisms", onToggle = {
+            expandedSection =
+                if (expandedSection == "organisms") null else "organisms"
+        }) {
             AlarmCard(
-                alarm = Alarm(title = "Active Card", cycleType = CycleType.WEEKLY, timeOfDay = LocalTime.of(7, 0), schedule = Schedule.Weekly(daysOfWeek = listOf(1), interval = 1), nextFireDate = Instant.now().plusSeconds(3600), persistenceLevel = PersistenceLevel.FULL),
+                alarm = Alarm(
+                    title = "Active Card",
+                    cycleType = CycleType.WEEKLY,
+                    timeOfDay = LocalTime.of(7, 0),
+                    schedule = Schedule.Weekly(daysOfWeek = listOf(1), interval = 1),
+                    nextFireDate = Instant.now().plusSeconds(3600),
+                    persistenceLevel = PersistenceLevel.FULL
+                ),
                 visualState = AlarmVisualState.Active,
                 isEnabled = true,
                 onToggle = {},
@@ -108,7 +120,13 @@ fun ComponentCatalog(
             )
             Spacer(Modifier.height(SpacingTokens.Small))
             AlarmCard(
-                alarm = Alarm(title = "Snoozed Card", cycleType = CycleType.MONTHLY_DATE, timeOfDay = LocalTime.of(9, 0), schedule = Schedule.MonthlyDate(dayOfMonth = 1, interval = 1), nextFireDate = Instant.now()),
+                alarm = Alarm(
+                    title = "Snoozed Card",
+                    cycleType = CycleType.MONTHLY_DATE,
+                    timeOfDay = LocalTime.of(9, 0),
+                    schedule = Schedule.MonthlyDate(dayOfMonth = 1, interval = 1),
+                    nextFireDate = Instant.now()
+                ),
                 visualState = AlarmVisualState.Snoozed,
                 isEnabled = true,
                 onToggle = {},
@@ -116,7 +134,13 @@ fun ComponentCatalog(
             )
             Spacer(Modifier.height(SpacingTokens.Small))
             AlarmCard(
-                alarm = Alarm(title = "Overdue Card", cycleType = CycleType.ANNUAL, timeOfDay = LocalTime.of(10, 0), schedule = Schedule.Annual(month = 3, dayOfMonth = 15, interval = 1), nextFireDate = Instant.now().minusSeconds(3600)),
+                alarm = Alarm(
+                    title = "Overdue Card",
+                    cycleType = CycleType.ANNUAL,
+                    timeOfDay = LocalTime.of(10, 0),
+                    schedule = Schedule.Annual(month = 3, dayOfMonth = 15, interval = 1),
+                    nextFireDate = Instant.now().minusSeconds(3600)
+                ),
                 visualState = AlarmVisualState.Overdue,
                 isEnabled = true,
                 onToggle = {},
@@ -124,12 +148,27 @@ fun ComponentCatalog(
             )
         }
 
-        CatalogSection(title = "Templates", isExpanded = expandedSection == "templates", onToggle = { expandedSection = if (expandedSection == "templates") null else "templates" }) {
-            ChronirText(text = "SingleColumnTemplate — wraps scrollable content with top bar", style = ChronirTextStyle.BodySecondary, color = ColorTokens.TextSecondary)
+        CatalogSection(title = "Templates", isExpanded = expandedSection == "templates", onToggle = {
+            expandedSection =
+                if (expandedSection == "templates") null else "templates"
+        }) {
+            ChronirText(
+                text = "SingleColumnTemplate — wraps scrollable content with top bar",
+                style = ChronirTextStyle.BodySecondary,
+                color = ColorTokens.TextSecondary
+            )
             Spacer(Modifier.height(SpacingTokens.Small))
-            ChronirText(text = "ModalSheetTemplate — bottom sheet with content slot", style = ChronirTextStyle.BodySecondary, color = ColorTokens.TextSecondary)
+            ChronirText(
+                text = "ModalSheetTemplate — bottom sheet with content slot",
+                style = ChronirTextStyle.BodySecondary,
+                color = ColorTokens.TextSecondary
+            )
             Spacer(Modifier.height(SpacingTokens.Small))
-            ChronirText(text = "FullScreenAlarmTemplate — full-screen overlay for firing", style = ChronirTextStyle.BodySecondary, color = ColorTokens.TextSecondary)
+            ChronirText(
+                text = "FullScreenAlarmTemplate — full-screen overlay for firing",
+                style = ChronirTextStyle.BodySecondary,
+                color = ColorTokens.TextSecondary
+            )
         }
     }
 }

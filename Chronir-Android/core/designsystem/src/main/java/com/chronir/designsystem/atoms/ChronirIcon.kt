@@ -24,7 +24,9 @@ import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
-enum class ChronirIconSize(val dp: Dp) {
+enum class ChronirIconSize(
+    val dp: Dp
+) {
     Small(16.dp),
     Medium(24.dp),
     Large(32.dp)

@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -32,14 +31,14 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.chronir.data.repository.SettingsRepository
 import com.chronir.designsystem.theme.ChronirTheme
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import com.chronir.feature.alarmcreation.AlarmCreationScreen
 import com.chronir.feature.alarmdetail.AlarmDetailScreen
 import com.chronir.feature.alarmlist.AlarmListScreen
@@ -48,15 +47,18 @@ import com.chronir.feature.paywall.PaywallScreen
 import com.chronir.feature.settings.AccountScreen
 import com.chronir.feature.settings.AccountViewModel
 import com.chronir.feature.settings.CompletionHistoryScreen
+import com.chronir.feature.settings.LegalDocumentScreen
 import com.chronir.feature.settings.SettingsScreen
 import com.chronir.feature.settings.SoundPickerScreen
 import com.chronir.feature.settings.SubscriptionScreen
 import com.chronir.feature.settings.WallpaperPickerScreen
 import com.chronir.model.ThemePreference
 import com.chronir.services.BillingService
+import com.chronir.services.OverdueAlarmChecker
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class Screen(
@@ -71,6 +73,7 @@ sealed class Screen(
         selectedIcon = Icons.Filled.Notifications,
         unselectedIcon = Icons.Outlined.Notifications
     )
+
     data object Settings : Screen(
         route = "settings",
         label = "Settings",
@@ -93,6 +96,7 @@ private const val ROUTE_WALLPAPER_PICKER = "wallpaper_picker"
 private const val ROUTE_ACCOUNT = "account"
 private const val ROUTE_SUBSCRIPTION = "subscription"
 private const val ROUTE_PAYWALL = "paywall"
+private const val ROUTE_LEGAL = "legal/{title}/{encodedUrl}"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -103,6 +107,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var billingService: BillingService
 
+    @Inject
+    lateinit var overdueAlarmChecker: OverdueAlarmChecker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         billingService.initialize()
@@ -110,6 +117,21 @@ class MainActivity : ComponentActivity() {
         lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
             override fun onDestroy(owner: androidx.lifecycle.LifecycleOwner) {
                 billingService.destroy()
+            }
+
+            override fun onResume(owner: androidx.lifecycle.LifecycleOwner) {
+                val activity = this@MainActivity
+                kotlinx.coroutines.MainScope().launch {
+                    val overdue = overdueAlarmChecker.findFirstOverdueAlarm()
+                    if (overdue != null) {
+                        val firingIntent = android.content.Intent().apply {
+                            setClassName(activity.packageName, "com.chronir.feature.alarmfiring.AlarmFiringActivity")
+                            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            putExtra("extra_alarm_id", overdue.id)
+                        }
+                        activity.startActivity(firingIntent)
+                    }
+                }
             }
         })
         setContent {
@@ -164,7 +186,8 @@ private fun ChronirNavigation() {
                 currentRoute == ROUTE_WALLPAPER_PICKER ||
                 currentRoute == ROUTE_ACCOUNT ||
                 currentRoute == ROUTE_SUBSCRIPTION ||
-                currentRoute == ROUTE_PAYWALL
+                currentRoute == ROUTE_PAYWALL ||
+                currentRoute == ROUTE_LEGAL
             if (!hideBottomBar) {
                 NavigationBar(
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -234,6 +257,10 @@ private fun ChronirNavigation() {
                     },
                     onNavigateToSubscription = {
                         navController.navigate(ROUTE_SUBSCRIPTION)
+                    },
+                    onNavigateToLegal = { title, url ->
+                        val encodedUrl = java.net.URLEncoder.encode(url, "UTF-8")
+                        navController.navigate("legal/$title/$encodedUrl")
                     }
                 )
             }
@@ -329,6 +356,22 @@ private fun ChronirNavigation() {
             composable(ROUTE_PAYWALL) {
                 PaywallScreen(
                     onDismiss = { navController.popBackStack() }
+                )
+            }
+            composable(
+                route = ROUTE_LEGAL,
+                arguments = listOf(
+                    navArgument("title") { type = NavType.StringType },
+                    navArgument("encodedUrl") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val title = backStackEntry.arguments?.getString("title") ?: ""
+                val encodedUrl = backStackEntry.arguments?.getString("encodedUrl") ?: ""
+                val url = java.net.URLDecoder.decode(encodedUrl, "UTF-8")
+                LegalDocumentScreen(
+                    title = title,
+                    url = url,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

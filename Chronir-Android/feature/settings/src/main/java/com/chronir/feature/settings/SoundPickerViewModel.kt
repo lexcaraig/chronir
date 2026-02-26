@@ -14,28 +14,30 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SoundPickerViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository,
-    private val alarmSoundService: AlarmSoundService
-) : ViewModel() {
+class SoundPickerViewModel
+    @Inject
+    constructor(
+        private val settingsRepository: SettingsRepository,
+        private val alarmSoundService: AlarmSoundService
+    ) : ViewModel() {
 
-    val allSounds: List<SoundOption> = alarmSoundService.allSounds
+        val allSounds: List<SoundOption> = alarmSoundService.allSounds
 
-    val currentSound: StateFlow<String> = settingsRepository.settings
-        .map { it.alarmSound }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "default")
+        val currentSound: StateFlow<String> = settingsRepository.settings
+            .map { it.alarmSound }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "default")
 
-    fun selectSound(soundId: String) {
-        viewModelScope.launch {
-            settingsRepository.setAlarmSound(soundId)
+        fun selectSound(soundId: String) {
+            viewModelScope.launch {
+                settingsRepository.setAlarmSound(soundId)
+            }
+        }
+
+        fun previewSound(soundId: String) {
+            alarmSoundService.previewSound(soundId)
+        }
+
+        fun stopPreview() {
+            alarmSoundService.stopPreview()
         }
     }
-
-    fun previewSound(soundId: String) {
-        alarmSoundService.previewSound(soundId)
-    }
-
-    fun stopPreview() {
-        alarmSoundService.stopPreview()
-    }
-}

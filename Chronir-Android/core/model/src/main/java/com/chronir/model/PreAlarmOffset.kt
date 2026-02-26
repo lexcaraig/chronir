@@ -1,6 +1,9 @@
 package com.chronir.model
 
-enum class PreAlarmOffset(val minutes: Int, val displayName: String) {
+enum class PreAlarmOffset(
+    val minutes: Int,
+    val displayName: String
+) {
     NONE(0, "None"),
     FIFTEEN_MINUTES(15, "15 min before"),
     THIRTY_MINUTES(30, "30 min before"),
@@ -12,8 +15,6 @@ enum class PreAlarmOffset(val minutes: Int, val displayName: String) {
     ONE_WEEK(10080, "1 week before");
 
     companion object {
-        fun fromMinutes(minutes: Int): PreAlarmOffset {
-            return entries.firstOrNull { it.minutes == minutes } ?: NONE
-        }
+        fun fromMinutes(minutes: Int): PreAlarmOffset = entries.firstOrNull { it.minutes == minutes } ?: NONE
     }
 }

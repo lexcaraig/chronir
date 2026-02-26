@@ -9,6 +9,8 @@ import androidx.room.PrimaryKey
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Entity(
     tableName = "alarms",
@@ -40,6 +42,8 @@ data class AlarmEntity(
     val sharedWithJson: String = "[]",
     val additionalTimesJson: String = "[]",
     val note: String = "",
+    val isPendingConfirmation: Boolean = false,
+    val pendingSince: Long? = null,
     val createdAt: Long,
     val updatedAt: Long
 )
@@ -58,24 +62,36 @@ data class CompletionEntity(
 
 @Database(
     entities = [AlarmEntity::class, CompletionEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class ChronirDatabase : RoomDatabase() {
 
     abstract fun alarmDao(): AlarmDao
+
     abstract fun completionDao(): CompletionDao
 
     companion object {
-        fun create(context: Context): ChronirDatabase {
-            return Room.databaseBuilder(
+        @Volatile
+        private var instance: ChronirDatabase? = null
+
+        val migration4To5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE alarms ADD COLUMN isPendingConfirmation INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE alarms ADD COLUMN pendingSince INTEGER")
+            }
+        }
+
+        fun create(context: Context): ChronirDatabase = instance ?: synchronized(this) {
+            instance ?: Room.databaseBuilder(
                 context.applicationContext,
                 ChronirDatabase::class.java,
                 "chronir.db"
             )
-                .fallbackToDestructiveMigration()
+                .addMigrations(migration4To5)
                 .build()
+                .also { instance = it }
         }
     }
 }

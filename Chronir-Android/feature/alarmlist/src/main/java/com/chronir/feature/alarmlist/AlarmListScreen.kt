@@ -1,12 +1,17 @@
 package com.chronir.feature.alarmlist
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -16,17 +21,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.organisms.AlarmListSection
 import com.chronir.designsystem.organisms.EmptyStateView
 import com.chronir.designsystem.templates.SingleColumnTemplate
-import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.Alarm
 import com.chronir.model.AlarmCategory
@@ -44,18 +52,20 @@ fun AlarmListScreen(
     onNavigateToDetail: (String) -> Unit = {},
     viewModel: AlarmListViewModel = hiltViewModel()
 ) {
-    val alarms by viewModel.alarms.collectAsStateWithLifecycle()
+    val activeAlarms by viewModel.activeAlarms.collectAsStateWithLifecycle()
+    val archivedAlarms by viewModel.archivedAlarms.collectAsStateWithLifecycle()
     val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
+    var showArchived by remember { mutableStateOf(false) }
 
-    val enabledStates = remember(alarms) {
-        alarms.associate { it.id to it.isEnabled }
+    val enabledStates = remember(activeAlarms) {
+        activeAlarms.associate { it.id to it.isEnabled }
     }
 
     SingleColumnTemplate(
         title = "Alarms",
         modifier = modifier,
         floatingActionButton = {
-            if (alarms.isNotEmpty()) {
+            if (activeAlarms.isNotEmpty()) {
                 FloatingActionButton(
                     onClick = onNavigateToCreation,
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -66,7 +76,7 @@ fun AlarmListScreen(
             }
         }
     ) {
-        if (alarms.isEmpty() && selectedCategory == null) {
+        if (activeAlarms.isEmpty() && archivedAlarms.isEmpty() && selectedCategory == null) {
             EmptyStateView(onCreateAlarm = onNavigateToCreation)
         } else {
             // Category filter chips
@@ -88,7 +98,7 @@ fun AlarmListScreen(
                 }
             }
 
-            if (alarms.isEmpty()) {
+            if (activeAlarms.isEmpty() && archivedAlarms.isEmpty()) {
                 ChronirText(
                     text = "No alarms in this category",
                     style = ChronirTextStyle.BodyMedium,
@@ -96,18 +106,67 @@ fun AlarmListScreen(
                     modifier = Modifier.padding(SpacingTokens.Large)
                 )
             } else {
-                AlarmListSection(
-                    sectionTitle = "Upcoming",
-                    alarms = alarms,
-                    enabledStates = enabledStates,
-                    onToggle = { alarm, _ ->
-                        viewModel.toggleAlarm(alarm)
-                    },
-                    onClick = { alarm -> onNavigateToDetail(alarm.id) },
-                    onDelete = { alarm ->
-                        viewModel.deleteAlarm(alarm)
+                if (activeAlarms.isNotEmpty()) {
+                    AlarmListSection(
+                        sectionTitle = "Upcoming",
+                        alarms = activeAlarms,
+                        enabledStates = enabledStates,
+                        onToggle = { alarm, _ ->
+                            viewModel.toggleAlarm(alarm)
+                        },
+                        onClick = { alarm ->
+                            if (alarm.isPendingConfirmation) {
+                                viewModel.confirmPending(alarm)
+                            } else {
+                                onNavigateToDetail(alarm.id)
+                            }
+                        },
+                        onDelete = { alarm ->
+                            viewModel.deleteAlarm(alarm)
+                        }
+                    )
+                }
+
+                // Archived section for completed one-time alarms
+                if (archivedAlarms.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .clickable { showArchived = !showArchived }
+                            .padding(
+                                horizontal = SpacingTokens.Default,
+                                vertical = SpacingTokens.Small
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ChronirText(
+                            text = "ARCHIVED",
+                            style = ChronirTextStyle.LabelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        ChronirBadge(
+                            label = "${archivedAlarms.size}",
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.padding(start = SpacingTokens.XSmall)
+                        )
+                        Icon(
+                            imageVector = if (showArchived) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (showArchived) "Collapse" else "Expand",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = SpacingTokens.XSmall)
+                        )
                     }
-                )
+
+                    AnimatedVisibility(visible = showArchived) {
+                        AlarmListSection(
+                            sectionTitle = "",
+                            alarms = archivedAlarms,
+                            enabledStates = archivedAlarms.associate { it.id to it.isEnabled },
+                            onToggle = { alarm, _ -> viewModel.toggleAlarm(alarm) },
+                            onClick = { alarm -> onNavigateToDetail(alarm.id) },
+                            onDelete = { alarm -> viewModel.deleteAlarm(alarm) }
+                        )
+                    }
+                }
             }
         }
     }

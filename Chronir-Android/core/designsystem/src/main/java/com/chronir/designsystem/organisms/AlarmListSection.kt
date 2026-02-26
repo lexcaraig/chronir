@@ -7,10 +7,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material3.MaterialTheme
 import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
@@ -40,26 +40,29 @@ fun AlarmListSection(
             .padding(vertical = SpacingTokens.Small),
         verticalArrangement = Arrangement.spacedBy(SpacingTokens.Small)
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = SpacingTokens.Default),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ChronirText(
-                text = sectionTitle.uppercase(),
-                style = ChronirTextStyle.LabelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.width(SpacingTokens.XSmall))
-            ChronirBadge(
-                label = "${alarms.size}",
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+        if (sectionTitle.isNotEmpty()) {
+            Row(
+                modifier = Modifier.padding(horizontal = SpacingTokens.Default),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ChronirText(
+                    text = sectionTitle.uppercase(),
+                    style = ChronirTextStyle.LabelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.width(SpacingTokens.XSmall))
+                ChronirBadge(
+                    label = "${alarms.size}",
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
         }
 
         alarms.forEach { alarm ->
             val isEnabled = enabledStates[alarm.id] ?: alarm.isEnabled
             val visualState = when {
                 !isEnabled -> AlarmVisualState.Inactive
+                alarm.isPendingConfirmation -> AlarmVisualState.Pending
                 alarm.snoozeCount > 0 -> AlarmVisualState.Snoozed
                 alarm.nextFireDate.isBefore(Instant.now()) -> AlarmVisualState.Overdue
                 else -> AlarmVisualState.Active
