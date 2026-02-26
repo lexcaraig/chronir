@@ -104,14 +104,17 @@ struct CategoryDetailView: View {
         )
     }
 
+    @ViewBuilder
     private func alarmRow(_ alarm: Alarm) -> some View {
+        let state = visualState(for: alarm)
         AlarmCard(
             alarm: alarm,
-            visualState: visualState(for: alarm),
+            visualState: state,
             isEnabled: enabledBinding(for: alarm),
             streak: StreakCalculator.currentStreak(from: alarm.completionLogs),
             isPlusUser: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
         )
+        .id("\(alarm.id)-\(state)")
         .contentShape(Rectangle())
         .onTapGesture { selectedAlarmID = alarm.id }
         .listRowSeparator(.hidden)
