@@ -536,8 +536,8 @@
 | #     | Step                                      | Expected Result                                         | Pass? |
 | ----- | ----------------------------------------- | ------------------------------------------------------- | ----- |
 | 33D.1 | Pending alarm → swipe left (leading edge) | "Done" action button appears (green checkmark)          | PASS  |
-| 33D.2 | Tap "Done" swipe action                   | Pending state cleared, alarm completed, haptic feedback |       |
-| 33D.3 | Completion history after swipe confirm    | Shows `.completed` action log entry                     |       |
+| 33D.2 | Tap "Done" swipe action                   | Pending state cleared, alarm completed, haptic feedback | PASS  |
+| 33D.3 | Completion history after swipe confirm    | Shows `.completed` action log entry                     | PASS  |
 
 ### 33E. Lock Screen Stop
 
@@ -551,7 +551,7 @@
 
 | #     | Step                                      | Expected Result                                                 | Pass? |
 | ----- | ----------------------------------------- | --------------------------------------------------------------- | ----- |
-| 33F.1 | Disable alarm while pending (toggle OFF)  | Pending state cleared, no follow-up notifications               |       |
+| 33F.1 | Disable alarm while pending (toggle OFF)  | Pending state cleared, no follow-up notifications               | PASS  |
 | 33F.2 | Next occurrence fires while still pending | Previous pending auto-completes, new alarm fires normally       |       |
 | 33F.3 | App killed while pending                  | State persists (SwiftData), notifications persist (OS-managed)  |       |
 | 33F.4 | Downgrade Plus → Free while pending       | All pending alarms auto-complete, no pending state remains      |       |
@@ -562,9 +562,9 @@
 
 | #     | Step                         | Expected Result                                                                 | Pass? |
 | ----- | ---------------------------- | ------------------------------------------------------------------------------- | ----- |
-| 33G.1 | Stop alarm → check history   | `.pendingConfirmation` entry logged (clock icon, blue, "Awaiting Confirmation") |       |
-| 33G.2 | Confirm done → check history | `.completed` entry logged after the pending entry                               |       |
-| 33G.3 | Streak not broken by pending | Streak continues through `.pendingConfirmation` (treated like `.skipped`)       |       |
+| 33G.1 | Stop alarm → check history   | `.pendingConfirmation` entry logged (clock icon, blue, "Awaiting Confirmation") | PASS  |
+| 33G.2 | Confirm done → check history | `.completed` entry logged after the pending entry                               | PASS  |
+| 33G.3 | Streak not broken by pending | Streak continues through `.pendingConfirmation` (treated like `.skipped`)       | PASS  |
 
 ### 33H. Cloud Sync
 
@@ -619,12 +619,12 @@
 | Completion Confirm — Firing (33A) | 6           | 6       | 0      | FEAT-04 — all pass                   |
 | Completion Confirm — Visual (33B) | 6           | 6       | 0      | FEAT-04 — all pass                   |
 | Completion Confirm — Notifs (33C) | 7           | —       | —      | FEAT-04 — follow-up notifications    |
-| Completion Confirm — Swipe (33D)  | 3           | 1       | 0      | FEAT-04 — 33D.1 pass, 33D.2-3 pending |
+| Completion Confirm — Swipe (33D)  | 3           | 3       | 0      | FEAT-04 — all pass                   |
 | Completion Confirm — Lock (33E)   | 3           | 3       | 0      | FEAT-04 — all pass                   |
-| Completion Confirm — Edge (33F)   | 6           | —       | —      | FEAT-04 — edge cases                 |
-| Completion Confirm — Hist (33G)   | 3           | —       | —      | FEAT-04 — history integration        |
+| Completion Confirm — Edge (33F)   | 6           | 1       | 0      | FEAT-04 — 33F.1 pass, 33F.2-6 pending |
+| Completion Confirm — Hist (33G)   | 3           | 3       | 0      | FEAT-04 — all pass                   |
 | Completion Confirm — Sync (33H)   | 3           | —       | —      | FEAT-04 — cloud sync                 |
-| **TOTAL**                         | **250**     | **222** | **0**  | 21 FEAT-04 + 3 prior pending         |
+| **TOTAL**                         | **250**     | **229** | **0**  | 14 FEAT-04 + 3 prior pending         |
 
 ---
 

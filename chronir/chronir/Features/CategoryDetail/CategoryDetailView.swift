@@ -161,6 +161,7 @@ struct CategoryDetailView: View {
 
     private func confirmPendingAlarm(_ alarm: Alarm) {
         PendingConfirmationService.shared.confirmDone(alarm: alarm)
+        alarm.updatedAt = Date()
         try? modelContext.save()
         Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
         if UserSettings.shared.hapticsEnabled { HapticService.shared.playSuccess() }
