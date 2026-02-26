@@ -501,23 +501,23 @@
 
 | #     | Step                                       | Expected Result                                                          | Pass? |
 | ----- | ------------------------------------------ | ------------------------------------------------------------------------ | ----- |
-| 33A.1 | Plus user → alarm fires                    | Two dismiss actions: "Mark as Done" (primary) + "Stop Alarm" (secondary) |       |
-| 33A.2 | Tap "Mark as Done"                         | Immediate completion, no pending state, card shows next occurrence       |       |
-| 33A.3 | Tap "Stop Alarm" (slide-to-stop OFF)       | Alarm silenced, enters Pending state                                     |       |
-| 33A.4 | Plus user → slide-to-stop ON → alarm fires | "Mark as Done" (primary) + "Hold to Stop" (secondary hold button)        |       |
-| 33A.5 | Hold "Hold to Stop" for 3 seconds          | Alarm silenced, enters Pending state                                     |       |
-| 33A.6 | Release "Hold to Stop" early               | Progress resets, alarm continues firing                                  |       |
+| 33A.1 | Plus user → alarm fires                    | Two dismiss actions: "Mark as Done" (primary) + "Stop Alarm" (secondary) | PASS  |
+| 33A.2 | Tap "Mark as Done"                         | Immediate completion, no pending state, card shows next occurrence       | PASS  |
+| 33A.3 | Tap "Stop Alarm" (slide-to-stop OFF)       | Alarm silenced, enters Pending state                                     | PASS  |
+| 33A.4 | Plus user → slide-to-stop ON → alarm fires | "Mark as Done" (primary) + "Hold to Stop" (secondary hold button)        | PASS  |
+| 33A.5 | Hold "Hold to Stop" for 3 seconds          | Alarm silenced, enters Pending state                                     | PASS  |
+| 33A.6 | Release "Hold to Stop" early               | Progress resets, alarm continues firing                                  | PASS  |
 
 ### 33B. Pending Visual State
 
 | #     | Step                                    | Expected Result                                                   | Pass? |
 | ----- | --------------------------------------- | ----------------------------------------------------------------- | ----- |
-| 33B.1 | After "Stop Alarm" → view alarm list    | Alarm card shows "Awaiting Confirmation" badge (blue, clock icon) |       |
-| 33B.2 | Alarm card border                       | Blue accent border (ColorTokens.info)                             |       |
-| 33B.3 | Alarm card countdown                    | Shows countdown to next occurrence (not stuck)                    |       |
-| 33B.4 | Cold launch with pending alarm          | Pending visual state displays correctly on app open               |       |
-| 33B.5 | Category detail view with pending alarm | Same pending visual state shown in category list                  |       |
-| 33B.6 | Grouped list view with pending alarm    | Pending state visible in AlarmListSection                         |       |
+| 33B.1 | After "Stop Alarm" → view alarm list    | Alarm card shows "Awaiting Confirmation" badge (blue, clock icon) | PASS  |
+| 33B.2 | Alarm card border                       | Blue accent border (ColorTokens.info)                             | PASS  |
+| 33B.3 | Alarm card countdown                    | Shows countdown to next occurrence (not stuck)                    | PASS  |
+| 33B.4 | Cold launch with pending alarm          | Pending visual state displays correctly on app open               | PASS  |
+| 33B.5 | Category detail view with pending alarm | Same pending visual state shown in category list                  | PASS  |
+| 33B.6 | Grouped list view with pending alarm    | Pending state visible in AlarmListSection                         | PASS  |
 
 ### 33C. Follow-Up Notifications
 
@@ -535,7 +535,7 @@
 
 | #     | Step                                      | Expected Result                                         | Pass? |
 | ----- | ----------------------------------------- | ------------------------------------------------------- | ----- |
-| 33D.1 | Pending alarm → swipe left (leading edge) | "Done" action button appears (green checkmark)          |       |
+| 33D.1 | Pending alarm → swipe left (leading edge) | "Done" action button appears (green checkmark)          | PASS  |
 | 33D.2 | Tap "Done" swipe action                   | Pending state cleared, alarm completed, haptic feedback |       |
 | 33D.3 | Completion history after swipe confirm    | Shows `.completed` action log entry                     |       |
 
@@ -616,15 +616,15 @@
 | Cloud Sync — Bidirectional (32C)  | 6           | 6       | 0      | All pass — verified on device        |
 | Cloud Sync — Sub Timing (32D)     | 3           | 3       | 0      | All pass — verified on device        |
 | Cloud Sync — Errors (32E)         | 4           | 4       | 0      | All pass — verified on device        |
-| Completion Confirm — Firing (33A) | 6           | —       | —      | FEAT-04 — stop vs mark as done       |
-| Completion Confirm — Visual (33B) | 6           | —       | —      | FEAT-04 — pending badge/state        |
+| Completion Confirm — Firing (33A) | 6           | 6       | 0      | FEAT-04 — all pass                   |
+| Completion Confirm — Visual (33B) | 6           | 6       | 0      | FEAT-04 — all pass                   |
 | Completion Confirm — Notifs (33C) | 7           | —       | —      | FEAT-04 — follow-up notifications    |
-| Completion Confirm — Swipe (33D)  | 3           | —       | —      | FEAT-04 — swipe confirm from list    |
+| Completion Confirm — Swipe (33D)  | 3           | 1       | 0      | FEAT-04 — 33D.1 pass, 33D.2-3 pending |
 | Completion Confirm — Lock (33E)   | 3           | —       | —      | FEAT-04 — lock screen stop           |
 | Completion Confirm — Edge (33F)   | 6           | —       | —      | FEAT-04 — edge cases                 |
 | Completion Confirm — Hist (33G)   | 3           | —       | —      | FEAT-04 — history integration        |
 | Completion Confirm — Sync (33H)   | 3           | —       | —      | FEAT-04 — cloud sync                 |
-| **TOTAL**                         | **250**     | **206** | **0**  | 37 FEAT-04 + 3 prior pending         |
+| **TOTAL**                         | **250**     | **219** | **0**  | 24 FEAT-04 + 3 prior pending         |
 
 ---
 

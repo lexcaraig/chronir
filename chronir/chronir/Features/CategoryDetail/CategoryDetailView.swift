@@ -134,6 +134,14 @@ struct CategoryDetailView: View {
             .tint(ColorTokens.info)
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            if alarm.isPendingConfirmation {
+                Button {
+                    confirmPendingAlarm(alarm)
+                } label: {
+                    Label("Done", systemImage: "checkmark.circle.fill")
+                }
+                .tint(ColorTokens.success)
+            }
             Button {
                 let current = enabledStates[alarm.id] ?? alarm.isEnabled
                 enabledStates[alarm.id] = !current
@@ -149,6 +157,13 @@ struct CategoryDetailView: View {
                     ? ColorTokens.textSecondary : ColorTokens.success
             )
         }
+    }
+
+    private func confirmPendingAlarm(_ alarm: Alarm) {
+        PendingConfirmationService.shared.confirmDone(alarm: alarm)
+        try? modelContext.save()
+        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
+        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSuccess() }
     }
 
     private func deleteAlarm(_ alarm: Alarm) {

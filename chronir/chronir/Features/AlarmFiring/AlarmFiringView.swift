@@ -98,7 +98,9 @@ struct AlarmFiringView: View {
                     ChronirText(
                         alarm.nextFireDate.formatted(date: .omitted, time: .shortened),
                         style: .displayAlarm,
-                        color: ColorTokens.firingForeground
+                        color: ColorTokens.firingForeground,
+                        maxLines: 1,
+                        minimumScaleFactor: 0.5
                     )
 
                     ChronirBadge(cycleType: alarm.cycleType)

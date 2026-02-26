@@ -96,6 +96,7 @@ struct ChronirText: View {
     var color: Color
     var maxLines: Int?
     var alignment: TextAlignment
+    var minimumScaleFactor: CGFloat
 
     @Environment(\.textSizeScale) private var textSizeScale
 
@@ -104,13 +105,15 @@ struct ChronirText: View {
         style: ChronirTextStyle = .bodyPrimary,
         color: Color = ColorTokens.textPrimary,
         maxLines: Int? = nil,
-        alignment: TextAlignment = .leading
+        alignment: TextAlignment = .leading,
+        minimumScaleFactor: CGFloat = 1.0
     ) {
         self.text = text
         self.style = style
         self.color = color
         self.maxLines = maxLines
         self.alignment = alignment
+        self.minimumScaleFactor = minimumScaleFactor
     }
 
     var body: some View {
@@ -119,6 +122,7 @@ struct ChronirText: View {
             .foregroundStyle(color)
             .lineLimit(maxLines)
             .multilineTextAlignment(alignment)
+            .minimumScaleFactor(minimumScaleFactor)
     }
 }
 

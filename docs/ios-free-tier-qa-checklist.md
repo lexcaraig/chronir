@@ -500,9 +500,9 @@
 | 32.1 | Free user → alarm fires → tap "Mark as Done"    | Alarm completes immediately, no pending state                | PASS  |
 | 32.2 | Free user → alarm fires (slide-to-stop enabled) | Single "Hold to Dismiss" button (no "Stop Alarm" secondary)  | PASS  |
 | 32.3 | Free user → alarm fires → hold to dismiss       | Alarm completes immediately, card shows next occurrence      | PASS  |
-| 32.4 | Free user → lock screen → slide to stop         | Alarm completes immediately, no follow-up notifications      |       |
+| 32.4 | Free user → lock screen → slide to stop         | Alarm completes immediately, no follow-up notifications      | PASS  |
 | 32.5 | Free user → verify alarm card after stop        | No "Awaiting Confirmation" badge, no `.pending` visual state | PASS  |
-| 32.6 | Free user → verify no follow-up notifications   | No "Did you complete it?" notifications after stopping       |       |
+| 32.6 | Free user → verify no follow-up notifications   | No "Did you complete it?" notifications after stopping       | PASS  |
 | 32.7 | Free user → external dismiss (onDisappear)      | Safety net completes alarm immediately (no pending)          | PASS  |
 | 32.8 | Free user → completion history after stop       | Streak + "Last completed: Today" shown (history is Plus-only)| PASS  |
 
@@ -543,8 +543,8 @@
 | Alarm Templates (Tier)        | 9           | 9       | 0      | TIER-04 — all pass                             |
 | Custom Sounds (Tier)          | 4           | 4       | 0      | TIER-09 — all pass                             |
 | Cloud Sync Free Gating        | 8           | —       | —      | Verify sync is Plus-gated                      |
-| Completion Confirm Free (F04) | 8           | —       | —      | FEAT-04 — verify Free tier unchanged           |
-| **TOTAL**                     | **220**     | **191** | **0**  | 16 tests pending (cloud sync + FEAT-04)        |
+| Completion Confirm Free (F04) | 8           | 8       | 0      | FEAT-04 — Free tier unchanged, all pass        |
+| **TOTAL**                     | **220**     | **199** | **0**  | 8 tests pending (cloud sync free gating)       |
 
 ---
 
