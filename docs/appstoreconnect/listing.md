@@ -1,6 +1,6 @@
 # Chronir — App Store Connect Listing
 
-**Last Updated:** February 17, 2026
+**Last Updated:** February 26, 2026
 
 ---
 
@@ -37,12 +37,12 @@
 
 ---
 
-## Version 1.1 — Metadata
+## Version 1.2 — Metadata
 
 ### Promotional Text
 
 ```
-Live Activity countdown on your lock screen — always know when your next alarm fires.
+Completion confirmation for Plus — stop the alarm, then decide if it's really done.
 ```
 
 ### Description
@@ -102,7 +102,7 @@ https://chronir.app
 ### Version
 
 ```
-1.1
+1.2
 ```
 
 ### Copyright
@@ -129,10 +129,16 @@ Chronir is a recurring alarm app. The Free tier allows 2 alarms with no account 
 
 1. Create an alarm: Tap the + button, set a title, choose a schedule (e.g., Weekly > Sunday at 1:00 PM), and save.
 2. Wait for the alarm to fire, or set it for 1 minute from now to test firing.
-3. On the firing screen, you can Snooze (1h/1d/1w) or mark Done.
-4. The 2-alarm limit triggers a paywall prompt when creating a 3rd alarm.
+3. On the firing screen, you can Snooze (1h/1d/1w) or Stop the alarm.
+4. NEW in v1.2 (Plus tier): After stopping, a confirmation step asks to mark as Done or Snooze — this prevents accidental completions.
+5. The 2-alarm limit triggers a paywall prompt when creating a 3rd alarm.
+6. FAQ, Privacy Policy, and Terms of Service are viewable in-app from Settings > About.
 
 The app uses AlarmKit (iOS 26+) to fire alarms on the lock screen with full sound. Notification permission is requested on first alarm creation.
+
+Sandbox account for Plus tier testing:
+Email: lexpresswayyy@gmail.com
+Password: ABCTest123!
 
 No special hardware or external accounts are needed for review.
 ```
