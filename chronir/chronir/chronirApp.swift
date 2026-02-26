@@ -429,6 +429,8 @@ extension ChronirApp {
         wasSnoozed: Bool,
         context: ModelContext
     ) {
+        NotificationService.shared.removeDeliveredNotifications(for: model.id)
+
         if wasSnoozed {
             // Lock screen snooze
             model.snoozeCount += 1

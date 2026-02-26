@@ -75,6 +75,7 @@ final class AlarmFiringViewModel {
         }
 
         try? AlarmManager.shared.stop(id: alarm.id)
+        NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         alarm.snoozeCount += 1
         alarm.nextFireDate = Date().addingTimeInterval(seconds)
@@ -110,6 +111,7 @@ final class AlarmFiringViewModel {
         ])
 
         try? AlarmManager.shared.stop(id: alarm.id)
+        NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         alarm.snoozeCount = 0
         alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: alarm.nextFireDate)
@@ -144,6 +146,7 @@ final class AlarmFiringViewModel {
         ])
 
         try? AlarmManager.shared.stop(id: alarm.id)
+        NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         alarm.lastFiredDate = Date()
         alarm.lastCompletedAt = Date()
@@ -186,6 +189,7 @@ final class AlarmFiringViewModel {
         isCompleted = true
 
         try? AlarmManager.shared.stop(id: alarm.id)
+        NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         if await MainActor.run(body: { PendingConfirmationService.shared.isPlusUser }) {
             await PendingConfirmationService.shared.enterPending(alarm: alarm)
@@ -236,6 +240,7 @@ final class AlarmFiringViewModel {
         }
 
         isCompleted = true
+        NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         let wasSnoozed = await MainActor.run {
             AlarmFiringCoordinator.shared.snoozedInBackground.remove(alarm.id) != nil

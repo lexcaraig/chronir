@@ -9,6 +9,7 @@ protocol NotificationServiceProtocol: Sendable {
     func cancelAllPreAlarmNotifications(for alarm: Alarm)
     func scheduleBackupNotification(for alarm: Alarm) async
     func cancelBackupNotification(for alarm: Alarm)
+    func removeDeliveredNotifications(for alarmID: UUID)
 }
 
 #if os(iOS)
@@ -148,6 +149,15 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         )
     }
 
+    func removeDeliveredNotifications(for alarmID: UUID) {
+        let ids = PreAlarmOffset.allCases.map { "pre-alarm-\(alarmID.uuidString)-\($0.rawValue)" }
+            + ["pre-alarm-\(alarmID.uuidString)"]
+            + ["backup-alarm-\(alarmID.uuidString)"]
+            + (0..<3).map { "pending-confirm-\(alarmID.uuidString)-\($0)" }
+        notificationCenter.removeDeliveredNotifications(withIdentifiers: ids)
+        notificationCenter.removePendingNotificationRequests(withIdentifiers: ids)
+    }
+
     // MARK: - UNUserNotificationCenterDelegate
 
     func userNotificationCenter(
@@ -195,5 +205,6 @@ final class NotificationService: NotificationServiceProtocol {
     func cancelAllPreAlarmNotifications(for alarm: Alarm) {}
     func scheduleBackupNotification(for alarm: Alarm) async {}
     func cancelBackupNotification(for alarm: Alarm) {}
+    func removeDeliveredNotifications(for alarmID: UUID) {}
 }
 #endif

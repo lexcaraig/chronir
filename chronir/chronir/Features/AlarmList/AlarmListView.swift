@@ -526,6 +526,7 @@ extension AlarmListView {
 
     private func confirmPendingAlarm(_ alarm: Alarm) {
         confirmedAlarmIDs.insert(alarm.id)
+        NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
         PendingConfirmationService.shared.confirmDone(alarm: alarm)
         alarm.updatedAt = Date()
         try? modelContext.save()
