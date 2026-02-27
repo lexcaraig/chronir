@@ -65,6 +65,13 @@ fun CategoryPicker(
             modifier = Modifier.padding(bottom = SpacingTokens.XSmall)
         )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Small)) {
+            item {
+                FilterChip(
+                    selected = selected == null,
+                    onClick = { onSelect(null) },
+                    label = { Text("None") }
+                )
+            }
             items(AlarmCategory.entries.toList()) { category ->
                 val isSelected = selected == category
                 FilterChip(

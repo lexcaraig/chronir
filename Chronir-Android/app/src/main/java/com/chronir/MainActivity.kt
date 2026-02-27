@@ -1,5 +1,6 @@
 package com.chronir
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -20,8 +21,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -110,10 +114,13 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var overdueAlarmChecker: OverdueAlarmChecker
 
+    private val deepLinkAlarmId = mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         billingService.initialize()
         enableEdgeToEdge()
+        handleDeepLink(intent)
         lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
             override fun onDestroy(owner: androidx.lifecycle.LifecycleOwner) {
                 billingService.destroy()
@@ -124,9 +131,9 @@ class MainActivity : ComponentActivity() {
                 kotlinx.coroutines.MainScope().launch {
                     val overdue = overdueAlarmChecker.findFirstOverdueAlarm()
                     if (overdue != null) {
-                        val firingIntent = android.content.Intent().apply {
+                        val firingIntent = Intent().apply {
                             setClassName(activity.packageName, "com.chronir.feature.alarmfiring.AlarmFiringActivity")
-                            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                             putExtra("extra_alarm_id", overdue.id)
                         }
                         activity.startActivity(firingIntent)
@@ -160,16 +167,45 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 } else {
-                    ChronirNavigation()
+                    ChronirNavigation(deepLinkAlarmId = deepLinkAlarmId.value) {
+                        deepLinkAlarmId.value = null
+                    }
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        val data = intent?.data ?: return
+        if (data.scheme == "chronir" && data.host == "alarm") {
+            val alarmId = data.pathSegments?.firstOrNull()
+            if (!alarmId.isNullOrBlank()) {
+                deepLinkAlarmId.value = alarmId
             }
         }
     }
 }
 
 @Composable
-private fun ChronirNavigation() {
+private fun ChronirNavigation(
+    deepLinkAlarmId: String? = null,
+    onDeepLinkConsumed: () -> Unit = {}
+) {
     val navController = rememberNavController()
+
+    LaunchedEffect(deepLinkAlarmId) {
+        if (deepLinkAlarmId != null) {
+            navController.navigate("alarm_detail/$deepLinkAlarmId") {
+                launchSingleTop = true
+            }
+            onDeepLinkConsumed()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

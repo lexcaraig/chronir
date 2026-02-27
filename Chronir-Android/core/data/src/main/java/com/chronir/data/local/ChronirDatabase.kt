@@ -76,6 +76,31 @@ abstract class ChronirDatabase : RoomDatabase() {
         @Volatile
         private var instance: ChronirDatabase? = null
 
+        // v1→v2 was a complete schema rewrite (column renames + additions).
+        // v2→v3 added the completions table.
+        // Both were covered by fallbackToDestructiveMigration() previously.
+        // Use destructive fallback for these ancient versions only.
+        val migration2To3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS completions (
+                        id TEXT NOT NULL PRIMARY KEY,
+                        alarmId TEXT NOT NULL,
+                        action TEXT NOT NULL,
+                        timestamp INTEGER NOT NULL,
+                        snoozeDurationMinutes INTEGER
+                    )"""
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_completions_alarmId ON completions (alarmId)")
+            }
+        }
+
+        val migration3To4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE alarms ADD COLUMN additionalTimesJson TEXT NOT NULL DEFAULT '[]'")
+            }
+        }
+
         val migration4To5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE alarms ADD COLUMN isPendingConfirmation INTEGER NOT NULL DEFAULT 0")
@@ -83,13 +108,15 @@ abstract class ChronirDatabase : RoomDatabase() {
             }
         }
 
+        @Suppress("DEPRECATION")
         fun create(context: Context): ChronirDatabase = instance ?: synchronized(this) {
             instance ?: Room.databaseBuilder(
                 context.applicationContext,
                 ChronirDatabase::class.java,
                 "chronir.db"
             )
-                .addMigrations(migration4To5)
+                .addMigrations(migration2To3, migration3To4, migration4To5)
+                .fallbackToDestructiveMigrationFrom(1)
                 .build()
                 .also { instance = it }
         }

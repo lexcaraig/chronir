@@ -85,6 +85,13 @@ fun AlarmListScreen(
                 horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Small),
                 modifier = Modifier.padding(bottom = SpacingTokens.Small)
             ) {
+                item {
+                    FilterChip(
+                        selected = selectedCategory == null,
+                        onClick = { viewModel.selectCategory(null) },
+                        label = { Text("All") }
+                    )
+                }
                 items(AlarmCategory.entries) { category ->
                     FilterChip(
                         selected = selectedCategory == category,
