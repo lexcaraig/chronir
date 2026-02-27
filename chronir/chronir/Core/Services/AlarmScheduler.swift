@@ -54,10 +54,9 @@ final class AlarmScheduler: AlarmScheduling {
             guard state == .authorized else { return }
         }
 
-        let snoozeDuration = AlarmKit.Alarm.CountdownDuration(
-            preAlert: nil,
-            postAlert: 540 // 9-minute snooze (matches iOS default)
-        )
+        let snoozeDuration: AlarmKit.Alarm.CountdownDuration? = alarm.isPersistent
+            ? AlarmKit.Alarm.CountdownDuration(preAlert: nil, postAlert: 540) // 9-minute snooze
+            : nil
 
         let fireDates = dateCalculator.calculateNextFireDates(for: alarm, from: Date())
         let ids = alarmIDs(for: alarm)
@@ -126,12 +125,12 @@ final class AlarmScheduler: AlarmScheduling {
         }
     }
 
-    private func buildAttributes(title: String, alarmID: UUID) -> AlarmAttributes<AlarmMetadataPayload> {
+    private func buildAttributes(title: String, alarmID: UUID, isPersistent: Bool = true) -> AlarmAttributes<AlarmMetadataPayload> {
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: title),
             stopButton: AlarmButton(text: "Done", textColor: .white, systemImageName: "checkmark.circle"),
             secondaryButton: AlarmButton(text: "Snooze", textColor: .white, systemImageName: "zzz"),
-            secondaryButtonBehavior: .countdown
+            secondaryButtonBehavior: isPersistent ? .countdown : .custom
         )
 
         let countdown = AlarmPresentation.Countdown(
@@ -151,7 +150,7 @@ final class AlarmScheduler: AlarmScheduling {
     }
 
     private func buildAttributes(for alarm: Alarm) -> AlarmAttributes<AlarmMetadataPayload> {
-        buildAttributes(title: alarm.title, alarmID: alarm.id)
+        buildAttributes(title: alarm.title, alarmID: alarm.id, isPersistent: alarm.isPersistent)
     }
 
     func cancelAlarm(_ alarm: Alarm) async throws {

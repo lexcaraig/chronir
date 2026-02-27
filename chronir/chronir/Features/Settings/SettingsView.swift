@@ -49,6 +49,12 @@ struct SettingsView: View {
             }
         } header: {
             ChronirText("Alarm Behavior", style: .labelLarge, color: ColorTokens.textSecondary)
+        } footer: {
+            ChronirText(
+                "Snooze and dismiss settings apply in-app only. Lock screen behavior is controlled by iOS.",
+                style: .caption,
+                color: ColorTokens.textSecondary
+            )
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }

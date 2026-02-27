@@ -31,7 +31,8 @@ struct AlarmCreationForm: View {
                 placeholder: "Enter a name...",
                 text: $title,
                 error: titleError,
-                maxLength: AlarmValidator.titleMaxLength
+                maxLength: AlarmValidator.titleMaxLength,
+                softWarningLength: 32
             )
 
             IntervalPicker(
@@ -72,7 +73,14 @@ struct AlarmCreationForm: View {
 
             TimesOfDayPicker(times: $timesOfDay)
 
-            ChronirToggle(label: "Persistent (requires dismissal)", isOn: $isPersistent)
+            VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                ChronirToggle(label: "Require Dismissal", isOn: $isPersistent)
+                ChronirText(
+                    "Alarm will repeat after snooze until manually dismissed. Lock screen alerts are managed by iOS and may auto-silence.",
+                    style: .labelSmall,
+                    color: ColorTokens.textSecondary
+                )
+            }
 
             preAlarmSection
 

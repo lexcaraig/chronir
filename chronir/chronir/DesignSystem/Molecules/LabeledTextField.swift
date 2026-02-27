@@ -6,6 +6,7 @@ struct LabeledTextField: View {
     @Binding var text: String
     var error: String?
     var maxLength: Int?
+    var softWarningLength: Int?
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
@@ -36,6 +37,8 @@ struct LabeledTextField: View {
                 }
             if let error {
                 ChronirText(error, style: .labelSmall, color: ColorTokens.error)
+            } else if let softWarningLength, text.count > softWarningLength {
+                ChronirText("May be truncated on lock screen", style: .labelSmall, color: ColorTokens.warning)
             }
         }
     }
