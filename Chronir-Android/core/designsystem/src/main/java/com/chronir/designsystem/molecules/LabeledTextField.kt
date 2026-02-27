@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @Composable
@@ -20,6 +21,7 @@ fun LabeledTextField(
     modifier: Modifier = Modifier,
     placeholder: String = "",
     maxLength: Int = 0,
+    softWarningLength: Int = 0,
     singleLine: Boolean = true,
     minLines: Int = 1
 ) {
@@ -48,6 +50,14 @@ fun LabeledTextField(
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(top = SpacingTokens.XXSmall)
+            )
+        }
+        if (softWarningLength > 0 && value.length > softWarningLength) {
+            Text(
+                text = "Titles over $softWarningLength characters may be truncated on the lock screen",
+                style = MaterialTheme.typography.labelSmall,
+                color = ColorTokens.Warning,
+                modifier = Modifier.padding(top = SpacingTokens.XXSmall)
             )
         }
     }

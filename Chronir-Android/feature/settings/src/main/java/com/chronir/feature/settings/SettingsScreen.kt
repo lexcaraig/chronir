@@ -40,6 +40,7 @@ fun SettingsScreen(
     onNavigateToAccount: () -> Unit = {},
     onNavigateToSubscription: () -> Unit = {},
     onNavigateToLegal: (title: String, url: String) -> Unit = { _, _ -> },
+    onNavigateToHowAlarmsWork: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -54,7 +55,10 @@ fun SettingsScreen(
                 .padding(horizontal = SpacingTokens.Default)
         ) {
             // Alarm Behavior
-            SettingsSection(header = "Alarm Behavior") {
+            SettingsSection(
+                header = "Alarm Behavior",
+                footer = "Snooze and dismiss settings apply to the in-app alarm screen. Notification behavior is controlled by Android."
+            ) {
                 AlarmToggleRow(
                     title = "Snooze Enabled",
                     subtitle = "Allow snoozing when alarm fires",
@@ -207,6 +211,11 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                SettingsNavigationRow(
+                    title = "How Alarms Work",
+                    value = "",
+                    onClick = onNavigateToHowAlarmsWork
+                )
                 SettingsNavigationRow(
                     title = "FAQ",
                     value = "",

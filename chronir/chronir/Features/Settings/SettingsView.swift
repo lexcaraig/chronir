@@ -265,6 +265,9 @@ struct SettingsView: View {
                 Spacer()
                 ChronirText("1.2.0", style: .bodySecondary, color: ColorTokens.textSecondary)
             }
+            NavigationLink(destination: HowAlarmsWorkView()) {
+                ChronirText("How Alarms Work", style: .bodyPrimary)
+            }
             NavigationLink(destination: LegalDocumentView(title: "FAQ", rawURL: faqURL)) {
                 ChronirText("FAQ", style: .bodyPrimary)
             }

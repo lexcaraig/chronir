@@ -52,6 +52,7 @@ import com.chronir.feature.settings.AccountScreen
 import com.chronir.feature.settings.AccountViewModel
 import com.chronir.feature.settings.CompletionHistoryScreen
 import com.chronir.feature.settings.LegalDocumentScreen
+import com.chronir.feature.settings.HowAlarmsWorkScreen
 import com.chronir.feature.settings.SettingsScreen
 import com.chronir.feature.settings.SoundPickerScreen
 import com.chronir.feature.settings.SubscriptionScreen
@@ -100,6 +101,7 @@ private const val ROUTE_WALLPAPER_PICKER = "wallpaper_picker"
 private const val ROUTE_ACCOUNT = "account"
 private const val ROUTE_SUBSCRIPTION = "subscription"
 private const val ROUTE_PAYWALL = "paywall"
+private const val ROUTE_HOW_ALARMS_WORK = "how_alarms_work"
 private const val ROUTE_LEGAL = "legal/{title}/{encodedUrl}"
 
 @AndroidEntryPoint
@@ -223,6 +225,7 @@ private fun ChronirNavigation(
                 currentRoute == ROUTE_ACCOUNT ||
                 currentRoute == ROUTE_SUBSCRIPTION ||
                 currentRoute == ROUTE_PAYWALL ||
+                currentRoute == ROUTE_HOW_ALARMS_WORK ||
                 currentRoute == ROUTE_LEGAL
             if (!hideBottomBar) {
                 NavigationBar(
@@ -297,6 +300,9 @@ private fun ChronirNavigation(
                     onNavigateToLegal = { title, url ->
                         val encodedUrl = java.net.URLEncoder.encode(url, "UTF-8")
                         navController.navigate("legal/$title/$encodedUrl")
+                    },
+                    onNavigateToHowAlarmsWork = {
+                        navController.navigate(ROUTE_HOW_ALARMS_WORK)
                     }
                 )
             }
@@ -387,6 +393,11 @@ private fun ChronirNavigation(
                     onNavigateToPaywall = {
                         navController.navigate(ROUTE_PAYWALL)
                     }
+                )
+            }
+            composable(ROUTE_HOW_ALARMS_WORK) {
+                HowAlarmsWorkScreen(
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(ROUTE_PAYWALL) {

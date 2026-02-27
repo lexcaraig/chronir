@@ -150,7 +150,8 @@ fun AlarmDetailScreen(
                 value = uiState.title,
                 onValueChange = viewModel::updateTitle,
                 placeholder = "Enter alarm name",
-                maxLength = 60
+                maxLength = 60,
+                softWarningLength = 32
             )
 
             // Repeat Chips
@@ -214,8 +215,8 @@ fun AlarmDetailScreen(
 
             // Persistent toggle
             AlarmToggleRow(
-                title = "Persistent",
-                subtitle = "Requires dismissal to stop",
+                title = "Require Dismissal",
+                subtitle = "Alarm repeats after snooze until manually dismissed",
                 isEnabled = uiState.persistenceLevel == PersistenceLevel.FULL,
                 onToggle = viewModel::togglePersistence
             )
