@@ -29,11 +29,14 @@ struct AlarmDetailView: View {
                     .foregroundStyle(ColorTokens.primary)
                 }
             }
-            .confirmationDialog("Delete this alarm?", isPresented: $showDeleteConfirmation) {
+            .alert("Delete Alarm", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) {}
                 Button("Delete", role: .destructive) {
                     viewModel.deleteAlarm(context: modelContext)
                     dismiss()
                 }
+            } message: {
+                Text("Are you sure you want to delete \"\(viewModel.title)\"?")
             }
             .confirmationDialog(
                 viewModel.warningMessage ?? "",

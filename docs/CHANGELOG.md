@@ -4,6 +4,32 @@ All notable changes to the Chronir project are documented here.
 
 ---
 
+## [2026-02-27] — Reddit User Feedback Fixes (iOS)
+
+**Type:** Bug Fix
+**Branch:** main
+**Commit(s):** bb2bc91
+
+### Changes
+- **Label truncation warning** — `LabeledTextField` now accepts `softWarningLength` parameter. Alarm name field warns "May be truncated on lock screen" when >32 chars (hard limit stays at 60)
+- **Persistence toggle rename** — "Persistent (requires dismissal)" → "Require Dismissal" with footnote explaining lock screen auto-silence is iOS-controlled
+- **Settings footnote** — Alarm Behavior section now has footer: "Snooze and dismiss settings apply in-app only. Lock screen behavior is controlled by iOS."
+- **Persistence wired to AlarmScheduler** — `buildAttributes()` now uses `alarm.isPersistent`: persistent alarms get `.countdown` with 9-min snooze (re-alerts), non-persistent get `.custom` with nil countdown (no re-alert)
+
+### Files Changed
+- `chronir/chronir/DesignSystem/Molecules/LabeledTextField.swift` — added `softWarningLength` parameter, warning text
+- `chronir/chronir/DesignSystem/Organisms/AlarmCreationForm.swift` — pass `softWarningLength: 32`, renamed toggle, added footnote
+- `chronir/chronir/Features/Settings/SettingsView.swift` — added footer to alarm behavior section
+- `chronir/chronir/Core/Services/AlarmScheduler.swift` — `buildAttributes` accepts `isPersistent`, conditional snooze behavior
+
+### QA Status
+- Build: PASS (xcodebuild, zero errors)
+
+### Known Issues
+- AlarmKit `SecondaryButtonBehavior` has no `.dismiss` case — using `.custom` with nil countdown as workaround for non-persistent alarms
+
+---
+
 ## [2026-02-26] — Release v1.2 (iOS)
 
 **Type:** Release

@@ -230,6 +230,7 @@ PR triggers lint + tests; merge to main triggers release build.
 
 - **Alarm scheduling is the #1 priority.** The alarm engine must be 100% reliable. Abstract it behind a protocol/interface for testability and to allow fallback if AlarmKit APIs change.
 - **AlarmKit (iOS 26) is new.** Build with standard SwiftUI first, add `.glassEffect()` as progressive enhancement. Fallback to `UNNotificationRequest` if AlarmKit is unavailable.
+- **AlarmKit `SecondaryButtonBehavior` only has `.countdown` and `.custom`** — no `.dismiss`. For non-persistent alarms, use `.custom` + nil `countdownDuration` (no re-alert). Always verify AlarmKit enum cases against the compiler before assuming a case exists.
 - **Android OEM battery killers** are a known threat (Samsung, Xiaomi, Huawei, OnePlus, Oppo, Vivo). The app must detect manufacturer and surface battery optimization guidance.
 - **DateCalculator is the most test-critical module.** Must handle: month-end overflow (e.g., 31st in Feb), leap years, DST transitions, timezone changes, relative schedules ("last Friday of month").
 - **BootReceiver (Android)** must re-register all active alarms after device reboot.

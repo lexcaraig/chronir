@@ -51,7 +51,7 @@ struct CategoryDetailView: View {
         .navigationDestination(item: $selectedAlarmID) { alarmID in
             AlarmDetailView(alarmID: alarmID)
         }
-        .confirmationDialog(
+        .alert(
             "Delete Alarm",
             isPresented: Binding(
                 get: { alarmToDelete != nil },
@@ -59,6 +59,9 @@ struct CategoryDetailView: View {
             ),
             presenting: alarmToDelete
         ) { alarm in
+            Button("Cancel", role: .cancel) {
+                alarmToDelete = nil
+            }
             Button("Delete", role: .destructive) {
                 deleteAlarm(alarm)
                 alarmToDelete = nil
