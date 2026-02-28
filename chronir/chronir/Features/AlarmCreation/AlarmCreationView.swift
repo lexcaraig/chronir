@@ -22,6 +22,7 @@ struct AlarmCreationView: View {
     @State private var preAlarmOffsets: Set<PreAlarmOffset> = []
     @State private var oneTimeDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
     @State private var soundName: String = UserSettings.shared.selectedAlarmSound
+    @State private var followUpInterval: FollowUpInterval = .thirtyMinutes
     @State private var saveError: String?
     @State private var titleError: String?
     @State private var showWarningDialog = false
@@ -65,6 +66,7 @@ struct AlarmCreationView: View {
                     preAlarmOffsets: $preAlarmOffsets,
                     oneTimeDate: $oneTimeDate,
                     soundName: $soundName,
+                    followUpInterval: $followUpInterval,
                     isPlusTier: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                     titleError: titleError
                 )
@@ -216,6 +218,7 @@ struct AlarmCreationView: View {
             note: trimmedNote
         )
         alarm.preAlarmOffsets = Array(preAlarmOffsets)
+        alarm.followUpInterval = followUpInterval
         if soundName != UserSettings.shared.selectedAlarmSound {
             alarm.soundName = soundName
         }

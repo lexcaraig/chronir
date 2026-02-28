@@ -152,7 +152,8 @@ final class PendingConfirmationService {
     // MARK: - Private
 
     private func scheduleFollowUpNotifications(for alarm: Alarm) async {
-        let offsets: [TimeInterval] = [30 * 60, 60 * 60, 90 * 60] // +30m, +60m, +90m
+        let interval = alarm.followUpInterval.timeInterval
+        let offsets = (1...3).map { Double($0) * interval }
 
         for (index, offset) in offsets.enumerated() {
             let fireDate = Date().addingTimeInterval(offset)

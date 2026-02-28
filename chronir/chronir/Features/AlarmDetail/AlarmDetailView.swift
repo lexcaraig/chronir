@@ -100,6 +100,7 @@ struct AlarmDetailView: View {
                 preAlarmOffsets: $viewModel.preAlarmOffsets,
                 oneTimeDate: $viewModel.oneTimeDate,
                 soundName: $viewModel.soundName,
+                followUpInterval: $viewModel.followUpInterval,
                 isPlusTier: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank,
                 titleError: viewModel.titleError
             )

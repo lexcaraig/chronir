@@ -28,6 +28,7 @@ final class AlarmDetailViewModel {
     var preAlarmOffsets: Set<PreAlarmOffset> = []
     var oneTimeDate: Date = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
     var soundName: String = UserSettings.shared.selectedAlarmSound
+    var followUpInterval: FollowUpInterval = .thirtyMinutes
     var selectedImage: UIImage?
     var removePhoto = false
     var isLoading: Bool = false
@@ -59,6 +60,7 @@ final class AlarmDetailViewModel {
             self.category = alarm.alarmCategory
             self.preAlarmOffsets = Set(alarm.preAlarmOffsets)
             self.soundName = alarm.soundName ?? UserSettings.shared.selectedAlarmSound
+            self.followUpInterval = alarm.followUpInterval
             self.timesOfDay = alarm.timesOfDay
             #if os(iOS)
             if alarm.photoFileName != nil {
@@ -161,6 +163,7 @@ final class AlarmDetailViewModel {
         alarm.note = trimmedNote
         alarm.preAlarmOffsets = Array(preAlarmOffsets)
         alarm.soundName = soundName == UserSettings.shared.selectedAlarmSound ? nil : soundName
+        alarm.followUpInterval = followUpInterval
         alarm.category = category?.rawValue
         alarm.updatedAt = Date()
         if cycleType == .oneTime {

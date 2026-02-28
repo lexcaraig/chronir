@@ -374,6 +374,7 @@ private struct CatalogAlarmCreationFormView: View {
                 preAlarmOffsets: .constant([]),
                 oneTimeDate: .constant(Date()),
                 soundName: .constant("alarm"),
+                followUpInterval: .constant(.thirtyMinutes),
                 titleError: nil
             )
         }

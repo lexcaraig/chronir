@@ -33,6 +33,7 @@ final class Alarm: Identifiable {
     var dismissMethod: DismissMethod
     var preAlarmMinutes: Int
     var preAlarmOffsetsData: Data?
+    var followUpIntervalMinutes: Int = 30
 
     // MARK: - Sound
     var soundName: String?
@@ -123,6 +124,12 @@ final class Alarm: Identifiable {
     @Transient
     var isPersistent: Bool {
         persistenceLevel == .full
+    }
+
+    @Transient
+    var followUpInterval: FollowUpInterval {
+        get { FollowUpInterval(rawValue: followUpIntervalMinutes) ?? .thirtyMinutes }
+        set { followUpIntervalMinutes = newValue.rawValue }
     }
 
     @Transient

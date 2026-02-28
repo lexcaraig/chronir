@@ -99,3 +99,25 @@ enum PreAlarmOffset: String, Codable, CaseIterable, Identifiable, Comparable {
         lhs.sortOrder < rhs.sortOrder
     }
 }
+
+enum FollowUpInterval: Int, Codable, CaseIterable, Identifiable {
+    case fifteenMinutes = 15
+    case thirtyMinutes = 30
+    case oneHour = 60
+    case twoHours = 120
+    case threeHours = 180
+
+    var id: Int { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .fifteenMinutes: return "15 min"
+        case .thirtyMinutes: return "30 min"
+        case .oneHour: return "1 hour"
+        case .twoHours: return "2 hours"
+        case .threeHours: return "3 hours"
+        }
+    }
+
+    var timeInterval: TimeInterval { Double(rawValue) * 60 }
+}

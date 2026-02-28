@@ -18,6 +18,7 @@ struct AlarmCreationForm: View {
     @Binding var preAlarmOffsets: Set<PreAlarmOffset>
     @Binding var oneTimeDate: Date
     @Binding var soundName: String
+    @Binding var followUpInterval: FollowUpInterval
     var isPlusTier: Bool = false
     var titleError: String?
     @State private var showPaywallForSound = false
@@ -80,6 +81,23 @@ struct AlarmCreationForm: View {
                     style: .labelSmall,
                     color: ColorTokens.textSecondary
                 )
+            }
+
+            if isPersistent && isPlusTier {
+                VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                    ChronirText("Follow-Up Interval", style: .labelMedium, color: ColorTokens.textSecondary)
+                    Picker("Follow-Up Interval", selection: $followUpInterval) {
+                        ForEach(FollowUpInterval.allCases) { interval in
+                            Text(interval.displayName).tag(interval)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    ChronirText(
+                        "How often to ask \"Did you complete it?\" after stopping.",
+                        style: .labelSmall,
+                        color: ColorTokens.textSecondary
+                    )
+                }
             }
 
             preAlarmSection
@@ -381,6 +399,7 @@ struct AlarmCreationForm: View {
     @Previewable @State var preAlarmOffsets: Set<PreAlarmOffset> = []
     @Previewable @State var oneTimeDate = Date()
     @Previewable @State var soundName = "alarm"
+    @Previewable @State var followUpInterval = FollowUpInterval.thirtyMinutes
 
     ScrollView {
         AlarmCreationForm(
@@ -401,6 +420,7 @@ struct AlarmCreationForm: View {
             preAlarmOffsets: $preAlarmOffsets,
             oneTimeDate: $oneTimeDate,
             soundName: $soundName,
+            followUpInterval: $followUpInterval,
             isPlusTier: true
         )
     }
