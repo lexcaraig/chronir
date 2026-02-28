@@ -62,6 +62,7 @@ import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.CompletionAction
 import com.chronir.model.CompletionRecord
 import com.chronir.model.CycleType
+import com.chronir.model.FollowUpInterval
 import com.chronir.model.PersistenceLevel
 import java.time.Instant
 import java.time.LocalDate
@@ -220,6 +221,14 @@ fun AlarmDetailScreen(
                 isEnabled = uiState.persistenceLevel == PersistenceLevel.FULL,
                 onToggle = viewModel::togglePersistence
             )
+
+            // Follow-up interval (visible when persistent)
+            if (uiState.persistenceLevel == PersistenceLevel.FULL) {
+                FollowUpIntervalSelector(
+                    selected = uiState.followUpInterval,
+                    onSelect = viewModel::updateFollowUpInterval
+                )
+            }
 
             // Pre-alarm warning toggle
             AlarmToggleRow(
@@ -697,6 +706,45 @@ private fun RepeatIntervalStepper(
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FollowUpIntervalSelector(
+    selected: FollowUpInterval,
+    onSelect: (FollowUpInterval) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        ChronirText(
+            text = "Follow-Up Interval",
+            style = ChronirTextStyle.LabelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(SpacingTokens.XXSmall))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(SpacingTokens.XSmall),
+            verticalArrangement = Arrangement.spacedBy(SpacingTokens.XSmall)
+        ) {
+            FollowUpInterval.entries.forEach { interval ->
+                FilterChip(
+                    selected = selected == interval,
+                    onClick = { onSelect(interval) },
+                    label = { Text(interval.displayName) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                )
+            }
+        }
+        Spacer(Modifier.height(SpacingTokens.XXSmall))
+        ChronirText(
+            text = "How often to ask \"Did you complete it?\" after stopping.",
+            style = ChronirTextStyle.BodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

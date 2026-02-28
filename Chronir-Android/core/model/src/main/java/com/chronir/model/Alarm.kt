@@ -45,11 +45,14 @@ data class Alarm(
     val sharedWith: List<String> = emptyList(),
     val additionalTimesOfDay: List<LocalTime> = emptyList(),
     val note: String = "",
+    val followUpIntervalMinutes: Int = 30,
     val isPendingConfirmation: Boolean = false,
     val pendingSince: Instant? = null,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
 ) {
+    val followUpInterval: FollowUpInterval
+        get() = FollowUpInterval.fromMinutes(followUpIntervalMinutes)
     val isPersistent: Boolean
         get() = persistenceLevel == PersistenceLevel.FULL
 

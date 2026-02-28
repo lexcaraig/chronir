@@ -7,6 +7,7 @@ import com.chronir.model.Alarm
 import com.chronir.model.AlarmCategory
 import com.chronir.model.AlarmTemplate
 import com.chronir.model.CycleType
+import com.chronir.model.FollowUpInterval
 import com.chronir.model.PersistenceLevel
 import com.chronir.model.Schedule
 import com.chronir.services.AlarmScheduler
@@ -41,6 +42,7 @@ data class AlarmCreationUiState(
     val category: AlarmCategory? = null,
     val additionalTimes: List<LocalTime> = emptyList(),
     val preAlarmMinutes: Int = 0,
+    val followUpInterval: FollowUpInterval = FollowUpInterval.THIRTY_MINUTES,
     val repeatInterval: Int = 1,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
@@ -129,6 +131,10 @@ class AlarmCreationViewModel
                 return
             }
             _uiState.update { it.copy(preAlarmMinutes = minutes) }
+        }
+
+        fun updateFollowUpInterval(interval: FollowUpInterval) {
+            _uiState.update { it.copy(followUpInterval = interval) }
         }
 
         fun addAdditionalTime(hour: Int, minute: Int) {
@@ -230,6 +236,7 @@ class AlarmCreationViewModel
                         schedule = schedule,
                         persistenceLevel = state.persistenceLevel,
                         preAlarmMinutes = state.preAlarmMinutes,
+                        followUpIntervalMinutes = state.followUpInterval.minutes,
                         additionalTimesOfDay = state.additionalTimes,
                         colorTag = state.category?.colorTag,
                         iconName = state.category?.iconKey,

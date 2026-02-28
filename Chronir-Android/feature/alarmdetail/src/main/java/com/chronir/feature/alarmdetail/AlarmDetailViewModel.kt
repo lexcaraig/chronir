@@ -9,6 +9,7 @@ import com.chronir.model.Alarm
 import com.chronir.model.AlarmCategory
 import com.chronir.model.CompletionRecord
 import com.chronir.model.CycleType
+import com.chronir.model.FollowUpInterval
 import com.chronir.model.PersistenceLevel
 import com.chronir.model.Schedule
 import com.chronir.services.AlarmScheduler
@@ -43,6 +44,7 @@ data class AlarmDetailUiState(
     val oneTimeDate: LocalDate = LocalDate.now().plusDays(1),
     val category: AlarmCategory? = null,
     val preAlarmEnabled: Boolean = false,
+    val followUpInterval: FollowUpInterval = FollowUpInterval.THIRTY_MINUTES,
     val repeatInterval: Int = 1,
     val isEnabled: Boolean = true,
     val isSaving: Boolean = false,
@@ -99,6 +101,7 @@ class AlarmDetailViewModel
                         oneTimeDate = extractOneTimeDate(alarm.schedule),
                         category = AlarmCategory.fromColorTag(alarm.colorTag),
                         preAlarmEnabled = alarm.preAlarmMinutes > 0,
+                        followUpInterval = alarm.followUpInterval,
                         repeatInterval = extractRepeatInterval(alarm.schedule),
                         isEnabled = alarm.isEnabled
                     )
@@ -174,6 +177,10 @@ class AlarmDetailViewModel
             _uiState.update { it.copy(preAlarmEnabled = enabled) }
         }
 
+        fun updateFollowUpInterval(interval: FollowUpInterval) {
+            _uiState.update { it.copy(followUpInterval = interval) }
+        }
+
         fun updateRepeatInterval(interval: Int) {
             _uiState.update { it.copy(repeatInterval = interval.coerceIn(1, 52)) }
         }
@@ -212,6 +219,7 @@ class AlarmDetailViewModel
                         schedule = schedule,
                         persistenceLevel = state.persistenceLevel,
                         preAlarmMinutes = if (state.preAlarmEnabled) 1440 else 0,
+                        followUpIntervalMinutes = state.followUpInterval.minutes,
                         colorTag = state.category?.colorTag,
                         iconName = state.category?.iconKey,
                         note = state.note.trim(),

@@ -29,7 +29,7 @@ class PendingConfirmationService
 
         companion object {
             const val CHANNEL_ID = "pending_confirmation_channel"
-            private val FOLLOW_UP_INTERVALS_MINUTES = listOf(30, 60, 90)
+            private const val FOLLOW_UP_COUNT = 3
         }
 
         private val notificationManager =
@@ -118,8 +118,9 @@ class PendingConfirmationService
 
         private fun scheduleFollowUpNotifications(alarm: Alarm) {
             val baseTime = System.currentTimeMillis()
-            FOLLOW_UP_INTERVALS_MINUTES.forEachIndexed { index, minutes ->
-                val triggerAt = baseTime + minutes * 60 * 1000L
+            val intervalMillis = alarm.followUpInterval.timeIntervalMillis
+            (1..FOLLOW_UP_COUNT).forEachIndexed { index, multiplier ->
+                val triggerAt = baseTime + multiplier * intervalMillis
                 val intent = Intent(context, PendingConfirmationReceiver::class.java).apply {
                     action = PendingConfirmationReceiver.ACTION_FOLLOW_UP
                     putExtra(PendingConfirmationReceiver.EXTRA_ALARM_ID, alarm.id)
@@ -140,7 +141,7 @@ class PendingConfirmationService
         }
 
         private fun cancelFollowUpNotifications(alarmId: String) {
-            FOLLOW_UP_INTERVALS_MINUTES.forEachIndexed { index, _ ->
+            (0 until FOLLOW_UP_COUNT).forEach { index ->
                 val intent = Intent(context, PendingConfirmationReceiver::class.java)
                 val pendingIntent = PendingIntent.getBroadcast(
                     context,

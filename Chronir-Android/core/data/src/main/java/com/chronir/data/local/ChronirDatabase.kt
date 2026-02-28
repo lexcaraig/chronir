@@ -42,6 +42,7 @@ data class AlarmEntity(
     val sharedWithJson: String = "[]",
     val additionalTimesJson: String = "[]",
     val note: String = "",
+    val followUpIntervalMinutes: Int = 30,
     val isPendingConfirmation: Boolean = false,
     val pendingSince: Long? = null,
     val createdAt: Long,
@@ -62,7 +63,7 @@ data class CompletionEntity(
 
 @Database(
     entities = [AlarmEntity::class, CompletionEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -108,6 +109,12 @@ abstract class ChronirDatabase : RoomDatabase() {
             }
         }
 
+        val migration5To6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE alarms ADD COLUMN followUpIntervalMinutes INTEGER NOT NULL DEFAULT 30")
+            }
+        }
+
         @Suppress("DEPRECATION")
         fun create(context: Context): ChronirDatabase = instance ?: synchronized(this) {
             instance ?: Room.databaseBuilder(
@@ -115,7 +122,7 @@ abstract class ChronirDatabase : RoomDatabase() {
                 ChronirDatabase::class.java,
                 "chronir.db"
             )
-                .addMigrations(migration2To3, migration3To4, migration4To5)
+                .addMigrations(migration2To3, migration3To4, migration4To5, migration5To6)
                 .fallbackToDestructiveMigrationFrom(1)
                 .build()
                 .also { instance = it }
