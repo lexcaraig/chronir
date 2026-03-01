@@ -156,7 +156,14 @@ struct AlarmListView: View {
         }
         .onChange(of: deepLinkAlarmID.wrappedValue) {
             if let id = deepLinkAlarmID.wrappedValue {
-                selectedAlarmID = id
+                if UserSettings.shared.groupAlarmsByCategory && !paywallViewModel.isFreeTier,
+                   let alarm = activeAlarms.first(where: { $0.id == id }),
+                   let category = alarm.alarmCategory,
+                   activeAlarms.filter({ $0.alarmCategory == category }).count >= 2 {
+                    selectedCategory = category
+                } else {
+                    selectedAlarmID = id
+                }
                 deepLinkAlarmID.wrappedValue = nil
             }
         }

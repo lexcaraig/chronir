@@ -414,6 +414,11 @@ struct ChronirApp: App {
                     Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: NotificationService.didTapNotificationForAlarm)) { notification in
+                guard let alarmIDString = notification.object as? String,
+                      let alarmUUID = UUID(uuidString: alarmIDString) else { return }
+                deepLinkAlarmID = alarmUUID
+            }
         }
     }
 }

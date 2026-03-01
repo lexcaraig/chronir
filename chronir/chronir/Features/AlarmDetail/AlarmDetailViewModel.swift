@@ -241,17 +241,19 @@ final class AlarmDetailViewModel {
         ])
         // Clean up photo file
         PhotoStorageService.deletePhoto(for: alarm.id)
-        // Capture ID before deletion — accessing SwiftData object after delete crashes
-        let alarmIDString = alarm.id.uuidString
+        // Cancel AlarmKit alarms + all pre-alarm/backup notifications before deleting
+        let alarmID = alarm.id
+        let alarmIDString = alarmID.uuidString
+        Task {
+            try? await AlarmScheduler.shared.cancelAlarm(alarm)
+        }
         context.delete(alarm)
         do {
             try context.save()
             self.alarm = nil
             #if os(iOS)
+            NotificationService.shared.removeDeliveredNotifications(for: alarmID)
             Task {
-                let center = UNUserNotificationCenter.current()
-                center.removePendingNotificationRequests(withIdentifiers: [alarmIDString])
-                center.removeDeliveredNotifications(withIdentifiers: [alarmIDString])
                 try? await CloudSyncService.shared.deleteRemoteAlarm(id: alarmIDString)
             }
             #endif

@@ -15,6 +15,7 @@ protocol NotificationServiceProtocol: Sendable {
 #if os(iOS)
 final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
+    static let didTapNotificationForAlarm = Notification.Name("NotificationService.didTapForAlarm")
 
     private let notificationCenter = UNUserNotificationCenter.current()
 
@@ -46,6 +47,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         content.title = "Upcoming Alarm"
         content.body = "\"\(alarm.title)\" fires in \(alarm.preAlarmMinutes / 60) hours"
         content.sound = .default
+        content.userInfo = ["alarmID": alarm.id.uuidString]
 
         let components = Calendar.current.dateComponents(
             [.year, .month, .day, .hour, .minute, .second],
@@ -83,6 +85,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
             content.title = "\(alarm.title) \(offset.notificationBody)"
             content.body = "Scheduled for \(alarm.scheduledTime.formatted(date: .omitted, time: .shortened))"
             content.sound = .default
+            content.userInfo = ["alarmID": alarm.id.uuidString]
 
             let components = Calendar.current.dateComponents(
                 [.year, .month, .day, .hour, .minute, .second],
@@ -127,6 +130,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
         content.title = alarm.title
         content.body = "Alarm firing — open Chronir"
         content.sound = .defaultCritical
+        content.userInfo = ["alarmID": alarm.id.uuidString]
 
         let components = Calendar.current.dateComponents(
             [.year, .month, .day, .hour, .minute, .second],
@@ -181,6 +185,15 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
             PendingConfirmationService.handleNotificationAction(
                 actionIdentifier: actionID,
                 alarmIDString: alarmID
+            )
+        }
+
+        // Navigate to alarm when user taps notification banner
+        if actionID == UNNotificationDefaultActionIdentifier,
+           let alarmID = response.notification.request.content.userInfo["alarmID"] as? String {
+            NotificationCenter.default.post(
+                name: NotificationService.didTapNotificationForAlarm,
+                object: alarmID
             )
         }
 
