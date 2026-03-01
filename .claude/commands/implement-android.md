@@ -62,7 +62,7 @@ cd Chronir-Android && ./gradlew assembleDebug   # Build — must compile
 Run the `code-reviewer` agent on all changed files. Address any findings.
 
 ### Step 7: Simplify
-Run the `code-simplifier` agent on all modified files to clean up implementation verbosity — reduce nesting, improve naming, simplify conditionals — while preserving exact functionality.
+Run `/simplify` on all modified files to clean up implementation verbosity — reduce nesting, improve naming, simplify conditionals — while preserving exact functionality.
 
 ### Step 8: Re-run Quality Gate
 After review and simplification may have changed code, **re-run the full quality gate from Step 5** to ensure nothing was broken. All checks must still pass.
@@ -73,7 +73,7 @@ Use these installed plugins at the appropriate steps:
 - **kotlin-lsp** — Use LSP features during implementation (Step 3) for go-to-definition, find-references, hover info, and diagnostics on Kotlin files
 - **context7** — Look up latest Jetpack Compose/Room/Hilt documentation during planning (Step 1) when unsure about APIs
 - **code-review** — Powers the review step (Step 6). Use `code-reviewer` agent on all changed files
-- **code-simplifier** — Powers the simplification step (Step 7). Run on all modified files
+- **code-simplifier** — Powers the simplification step (Step 7). Run `/simplify` on all modified files
 - **security-guidance** — Consult during review for auth, data storage, and network security
 
 ## Notes

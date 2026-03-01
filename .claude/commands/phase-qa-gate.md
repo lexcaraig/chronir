@@ -76,7 +76,7 @@ Use the `security-reviewer` agent to scan for:
 - Injection vulnerabilities
 
 ### Step 5: Code Simplification Audit
-Run the `code-simplifier` agent on all files modified during the phase to identify:
+Run `/simplify` on all files modified during the phase to identify:
 - Overly complex code that could be simplified
 - Redundant patterns, unnecessary nesting
 - Naming inconsistencies
@@ -143,7 +143,7 @@ Output a structured report following this format:
 Use these installed plugins during QA gate:
 - **code-review** — Powers Step 4 indirectly. Use `code-reviewer` agent for automated quality checks
 - **security-guidance** — Powers Step 4 (Security Review). Use `security-reviewer` agent for OWASP Top 10, secrets detection, injection checks
-- **code-simplifier** — Powers Step 5 (Simplification Audit). Run on all phase-modified files as non-blocking quality step
+- **code-simplifier** — Powers Step 5 (Simplification Audit). Run `/simplify` on all phase-modified files as non-blocking quality step
 - **pr-review-toolkit** — Use `pr-test-analyzer` to verify test coverage quality for the phase
 - **swift-lsp** / **kotlin-lsp** — Use LSP diagnostics as an additional signal for code health
 - **claude-md-management** — After gate passes, run `/revise-claude-md` to capture any lessons learned during the phase

@@ -87,7 +87,10 @@ cd Chronir-Android && ./gradlew assembleDebug   # Build
 
 **If lint or build fails:** Fix and re-run tests + gate until everything is green.
 
-### Step 7: Report
+### Step 7: Simplify
+Run `/simplify` on all modified files to clean up any verbosity introduced during test fixes — while preserving exact functionality.
+
+### Step 8: Report
 Output a summary:
 
 ```
@@ -120,6 +123,7 @@ Use these installed plugins during test fixing:
 - **swift-lsp** / **kotlin-lsp** — Use LSP features (go-to-definition, find-references, hover) to trace failing test code to source implementations and understand type errors
 - **context7** — Look up testing framework APIs (XCTest, Swift Testing, JUnit 5, Mockk) when unsure about assertion methods or test setup patterns
 - **code-review** — After fixing tests, run `code-reviewer` on changed test files to verify test quality
+- **code-simplifier** — Powers the simplification step (Step 7). Run `/simplify` on all modified files
 
 ## Notes
 - Always prefer fixing the source over weakening tests — tests exist to catch bugs

@@ -233,7 +233,7 @@ If new violations were introduced during fixes, flag them immediately and resolv
 - **Scope propagation**: The `[scope]` argument flows to every phase. If the user says `AlarmFiring`, only audit/fix/polish the AlarmFiring feature
 - **Design tokens web app**: When scope is `design-tokens-web`, audit `design-tokens/docs/src/` instead of `chronir/`. This is a React app — Impeccable's web-focused commands are directly applicable
 - **Track all changes**: At the end, provide a diff summary of every file modified and why
-- After all code changes, run the `code-simplifier` agent as required by project conventions
+- After all code changes, run `/simplify` on all modified files as required by project conventions
 
 ## Phase-Command Mapping
 

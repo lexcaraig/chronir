@@ -105,7 +105,7 @@ Run the `code-reviewer` agent on all changed files to check:
 - Missing error handling
 
 ### Step 9: Simplify
-Run the `code-simplifier` agent on all modified files to:
+Run `/simplify` on all modified files to:
 - Reduce nesting and redundant code
 - Improve naming clarity
 - Simplify conditionals and control flow
@@ -131,7 +131,7 @@ Use these installed plugins at the appropriate steps:
 - **swift-lsp** / **kotlin-lsp** — Use LSP features during implementation (Step 5) to navigate code, find references, and check diagnostics
 - **context7** — Look up latest API documentation during context gathering (Step 2) when unsure about framework APIs
 - **code-review** — Powers the review step (Step 8). Use `code-reviewer` agent on all changed files
-- **code-simplifier** — Powers the simplification step (Step 9). Run on all modified files
+- **code-simplifier** — Powers the simplification step (Step 9). Run `/simplify` on all modified files
 - **security-guidance** — Use `security-reviewer` agent during review (Step 8) for security-sensitive tasks (auth, data, network)
 - **firebase** — For Firebase tasks, use Firebase MCP tools to validate rules (`firebase_validate_security_rules`), query data, and check config
 - **commit-commands** — Use `/commit` for the commit step (Step 11) to get standardized commit messages

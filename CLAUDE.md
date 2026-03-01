@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Offload research, exploration, and parallel analysis to subagents
 - For complex problems, throw more compute at it via subagents
 - One tack per subagent for focused execution
+- Always Run `/simplify` after every task
 
 ### 3.
 
@@ -334,7 +335,7 @@ See `tickets/README.md` for full documentation.
 | Plugin            | Purpose                                                                                                                                                                                                                                                                             |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `code-simplifier` | Runs automatically after ANY code changes, regardless of the task or workflow. Simplifies code for clarity and maintainability while preserving functionality. Must be invoked proactively after writing or modifying code — not just during `/implement-task` or `/phase-qa-gate`. |
-| `impeccable`      | Frontend design quality toolkit. 17 commands (`/normalize`, `/polish`, `/critique`, `/audit`, `/simplify`, `/harden`, `/extract`, etc.) for UX/UI review and fixes. Powers the fix/polish phases of `/design-review`. Use `frontend-design` skill for anti-patterns reference.     |
+| `impeccable`      | Frontend design quality toolkit. 17 commands (`/normalize`, `/polish`, `/critique`, `/audit`, `/simplify`, `/harden`, `/extract`, etc.) for UX/UI review and fixes. Powers the fix/polish phases of `/design-review`. Use `frontend-design` skill for anti-patterns reference.      |
 
 ### Typical Sprint Flow
 
