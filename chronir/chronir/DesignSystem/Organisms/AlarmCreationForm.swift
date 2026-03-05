@@ -21,6 +21,7 @@ struct AlarmCreationForm: View {
     @Binding var followUpInterval: FollowUpInterval
     var isPlusTier: Bool = false
     var titleError: String?
+    @State private var showPaywallForNote = false
     @State private var showPaywallForSound = false
     @State private var showSoundPicker = false
     @State private var savedIntervals: [CycleType: Int] = [:]
@@ -111,10 +112,32 @@ struct AlarmCreationForm: View {
                     text: $note,
                     maxLength: AlarmValidator.noteMaxLength
                 )
-            } else if !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            } else {
                 VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-                    ChronirText("Note", style: .labelMedium, color: ColorTokens.textSecondary)
-                    ChronirText(note, style: .bodyMedium)
+                    HStack(spacing: SpacingTokens.xxs) {
+                        ChronirText("Note", style: .labelMedium, color: ColorTokens.textSecondary)
+                        Image(systemName: "lock.fill")
+                            .font(.caption2)
+                            .foregroundStyle(ColorTokens.textDisabled)
+                    }
+                    let noteIsEmpty = note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    Button {
+                        showPaywallForNote = true
+                    } label: {
+                        HStack {
+                            ChronirText(
+                                noteIsEmpty ? "Add a note..." : note,
+                                style: .bodyMedium,
+                                color: noteIsEmpty ? ColorTokens.textDisabled : ColorTokens.textPrimary
+                            )
+                            Spacer()
+                        }
+                        .padding(SpacingTokens.md)
+                        .background(ColorTokens.surfaceCard, in: .rect(cornerRadius: RadiusTokens.md))
+                    }
+                }
+                .fullScreenCover(isPresented: $showPaywallForNote) {
+                    PaywallView()
                 }
             }
         }

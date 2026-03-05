@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:data"))
     implementation(project(":core:services"))
+    implementation(libs.billing.ktx)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

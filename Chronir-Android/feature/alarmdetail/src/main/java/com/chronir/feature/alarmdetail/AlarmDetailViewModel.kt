@@ -13,8 +13,10 @@ import com.chronir.model.FollowUpInterval
 import com.chronir.model.PersistenceLevel
 import com.chronir.model.Schedule
 import com.chronir.services.AlarmScheduler
+import com.chronir.services.BillingService
 import com.chronir.services.DateCalculator
 import com.chronir.services.NotificationCleanupService
+import com.chronir.services.SubscriptionTier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,6 +49,7 @@ data class AlarmDetailUiState(
     val followUpInterval: FollowUpInterval = FollowUpInterval.THIRTY_MINUTES,
     val repeatInterval: Int = 1,
     val isEnabled: Boolean = true,
+    val isPlusTier: Boolean = false,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
     val errorMessage: String? = null,
@@ -63,7 +66,8 @@ class AlarmDetailViewModel
         private val completionRepository: CompletionRepository,
         private val dateCalculator: DateCalculator,
         private val alarmScheduler: AlarmScheduler,
-        private val notificationCleanupService: NotificationCleanupService
+        private val notificationCleanupService: NotificationCleanupService,
+        private val billingService: BillingService
     ) : ViewModel() {
 
         private val alarmId: String = checkNotNull(savedStateHandle["alarmId"])
@@ -74,6 +78,11 @@ class AlarmDetailViewModel
         init {
             loadAlarm()
             loadCompletionHistory()
+            viewModelScope.launch {
+                billingService.subscriptionState.collect { state ->
+                    _uiState.update { it.copy(isPlusTier = state.tier != SubscriptionTier.FREE) }
+                }
+            }
         }
 
         private fun loadAlarm() {
@@ -137,7 +146,7 @@ class AlarmDetailViewModel
         }
 
         fun updateNote(note: String) {
-            if (note.length <= 500) {
+            if (note.length <= 500 && _uiState.value.isPlusTier) {
                 _uiState.update { it.copy(note = note) }
             }
         }

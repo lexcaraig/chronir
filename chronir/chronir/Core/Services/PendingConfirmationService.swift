@@ -58,11 +58,14 @@ final class PendingConfirmationService {
         if alarm.cycleType == .oneTime {
             alarm.isEnabled = false
             alarm.nextFireDate = .distantFuture
-            try? await AlarmScheduler.shared.cancelAlarm(alarm)
+            do { try await AlarmScheduler.shared.cancelAlarm(alarm) }
+            catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_enterPending") }
         } else {
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
-            try? await AlarmScheduler.shared.cancelAlarm(alarm)
-            try? await AlarmScheduler.shared.scheduleAlarm(alarm)
+            do { try await AlarmScheduler.shared.cancelAlarm(alarm) }
+            catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_enterPending") }
+            do { try await AlarmScheduler.shared.scheduleAlarm(alarm) }
+            catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_enterPending") }
         }
 
         // Log the pending action with the original (not rescheduled) fire date

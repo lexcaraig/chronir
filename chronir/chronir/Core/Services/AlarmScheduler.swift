@@ -173,16 +173,28 @@ final class AlarmScheduler: AlarmScheduling {
             try await cancelAlarm(alarm)
         }
 
-        // Only reschedule enabled, non-snoozed alarms.
+        // Reschedule all enabled, non-snoozed alarms.
         // Snoozed alarms retain their snooze countdown nextFireDate.
-        // Past-due alarms are left as overdue — user must acknowledge them.
+        // Always recalculate nextFireDate — past-due alarms must advance to the next occurrence.
         let now = Date()
         let enabledAlarms = allAlarms.filter { $0.isEnabled && $0.snoozeCount == 0 }
-        for alarm in enabledAlarms where alarm.nextFireDate >= now {
-            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: now)
-            try await scheduleAlarm(alarm, refreshWidget: false)
+        var anyDateChanged = false
+        for alarm in enabledAlarms {
+            let newDate = dateCalculator.calculateNextFireDate(for: alarm, from: now)
+            if alarm.nextFireDate != newDate {
+                alarm.nextFireDate = newDate
+                anyDateChanged = true
+            }
+            do {
+                try await scheduleAlarm(alarm, refreshWidget: false)
+            } catch {
+                AnalyticsService.shared.recordError(error, context: "reschedule_alarm")
+            }
         }
 
+        if anyDateChanged {
+            try await repository.saveChanges()
+        }
         markRescheduled()
         await LiveActivityService.shared.refreshLiveActivity()
     }
@@ -204,7 +216,11 @@ final class AlarmScheduler: AlarmScheduling {
         } ?? []
 
         for alarm in needsScheduling {
-            try? await scheduleAlarm(alarm, refreshWidget: false)
+            do {
+                try await scheduleAlarm(alarm, refreshWidget: false)
+            } catch {
+                AnalyticsService.shared.recordError(error, context: "audit_schedule_alarm")
+            }
         }
         if !needsScheduling.isEmpty {
             await WidgetDataService.shared.refresh()

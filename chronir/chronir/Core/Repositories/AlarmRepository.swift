@@ -10,6 +10,7 @@ protocol AlarmRepositoryProtocol: Sendable {
     func fetchEnabled() async throws -> [Alarm]
     func saveCompletionLog(_ log: CompletionLog) async throws
     func fetchCompletionLogs(for alarmID: UUID?) async throws -> [CompletionLog]
+    func saveChanges() async throws
 }
 
 struct AlarmSummary: Sendable {
@@ -130,6 +131,10 @@ actor AlarmRepository: AlarmRepositoryProtocol {
         modelContext.insert(alarm)
         try modelContext.save()
         return alarm.id
+    }
+
+    func saveChanges() async throws {
+        try modelContext.save()
     }
 
     func fetchCompletionLogs(for alarmID: UUID?) async throws -> [CompletionLog] {

@@ -55,6 +55,7 @@ import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.molecules.AlarmToggleRow
 import com.chronir.designsystem.molecules.CategoryPicker
 import com.chronir.designsystem.molecules.LabeledTextField
+import com.chronir.designsystem.molecules.LockedFieldSection
 import com.chronir.designsystem.molecules.TimePickerField
 import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
@@ -72,6 +73,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AlarmCreationScreen(
     onDismiss: () -> Unit,
+    onNavigateToPaywall: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AlarmCreationViewModel = hiltViewModel()
 ) {
@@ -220,15 +222,24 @@ fun AlarmCreationScreen(
             HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
             // Note
-            LabeledTextField(
-                label = "Note",
-                value = uiState.note,
-                onValueChange = viewModel::updateNote,
-                placeholder = "Add a note...",
-                maxLength = 500,
-                singleLine = false,
-                minLines = 3
-            )
+            if (uiState.isPlusTier) {
+                LabeledTextField(
+                    label = "Note",
+                    value = uiState.note,
+                    onValueChange = viewModel::updateNote,
+                    placeholder = "Add a note...",
+                    maxLength = 500,
+                    singleLine = false,
+                    minLines = 3
+                )
+            } else {
+                LockedFieldSection(
+                    label = "Note",
+                    value = uiState.note,
+                    placeholder = "Add a note...",
+                    onClick = onNavigateToPaywall
+                )
+            }
 
             // Error message
             uiState.errorMessage?.let { error ->

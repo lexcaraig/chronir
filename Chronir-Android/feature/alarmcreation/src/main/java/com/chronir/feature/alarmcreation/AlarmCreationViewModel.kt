@@ -44,6 +44,7 @@ data class AlarmCreationUiState(
     val preAlarmMinutes: Int = 0,
     val followUpInterval: FollowUpInterval = FollowUpInterval.THIRTY_MINUTES,
     val repeatInterval: Int = 1,
+    val isPlusTier: Boolean = false,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
     val errorMessage: String? = null
@@ -66,6 +67,14 @@ class AlarmCreationViewModel
         private val _uiState = MutableStateFlow(AlarmCreationUiState())
         val uiState: StateFlow<AlarmCreationUiState> = _uiState.asStateFlow()
 
+        init {
+            viewModelScope.launch {
+                billingService.subscriptionState.collect { state ->
+                    _uiState.update { it.copy(isPlusTier = state.tier != SubscriptionTier.FREE) }
+                }
+            }
+        }
+
         fun updateTitle(title: String) {
             if (title.length <= 60) {
                 _uiState.update { it.copy(title = title) }
@@ -85,7 +94,7 @@ class AlarmCreationViewModel
         }
 
         fun updateNote(note: String) {
-            if (note.length <= 500) {
+            if (note.length <= 500 && _uiState.value.isPlusTier) {
                 _uiState.update { it.copy(note = note) }
             }
         }
@@ -160,7 +169,7 @@ class AlarmCreationViewModel
                     minute = template.timeOfDay.minute,
                     persistenceLevel = template.persistenceLevel,
                     preAlarmMinutes = template.preAlarmMinutes,
-                    note = template.note,
+                    note = if (it.isPlusTier) template.note else "",
                     category = template.category,
                     selectedDays = when (val s = template.schedule) {
                         is Schedule.Weekly -> s.daysOfWeek.toSet()

@@ -308,7 +308,8 @@ private fun ChronirNavigation(
             }
             composable(ROUTE_ALARM_CREATION) {
                 AlarmCreationScreen(
-                    onDismiss = { navController.popBackStack() }
+                    onDismiss = { navController.popBackStack() },
+                    onNavigateToPaywall = { navController.navigate(ROUTE_PAYWALL) }
                 )
             }
             composable(
@@ -316,7 +317,8 @@ private fun ChronirNavigation(
                 arguments = listOf(navArgument("alarmId") { type = NavType.StringType })
             ) {
                 AlarmDetailScreen(
-                    onDismiss = { navController.popBackStack() }
+                    onDismiss = { navController.popBackStack() },
+                    onNavigateToPaywall = { navController.navigate(ROUTE_PAYWALL) }
                 )
             }
             composable(
