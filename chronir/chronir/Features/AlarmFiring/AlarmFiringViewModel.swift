@@ -80,8 +80,7 @@ final class AlarmFiringViewModel {
         alarm.snoozeCount += 1
         alarm.nextFireDate = Date().addingTimeInterval(seconds)
 
-        do { try await scheduler.scheduleAlarm(alarm) }
-        catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_snooze") }
+        do { try await scheduler.scheduleAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_snooze") }
 
         saveCompletionLog(alarmID: alarm.id, action: .snoozed)
 
@@ -117,10 +116,8 @@ final class AlarmFiringViewModel {
         alarm.snoozeCount = 0
         alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: alarm.nextFireDate)
 
-        do { try await scheduler.cancelAlarm(alarm) }
-        catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_skip") }
-        do { try await scheduler.scheduleAlarm(alarm) }
-        catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_skip") }
+        do { try await scheduler.cancelAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_skip") }
+        do { try await scheduler.scheduleAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_skip") }
 
         saveCompletionLog(alarmID: alarm.id, action: .skipped)
 
@@ -158,14 +155,11 @@ final class AlarmFiringViewModel {
         if alarm.cycleType == .oneTime {
             alarm.isEnabled = false
             alarm.nextFireDate = .distantFuture
-            do { try await scheduler.cancelAlarm(alarm) }
-            catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_dismiss") }
+            do { try await scheduler.cancelAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_dismiss") }
         } else {
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
-            do { try await scheduler.cancelAlarm(alarm) }
-            catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_dismiss") }
-            do { try await scheduler.scheduleAlarm(alarm) }
-            catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_dismiss") }
+            do { try await scheduler.cancelAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_dismiss") }
+            do { try await scheduler.scheduleAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_dismiss") }
         }
 
         saveCompletionLog(alarmID: alarm.id, action: .completed)
@@ -279,14 +273,11 @@ final class AlarmFiringViewModel {
         if alarm.cycleType == .oneTime {
             alarm.isEnabled = false
             alarm.nextFireDate = .distantFuture
-            do { try await scheduler.cancelAlarm(alarm) }
-            catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_performDismiss") }
+            do { try await scheduler.cancelAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_performDismiss") }
         } else {
             alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
-            do { try await scheduler.cancelAlarm(alarm) }
-            catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_performDismiss") }
-            do { try await scheduler.scheduleAlarm(alarm) }
-            catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_performDismiss") }
+            do { try await scheduler.cancelAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_performDismiss") }
+            do { try await scheduler.scheduleAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_performDismiss") }
         }
 
         saveCompletionLog(alarmID: alarm.id, action: .completed)

@@ -477,16 +477,13 @@ extension ChronirApp {
                 model.isEnabled = false
                 model.nextFireDate = .distantFuture
                 Task {
-                    do { try await AlarmScheduler.shared.cancelAlarm(model) }
-                    catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_lockScreen") }
+                    do { try await AlarmScheduler.shared.cancelAlarm(model) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_lockScreen") }
                 }
             } else {
                 model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
                 Task {
-                    do { try await AlarmScheduler.shared.cancelAlarm(model) }
-                    catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_lockScreen") }
-                    do { try await AlarmScheduler.shared.scheduleAlarm(model) }
-                    catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_lockScreen") }
+                    do { try await AlarmScheduler.shared.cancelAlarm(model) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_lockScreen") }
+                    do { try await AlarmScheduler.shared.scheduleAlarm(model) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_lockScreen") }
                 }
             }
             AppReviewService.recordCompletion()
