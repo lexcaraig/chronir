@@ -66,7 +66,8 @@ fun HowAlarmsWorkScreen(
             SettingsSection(header = "How It Works") {
                 Column(modifier = Modifier.padding(SpacingTokens.Medium)) {
                     ChronirText(
-                        text = "Chronir uses Android's AlarmManager with setAlarmClock() to schedule high-priority alarms that fire reliably, even when the device is in Do Not Disturb mode.",
+                        text = "Chronir uses Android's AlarmManager with setAlarmClock() to schedule high-priority alarms " +
+                            "that fire reliably, even when the device is in Do Not Disturb mode.",
                         style = ChronirTextStyle.BodySecondary,
                         color = ColorTokens.TextSecondary
                     )
@@ -108,7 +109,8 @@ fun HowAlarmsWorkScreen(
                     Spacer(Modifier.height(SpacingTokens.Small))
                     TipRow(
                         icon = Icons.Default.Lock,
-                        text = "Use Require Dismissal for critical alarms \u2014 the alarm will keep re-alerting after snooze until you manually stop it"
+                        text = "Use Require Dismissal for critical alarms \u2014 the alarm will keep re-alerting " +
+                            "after snooze until you manually stop it"
                     )
                     Spacer(Modifier.height(SpacingTokens.Small))
                     TipRow(

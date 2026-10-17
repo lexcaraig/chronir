@@ -51,8 +51,8 @@ import com.chronir.feature.paywall.PaywallScreen
 import com.chronir.feature.settings.AccountScreen
 import com.chronir.feature.settings.AccountViewModel
 import com.chronir.feature.settings.CompletionHistoryScreen
-import com.chronir.feature.settings.LegalDocumentScreen
 import com.chronir.feature.settings.HowAlarmsWorkScreen
+import com.chronir.feature.settings.LegalDocumentScreen
 import com.chronir.feature.settings.SettingsScreen
 import com.chronir.feature.settings.SoundPickerScreen
 import com.chronir.feature.settings.SubscriptionScreen

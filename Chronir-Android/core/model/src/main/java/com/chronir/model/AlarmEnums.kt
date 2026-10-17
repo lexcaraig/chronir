@@ -24,7 +24,9 @@ enum class SyncStatus {
     CONFLICT
 }
 
-enum class FollowUpInterval(val minutes: Int) {
+enum class FollowUpInterval(
+    val minutes: Int
+) {
     FIFTEEN_MINUTES(15),
     THIRTY_MINUTES(30),
     ONE_HOUR(60),
