@@ -40,7 +40,7 @@ final class AlarmFiringViewModel {
         isFiring = true
         // Stop AlarmKit's system alarm sound so the user's chosen sound plays instead.
         if let alarm {
-            try? AlarmManager.shared.stop(id: alarm.id)
+            AlarmScheduler.stopActiveRegistration(for: alarm.id)
             AnalyticsService.shared.logEvent(AnalyticsEvent.alarmFired, parameters: [
                 "cycle_type": alarm.cycleType.rawValue
             ])
@@ -74,7 +74,7 @@ final class AlarmFiringViewModel {
         case .custom(let duration): duration
         }
 
-        try? AlarmManager.shared.stop(id: alarm.id)
+        AlarmScheduler.stopActiveRegistration(for: alarm.id)
         NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         alarm.snoozeCount += 1
@@ -110,7 +110,7 @@ final class AlarmFiringViewModel {
             "cycle_type": alarm.cycleType.rawValue
         ])
 
-        try? AlarmManager.shared.stop(id: alarm.id)
+        AlarmScheduler.stopActiveRegistration(for: alarm.id)
         NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         alarm.snoozeCount = 0
@@ -145,7 +145,7 @@ final class AlarmFiringViewModel {
             "snooze_count": alarm.snoozeCount
         ])
 
-        try? AlarmManager.shared.stop(id: alarm.id)
+        AlarmScheduler.stopActiveRegistration(for: alarm.id)
         NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         alarm.lastFiredDate = Date()
@@ -188,7 +188,7 @@ final class AlarmFiringViewModel {
         guard let alarm, !isCompleted else { return }
         isCompleted = true
 
-        try? AlarmManager.shared.stop(id: alarm.id)
+        AlarmScheduler.stopActiveRegistration(for: alarm.id)
         NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
         if await MainActor.run(body: { PendingConfirmationService.shared.isPlusUser }) {

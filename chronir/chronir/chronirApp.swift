@@ -161,7 +161,7 @@ struct ChronirApp: App {
                     let now = Date()
                     let akAlarms = (try? AlarmManager.shared.alarms) ?? []
                     for model in models where model.nextFireDate < now && model.snoozeCount == 0 {
-                        let akAlarm = akAlarms.first { $0.id == model.id }
+                        let akAlarm = AlarmScheduler.activeRegistration(for: model.id, in: akAlarms)
                         // Skip if AlarmKit is handling it (will come through alarmUpdates)
                         if akAlarm?.state == .alerting || akAlarm?.state == .countdown { continue }
                         AlarmFiringCoordinator.shared.stoppedForCustomSound.insert(model.id)
@@ -174,6 +174,8 @@ struct ChronirApp: App {
             .task {
                 for await alarms in AlarmManager.shared.alarmUpdates {
                     for alarm in alarms {
+                        // Future occurrences use derived registration IDs; resolve to the owning alarm.
+                        let baseID = AlarmScheduler.baseAlarmID(for: alarm.id)
                         switch alarm.state {
                         case .alerting:
                             await MainActor.run {
@@ -182,9 +184,9 @@ struct ChronirApp: App {
                                 guard !AlarmFiringCoordinator.shared.appIsInBackground else { return }
                                 // Skip if the foreground handler already processed this alarm
                                 // (stale buffered event arriving after appIsInBackground was cleared).
-                                guard !AlarmFiringCoordinator.shared.isHandled(alarm.id) else { return }
+                                guard !AlarmFiringCoordinator.shared.isHandled(baseID) else { return }
                                 // Skip if the alarm is disabled/archived (stale AlarmKit registration)
-                                let targetID = alarm.id
+                                let targetID = baseID
                                 let descriptor = FetchDescriptor<Alarm>(
                                     predicate: #Predicate<Alarm> { $0.id == targetID && $0.isEnabled == true }
                                 )
@@ -197,7 +199,7 @@ struct ChronirApp: App {
                                 PendingConfirmationService.shared.autoCompletePending(alarm: model)
                                 try? self.container.mainContext.save()
 
-                                AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
+                                AlarmFiringCoordinator.shared.presentAlarm(id: baseID)
                                 Task { await LiveActivityService.shared.endCurrentActivity() }
                             }
                         case .countdown:
@@ -208,11 +210,11 @@ struct ChronirApp: App {
                             let snoozeAlarmID = alarm.id
                             var alarmTitle: String?
                             await MainActor.run {
-                                AlarmFiringCoordinator.shared.snoozedInBackground.insert(snoozeAlarmID)
-                                if snoozeAlarmID == AlarmFiringCoordinator.shared.firingAlarmID {
+                                AlarmFiringCoordinator.shared.snoozedInBackground.insert(baseID)
+                                if baseID == AlarmFiringCoordinator.shared.firingAlarmID {
                                     AlarmFiringCoordinator.shared.dismissFiring()
                                 }
-                                let targetID = snoozeAlarmID
+                                let targetID = baseID
                                 let descriptor = FetchDescriptor<Alarm>(
                                     predicate: #Predicate<Alarm> { $0.id == targetID }
                                 )
@@ -247,22 +249,45 @@ struct ChronirApp: App {
                                 // If this alarm was snoozed and its countdown just ended
                                 // without re-alerting, present the firing view ourselves.
                                 // (AlarmKit .fixed() schedules don't re-alert after snooze.)
-                                if AlarmFiringCoordinator.shared.snoozedInBackground.remove(alarm.id) != nil {
-                                    let targetID = alarm.id
+                                if AlarmFiringCoordinator.shared.snoozedInBackground.remove(baseID) != nil {
+                                    let targetID = baseID
                                     let descriptor = FetchDescriptor<Alarm>(
                                         predicate: #Predicate<Alarm> { $0.id == targetID && $0.isEnabled == true }
                                     )
                                     if (try? self.container.mainContext.fetch(descriptor).first) != nil {
-                                        AlarmFiringCoordinator.shared.presentAlarm(id: alarm.id)
+                                        AlarmFiringCoordinator.shared.presentAlarm(id: baseID)
                                     }
-                                } else if alarm.id == AlarmFiringCoordinator.shared.firingAlarmID {
+                                } else if baseID == AlarmFiringCoordinator.shared.firingAlarmID {
                                     // Don't dismiss if we intentionally stopped AlarmKit to play custom sound.
-                                    if AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(alarm.id) == nil {
+                                    if AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(baseID) == nil {
                                         AlarmFiringCoordinator.shared.dismissFiring()
                                     }
                                 } else {
                                     // Alarm stopped that wasn't fired in-app — user handled on lock screen
-                                    AlarmFiringCoordinator.shared.stoppedOnLockScreen.insert(alarm.id)
+                                    AlarmFiringCoordinator.shared.stoppedOnLockScreen.insert(baseID)
+
+                                    // Immediately reschedule next occurrence for recurring alarms
+                                    // so the next weekly/monthly fire happens even if the user never opens the app.
+                                    let stoppedID = baseID
+                                    let stoppedDesc = FetchDescriptor<Alarm>(
+                                        predicate: #Predicate<Alarm> { $0.id == stoppedID && $0.isEnabled == true }
+                                    )
+                                    if let model = try? self.container.mainContext.fetch(stoppedDesc).first,
+                                       model.nextFireDate < Date(),
+                                       model.snoozeCount == 0 {
+                                        if model.cycleType == .oneTime {
+                                            model.isEnabled = false
+                                            model.nextFireDate = .distantFuture
+                                            try? self.container.mainContext.save()
+                                        } else {
+                                            let calc = DateCalculator()
+                                            model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
+                                            try? self.container.mainContext.save()
+                                            Task {
+                                                try? await AlarmScheduler.shared.scheduleAlarm(model)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             // Alarm stopped/cancelled — end or refresh the Live Activity.
@@ -287,7 +312,7 @@ struct ChronirApp: App {
                 // Only dismiss if the alarm was handled (lock screen stop/snooze).
                 // If the alarm is still past-due, keep the firing view — user needs to interact.
                 if coordinator.isFiring, let firingID = coordinator.firingAlarmID {
-                    let akAlarm = akAlarms.first { $0.id == firingID }
+                    let akAlarm = AlarmScheduler.activeRegistration(for: firingID, in: akAlarms)
                     if akAlarm?.state != .alerting
                         && !coordinator.stoppedForCustomSound.contains(firingID)
                         && !coordinator.presentingPastDue.contains(firingID) {
@@ -312,7 +337,7 @@ struct ChronirApp: App {
                     let pastDue = models.filter { $0.nextFireDate < now }
 
                     for model in pastDue {
-                        let akAlarm = akAlarms.first { $0.id == model.id }
+                        let akAlarm = AlarmScheduler.activeRegistration(for: model.id, in: akAlarms)
 
                         if akAlarm?.state == .alerting {
                             PendingConfirmationService.shared.autoCompletePending(alarm: model)
@@ -373,9 +398,9 @@ struct ChronirApp: App {
                     coordinator.dismissFiring()
                     return
                 }
-                let stillAlerting = alarms.contains {
-                    $0.id == coordinator.firingAlarmID && $0.state == .alerting
-                }
+                let stillAlerting = coordinator.firingAlarmID.map {
+                    AlarmScheduler.activeRegistration(for: $0, in: alarms)?.state == .alerting
+                } ?? false
                 if !stillAlerting,
                    let firingID = coordinator.firingAlarmID,
                    !coordinator.stoppedForCustomSound.contains(firingID),

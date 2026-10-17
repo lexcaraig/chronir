@@ -58,24 +58,20 @@ final class AlarmScheduler: AlarmScheduling {
             ? AlarmKit.Alarm.CountdownDuration(preAlert: nil, postAlert: 540) // 9-minute snooze
             : nil
 
-        let fireDates = dateCalculator.calculateNextFireDates(for: alarm, from: Date())
-        let ids = alarmIDs(for: alarm)
-
-        for (index, fireDate) in fireDates.enumerated() where index < ids.count {
-            do {
-                _ = try await alarmManager.schedule(
-                    id: ids[index],
-                    configuration: .init(
-                        countdownDuration: snoozeDuration,
-                        schedule: .fixed(fireDate),
-                        attributes: buildAttributes(for: alarm)
-                    )
-                )
-            } catch {
-                AnalyticsService.shared.recordError(error, context: "alarm_schedule")
-                throw error
-            }
+        // Register a horizon of future occurrences, not just the next one.
+        // The app is not launched when an AlarmKit alarm fires, so if iOS has
+        // terminated the process, nothing in-app can schedule the following
+        // occurrence. Pre-registering several keeps alarms firing for weeks
+        // without the app ever being opened.
+        var slots = dateCalculator.upcomingFireDates(
+            for: alarm, from: Date(), count: Self.occurrenceHorizon
+        )
+        if alarm.snoozeCount > 0, !slots.isEmpty {
+            // Snoozed: the primary registration fires at the snooze expiry.
+            slots[0] = [alarm.nextFireDate] + slots[0].dropLast()
         }
+
+        try await register(slots, for: alarm, snoozeDuration: snoozeDuration)
 
         // Schedule pre-alarm and backup notifications if enabled
         if alarm.snoozeCount == 0 {
@@ -90,6 +86,33 @@ final class AlarmScheduler: AlarmScheduling {
         if refreshWidget {
             await WidgetDataService.shared.refresh()
             await LiveActivityService.shared.refreshLiveActivity()
+        }
+    }
+
+    private func register(
+        _ slots: [[Date]], for alarm: Alarm,
+        snoozeDuration: AlarmKit.Alarm.CountdownDuration?
+    ) async throws {
+        var idMap = Self.idMap
+        defer { Self.idMap = idMap }
+        for (slot, fireDates) in slots.enumerated() {
+            for (occurrence, fireDate) in fireDates.enumerated() {
+                let id = Self.registrationID(base: alarm.id, slot: slot, occurrence: occurrence)
+                if id != alarm.id { idMap[id.uuidString] = alarm.id.uuidString }
+                do {
+                    _ = try await alarmManager.schedule(
+                        id: id,
+                        configuration: .init(
+                            countdownDuration: snoozeDuration,
+                            schedule: .fixed(fireDate),
+                            attributes: buildAttributes(for: alarm)
+                        )
+                    )
+                } catch {
+                    AnalyticsService.shared.recordError(error, context: "alarm_schedule")
+                    throw error
+                }
+            }
         }
     }
 
@@ -154,10 +177,13 @@ final class AlarmScheduler: AlarmScheduling {
     }
 
     func cancelAlarm(_ alarm: Alarm) async throws {
-        for id in alarmIDs(for: alarm) {
+        var idMap = Self.idMap
+        for id in Self.registrationIDs(for: alarm) {
             try? AlarmManager.shared.stop(id: id)
             try? AlarmManager.shared.cancel(id: id)
+            idMap.removeValue(forKey: id.uuidString)
         }
+        Self.idMap = idMap
         notificationService.cancelAllPreAlarmNotifications(for: alarm)
         await LiveActivityService.shared.refreshLiveActivity()
     }
@@ -227,16 +253,55 @@ final class AlarmScheduler: AlarmScheduling {
         }
     }
 
-    // MARK: - Multi-time ID Derivation
+    // MARK: - Registration IDs
 
-    private func alarmIDs(for alarm: Alarm) -> [UUID] {
-        let times = alarm.timesOfDay
-        guard times.count > 1 else { return [alarm.id] }
-        return times.indices.map { index in
-            if index == 0 { return alarm.id }
-            var bytes = alarm.id.uuid
-            bytes.15 = UInt8(truncatingIfNeeded: Int(bytes.15) &+ index)
-            return UUID(uuid: bytes)
+    /// Future occurrences registered with AlarmKit per time-of-day slot.
+    static let occurrenceHorizon = 12
+
+    private static let idMapKey = "chronir_alarmkit_id_map"
+
+    /// Derived registration ID → base `Alarm.id`, persisted so AlarmKit events for
+    /// derived registrations can be resolved back to the owning alarm.
+    private static var idMap: [String: String] {
+        get { UserDefaults.standard.dictionary(forKey: idMapKey) as? [String: String] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: idMapKey) }
+    }
+
+    /// Slot 0 / occurrence 0 is `base` itself, so the next fire of the first
+    /// time slot keeps the alarm's own ID.
+    static func registrationID(base: UUID, slot: Int, occurrence: Int) -> UUID {
+        var bytes = base.uuid
+        bytes.14 = UInt8(truncatingIfNeeded: Int(bytes.14) &+ occurrence)
+        bytes.15 = UInt8(truncatingIfNeeded: Int(bytes.15) &+ slot)
+        return UUID(uuid: bytes)
+    }
+
+    /// Every registration ID this alarm could currently hold.
+    static func registrationIDs(for alarm: Alarm) -> [UUID] {
+        (0..<max(1, alarm.timesOfDay.count)).flatMap { slot in
+            (0..<occurrenceHorizon).map { registrationID(base: alarm.id, slot: slot, occurrence: $0) }
+        }
+    }
+
+    /// Resolves an AlarmKit registration ID to the owning `Alarm.id`.
+    static func baseAlarmID(for registrationID: UUID) -> UUID {
+        idMap[registrationID.uuidString].flatMap(UUID.init) ?? registrationID
+    }
+
+    /// The registration currently alerting or in snooze countdown for an alarm, if any.
+    static func activeRegistration(
+        for baseID: UUID, in akAlarms: [AlarmKit.Alarm]
+    ) -> AlarmKit.Alarm? {
+        akAlarms.first {
+            ($0.state == .alerting || $0.state == .countdown) && baseAlarmID(for: $0.id) == baseID
+        }
+    }
+
+    /// Stops whichever registration of this alarm is alerting or counting down.
+    static func stopActiveRegistration(for baseID: UUID) {
+        let akAlarms = (try? AlarmManager.shared.alarms) ?? []
+        if let active = activeRegistration(for: baseID, in: akAlarms) {
+            try? AlarmManager.shared.stop(id: active.id)
         }
     }
 }

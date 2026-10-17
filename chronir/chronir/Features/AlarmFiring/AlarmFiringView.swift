@@ -51,7 +51,7 @@ struct AlarmFiringView: View {
             }
             if viewModel.alarm != nil {
                 let akAlarms = (try? AlarmManager.shared.alarms) ?? []
-                let isAlerting = akAlarms.contains { $0.id == alarmID && $0.state == .alerting }
+                let isAlerting = AlarmScheduler.activeRegistration(for: alarmID, in: akAlarms)?.state == .alerting
                 if isAlerting {
                     // Normal firing — AlarmKit confirms alarm is active
                     isReady = true

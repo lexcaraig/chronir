@@ -31,6 +31,29 @@ struct DateCalculator: Sendable {
         }.sorted()
     }
 
+    /// Upcoming fire dates per time-of-day slot (slots sorted by time), up to `count` per slot
+    /// and no further than `horizon` seconds ahead. Dates within a slot are strictly increasing.
+    func upcomingFireDates(
+        for alarm: Alarm, from date: Date,
+        count: Int, horizon: TimeInterval = 400 * 86_400
+    ) -> [[Date]] {
+        let limit = date.addingTimeInterval(horizon)
+        return alarm.timesOfDay.sorted().map { time in
+            var dates: [Date] = []
+            var cursor = date
+            while dates.count < count {
+                let next = nextFireDateForSchedule(
+                    alarm.schedule, from: cursor,
+                    hour: time.hour, minute: time.minute
+                )
+                guard next > cursor, next < limit else { break }
+                dates.append(next)
+                cursor = next.addingTimeInterval(60)
+            }
+            return dates
+        }
+    }
+
     private func nextFireDateForSchedule(
         _ schedule: Schedule, from date: Date,
         hour: Int, minute: Int

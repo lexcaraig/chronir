@@ -286,7 +286,7 @@ struct AlarmListView: View {
             guard isEnabled, alarm.nextFireDate <= now,
                   !firingCoordinator.isHandled(alarm.id) else { continue }
             // Only present if AlarmKit confirms the alarm is actively alerting
-            let akAlarm = akAlarms.first { $0.id == alarm.id }
+            let akAlarm = AlarmScheduler.activeRegistration(for: alarm.id, in: akAlarms)
             guard akAlarm?.state == .alerting else { continue }
             firingCoordinator.presentAlarm(id: alarm.id)
             break

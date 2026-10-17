@@ -346,6 +346,43 @@ struct DateCalculatorTests {
         #expect(dates[1] < dates[2])
     }
 
+    // MARK: - Upcoming Occurrences (AlarmKit horizon)
+
+    @Test(arguments: [
+        Schedule.weekly(daysOfWeek: [6], interval: 1),
+        Schedule.monthlyDate(daysOfMonth: [31], interval: 1),
+        Schedule.monthlyRelative(weekOfMonth: -1, dayOfWeek: 6, interval: 1),
+        Schedule.customDays(intervalDays: 3, startDate: Date(timeIntervalSince1970: 1_770_000_000)),
+        Schedule.annual(month: 2, dayOfMonth: 29, interval: 1)
+    ])
+    func upcomingFireDatesAreStrictlyIncreasing(schedule: Schedule) {
+        let from = date(2026, 2, 4, 10, 0)
+        let alarm = makeAlarm(schedule: schedule, hour: 9, minute: 0)
+        let slots = calculator.upcomingFireDates(for: alarm, from: from, count: 12)
+        #expect(slots.count == 1)
+        let dates = slots[0]
+        #expect(dates.count >= 2) // annual is capped by the 400-day horizon
+        #expect(dates[0] == calculator.calculateNextFireDate(for: alarm, from: from))
+        for pair in zip(dates, dates.dropFirst()) {
+            #expect(pair.0 < pair.1)
+        }
+    }
+
+    @Test func upcomingFireDatesWeeklyCoversTwelveWeeks() {
+        let from = date(2026, 2, 4, 10, 0)
+        let alarm = makeAlarm(schedule: .weekly(daysOfWeek: [6], interval: 1), hour: 9, minute: 0)
+        let dates = calculator.upcomingFireDates(for: alarm, from: from, count: 12)[0]
+        #expect(dates.count == 12)
+        #expect(dates.last! > from.addingTimeInterval(11 * 7 * 86_400))
+    }
+
+    @Test func upcomingFireDatesOneTimeHasSingleOccurrence() {
+        let from = date(2026, 2, 4, 10, 0)
+        let alarm = makeAlarm(schedule: .oneTime(fireDate: date(2026, 3, 1)), hour: 9, minute: 0)
+        let dates = calculator.upcomingFireDates(for: alarm, from: from, count: 12)[0]
+        #expect(dates.count == 1)
+    }
+
     @Test func singleTimeBackwardCompat() {
         // Single-time alarm should produce same result as before
         let from = date(2026, 2, 4, 10, 0) // Wednesday
