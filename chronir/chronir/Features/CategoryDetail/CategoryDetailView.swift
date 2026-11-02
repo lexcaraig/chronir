@@ -176,10 +176,13 @@ struct CategoryDetailView: View {
     }
 
     private func deleteAlarm(_ alarm: Alarm) {
+        let alarmID = alarm.id.uuidString
         Task {
             try? await AlarmScheduler.shared.cancelAlarm(alarm)
         }
         modelContext.delete(alarm)
+        try? modelContext.save()
+        Task { try? await CloudSyncService.shared.deleteRemoteAlarm(id: alarmID) }
     }
 }
 

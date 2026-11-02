@@ -54,6 +54,15 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
         }
     }
 
+    /// IDs of alarms deleted locally but not yet confirmed deleted from Firestore.
+    /// Persisted so they survive app kills between delete and next sync.
+    private static let pendingDeletionsKey = "chronir_pending_remote_deletions"
+
+    private var pendingDeletions: [String] {
+        get { UserDefaults.standard.stringArray(forKey: Self.pendingDeletionsKey) ?? [] }
+        set { UserDefaults.standard.set(newValue, forKey: Self.pendingDeletionsKey) }
+    }
+
     // MARK: - Full Sync
 
     func syncAlarms() async throws {
@@ -85,18 +94,32 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
                 try await batch.commit()
             }
 
-            // 2. Pull all remote alarms
-            let remotePayloads = try await fetchRemoteAlarms(uid: uid)
-            let localIDs = Set(localAlarms.map { $0.id.uuidString })
+            // 2. Flush pending remote deletions that didn't complete before the last app kill.
+            // An ID stays pending until its delete succeeds so a failed/offline delete
+            // can never let step 4 restore the alarm.
+            for deletedID in pendingDeletions {
+                let docRef = db.collection("users").document(uid)
+                    .collection("alarms").document(deletedID)
+                do {
+                    try await docRef.delete()
+                    pendingDeletions.removeAll { $0 == deletedID }
+                } catch {
+                    AnalyticsService.shared.recordError(error, context: "sync_flush_delete")
+                }
+            }
 
-            // 3. Insert remote-only alarms locally (cloud restore)
-            for payload in remotePayloads where !localIDs.contains(payload.id) {
+            // 3. Pull all remote alarms
+            let remotePayloads = try await fetchRemoteAlarms(uid: uid)
+            let skipIDs = Set(localAlarms.map { $0.id.uuidString }).union(pendingDeletions)
+
+            // 4. Insert remote-only alarms locally (cloud restore)
+            for payload in remotePayloads where !skipIDs.contains(payload.id) {
                 if let alarm = payload.toAlarm() {
                     context.insert(alarm)
                 }
             }
 
-            // 4. Mark all local alarms as synced
+            // 5. Mark all local alarms as synced
             for alarm in localAlarms {
                 alarm.syncStatus = .synced
             }
@@ -155,6 +178,10 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
     // MARK: - Delete Remote Alarm
 
     func deleteRemoteAlarm(id: String) async throws {
+        // Track before the delete so sync can't restore this alarm if the remote
+        // delete fails or the app is killed before it completes.
+        if !pendingDeletions.contains(id) { pendingDeletions.append(id) }
+
         await ensureSubscriptionStatusChecked()
         guard let uid = currentUID else { return }
         guard isPlusTier else { return }
@@ -162,6 +189,8 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
         let docRef = db.collection("users").document(uid)
             .collection("alarms").document(id)
         try await docRef.delete()
+
+        pendingDeletions.removeAll { $0 == id }
     }
 
     // MARK: - Fetch Remote Alarms
@@ -247,6 +276,7 @@ final class CloudSyncService: CloudSyncServiceProtocol, @unchecked Sendable {
         syncState = .idle
         lastSyncDate = nil
         UserDefaults.standard.removeObject(forKey: "chronir_last_sync")
+        UserDefaults.standard.removeObject(forKey: Self.pendingDeletionsKey)
     }
 
     // MARK: - Private
