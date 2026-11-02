@@ -303,39 +303,124 @@ See `tickets/README.md` for full documentation.
 
 ### Slash Commands
 
-| Command              | Usage                                             | Purpose                                                                                                        |
-| -------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `/implement-task`    | `/implement-task TIER-01`                         | Main orchestrator. Reads ticket, moves to in-progress, implements, tests, reviews, commits, moves to untested. |
-| `/sprint-kickoff`    | `/sprint-kickoff 4`                               | Initialize a sprint: read roadmap, create branch, build task list, run baseline builds.                        |
-| `/phase-qa-gate`     | `/phase-qa-gate 1`                                | Quality gate: lint, test, build, security review, QA plan cross-reference. Generates pass/fail report.         |
-| `/implement-ios`     | `/implement-ios Add ChronirButton atom`           | iOS-focused workflow: implement in SwiftUI, lint, test, review.                                                |
-| `/implement-android` | `/implement-android Add ChronirButton composable` | Android-focused workflow: implement in Compose, lint, test, review.                                            |
-| `/sync-tokens`       | `/sync-tokens`                                    | Rebuild design tokens and copy to both platforms.                                                              |
-| `/build-all`         | `/build-all`                                      | Full quality verification (format, lint, test, build) across all platforms.                                    |
-| `/fix-tests`         | `/fix-tests ios`                                  | Run tests, diagnose failures, fix them, loop until green. Accepts optional platform arg.                       |
-| `/pre-submit-audit`  | `/pre-submit-audit`                               | App Store Review compliance audit: crash stubs, non-functional UI, feature accuracy, debug visibility.         |
-| `/design-audit`      | `/design-audit ios`                               | Token compliance, component naming, atomic hierarchy, dark mode. Report-only, no auto-fixes.                   |
-| `/design-review`     | `/design-review AlarmList`                        | Full design pipeline: audit + Impeccable critique → normalize → polish. Gates on user approval before fixes.   |
-| `/release`           | `/release 1.1 ios`                                | End-to-end release: version bump, quality gates, store metadata, docs, git tag, checklist.                     |
-| `/update-docs`       | `/update-docs Completed Sprint Siri+OneTime`      | Updates docs/, CLAUDE.md, and README.md to reflect completed work (changelog, roadmap, specs, etc.).           |
+All commands live in `.claude/commands/`; heuristics in `.claude/skills/<name>/SKILL.md`. Run `/status` to see where you are.
+
+**Core workflow**
+
+| Command | Purpose |
+| --- | --- |
+| `/implement-task` | Main orchestrator — pick up a Chronir ticket, plan, implement (iOS/Android), test, review, simplify, commit, and… |
+| `/implement-ios` | iOS-focused workflow — implement a feature in SwiftUI following Chronir conventions, then lint, test, review, simplify. |
+| `/implement-android` | Android-focused workflow — implement a feature in Jetpack Compose following Chronir conventions, then lint, test… |
+| `/sprint-kickoff` | Initialize a sprint — read the sprint file or roadmap, create the sprint branch from develop, build the task list… |
+| `/phase-qa-gate` | Phase quality gate — lint, tests, release builds, security review, simplify audit, QA-plan cross-reference; moves… |
+| `/create-ticket` | Turn a raw ask into a buildable Chronir ticket (TIER/LAUNCH/QA/FEAT/ANDROID/PREMIUM/BUG/INFRA) with Goal, acceptance… |
+| `/test-ticket` | QA-verify an untested Chronir ticket — gate, acceptance criteria, on-device drive (iOS "lexpresswayyy" / Android… |
+| `/clarify` | Pre-code clarification ritual for M+ tickets. Surfaces assumptions (data shape, tier gating, migration, alarm-engine… |
+| `/plan-feature` | Plan a feature with the architect agent — scan both codebases, design per-platform file changes, alarm-engine and… |
+| `/council` | Convene a multi-lens scoping council (iOS, Android, alarm engine, data/sync, design system, tier, QA) over a feature… |
+| `/create-prd` | Create a Product Requirements Document for a Chronir feature (both platforms, tier placement, alarm-engine and data… |
+| `/scaffold-feature` | Scaffold a new feature on iOS (Features/{Name}) and/or Android (feature/{name} module) following Chronir's MVVM +… |
+| `/status` | Show the active ticket, sprint progress from tickets/ counts, release state, recent lessons, and a suggested next… |
+
+**Quality gates**
+
+| Command | Purpose |
+| --- | --- |
+| `/build-all` | Full quality gate across all Chronir build systems — design tokens, iOS (swiftlint + xcodebuild test), Android… |
+| `/check-all` | Full pre-push verification — tokens, then iOS + Android gates in parallel, then the serial post-barrier gates… |
+| `/lint` | Run swiftlint (iOS) and ktlintCheck (Android), auto-format first, and fix every remaining warning. |
+| `/test` | Run the iOS (xcodebuild test) and Android (gradle test) unit suites and report results; device drives are a separate… |
+| `/fix-tests` | Run the iOS and/or Android test suites, diagnose failures from the real artifacts, fix the cause (never the… |
+| `/simplify` | Review recently changed Swift/Kotlin code for reuse, clarity and scope creep, fix what matters, and write the… |
+| `/security-review` | Diff-scoped security review (auth, Firestore rules/sync, StoreKit/Play Billing gating, Keychain, secrets, local… |
+| `/optimize-review` | Diff-scoped performance review (alarm scheduling loops, SwiftData/Room queries, main-thread work, list rendering… |
+| `/precommit-review` | Run all three pre-commit review gates in one pass — simplify + security-review + optimize-review — and write all… |
+| `/review` | Review the current diff with the code-reviewer agent against the active ticket's acceptance criteria, Chronir… |
+| `/preflight` | Pre-submit preflight — swiftlint --strict, crash-risk and debug-print greps, placeholder/stub scan, and the… |
+| `/pre-submit-audit` | App Store Review compliance audit — crash stubs, non-functional UI, paywall accuracy, debug visibility, permissions… |
+
+**Audits**
+
+| Command | Purpose |
+| --- | --- |
+| `/audit-all` | Run the 4 core audits in parallel (journeys, security, performance, tier-gating) via the audit-full workflow in core… |
+| `/audit-full` | Run the FULL audit across every domain (journeys, security, performance, tier-gating, accessibility, dependencies… |
+| `/audit-journeys` | Full user-journey audit with the journey-auditor agent — verify every story in docs/user-stories-and-backlogs.md and… |
+| `/audit-security` | Full security audit with the security-auditor agent — Firebase Auth + Firestore rules, tier/entitlement enforcement… |
+| `/audit-performance` | Full-codebase performance audit with the performance-auditor agent — alarm scheduling cost, SwiftData/Room queries… |
+| `/audit-tier-gating` | Tier-gating audit — code + unit-test based check that Free (3 alarms, local-only) and Plus features are gated via… |
+| `/audit-accessibility` | Full accessibility audit with the accessibility-auditor agent — VoiceOver/TalkBack labels, Dynamic Type/font… |
+| `/audit-dependencies` | Full dependency and modernness audit with the dependency-auditor agent — SPM packages, Gradle version catalog… |
+| `/audit-code-quality` | Full code-quality audit with the code-quality-auditor agent — convention adherence (CLAUDE.md, MVVM, Chronir*… |
+| `/audit-animations` | Audit Chronir's motion posture (SwiftUI + Compose) against the motion-skill standards — ad-hoc values… |
+| `/audit-methodology` | Print the audit methodology reference card — what each /audit-* checks, who owns it, severity rubric, the lesson… |
+| `/adversarial-verify` | Adversarially verify a plan, ticket, doc, or diff with parallel lens attackers and an evidence-checked verifier… |
+
+**Design**
+
+| Command | Purpose |
+| --- | --- |
+| `/design-audit` | Design-system compliance audit (tokens, Chronir naming, atomic hierarchy, dark mode) for iOS and/or Android.… |
+| `/design-review` | Full design pipeline — Chronir token audit + Impeccable critique → user approval → normalize → polish → re-audit. |
+| `/design-mockup` | Generate or iterate the claude.ai/design mockup for a council-scoped ticket's Design section so the screen is… |
+| `/sync-tokens` | Rebuild design tokens with Style Dictionary and copy the generated Swift/Kotlin files to both platforms, then verify… |
+
+**Release & ops**
+
+| Command | Purpose |
+| --- | --- |
+| `/release` | End-to-end Chronir release — version bump, gates, pre-submit audit, store metadata, docs, tag, archive + upload, asc… |
+| `/deploy` | Deploy Firestore security rules to the cyclealarm-app Firebase project (the only deployable backend surface), with… |
+| `/qa` | QA orchestration for Chronir — use-case inventory from docs/qa-plan.md, test matrix (persona × tier × platform)… |
+| `/update-docs` | Update docs/, CLAUDE.md and README.md after completed work — CHANGELOG always, then a parallel fan-out over… |
+| `/housekeeping` | Scan the repo for drift and stale artifacts — git hygiene, ticket folder/status mismatches, sprint links, orphan… |
+| `/learn-from-mistake` | Capture a lesson from a mistake or multi-attempt fix — root cause, prevention rule — into tasks/lessons.md… |
+| `/optimize-claude-setup` | Audit .claude/ (commands, skills, agents, workflows, hooks, routines), CLAUDE.md and auto-memory against… |
+| `/sessions` | Multi-terminal session blackboard - view peers, update your status/note, clean stale files, or suggest… |
+| `/say` | Post a message to the shared session chat channel (delivered to other terminals on their next turn) |
 
 ### Custom Agents
 
-| Agent                     | Specialty                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------ |
-| `ios-developer`           | SwiftUI, AlarmKit, SwiftData, SPM, iOS 26 APIs                                       |
-| `android-developer`       | Jetpack Compose, AlarmManager, Room, Hilt, Gradle                                    |
-| `alarm-engine-specialist` | Alarm scheduling reliability, DateCalculator, edge cases (DST, leap year, month-end) |
-| `firebase-architect`      | Auth, Firestore rules, cloud sync, conflict resolution, FCM                          |
-| `design-system-builder`   | Atomic Design, Style Dictionary, Chronir-prefixed components, tokens                 |
-| `qa-engineer`             | Platform-specific test strategies, QA plan test IDs, persona tests, accessibility    |
+Defined in `.claude/agents/`; see `.claude/agents/README.md` for who spawns what. Worker agents (ios-developer, android-developer, alarm-engine-specialist, firebase-architect, design-system-builder) are read-and-inject: load the file into the prompt of a general-purpose agent.
+
+| Agent | Specialty |
+| --- | --- |
+| `accessibility-auditor` | Accessibility auditor for Chronir — verifies the SwiftUI and Jetpack Compose apps meet WCAG 2.1 AA equivalents for… |
+| `alarm-engine-specialist` | Alarm scheduling reliability specialist for Chronir — AlarmKit (iOS 26) + AlarmManager.setAlarmClock() (Android)… |
+| `android-developer` | Android developer for Chronir — Jetpack Compose + Material 3, Kotlin 2 coroutines/Flow, Hilt, Room (contiguous… |
+| `animation-auditor` | Motion/animation posture auditor for Chronir — holds every animated surface (SwiftUI… |
+| `architect` | System architect for Chronir — designs data models (SwiftData + Room mirrored), Firestore collections/rules… |
+| `code-quality-auditor` | Code quality auditor for Chronir — verifies convention adherence vs CLAUDE.md, .claude/rules/*, and… |
+| `code-reviewer` | Chronir code review — correctness, alarm-reliability, concurrency, SwiftData/Room schema safety, tier gating… |
+| `code-simplifier` | Simplifies recently-changed Chronir code (Swift/SwiftUI, Kotlin/Compose, token JSON) for clarity, consistency, and… |
+| `dependency-auditor` | Dependency and modernness auditor for Chronir — checks the three dependency trees (iOS SPM Package.resolved, Android… |
+| `design-system-builder` | Design-system and token specialist for Chronir — the Style Dictionary v5 pipeline in design-tokens/ (Primitive →… |
+| `device-qa-driver` | On-device acceptance-QA driver for Chronir — drives a real installed build like a real user on the iOS physical… |
+| `firebase-architect` | Firebase specialist for Chronir — Auth (anonymous → Apple/Google), Firestore schema per docs/data-schema.md… |
+| `incident-investigator` | Production incident triage for Chronir. Gathers device-side evidence (Crashlytics, Xcode Console.app / `log stream`… |
+| `ios-developer` | iOS developer for Chronir — SwiftUI, Swift 6 strict concurrency, AlarmKit (iOS 26) with UNNotification fallback… |
+| `journey-auditor` | User journey auditor for Chronir — verifies the implementation faithfully covers every user story in… |
+| `optimizer` | Diff-scoped performance/cost optimizer for Chronir. Reviews ONLY the staged/changed diff for the perf anti-patterns… |
+| `performance-auditor` | Full-codebase performance auditor for Chronir — cold/warm start, alarm-list scroll at 60 items, SwiftUI/Compose… |
+| `qa-engineer` | QA engineer for Chronir — test design + execution across iOS (XCTest/Swift Testing) and Android… |
+| `release-shipper` | Release-pipeline specialist for Chronir — iOS App Store via xcodebuild archive → export/upload → asc release stage →… |
+| `security-auditor` | Security auditor for Chronir — Firebase Auth state + Firestore rules vs docs/technical-spec.md § 6.4, tier gating… |
+| `security-reviewer` | Diff-scoped Chronir security reviewer backing the /security-review and /precommit-review commit gate. Reviews ONLY… |
+| `tier-gating-auditor` | Tier-gating auditor for Chronir — verifies every Free/Plus gate (3-alarm limit, photos, custom snooze, pre-alarm… |
+
+### Hooks, Rules, Workflows
+
+- **Hooks** (`.claude/hooks/`, wired in `.claude/settings.json`): commit gates (format → simplify → security → optimize → secrets), push gate (tests-before-push), ticket gates (untested/completion), design-token and Chronir*-naming nudges, silent-success guard. Bypass vars are `CHRONIR_<GATE>_BYPASS=1`; see `.claude/ARCHITECTURE.md`.
+- **Rules** (`.claude/rules/`): the enforceable registry (alarm-engine, ios, android, firebase, design, components, security, testing, release, workflow).
+- **Workflows** (`.claude/workflows/`): multi-agent scripts behind `/check-all`, `/preflight`, `/audit-full`, `/council`, `/adversarial-verify`, `/update-docs`, and the post-implement review.
 
 ### Plugins
 
-| Plugin            | Purpose                                                                                                                                                                                                                                                                             |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `code-simplifier` | Runs automatically after ANY code changes, regardless of the task or workflow. Simplifies code for clarity and maintainability while preserving functionality. Must be invoked proactively after writing or modifying code — not just during `/implement-task` or `/phase-qa-gate`. |
-| `impeccable`      | Frontend design quality toolkit. 17 commands (`/normalize`, `/polish`, `/critique`, `/audit`, `/simplify`, `/harden`, `/extract`, etc.) for UX/UI review and fixes. Powers the fix/polish phases of `/design-review`. Use `frontend-design` skill for anti-patterns reference.      |
+| Plugin            | Purpose                                                                                                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `code-simplifier` | Runs after ANY code change via `/simplify`; the simplify commit gate requires its stamp (`tasks/.last-simplify-findings.json`).                |
+| `impeccable`      | Frontend design quality toolkit (`/normalize`, `/polish`, `/critique`, `/audit`, `/harden`, …). Powers the fix/polish phases of `/design-review`. |
 
 ### Typical Sprint Flow
 

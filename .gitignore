@@ -76,3 +76,11 @@ tasks/
 build/
 *.log
 *.tmp
+
+# Claude Code runtime state
+.asc/
+.sessions/
+
+# Claude Code local setup
+.claude/
+.claude-bak/
