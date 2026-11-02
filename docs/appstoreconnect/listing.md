@@ -1,6 +1,6 @@
 # Chronir — App Store Connect Listing
 
-**Last Updated:** October 17, 2026
+**Last Updated:** November 2, 2026
 
 ---
 
@@ -37,7 +37,7 @@
 
 ---
 
-## Version 1.2.3 — Metadata
+## Version 1.2.4 — Metadata
 
 ### Promotional Text
 
@@ -102,7 +102,7 @@ https://chronir.app
 ### Version
 
 ```
-1.2.3
+1.2.4
 ```
 
 ### Copyright
