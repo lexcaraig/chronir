@@ -4,7 +4,7 @@
 **Category:** Feature
 **Effort:** Low (0.5 day)
 **Platform:** iOS
-**Status:** In Progress
+**Status:** Untested
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 
 ---
