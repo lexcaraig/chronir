@@ -256,7 +256,9 @@ class AlarmCreationViewModel
                     val alarmWithFireDate = alarm.copy(nextFireDate = nextFireDate)
 
                     alarmRepository.saveAlarm(alarmWithFireDate)
-                    alarmScheduler.schedule(alarmWithFireDate)
+                    // The alarm is saved at this point: a scheduling failure must not keep the screen open,
+                    // or every retry tap saves a duplicate (BUG-04). Reschedule/boot paths register it later.
+                    runCatching { alarmScheduler.schedule(alarmWithFireDate) }
 
                     _uiState.update { it.copy(isSaving = false, saveSuccess = true) }
                 } catch (e: Exception) {
