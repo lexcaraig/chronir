@@ -35,8 +35,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -246,6 +249,9 @@ private fun ChronirNavigation(
                 ) {
                     screens.forEachIndexed { index, screen ->
                         if (index == 1) {
+                            val createAlarm = {
+                                navController.navigate(if (canCreateAlarm) ROUTE_ALARM_CREATION else ROUTE_PAYWALL)
+                            }
                             NavigationBarItem(
                                 icon = { Icon(imageVector = Icons.Filled.Add, contentDescription = null) },
                                 label = { Text("New") },
@@ -254,10 +260,16 @@ private fun ChronirNavigation(
                                     unselectedIconColor = MaterialTheme.colorScheme.primary,
                                     unselectedTextColor = MaterialTheme.colorScheme.primary
                                 ),
-                                modifier = Modifier.semantics { contentDescription = "Create alarm" },
-                                onClick = {
-                                    navController.navigate(if (canCreateAlarm) ROUTE_ALARM_CREATION else ROUTE_PAYWALL)
-                                }
+                                // A create action, not a destination: announce it as a button, never as a tab.
+                                modifier = Modifier.clearAndSetSemantics {
+                                    contentDescription = "Create alarm"
+                                    role = Role.Button
+                                    onClick {
+                                        createAlarm()
+                                        true
+                                    }
+                                },
+                                onClick = createAlarm
                             )
                         }
                         val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true

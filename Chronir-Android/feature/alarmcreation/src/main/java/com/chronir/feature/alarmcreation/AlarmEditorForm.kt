@@ -109,6 +109,7 @@ fun AlarmEditorForm(
     // null = closed; -1 = main time; -2 = new additional time; >= 0 = edit that additional time
     var timePickerTarget by rememberSaveable { mutableStateOf<Int?>(null) }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
 
     Column(
         modifier = modifier,
@@ -135,7 +136,7 @@ fun AlarmEditorForm(
         when (form.cycleType) {
             CycleType.ONE_TIME -> TimePickerField(
                 label = "Date",
-                timeText = form.oneTimeDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)),
+                timeText = form.oneTimeDate.format(dateFormatter),
                 onClick = { showDatePicker = true }
             )
             CycleType.WEEKLY -> DayOfWeekPicker(
@@ -554,7 +555,7 @@ private fun RepeatIntervalStepper(
                 onClick = { onIntervalChanged(interval - 1) },
                 enabled = interval > 1
             ) {
-                Icon(Icons.Filled.Remove, contentDescription = "Repeat less often")
+                Icon(Icons.Filled.Remove, contentDescription = "Decrease interval")
             }
             ChronirText(
                 text = "$interval $unitLabel",
@@ -570,7 +571,7 @@ private fun RepeatIntervalStepper(
                 onClick = { onIntervalChanged(interval + 1) },
                 enabled = interval < AlarmFormState.MAX_REPEAT_INTERVAL
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Repeat more often")
+                Icon(Icons.Filled.Add, contentDescription = "Increase interval")
             }
         }
     }

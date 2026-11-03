@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
@@ -51,9 +52,10 @@ import java.time.LocalTime
 /**
  * Full-screen firing UI. Always dark (ColorTokens.Firing*), independent of the app theme.
  *
- * Layout: the alarm details scroll in the upper area while the action zone (snooze + Dismiss) is
- * pinned to the bottom, so at 200% font the primary action can never be pushed off-screen. The time
- * shrinks to stay on one line.
+ * Layout: when everything fits, the alarm details are centered above an action zone (snooze +
+ * Dismiss) that sits at the bottom of the screen. When it doesn't (200% font in landscape or
+ * split-screen), the whole screen scrolls as one, so Dismiss and Skip stay reachable instead of being
+ * clipped. The time shrinks to stay on one line.
  */
 @Composable
 fun AlarmFiringView(
@@ -67,114 +69,143 @@ fun AlarmFiringView(
 ) {
     val timeFormatter = rememberTimeFormatter()
 
-    Column(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .background(ColorTokens.FiringBackground)
             .safeDrawingPadding()
     ) {
+        // At least screen-tall, so SpaceBetween pins the actions to the bottom when content fits; the
+        // empty first child makes the gaps above and below the details equal, centering them.
         Column(
             modifier = Modifier
-                .weight(1f)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = SpacingTokens.Large, vertical = SpacingTokens.XLarge),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .heightIn(min = maxHeight),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            ChronirText(
-                text = alarm.title,
-                style = ChronirTextStyle.HeadlineLarge,
-                color = ColorTokens.FiringTextPrimary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.semantics { heading() }
+            Spacer(Modifier)
+            FiringDetails(alarm = alarm, timeText = alarm.timeOfDay.format(timeFormatter), snoozeCount = snoozeCount)
+            FiringActions(
+                isPersistent = alarm.isPersistent,
+                onDismiss = onDismiss,
+                onSnooze = onSnooze,
+                onCustomSnooze = onCustomSnooze,
+                onSkip = onSkip
             )
+        }
+    }
+}
 
-            Spacer(Modifier.height(SpacingTokens.Small))
+@Composable
+private fun FiringDetails(alarm: Alarm, timeText: String, snoozeCount: Int) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = SpacingTokens.Large, vertical = SpacingTokens.XLarge),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ChronirText(
+            text = alarm.title,
+            style = ChronirTextStyle.HeadlineLarge,
+            color = ColorTokens.FiringTextPrimary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.semantics { heading() }
+        )
 
-            SingleLineAutoSizeText(
-                text = alarm.timeOfDay.format(timeFormatter),
-                style = TypographyTokens.DisplayAlarm,
-                color = ColorTokens.FiringTextPrimary
-            )
+        Spacer(Modifier.height(SpacingTokens.Small))
 
+        SingleLineAutoSizeText(
+            text = timeText,
+            style = TypographyTokens.DisplayAlarm,
+            color = ColorTokens.FiringTextPrimary
+        )
+
+        Spacer(Modifier.height(SpacingTokens.Medium))
+
+        ChronirBadge(
+            label = cycleTypeLabel(alarm.cycleType),
+            containerColor = cycleTypeBadgeBackground(alarm.cycleType),
+            contentColor = cycleTypeBadgeForeground(alarm.cycleType)
+        )
+
+        if (alarm.note.isNotEmpty()) {
             Spacer(Modifier.height(SpacingTokens.Medium))
-
-            ChronirBadge(
-                label = cycleTypeLabel(alarm.cycleType),
-                containerColor = cycleTypeBadgeBackground(alarm.cycleType),
-                contentColor = cycleTypeBadgeForeground(alarm.cycleType)
+            ChronirText(
+                text = alarm.note,
+                style = ChronirTextStyle.BodySecondary,
+                color = ColorTokens.FiringTextSecondary,
+                textAlign = TextAlign.Center
             )
+        }
 
-            if (alarm.note.isNotEmpty()) {
-                Spacer(Modifier.height(SpacingTokens.Medium))
-                ChronirText(
-                    text = alarm.note,
-                    style = ChronirTextStyle.BodySecondary,
-                    color = ColorTokens.FiringTextSecondary,
-                    textAlign = TextAlign.Center
-                )
-            }
+        if (snoozeCount > 0) {
+            Spacer(Modifier.height(SpacingTokens.Small))
+            ChronirText(
+                text = "Snoozed $snoozeCount time${if (snoozeCount == 1) "" else "s"}",
+                style = ChronirTextStyle.BodySecondary,
+                color = ColorTokens.FiringWarning
+            )
+        }
+    }
+}
 
-            if (snoozeCount > 0) {
-                Spacer(Modifier.height(SpacingTokens.Small))
-                ChronirText(
-                    text = "Snoozed $snoozeCount time${if (snoozeCount == 1) "" else "s"}",
-                    style = ChronirTextStyle.BodySecondary,
-                    color = ColorTokens.FiringWarning
+@Composable
+private fun FiringActions(
+    isPersistent: Boolean,
+    onDismiss: () -> Unit,
+    onSnooze: (SnoozeInterval) -> Unit,
+    onCustomSnooze: (() -> Unit)?,
+    onSkip: (() -> Unit)?
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = SpacingTokens.Large, end = SpacingTokens.Large, bottom = SpacingTokens.Large),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        SnoozeOptionBar(
+            onSnooze = onSnooze,
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = ColorTokens.FiringControlFill,
+            contentColor = ColorTokens.FiringOnControl
+        )
+
+        if (onCustomSnooze != null) {
+            FiringTextAction(text = "Custom snooze", onClick = onCustomSnooze)
+        }
+
+        Spacer(Modifier.height(SpacingTokens.Medium))
+
+        if (isPersistent) {
+            HoldToCompleteButton(
+                onComplete = onDismiss,
+                label = "Hold to Dismiss",
+                accessibilityActionLabel = "Dismiss alarm",
+                progressColor = ColorTokens.FiringControlProgress,
+                trackColor = ColorTokens.FiringControlFill,
+                contentColor = ColorTokens.FiringTextPrimary
+            )
+        } else {
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = SpacingTokens.FiringButtonZone),
+                shape = RoundedCornerShape(RadiusTokens.Lg),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = ColorTokens.FiringPrimaryFill,
+                    contentColor = ColorTokens.FiringOnPrimary
                 )
+            ) {
+                ChronirText(text = "Dismiss", style = ChronirTextStyle.TitleMedium)
             }
         }
 
-        // Pinned action zone: always on screen, whatever the font scale.
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = SpacingTokens.Large, end = SpacingTokens.Large, bottom = SpacingTokens.Large),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            SnoozeOptionBar(
-                onSnooze = onSnooze,
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = ColorTokens.FiringControlFill,
-                contentColor = ColorTokens.FiringOnControl
-            )
-
-            if (onCustomSnooze != null) {
-                FiringTextAction(text = "Custom snooze", onClick = onCustomSnooze)
-            }
-
-            Spacer(Modifier.height(SpacingTokens.Medium))
-
-            if (alarm.isPersistent) {
-                HoldToCompleteButton(
-                    onComplete = onDismiss,
-                    label = "Hold to Dismiss",
-                    accessibilityActionLabel = "Dismiss alarm",
-                    progressColor = ColorTokens.FiringControlProgress,
-                    trackColor = ColorTokens.FiringControlFill,
-                    contentColor = ColorTokens.FiringTextPrimary
-                )
-            } else {
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = SpacingTokens.FiringButtonZone),
-                    shape = RoundedCornerShape(RadiusTokens.Lg),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ColorTokens.FiringPrimaryFill,
-                        contentColor = ColorTokens.FiringOnPrimary
-                    )
-                ) {
-                    ChronirText(text = "Dismiss", style = ChronirTextStyle.TitleMedium)
-                }
-            }
-
-            if (onSkip != null) {
-                Spacer(Modifier.height(SpacingTokens.XSmall))
-                FiringTextAction(text = "Skip this occurrence", onClick = onSkip)
-            }
+        if (onSkip != null) {
+            Spacer(Modifier.height(SpacingTokens.XSmall))
+            FiringTextAction(text = "Skip this occurrence", onClick = onSkip)
         }
     }
 }
@@ -263,6 +294,21 @@ private fun AlarmFiringViewSnoozedPreview() {
             onDismiss = {},
             onSnooze = {},
             snoozeCount = 2
+        )
+    }
+}
+
+/** Overflow case: 2x font in a short landscape window, where the whole screen must scroll. */
+@Preview(name = "Landscape 2x font", widthDp = 800, heightDp = 360, fontScale = 2f)
+@Composable
+private fun AlarmFiringViewLandscapeLargeFontPreview() {
+    ChronirTheme(dynamicColor = false) {
+        AlarmFiringView(
+            alarm = sampleAlarm,
+            onDismiss = {},
+            onSnooze = {},
+            onCustomSnooze = {},
+            onSkip = {}
         )
     }
 }

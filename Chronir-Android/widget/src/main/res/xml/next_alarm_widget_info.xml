@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Sizes: n cells = 70n - 30 dp. Default 3x1; resizable down to 2x1 (Glance compact bucket, no header)
-  and up freely. Must match WidgetCompactSize / WidgetRegularSize in WidgetComponents.kt.
+  Sizes: n cells = 70n - 30 dp. Default 3x1; resizable down to 2 cells wide (Glance compact bucket,
+  no header) and up freely. minHeight is 64dp, not the 40dp 1-cell floor: the compact row needs a 48dp
+  Mark Done target plus 8dp frame padding top and bottom, so launchers whose rows are shorter than
+  that round the widget up to 2 cells instead of clipping it. Must match WidgetCompactSize /
+  WidgetRegularSize in WidgetComponents.kt.
 -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/widget_next_alarm_description"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:previewLayout="@layout/widget_next_alarm_preview"
     android:minWidth="180dp"
-    android:minHeight="40dp"
+    android:minHeight="64dp"
     android:minResizeWidth="110dp"
-    android:minResizeHeight="40dp"
+    android:minResizeHeight="64dp"
     android:targetCellWidth="3"
     android:targetCellHeight="1"
     android:resizeMode="horizontal|vertical"

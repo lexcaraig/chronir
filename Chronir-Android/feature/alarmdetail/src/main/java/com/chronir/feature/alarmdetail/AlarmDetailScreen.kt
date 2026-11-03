@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -135,6 +137,9 @@ fun AlarmDetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    // Edge-to-edge: inner padding already covers the nav bar, so pad only the keyboard's remainder.
+                    .consumeWindowInsets(innerPadding)
+                    .imePadding()
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = SpacingTokens.Default),
                 header = {

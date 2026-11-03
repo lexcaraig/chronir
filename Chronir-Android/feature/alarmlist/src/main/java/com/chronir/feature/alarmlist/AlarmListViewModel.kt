@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,9 +38,13 @@ class AlarmListViewModel
             const val FREE_TIER_ALARM_LIMIT = 3
         }
 
+        // One Room observer shared by every list below.
+        private val alarms = alarmRepository.observeAlarms()
+            .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
+
         /** Free tier can add an alarm only while under the limit; checked before the form opens. */
         val canCreateAlarm: StateFlow<Boolean> = combine(
-            alarmRepository.observeAlarms(),
+            alarms,
             billingService.subscriptionState
         ) { alarms, subscription ->
             subscription.tier != SubscriptionTier.FREE || alarms.size < FREE_TIER_ALARM_LIMIT
@@ -53,7 +58,7 @@ class AlarmListViewModel
         val selectedCategory: StateFlow<AlarmCategory?> = _selectedCategory
 
         val activeAlarms: StateFlow<List<Alarm>> = combine(
-            alarmRepository.observeAlarms(),
+            alarms,
             _selectedCategory
         ) { allAlarms, category ->
             val filtered = if (category == null) allAlarms
@@ -69,7 +74,7 @@ class AlarmListViewModel
         )
 
         val archivedAlarms: StateFlow<List<Alarm>> = combine(
-            alarmRepository.observeAlarms(),
+            alarms,
             _selectedCategory
         ) { allAlarms, category ->
             val filtered = if (category == null) allAlarms

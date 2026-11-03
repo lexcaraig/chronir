@@ -1,6 +1,8 @@
 package com.chronir.feature.alarmcreation
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -83,6 +85,9 @@ fun AlarmCreationScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                // Edge-to-edge: inner padding already covers the nav bar, so pad only the keyboard's remainder.
+                .consumeWindowInsets(innerPadding)
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = SpacingTokens.Default),
             header = {

@@ -55,8 +55,15 @@ import kotlinx.coroutines.flow.map
  * system scheme, which the platform tunes for contrast in light and dark.
  */
 
-/** Responsive buckets: below the regular height we drop the header and tighten the padding. */
-internal val WidgetCompactSize = DpSize(110.dp, 40.dp) // token-exempt: launcher 2x1 cell floor
+/**
+ * Responsive buckets: below the regular height we drop the header and tighten the padding.
+ * Compact height = one AlarmRow (a 48dp Mark Done target) plus the compact frame padding on both
+ * sides, so the row and its second line never clip. Keep in sync with minHeight in the widget info XML.
+ */
+internal val WidgetCompactSize = DpSize(
+    110.dp, // token-exempt: launcher 2-cell width floor
+    SpacingTokens.TouchMinTarget + SpacingTokens.XSmall * 2
+)
 internal val WidgetRegularSize = DpSize(180.dp, 110.dp) // token-exempt: launcher 3x2 cell floor
 
 /** Per-instance widget state: the title of an alarm just marked done (cleared after a moment). */
