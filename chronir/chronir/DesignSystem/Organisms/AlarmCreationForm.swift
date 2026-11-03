@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 
 struct AlarmCreationForm: View {
     @Binding var title: String
@@ -296,6 +297,7 @@ struct AlarmCreationForm: View {
     private var preAlarmSection: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Pre-Alarm Warnings", style: .labelMedium, color: ColorTokens.textSecondary)
+                .popoverTip(PreAlarmTip())
             HStack(spacing: SpacingTokens.sm) {
                 ForEach(PreAlarmOffset.allCases) { offset in
                     let isSelected = preAlarmOffsets.contains(offset)

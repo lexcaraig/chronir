@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 import SwiftData
 import AppIntents
 import AlarmKit
@@ -6,6 +7,7 @@ import AlarmKit
 struct AlarmListView: View {
     @Query(sort: \Alarm.nextFireDate) private var alarms: [Alarm]
     @AppStorage(FocusFilterStore.key, store: FocusFilterStore.defaults) private var focusCategoriesRaw = ""
+    private let addWidgetTip = AddWidgetTip()
     @Environment(\.modelContext) private var modelContext
     var deepLinkAlarmID: Binding<UUID?>
     var deepLinkCreateAlarm: Binding<Bool>
@@ -54,6 +56,10 @@ struct AlarmListView: View {
                     ))
                 }
             }
+
+            TipView(addWidgetTip)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
 
             if !focusCategoriesRaw.isEmpty {
                 Section {
@@ -180,6 +186,7 @@ struct AlarmListView: View {
                 deepLinkAlarmID.wrappedValue = nil
             }
         }
+        .onChange(of: activeAlarms.count, initial: true) { AddWidgetTip.alarmCount = activeAlarms.count }
         .onChange(of: deepLinkCreateAlarm.wrappedValue) {
             guard deepLinkCreateAlarm.wrappedValue else { return }
             deepLinkCreateAlarm.wrappedValue = false

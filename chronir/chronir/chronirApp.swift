@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 import SwiftData
 import AlarmKit
 import StoreKit
@@ -53,6 +54,7 @@ struct ChronirApp: App {
         Self.migrateCompletionRecords(container: container)
         ChronirShortcuts.updateAppShortcutParameters()
         NotificationService.shared.registerPendingConfirmationCategory()
+        do { try Tips.configure() } catch { AnalyticsService.shared.recordError(error, context: "tips_configure") }
     }
 
     /// One-time migration of legacy CompletionRecord from UserDefaults to SwiftData.
