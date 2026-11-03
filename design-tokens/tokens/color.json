@@ -2,7 +2,14 @@
   "color": {
     "primitive": {
       "amber": {
-        "500": { "value": "#FFB800", "type": "color" }
+        "300": { "value": "#FCD34D", "type": "color" },
+        "500": { "value": "#FFB800", "type": "color" },
+        "600": { "value": "#D97706", "type": "color" },
+        "700": { "value": "#A84D08", "type": "color", "comment": "Text-safe amber (warning text on light)" },
+        "800": { "value": "#92400E", "type": "color" }
+      },
+      "gold": {
+        "600": { "value": "#CC9300", "type": "color" }
       },
       "blue": {
         "500": { "value": "#3B82F6", "type": "color" },
@@ -10,132 +17,913 @@
         "700": { "value": "#1D4ED8", "type": "color" }
       },
       "red": {
+        "300": { "value": "#FCA5A5", "type": "color" },
         "400": { "value": "#F87171", "type": "color" },
-        "500": { "value": "#EF4444", "type": "color" }
+        "500": { "value": "#EF4444", "type": "color" },
+        "600": { "value": "#DC2626", "type": "color" },
+        "700": { "value": "#C81E1E", "type": "color", "comment": "Text-safe red (error text on light)" },
+        "800": { "value": "#A61B1B", "type": "color" }
+      },
+      "redContainer": {
+        "light": { "value": "#F9DEDC", "type": "color" },
+        "onLight": { "value": "#410E0B", "type": "color" },
+        "dark": { "value": "#8C1D18", "type": "color" }
       },
       "green": {
-        "500": { "value": "#22C55E", "type": "color" }
+        "500": { "value": "#22C55E", "type": "color" },
+        "600": { "value": "#16A34A", "type": "color" },
+        "700": { "value": "#15803D", "type": "color" }
       },
       "purple": {
-        "500": { "value": "#8B5CF6", "type": "color" }
+        "500": { "value": "#8B5CF6", "type": "color" },
+        "600": { "value": "#7C3AED", "type": "color" }
+      },
+      "orange": {
+        "500": { "value": "#F97316", "type": "color" }
       },
       "white": { "value": "#FFFFFF", "type": "color" },
+      "black": { "value": "#000000", "type": "color", "comment": "Scrims and the iOS firing screen only" },
       "offWhite": { "value": "#F5F5F5", "type": "color" },
-      "neutral": {
-        "0":    { "value": "#FFFFFF", "type": "color", "description": "Light base" },
-        "100":  { "value": "#F8F8F8", "type": "color" },
-        "200":  { "value": "#F0F1F2", "type": "color" },
-        "300":  { "value": "#DDDEE1", "type": "color" },
-        "400":  { "value": "#B7B9BE", "type": "color" },
-        "500":  { "value": "#8C8F97", "type": "color" },
-        "600":  { "value": "#7D818A", "type": "color" },
-        "700":  { "value": "#6B6E76", "type": "color" },
-        "800":  { "value": "#505258", "type": "color" },
-        "900":  { "value": "#3B3D42", "type": "color" },
-        "1000": { "value": "#292A2E", "type": "color" },
-        "1100": { "value": "#1E1F21", "type": "color", "description": "Light darkest" }
+      "gray": {
+        "50": { "value": "#F8F9FA", "type": "color" },
+        "100": { "value": "#F1F3F5", "type": "color" },
+        "400": { "value": "#9CA3AF", "type": "color" },
+        "800": { "value": "#1C1C1E", "type": "color" },
+        "900": { "value": "#111111", "type": "color" }
       },
-      "neutralAlpha": {
-        "100": { "value": "#17171708", "type": "color" },
-        "200": { "value": "#0515240F", "type": "color" },
-        "300": { "value": "#0B120E24", "type": "color" },
-        "400": { "value": "#080F214A", "type": "color" },
-        "500": { "value": "#050C1F75", "type": "color" }
+      "iosGray": {
+        "4": { "value": "#D1D1D6", "type": "color" },
+        "5": { "value": "#E5E5EA", "type": "color" },
+        "6": { "value": "#F2F2F7", "type": "color" }
+      },
+      "neutral": {
+        "0": { "value": "#FFFFFF", "type": "color" },
+        "100": { "value": "#F8F8F8", "type": "color" },
+        "200": { "value": "#F0F1F2", "type": "color" },
+        "250": { "value": "#E7E8EA", "type": "color" },
+        "300": { "value": "#DDDEE1", "type": "color" },
+        "400": { "value": "#B7B9BE", "type": "color" },
+        "500": { "value": "#8C8F97", "type": "color" },
+        "600": { "value": "#7D818A", "type": "color" },
+        "610": { "value": "#7D8088", "type": "color" },
+        "700": { "value": "#6B6E76", "type": "color" },
+        "750": { "value": "#55565C", "type": "color" },
+        "800": { "value": "#505258", "type": "color" },
+        "850": { "value": "#4A4B50", "type": "color" },
+        "900": { "value": "#3B3D42", "type": "color" },
+        "1000": { "value": "#292A2E", "type": "color" },
+        "1100": { "value": "#1E1F21", "type": "color" }
       },
       "darkNeutral": {
-        "neg100": { "value": "#111213", "type": "color", "description": "Darkest allowed (replaces black)" },
-        "0":    { "value": "#18191A", "type": "color", "description": "Dark base" },
-        "100":  { "value": "#1F1F21", "type": "color" },
-        "200":  { "value": "#242528", "type": "color" },
-        "250":  { "value": "#2B2C2F", "type": "color" },
-        "300":  { "value": "#303134", "type": "color" },
-        "350":  { "value": "#3D3F43", "type": "color" },
-        "400":  { "value": "#4B4D51", "type": "color" },
-        "500":  { "value": "#63666B", "type": "color" },
-        "600":  { "value": "#7E8188", "type": "color" },
-        "700":  { "value": "#96999E", "type": "color" },
-        "800":  { "value": "#A9ABAF", "type": "color" },
-        "900":  { "value": "#BFC1C4", "type": "color" },
+        "neg100": { "value": "#111213", "type": "color", "comment": "Darkest allowed (replaces black)" },
+        "0": { "value": "#18191A", "type": "color" },
+        "100": { "value": "#1F1F21", "type": "color" },
+        "200": { "value": "#242528", "type": "color" },
+        "250": { "value": "#2B2C2F", "type": "color" },
+        "300": { "value": "#303134", "type": "color" },
+        "350": { "value": "#3D3F43", "type": "color" },
+        "400": { "value": "#4B4D51", "type": "color" },
+        "500": { "value": "#63666B", "type": "color" },
+        "600": { "value": "#7E8188", "type": "color" },
+        "650": { "value": "#8A8B90", "type": "color" },
+        "700": { "value": "#96999E", "type": "color" },
+        "800": { "value": "#A9ABAF", "type": "color" },
+        "900": { "value": "#BFC1C4", "type": "color" },
         "1000": { "value": "#CECFD2", "type": "color" },
-        "1100": { "value": "#E2E3E4", "type": "color", "description": "Dark lightest" }
+        "1100": { "value": "#E2E3E4", "type": "color" }
       },
-      "darkNeutralAlpha": {
-        "neg100": { "value": "#01040475", "type": "color" },
-        "100":  { "value": "#BDBDBD0A", "type": "color" },
-        "200":  { "value": "#CECED912", "type": "color" },
-        "250":  { "value": "#D9DAE71A", "type": "color" },
-        "300":  { "value": "#E3E4F21F", "type": "color" },
-        "350":  { "value": "#E8EDFD2E", "type": "color" },
-        "400":  { "value": "#E5E9F640", "type": "color" },
-        "500":  { "value": "#E9F0FB5C", "type": "color" }
+      "gradient": {
+        "start": { "value": "#0A1628", "type": "color" },
+        "mid": { "value": "#0C4A6E", "type": "color" },
+        "end": { "value": "#06B6D4", "type": "color" }
       }
     },
     "theme": {
       "light": {
-        "background":          { "value": "{color.primitive.neutral.0}", "type": "color", "description": "Light theme background" },
-        "backgroundSecondary": { "value": "{color.primitive.neutral.100}", "type": "color", "description": "Light theme secondary background" },
-        "surfaceCard":         { "value": "{color.primitive.neutral.0}", "type": "color", "description": "Light theme card surface" },
-        "surfaceElevated":     { "value": "{color.primitive.neutral.0}", "type": "color", "description": "Light theme elevated surface" },
-        "surfaceHover":        { "value": "{color.primitive.neutral.200}", "type": "color", "description": "Light theme hover state" },
-        "surfacePressed":      { "value": "{color.primitive.neutral.300}", "type": "color", "description": "Light theme pressed state" },
-        "textPrimary":         { "value": "{color.primitive.neutral.1100}", "type": "color", "description": "Light theme primary text" },
-        "textSecondary":       { "value": "{color.primitive.neutral.700}", "type": "color", "description": "Light theme secondary text" },
-        "textTertiary":        { "value": "{color.primitive.neutral.500}", "type": "color", "description": "Light theme tertiary text" },
-        "textDisabled":        { "value": "{color.primitive.neutral.400}", "type": "color", "description": "Light theme disabled text" },
-        "borderDefault":       { "value": "{color.primitive.neutral.300}", "type": "color", "description": "Light theme default border" },
-        "borderFocused":       { "value": "{color.primitive.neutral.900}", "type": "color", "description": "Light theme focused border" },
-        "iconPrimary":         { "value": "{color.primitive.neutral.900}", "type": "color", "description": "Light theme primary icon" },
-        "iconSecondary":       { "value": "{color.primitive.neutral.600}", "type": "color", "description": "Light theme secondary icon" }
+        "background": { "value": "{color.primitive.neutral.0}", "type": "color" },
+        "backgroundSecondary": { "value": "{color.primitive.neutral.100}", "type": "color" },
+        "surfaceCard": { "value": "{color.primitive.neutral.0}", "type": "color" },
+        "surfaceElevated": { "value": "{color.primitive.neutral.0}", "type": "color" },
+        "surfaceHover": { "value": "{color.primitive.neutral.200}", "type": "color" },
+        "surfacePressed": { "value": "{color.primitive.neutral.300}", "type": "color" },
+        "textPrimary": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "textSecondary": { "value": "{color.primitive.neutral.700}", "type": "color" },
+        "textTertiary": { "value": "{color.primitive.neutral.700}", "type": "color" },
+        "textDisabled": { "value": "{color.primitive.neutral.400}", "type": "color" },
+        "textError": { "value": "{color.primitive.red.700}", "type": "color" },
+        "textWarning": { "value": "{color.primitive.amber.700}", "type": "color" },
+        "onPrimary": { "value": "{color.primitive.white}", "type": "color" },
+        "borderDefault": { "value": "{color.primitive.neutral.300}", "type": "color" },
+        "borderFocused": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "iconPrimary": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "iconSecondary": { "value": "{color.primitive.neutral.600}", "type": "color" }
       },
       "dark": {
-        "background":          { "value": "{color.primitive.darkNeutral.200}", "type": "color", "description": "Dark theme background" },
-        "backgroundSecondary": { "value": "{color.primitive.darkNeutral.100}", "type": "color", "description": "Dark theme secondary background" },
-        "surfaceCard":         { "value": "{color.primitive.darkNeutral.300}", "type": "color", "description": "Dark theme card surface" },
-        "surfaceElevated":     { "value": "{color.primitive.darkNeutral.100}", "type": "color", "description": "Dark theme elevated surface" },
-        "surfaceHover":        { "value": "{color.primitive.darkNeutral.350}", "type": "color", "description": "Dark theme hover state" },
-        "surfacePressed":      { "value": "{color.primitive.darkNeutral.400}", "type": "color", "description": "Dark theme pressed state" },
-        "textPrimary":         { "value": "{color.primitive.darkNeutral.1100}", "type": "color", "description": "Dark theme primary text" },
-        "textSecondary":       { "value": "{color.primitive.darkNeutral.700}", "type": "color", "description": "Dark theme secondary text" },
-        "textTertiary":        { "value": "{color.primitive.darkNeutral.500}", "type": "color", "description": "Dark theme tertiary text" },
-        "textDisabled":        { "value": "{color.primitive.darkNeutral.400}", "type": "color", "description": "Dark theme disabled text" },
-        "borderDefault":       { "value": "{color.primitive.darkNeutral.300}", "type": "color", "description": "Dark theme default border" },
-        "borderFocused":       { "value": "{color.primitive.darkNeutral.700}", "type": "color", "description": "Dark theme focused border" },
-        "iconPrimary":         { "value": "{color.primitive.darkNeutral.900}", "type": "color", "description": "Dark theme primary icon" },
-        "iconSecondary":       { "value": "{color.primitive.darkNeutral.600}", "type": "color", "description": "Dark theme secondary icon" }
-      }
-    },
-    "surface": {
-      "primary": { "value": "{color.primitive.neutral.100}", "type": "color", "description": "Primary surface" },
-      "elevated": { "value": "{color.primitive.neutral.0}", "type": "color", "description": "Elevated surface" }
-    },
-    "accent": {
-      "primary": { "value": "{color.primitive.neutral.900}", "type": "color" },
-      "destructive": { "value": "{color.primitive.red.400}", "type": "color" }
-    },
-    "alarm": {
-      "active": {
-        "background": { "value": "{color.primitive.amber.500}", "type": "color", "description": "Active alarm card background" },
-        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color", "description": "Active alarm card text" }
+        "background": { "value": "{color.primitive.darkNeutral.200}", "type": "color" },
+        "backgroundSecondary": { "value": "{color.primitive.darkNeutral.100}", "type": "color" },
+        "surfaceCard": { "value": "{color.primitive.darkNeutral.300}", "type": "color" },
+        "surfaceElevated": { "value": "{color.primitive.darkNeutral.100}", "type": "color" },
+        "surfaceHover": { "value": "{color.primitive.darkNeutral.350}", "type": "color" },
+        "surfacePressed": { "value": "{color.primitive.darkNeutral.400}", "type": "color" },
+        "textPrimary": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" },
+        "textSecondary": { "value": "{color.primitive.darkNeutral.700}", "type": "color" },
+        "textTertiary": { "value": "{color.primitive.darkNeutral.700}", "type": "color" },
+        "textDisabled": { "value": "{color.primitive.darkNeutral.400}", "type": "color" },
+        "textError": { "value": "{color.primitive.red.400}", "type": "color" },
+        "textWarning": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "onPrimary": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "borderDefault": { "value": "{color.primitive.darkNeutral.500}", "type": "color", "comment": "Must differ from surfaceCard (darkNeutral.300) so the card hairline is visible" },
+        "borderFocused": { "value": "{color.primitive.darkNeutral.700}", "type": "color" },
+        "iconPrimary": { "value": "{color.primitive.darkNeutral.900}", "type": "color" },
+        "iconSecondary": { "value": "{color.primitive.darkNeutral.600}", "type": "color" }
       },
-      "inactive": {
-        "background": { "value": "{color.primitive.neutral.200}", "type": "color", "description": "Inactive alarm card background" },
-        "foreground": { "value": "{color.primitive.neutral.500}", "type": "color", "description": "Inactive alarm card text" }
+      "lightHighContrast": {
+        "textPrimary": { "value": "{color.primitive.darkNeutral.neg100}", "type": "color" },
+        "textSecondary": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "textTertiary": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "textDisabled": { "value": "{color.primitive.neutral.600}", "type": "color" },
+        "textError": { "value": "{color.primitive.red.800}", "type": "color" },
+        "textWarning": { "value": "{color.primitive.amber.800}", "type": "color" },
+        "onPrimary": { "value": "{color.primitive.white}", "type": "color" },
+        "borderDefault": { "value": "{color.primitive.neutral.600}", "type": "color" },
+        "borderFocused": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "iconPrimary": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "iconSecondary": { "value": "{color.primitive.neutral.800}", "type": "color" }
+      },
+      "darkHighContrast": {
+        "textPrimary": { "value": "{color.primitive.offWhite}", "type": "color" },
+        "textSecondary": { "value": "{color.primitive.darkNeutral.900}", "type": "color" },
+        "textTertiary": { "value": "{color.primitive.darkNeutral.900}", "type": "color" },
+        "textDisabled": { "value": "{color.primitive.darkNeutral.600}", "type": "color" },
+        "textError": { "value": "{color.primitive.red.300}", "type": "color" },
+        "textWarning": { "value": "{color.primitive.amber.300}", "type": "color" },
+        "onPrimary": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "borderDefault": { "value": "{color.primitive.darkNeutral.600}", "type": "color" },
+        "borderFocused": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" },
+        "iconPrimary": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" },
+        "iconSecondary": { "value": "{color.primitive.darkNeutral.800}", "type": "color" }
       }
     },
     "firing": {
-      "background": { "value": "{color.primitive.darkNeutral.neg100}", "type": "color", "description": "Firing screen background (never pure black)" },
-      "foreground": { "value": "{color.primitive.offWhite}", "type": "color", "description": "Firing screen text" }
+      "background": { "value": "{color.primitive.darkNeutral.neg100}", "type": "color", "comment": "Firing screen background — always dark, never follows the app theme" },
+      "foreground": { "value": "{color.primitive.offWhite}", "type": "color" },
+      "textPrimary": { "value": "{color.primitive.offWhite}", "type": "color" },
+      "textSecondary": { "value": "{color.primitive.darkNeutral.800}", "type": "color", "comment": "Secondary text on the firing screen (replaces foreground @70%)" },
+      "controlFill": { "value": "{color.primitive.darkNeutral.300}", "type": "color", "comment": "Snooze tiles / secondary controls on the firing screen" },
+      "controlFillPressed": { "value": "{color.primitive.darkNeutral.350}", "type": "color" },
+      "onControl": { "value": "{color.primitive.offWhite}", "type": "color" },
+      "controlProgress": { "value": "{color.primitive.darkNeutral.900}", "type": "color", "comment": "Hold-to-dismiss progress fill" },
+      "primaryFill": { "value": "{color.primitive.darkNeutral.1100}", "type": "color", "comment": "Primary dismiss button fill" },
+      "onPrimary": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+      "warning": { "value": "{color.primitive.amber.500}", "type": "color" }
     },
     "badge": {
-      "weekly": { "value": "{color.primitive.neutral.900}", "type": "color", "description": "Weekly cycle badge" },
-      "monthly": { "value": "{color.primitive.neutral.800}", "type": "color", "description": "Monthly cycle badge" },
-      "annual": { "value": "{color.primitive.neutral.800}", "type": "color", "description": "Annual cycle badge" },
-      "custom": { "value": "{color.primitive.neutral.800}", "type": "color", "description": "Custom cycle badge" }
+      "error": {
+        "background": { "value": "{color.primitive.red.600}", "type": "color", "comment": "Error / missed / denied badge" },
+        "foreground": { "value": "{color.primitive.white}", "type": "color" }
+      },
+      "info": {
+        "background": { "value": "{color.primitive.blue.600}", "type": "color", "comment": "Info / awaiting-confirmation badge" },
+        "foreground": { "value": "{color.primitive.white}", "type": "color" }
+      },
+      "pending": {
+        "background": { "value": "{color.primitive.orange.500}", "type": "color" },
+        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+      },
+      "statusWarning": {
+        "background": { "value": "{color.primitive.amber.500}", "type": "color", "comment": "Amber warning badge (snoozed / persistent)" },
+        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+      },
+      "statusSuccess": {
+        "background": { "value": "{color.primitive.green.500}", "type": "color" },
+        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+      },
+      "home": {
+        "background": { "value": "{color.primitive.blue.500}", "type": "color" },
+        "foreground": { "value": "{color.primitive.darkNeutral.neg100}", "type": "color" }
+      },
+      "health": {
+        "background": { "value": "{color.primitive.red.400}", "type": "color" },
+        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+      },
+      "finance": {
+        "background": { "value": "{color.primitive.green.500}", "type": "color" },
+        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+      },
+      "vehicle": {
+        "background": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+      },
+      "work": {
+        "background": { "value": "{color.primitive.purple.600}", "type": "color" },
+        "foreground": { "value": "{color.primitive.white}", "type": "color" }
+      },
+      "personal": {
+        "background": { "value": "{color.primitive.blue.600}", "type": "color" },
+        "foreground": { "value": "{color.primitive.white}", "type": "color" }
+      },
+      "pets": {
+        "background": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "foreground": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+      },
+      "subscriptions": {
+        "background": { "value": "{color.primitive.red.500}", "type": "color" },
+        "foreground": { "value": "{color.primitive.darkNeutral.neg100}", "type": "color" }
+      }
     },
-    "button": {
-      "snooze": { "value": "{color.primitive.neutral.800}", "type": "color" },
-      "dismiss": { "value": "{color.primitive.neutral.800}", "type": "color" },
-      "destructive": { "value": "{color.primitive.red.500}", "type": "color" }
+    "ios": {
+      "primitive": {
+        "amber500": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "blue500": { "value": "{color.primitive.blue.500}", "type": "color" },
+        "blue600": { "value": "{color.primitive.blue.600}", "type": "color" },
+        "blue700": { "value": "{color.primitive.blue.700}", "type": "color" },
+        "red400": { "value": "{color.primitive.red.400}", "type": "color" },
+        "red500": { "value": "{color.primitive.red.500}", "type": "color" },
+        "green500": { "value": "{color.primitive.green.500}", "type": "color" },
+        "purple500": { "value": "{color.primitive.purple.500}", "type": "color" },
+        "gray50": { "value": "{color.primitive.gray.50}", "type": "color" },
+        "gray100": { "value": "{color.primitive.gray.100}", "type": "color" },
+        "gray400": { "value": "{color.primitive.gray.400}", "type": "color" },
+        "gray800": { "value": "{color.primitive.gray.800}", "type": "color" },
+        "gray900": { "value": "{color.primitive.gray.900}", "type": "color" },
+        "offWhite": { "value": "{color.primitive.offWhite}", "type": "color" }
+      },
+      "accent": {
+        "secondary": { "value": "{color.primitive.purple.500}", "type": "color" }
+      },
+      "semantic": {
+        "success": { "value": "{color.primitive.green.500}", "type": "color" },
+        "warning": { "value": "{color.primitive.amber.500}", "type": "color", "comment": "Fill/icon amber — not text-safe on light; use textWarning for text" },
+        "error": { "value": "{color.primitive.red.500}", "type": "color", "comment": "Fill/icon red — use textError for text" },
+        "info": { "value": "{color.primitive.blue.500}", "type": "color" },
+        "scrim": { "value": "{color.primitive.black}", "type": "color", "comment": "Image scrims (apply with .opacity)" },
+        "onDarkFill": { "value": "{color.primitive.white}", "type": "color", "comment": "Text/icons on a dark or saturated fill (pick with ChronirBadge.onColor)" },
+        "onLightFill": { "value": "{color.primitive.neutral.1100}", "type": "color", "comment": "Text/icons on a light or bright fill (pick with ChronirBadge.onColor)" }
+      },
+      "adaptive": {
+        "primary": {
+          "light": { "value": "{color.primitive.neutral.900}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.900}", "type": "color" },
+          "lightHighContrast": { "value": "{color.primitive.neutral.1000}", "type": "color" },
+          "darkHighContrast": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" }
+        },
+        "onPrimary": {
+          "light": { "value": "{color.theme.light.onPrimary}", "type": "color", "comment": "Text/icons on a primary fill" },
+          "dark": { "value": "{color.theme.dark.onPrimary}", "type": "color" }
+        },
+        "textPrimary": {
+          "light": { "value": "{color.theme.light.textPrimary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textPrimary}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.textPrimary}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.textPrimary}", "type": "color" }
+        },
+        "textSecondary": {
+          "light": { "value": "{color.theme.light.textSecondary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textSecondary}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.textSecondary}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.textSecondary}", "type": "color" }
+        },
+        "textTertiary": {
+          "light": { "value": "{color.theme.light.textTertiary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textTertiary}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.textTertiary}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.textTertiary}", "type": "color" }
+        },
+        "textDisabled": {
+          "light": { "value": "{color.theme.light.textDisabled}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textDisabled}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.textDisabled}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.textDisabled}", "type": "color" }
+        },
+        "textError": {
+          "light": { "value": "{color.theme.light.textError}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textError}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.textError}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.textError}", "type": "color" }
+        },
+        "textWarning": {
+          "light": { "value": "{color.theme.light.textWarning}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textWarning}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.textWarning}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.textWarning}", "type": "color" }
+        },
+        "backgroundPrimary": {
+          "light": { "value": "{color.primitive.iosGray.6}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.200}", "type": "color" }
+        },
+        "backgroundSecondary": {
+          "light": { "value": "{color.primitive.iosGray.5}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.100}", "type": "color" }
+        },
+        "backgroundTertiary": {
+          "light": { "value": "{color.primitive.iosGray.4}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.350}", "type": "color" }
+        },
+        "surfaceCard": {
+          "light": { "value": "{color.primitive.neutral.0}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.300}", "type": "color" }
+        },
+        "surfaceElevated": {
+          "light": { "value": "{color.primitive.neutral.0}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.100}", "type": "color" }
+        },
+        "surfacePrimary": {
+          "light": { "value": "{color.primitive.neutral.100}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.200}", "type": "color" }
+        },
+        "borderDefault": {
+          "light": { "value": "{color.theme.light.borderDefault}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.borderDefault}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.borderDefault}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.borderDefault}", "type": "color" }
+        },
+        "borderFocused": {
+          "light": { "value": "{color.primitive.neutral.900}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.borderFocused}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.borderFocused}", "type": "color" }
+        },
+        "iconPrimary": {
+          "light": { "value": "{color.theme.light.iconPrimary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.iconPrimary}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.iconPrimary}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.iconPrimary}", "type": "color" }
+        },
+        "iconSecondary": {
+          "light": { "value": "{color.primitive.neutral.610}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.610}", "type": "color" },
+          "lightHighContrast": { "value": "{color.theme.lightHighContrast.iconSecondary}", "type": "color" },
+          "darkHighContrast": { "value": "{color.theme.darkHighContrast.iconSecondary}", "type": "color" }
+        }
+      },
+      "alarm": {
+        "alarmActiveBackground": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "alarmActiveForeground": { "value": "{color.primitive.gray.900}", "type": "color" },
+        "alarmInactiveBackground": { "value": "{color.primitive.gray.100}", "type": "color" },
+        "alarmInactiveForeground": { "value": "{color.primitive.gray.400}", "type": "color" }
+      },
+      "firing": {
+        "firingBackground": { "value": "{color.primitive.black}", "type": "color", "comment": "iOS ships pure black on the firing screen (OLED)" },
+        "firingForeground": { "value": "{color.firing.foreground}", "type": "color" },
+        "firingTextPrimary": { "value": "{color.firing.textPrimary}", "type": "color" },
+        "firingTextSecondary": { "value": "{color.firing.textSecondary}", "type": "color" },
+        "firingControlFill": { "value": "{color.firing.controlFill}", "type": "color" },
+        "firingControlFillPressed": { "value": "{color.firing.controlFillPressed}", "type": "color" },
+        "firingOnControl": { "value": "{color.firing.onControl}", "type": "color" },
+        "firingControlProgress": { "value": "{color.firing.controlProgress}", "type": "color" },
+        "firingPrimaryFill": { "value": "{color.firing.primaryFill}", "type": "color" },
+        "firingOnPrimary": { "value": "{color.firing.onPrimary}", "type": "color" },
+        "firingWarning": { "value": "{color.firing.warning}", "type": "color" }
+      },
+      "badgeCycle": {
+        "badgeWeekly": {
+          "light": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeMonthly": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeAnnual": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeCustom": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeOneTime": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        }
+      },
+      "badgeStatus": {
+        "badgeWarning": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeSuccess": {
+          "light": { "value": "{color.primitive.neutral.850}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.650}", "type": "color" }
+        },
+        "badgeError": { "value": "{color.primitive.red.500}", "type": "color" }
+      },
+      "badgePairs": {
+        "badgeWeeklyBackground": {
+          "light": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeWeeklyForeground": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "badgeMonthlyBackground": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeMonthlyForeground": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "badgeAnnualBackground": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeAnnualForeground": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "badgeCustomBackground": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeCustomForeground": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "badgeOneTimeBackground": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeOneTimeForeground": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "badgeWarningBackground": {
+          "light": { "value": "{color.primitive.neutral.750}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" }
+        },
+        "badgeWarningForeground": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "badgeSuccessBackground": {
+          "light": { "value": "{color.primitive.neutral.850}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.650}", "type": "color" }
+        },
+        "badgeSuccessForeground": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "badgeErrorBackground": { "value": "{color.badge.error.background}", "type": "color" },
+        "badgeErrorForeground": { "value": "{color.badge.error.foreground}", "type": "color" },
+        "badgeInfoBackground": { "value": "{color.badge.info.background}", "type": "color" },
+        "badgeInfoForeground": { "value": "{color.badge.info.foreground}", "type": "color" },
+        "badgePendingBackground": { "value": "{color.badge.pending.background}", "type": "color" },
+        "badgePendingForeground": { "value": "{color.badge.pending.foreground}", "type": "color" },
+        "badgeNeutralBackground": {
+          "light": { "value": "{color.primitive.iosGray.4}", "type": "color", "comment": "Count / '+N' / streak badges" },
+          "dark": { "value": "{color.primitive.darkNeutral.350}", "type": "color" }
+        },
+        "badgeNeutralForeground": {
+          "light": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" }
+        },
+        "badgeHomeBackground": { "value": "{color.badge.home.background}", "type": "color" },
+        "badgeHomeForeground": { "value": "{color.badge.home.foreground}", "type": "color" },
+        "badgeHealthBackground": { "value": "{color.badge.health.background}", "type": "color" },
+        "badgeHealthForeground": { "value": "{color.badge.health.foreground}", "type": "color" },
+        "badgeFinanceBackground": { "value": "{color.badge.finance.background}", "type": "color" },
+        "badgeFinanceForeground": { "value": "{color.badge.finance.foreground}", "type": "color" },
+        "badgeVehicleBackground": { "value": "{color.badge.vehicle.background}", "type": "color" },
+        "badgeVehicleForeground": { "value": "{color.badge.vehicle.foreground}", "type": "color" },
+        "badgeWorkBackground": { "value": "{color.badge.work.background}", "type": "color" },
+        "badgeWorkForeground": { "value": "{color.badge.work.foreground}", "type": "color" },
+        "badgePersonalBackground": { "value": "{color.badge.personal.background}", "type": "color" },
+        "badgePersonalForeground": { "value": "{color.badge.personal.foreground}", "type": "color" },
+        "badgePetsBackground": { "value": "{color.badge.pets.background}", "type": "color" },
+        "badgePetsForeground": { "value": "{color.badge.pets.foreground}", "type": "color" },
+        "badgeSubscriptionsBackground": { "value": "{color.badge.subscriptions.background}", "type": "color" },
+        "badgeSubscriptionsForeground": { "value": "{color.badge.subscriptions.foreground}", "type": "color" }
+      },
+      "category": {
+        "categoryHome": { "value": "{color.primitive.blue.500}", "type": "color" },
+        "categoryHealth": { "value": "{color.primitive.red.400}", "type": "color" },
+        "categoryFinance": { "value": "{color.primitive.green.500}", "type": "color" },
+        "categoryVehicle": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "categoryWork": { "value": "{color.primitive.purple.500}", "type": "color" },
+        "categoryPersonal": { "value": "{color.primitive.blue.600}", "type": "color" },
+        "categoryPets": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "categorySubscriptions": { "value": "{color.primitive.red.500}", "type": "color" }
+      },
+      "button": {
+        "buttonSnooze": {
+          "light": { "value": "{color.primitive.amber.600}", "type": "color" },
+          "dark": { "value": "{color.primitive.amber.500}", "type": "color" }
+        },
+        "buttonDismiss": {
+          "light": { "value": "{color.primitive.green.600}", "type": "color" },
+          "dark": { "value": "{color.primitive.green.500}", "type": "color" }
+        },
+        "buttonDestructive": {
+          "light": { "value": "{color.primitive.red.600}", "type": "color" },
+          "dark": { "value": "{color.primitive.red.500}", "type": "color" }
+        }
+      },
+      "swipe": {
+        "swipeEdit": { "value": "{color.primitive.blue.600}", "type": "color", "comment": "Swipe action fill behind the system's white label: 5.17:1 in light and dark" },
+        "swipeSkip": { "value": "{color.primitive.amber.700}", "type": "color", "comment": "Skip swipe action: 5.63:1 with white" },
+        "swipeConfirm": { "value": "{color.primitive.green.700}", "type": "color", "comment": "Done / Enable swipe action: 5.02:1 with white" },
+        "swipeNeutral": { "value": "{color.primitive.neutral.700}", "type": "color", "comment": "Disable swipe action: 5.10:1 with white" }
+      },
+      "gradient": {
+        "gradientStart": { "value": "{color.primitive.gradient.start}", "type": "color" },
+        "gradientMid": { "value": "{color.primitive.gradient.mid}", "type": "color" },
+        "gradientEnd": { "value": "{color.primitive.gradient.end}", "type": "color" }
+      }
+    },
+    "android": {
+      "primitive": {
+        "Neutral0": { "value": "{color.primitive.neutral.0}", "type": "color" },
+        "Neutral100": { "value": "{color.primitive.neutral.100}", "type": "color" },
+        "Neutral200": { "value": "{color.primitive.neutral.200}", "type": "color" },
+        "Neutral300": { "value": "{color.primitive.neutral.300}", "type": "color" },
+        "Neutral400": { "value": "{color.primitive.neutral.400}", "type": "color" },
+        "Neutral500": { "value": "{color.primitive.neutral.500}", "type": "color" },
+        "Neutral600": { "value": "{color.primitive.neutral.600}", "type": "color" },
+        "Neutral700": { "value": "{color.primitive.neutral.700}", "type": "color" },
+        "Neutral800": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "Neutral900": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "Neutral1000": { "value": "{color.primitive.neutral.1000}", "type": "color" },
+        "Neutral1100": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "DarkNeutralNeg100": { "value": "{color.primitive.darkNeutral.neg100}", "type": "color" },
+        "DarkNeutral0": { "value": "{color.primitive.darkNeutral.0}", "type": "color" },
+        "DarkNeutral100": { "value": "{color.primitive.darkNeutral.100}", "type": "color" },
+        "DarkNeutral200": { "value": "{color.primitive.darkNeutral.200}", "type": "color" },
+        "DarkNeutral250": { "value": "{color.primitive.darkNeutral.250}", "type": "color" },
+        "DarkNeutral300": { "value": "{color.primitive.darkNeutral.300}", "type": "color" },
+        "DarkNeutral350": { "value": "{color.primitive.darkNeutral.350}", "type": "color" },
+        "DarkNeutral400": { "value": "{color.primitive.darkNeutral.400}", "type": "color" },
+        "DarkNeutral500": { "value": "{color.primitive.darkNeutral.500}", "type": "color" },
+        "DarkNeutral600": { "value": "{color.primitive.darkNeutral.600}", "type": "color" },
+        "DarkNeutral700": { "value": "{color.primitive.darkNeutral.700}", "type": "color" },
+        "DarkNeutral800": { "value": "{color.primitive.darkNeutral.800}", "type": "color" },
+        "DarkNeutral900": { "value": "{color.primitive.darkNeutral.900}", "type": "color" },
+        "DarkNeutral1000": { "value": "{color.primitive.darkNeutral.1000}", "type": "color" },
+        "DarkNeutral1100": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" },
+        "Amber500": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "Red400": { "value": "{color.primitive.red.400}", "type": "color" },
+        "Red500": { "value": "{color.primitive.red.500}", "type": "color" },
+        "OffWhite": { "value": "{color.primitive.offWhite}", "type": "color" }
+      },
+      "accent": {
+        "AccentPrimary": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "AccentDestructive": { "value": "{color.primitive.red.400}", "type": "color" }
+      },
+      "semantic": {
+        "Success": { "value": "{color.primitive.green.500}", "type": "color" },
+        "Error": { "value": "{color.primitive.red.500}", "type": "color", "comment": "Fill red — use MaterialTheme.colorScheme.error / chronirColors.textError for text" },
+        "Warning": { "value": "{color.primitive.amber.500}", "type": "color", "comment": "Fill amber — not text-safe on light; use chronirColors.textWarning" },
+        "PendingOrange": { "value": "{color.primitive.orange.500}", "type": "color" }
+      },
+      "theme": {
+        "Background": {
+          "light": { "value": "{color.theme.light.background}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.background}", "type": "color" }
+        },
+        "BackgroundSecondary": {
+          "light": { "value": "{color.theme.light.backgroundSecondary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.backgroundSecondary}", "type": "color" }
+        },
+        "SurfaceCard": {
+          "light": { "value": "{color.theme.light.surfaceCard}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.surfaceCard}", "type": "color" }
+        },
+        "SurfaceElevated": {
+          "light": { "value": "{color.theme.light.surfaceElevated}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.surfaceElevated}", "type": "color" }
+        },
+        "SurfaceHover": {
+          "light": { "value": "{color.theme.light.surfaceHover}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.surfaceHover}", "type": "color" }
+        },
+        "SurfacePressed": {
+          "light": { "value": "{color.theme.light.surfacePressed}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.surfacePressed}", "type": "color" }
+        },
+        "TextPrimary": {
+          "light": { "value": "{color.theme.light.textPrimary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textPrimary}", "type": "color" }
+        },
+        "TextSecondary": {
+          "light": { "value": "{color.theme.light.textSecondary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textSecondary}", "type": "color" }
+        },
+        "TextTertiary": {
+          "light": { "value": "{color.theme.light.textTertiary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textTertiary}", "type": "color" }
+        },
+        "TextDisabled": {
+          "light": { "value": "{color.theme.light.textDisabled}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textDisabled}", "type": "color" }
+        },
+        "TextError": {
+          "light": { "value": "{color.theme.light.textError}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textError}", "type": "color" }
+        },
+        "TextWarning": {
+          "light": { "value": "{color.theme.light.textWarning}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textWarning}", "type": "color" }
+        },
+        "OnPrimary": {
+          "light": { "value": "{color.theme.light.onPrimary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.onPrimary}", "type": "color" }
+        },
+        "BorderDefault": {
+          "light": { "value": "{color.theme.light.borderDefault}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.borderDefault}", "type": "color" }
+        },
+        "BorderFocused": {
+          "light": { "value": "{color.theme.light.borderFocused}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.borderFocused}", "type": "color" }
+        },
+        "IconPrimary": {
+          "light": { "value": "{color.theme.light.iconPrimary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.iconPrimary}", "type": "color" }
+        },
+        "IconSecondary": {
+          "light": { "value": "{color.theme.light.iconSecondary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.iconSecondary}", "type": "color" }
+        }
+      },
+      "semanticSurface": {
+        "SurfacePrimary": { "value": "{color.primitive.neutral.100}", "type": "color" },
+        "SurfaceElevated": { "value": "{color.primitive.neutral.0}", "type": "color" }
+      },
+      "runtimeAliases": {
+        "TextPrimary": { "value": "{color.theme.dark.textPrimary}", "type": "color" },
+        "TextSecondary": { "value": "{color.theme.dark.textSecondary}", "type": "color" },
+        "TextTertiary": { "value": "{color.theme.dark.textTertiary}", "type": "color" },
+        "TextDisabled": { "value": "{color.theme.dark.textDisabled}", "type": "color" },
+        "BorderDefault": { "value": "{color.theme.dark.borderDefault}", "type": "color" },
+        "BorderFocused": { "value": "{color.theme.dark.borderFocused}", "type": "color" },
+        "BackgroundPrimary": { "value": "{color.theme.dark.background}", "type": "color" },
+        "BackgroundSecondary": { "value": "{color.theme.dark.backgroundSecondary}", "type": "color" },
+        "BackgroundTertiary": { "value": "{color.theme.dark.surfaceCard}", "type": "color" },
+        "SurfaceCard": { "value": "{color.theme.dark.surfaceCard}", "type": "color" }
+      },
+      "alarm": {
+        "AlarmActiveBackground": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "AlarmActiveForeground": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "AlarmInactiveBackground": { "value": "{color.primitive.neutral.200}", "type": "color" },
+        "AlarmInactiveForeground": { "value": "{color.primitive.neutral.500}", "type": "color" }
+      },
+      "firing": {
+        "FiringBackground": { "value": "{color.firing.background}", "type": "color" },
+        "FiringForeground": { "value": "{color.firing.foreground}", "type": "color" },
+        "FiringTextPrimary": { "value": "{color.firing.textPrimary}", "type": "color" },
+        "FiringTextSecondary": { "value": "{color.firing.textSecondary}", "type": "color" },
+        "FiringControlFill": { "value": "{color.firing.controlFill}", "type": "color" },
+        "FiringControlFillPressed": { "value": "{color.firing.controlFillPressed}", "type": "color" },
+        "FiringOnControl": { "value": "{color.firing.onControl}", "type": "color" },
+        "FiringControlProgress": { "value": "{color.firing.controlProgress}", "type": "color" },
+        "FiringPrimaryFill": { "value": "{color.firing.primaryFill}", "type": "color" },
+        "FiringOnPrimary": { "value": "{color.firing.onPrimary}", "type": "color" },
+        "FiringWarning": { "value": "{color.firing.warning}", "type": "color" }
+      },
+      "badgeCycle": {
+        "BadgeOneTime": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "BadgeWeekly": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "BadgeMonthly": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgeAnnual": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgeCustom": { "value": "{color.primitive.neutral.800}", "type": "color" }
+      },
+      "badgePairs": {
+        "BadgeOneTimeBackground": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "BadgeOneTimeForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeWeeklyBackground": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "BadgeWeeklyForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeMonthlyBackground": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgeMonthlyForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeAnnualBackground": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgeAnnualForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeCustomBackground": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgeCustomForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeWarningBackground": { "value": "{color.badge.statusWarning.background}", "type": "color" },
+        "BadgeWarningForeground": { "value": "{color.badge.statusWarning.foreground}", "type": "color" },
+        "BadgeSuccessBackground": { "value": "{color.badge.statusSuccess.background}", "type": "color" },
+        "BadgeSuccessForeground": { "value": "{color.badge.statusSuccess.foreground}", "type": "color" },
+        "BadgePendingBackground": { "value": "{color.badge.pending.background}", "type": "color" },
+        "BadgePendingForeground": { "value": "{color.badge.pending.foreground}", "type": "color" },
+        "BadgeErrorBackground": { "value": "{color.badge.error.background}", "type": "color" },
+        "BadgeErrorForeground": { "value": "{color.badge.error.foreground}", "type": "color" },
+        "BadgeInfoBackground": { "value": "{color.badge.info.background}", "type": "color" },
+        "BadgeInfoForeground": { "value": "{color.badge.info.foreground}", "type": "color" },
+        "BadgeNeutralBackground": { "value": "{color.primitive.neutral.700}", "type": "color" },
+        "BadgeNeutralForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeHomeBackground": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "BadgeHomeForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeHealthBackground": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "BadgeHealthForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeFinanceBackground": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "BadgeFinanceForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeVehicleBackground": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgeVehicleForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeWorkBackground": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgeWorkForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgePersonalBackground": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgePersonalForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgePetsBackground": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgePetsForeground": { "value": "{color.primitive.white}", "type": "color" },
+        "BadgeSubscriptionsBackground": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "BadgeSubscriptionsForeground": { "value": "{color.primitive.white}", "type": "color" }
+      },
+      "category": {
+        "CategoryHome": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "CategoryHealth": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "CategoryFinance": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "CategoryVehicle": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "CategoryWork": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "CategoryPersonal": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "CategoryPets": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "CategorySubscriptions": { "value": "{color.primitive.neutral.800}", "type": "color" }
+      },
+      "button": {
+        "ButtonSnooze": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "ButtonDismiss": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "ButtonDestructive": { "value": "{color.primitive.red.500}", "type": "color" }
+      },
+      "schemeCompat": {
+        "Primary": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "OnPrimary": { "value": "{color.primitive.white}", "type": "color" },
+        "PrimaryContainer": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "OnPrimaryContainer": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" },
+        "Secondary": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "OnSecondary": { "value": "{color.primitive.white}", "type": "color" },
+        "SecondaryContainer": { "value": "{color.primitive.darkNeutral.300}", "type": "color" },
+        "OnSecondaryContainer": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" },
+        "Tertiary": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "OnTertiary": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "TertiaryContainer": { "value": "{color.primitive.gold.600}", "type": "color" },
+        "OnTertiaryContainer": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+        "OnError": { "value": "{color.primitive.white}", "type": "color" },
+        "ErrorContainer": { "value": "{color.primitive.redContainer.light}", "type": "color" },
+        "OnErrorContainer": { "value": "{color.primitive.redContainer.onLight}", "type": "color" },
+        "Surface": { "value": "{color.primitive.darkNeutral.200}", "type": "color" },
+        "OnSurface": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" },
+        "SurfaceVariant": { "value": "{color.primitive.darkNeutral.300}", "type": "color" },
+        "OnSurfaceVariant": { "value": "{color.primitive.darkNeutral.700}", "type": "color" },
+        "Background": { "value": "{color.primitive.darkNeutral.200}", "type": "color" },
+        "OnBackground": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" },
+        "Outline": { "value": "{color.primitive.darkNeutral.300}", "type": "color" },
+        "OutlineVariant": { "value": "{color.primitive.darkNeutral.400}", "type": "color" }
+      },
+      "legacyAliases": {
+        "AlarmActive": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "AlarmInactive": { "value": "{color.primitive.neutral.500}", "type": "color" },
+        "AlarmFiring": { "value": "{color.primitive.red.500}", "type": "color" },
+        "AlarmSnoozed": { "value": "{color.primitive.amber.500}", "type": "color" },
+        "CycleWeekly": { "value": "{color.primitive.neutral.900}", "type": "color" },
+        "CycleMonthly": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "CycleAnnual": { "value": "{color.primitive.neutral.800}", "type": "color" },
+        "CycleCustom": { "value": "{color.primitive.neutral.800}", "type": "color" }
+      },
+      "scheme": {
+        "primary": {
+          "light": { "value": "{color.primitive.neutral.900}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" }
+        },
+        "onPrimary": {
+          "light": { "value": "{color.theme.light.onPrimary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.onPrimary}", "type": "color" }
+        },
+        "primaryContainer": {
+          "light": { "value": "{color.primitive.neutral.800}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.800}", "type": "color" }
+        },
+        "onPrimaryContainer": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" }
+        },
+        "inversePrimary": {
+          "light": { "value": "{color.primitive.darkNeutral.900}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.900}", "type": "color" }
+        },
+        "secondary": {
+          "light": { "value": "{color.primitive.neutral.800}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.900}", "type": "color" }
+        },
+        "onSecondary": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "secondaryContainer": {
+          "light": { "value": "{color.primitive.neutral.200}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.400}", "type": "color" }
+        },
+        "onSecondaryContainer": {
+          "light": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" }
+        },
+        "tertiary": {
+          "light": { "value": "{color.primitive.amber.500}", "type": "color" },
+          "dark": { "value": "{color.primitive.amber.500}", "type": "color" }
+        },
+        "onTertiary": {
+          "light": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "tertiaryContainer": {
+          "light": { "value": "{color.primitive.gold.600}", "type": "color" },
+          "dark": { "value": "{color.primitive.gold.600}", "type": "color" }
+        },
+        "onTertiaryContainer": {
+          "light": { "value": "{color.primitive.neutral.1100}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "background": {
+          "light": { "value": "{color.theme.light.background}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.background}", "type": "color" }
+        },
+        "onBackground": {
+          "light": { "value": "{color.theme.light.textPrimary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textPrimary}", "type": "color" }
+        },
+        "surface": {
+          "light": { "value": "{color.theme.light.background}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.background}", "type": "color" }
+        },
+        "onSurface": {
+          "light": { "value": "{color.theme.light.textPrimary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textPrimary}", "type": "color" }
+        },
+        "surfaceVariant": {
+          "light": { "value": "{color.theme.light.backgroundSecondary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.surfaceCard}", "type": "color" }
+        },
+        "onSurfaceVariant": {
+          "light": { "value": "{color.theme.light.textSecondary}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textSecondary}", "type": "color" }
+        },
+        "surfaceTint": {
+          "light": { "value": "{color.primitive.neutral.900}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" }
+        },
+        "inverseSurface": {
+          "light": { "value": "{color.primitive.darkNeutral.300}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" }
+        },
+        "inverseOnSurface": {
+          "light": { "value": "{color.primitive.neutral.200}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.300}", "type": "color" }
+        },
+        "error": {
+          "light": { "value": "{color.theme.light.textError}", "type": "color" },
+          "dark": { "value": "{color.theme.dark.textError}", "type": "color" }
+        },
+        "onError": {
+          "light": { "value": "{color.primitive.white}", "type": "color" },
+          "dark": { "value": "{color.primitive.neutral.1100}", "type": "color" }
+        },
+        "errorContainer": {
+          "light": { "value": "{color.primitive.redContainer.light}", "type": "color" },
+          "dark": { "value": "{color.primitive.redContainer.dark}", "type": "color" }
+        },
+        "onErrorContainer": {
+          "light": { "value": "{color.primitive.redContainer.onLight}", "type": "color" },
+          "dark": { "value": "{color.primitive.redContainer.light}", "type": "color" }
+        },
+        "outline": {
+          "light": { "value": "{color.primitive.neutral.600}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.600}", "type": "color" }
+        },
+        "outlineVariant": {
+          "light": { "value": "{color.primitive.neutral.300}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.400}", "type": "color" }
+        },
+        "scrim": {
+          "light": { "value": "{color.primitive.black}", "type": "color" },
+          "dark": { "value": "{color.primitive.black}", "type": "color" }
+        },
+        "surfaceBright": {
+          "light": { "value": "{color.primitive.neutral.0}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.400}", "type": "color" }
+        },
+        "surfaceContainer": {
+          "light": { "value": "{color.primitive.neutral.200}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.300}", "type": "color" }
+        },
+        "surfaceContainerHigh": {
+          "light": { "value": "{color.primitive.neutral.250}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.350}", "type": "color" }
+        },
+        "surfaceContainerHighest": {
+          "light": { "value": "{color.primitive.neutral.300}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.400}", "type": "color" }
+        },
+        "surfaceContainerLow": {
+          "light": { "value": "{color.primitive.neutral.100}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.250}", "type": "color" }
+        },
+        "surfaceContainerLowest": {
+          "light": { "value": "{color.primitive.neutral.0}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.100}", "type": "color" }
+        },
+        "surfaceDim": {
+          "light": { "value": "{color.primitive.neutral.300}", "type": "color" },
+          "dark": { "value": "{color.primitive.darkNeutral.200}", "type": "color" }
+        }
+      }
     }
   }
 }

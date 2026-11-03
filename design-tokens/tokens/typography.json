@@ -1,19 +1,391 @@
 {
   "typography": {
-    "display": {
-      "alarm": { "fontSize": { "value": "120" }, "lineHeight": { "value": "130" }, "fontWeight": { "value": "bold" } }
+    "minimumSize": {
+      "value": "11",
+      "comment": "Floor applied after every scale (Dynamic Type / in-app text size)"
     },
-    "headline": {
-      "time": { "fontSize": { "value": "32" }, "lineHeight": { "value": "38" }, "fontWeight": { "value": "semibold" } },
-      "title": { "fontSize": { "value": "24" }, "lineHeight": { "value": "30" }, "fontWeight": { "value": "semibold" } }
+    "scale": {
+      "displayAlarm": {
+        "fontSize": {
+          "value": "120",
+          "comment": "Firing-screen time (component token, no M3 role)"
+        },
+        "lineHeight": {
+          "value": "128"
+        },
+        "fontWeight": {
+          "value": "bold"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "rounded"
+        },
+        "textStyle": {
+          "value": "largeTitle"
+        },
+        "maxDynamicTypeScale": {
+          "value": "1.0"
+        }
+      },
+      "displayLarge": {
+        "fontSize": {
+          "value": "120",
+          "androidValue": "57"
+        },
+        "lineHeight": {
+          "value": "128",
+          "androidValue": "64"
+        },
+        "fontWeight": {
+          "value": "bold"
+        },
+        "letterSpacing": {
+          "value": "0",
+          "androidValue": "-0.25"
+        },
+        "design": {
+          "value": "rounded"
+        },
+        "textStyle": {
+          "value": "largeTitle"
+        },
+        "maxDynamicTypeScale": {
+          "value": "1.0"
+        }
+      },
+      "displayMedium": {
+        "fontSize": {
+          "value": "57",
+          "androidValue": "36"
+        },
+        "lineHeight": {
+          "value": "64",
+          "androidValue": "44"
+        },
+        "fontWeight": {
+          "value": "bold"
+        },
+        "letterSpacing": {
+          "value": "-0.25",
+          "androidValue": "0"
+        },
+        "design": {
+          "value": "rounded"
+        },
+        "textStyle": {
+          "value": "largeTitle"
+        },
+        "maxDynamicTypeScale": {
+          "value": "1.2"
+        }
+      },
+      "displaySmall": {
+        "fontSize": {
+          "value": "36"
+        },
+        "lineHeight": {
+          "value": "44"
+        },
+        "fontWeight": {
+          "value": "bold"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "rounded"
+        },
+        "textStyle": {
+          "value": "largeTitle"
+        },
+        "maxDynamicTypeScale": {
+          "value": "1.5"
+        }
+      },
+      "headlineLarge": {
+        "fontSize": {
+          "value": "32"
+        },
+        "lineHeight": {
+          "value": "40"
+        },
+        "fontWeight": {
+          "value": "semibold"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "title"
+        }
+      },
+      "headlineMedium": {
+        "fontSize": {
+          "value": "28"
+        },
+        "lineHeight": {
+          "value": "36"
+        },
+        "fontWeight": {
+          "value": "semibold"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "title"
+        }
+      },
+      "headlineSmall": {
+        "fontSize": {
+          "value": "24"
+        },
+        "lineHeight": {
+          "value": "32"
+        },
+        "fontWeight": {
+          "value": "semibold"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "title2"
+        }
+      },
+      "titleLarge": {
+        "fontSize": {
+          "value": "22"
+        },
+        "lineHeight": {
+          "value": "28"
+        },
+        "fontWeight": {
+          "value": "medium"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "title2"
+        }
+      },
+      "titleMedium": {
+        "fontSize": {
+          "value": "18"
+        },
+        "lineHeight": {
+          "value": "24"
+        },
+        "fontWeight": {
+          "value": "medium"
+        },
+        "letterSpacing": {
+          "value": "0.15"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "title3"
+        }
+      },
+      "titleSmall": {
+        "fontSize": {
+          "value": "16"
+        },
+        "lineHeight": {
+          "value": "22"
+        },
+        "fontWeight": {
+          "value": "medium"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "headline"
+        }
+      },
+      "bodyLarge": {
+        "fontSize": {
+          "value": "16"
+        },
+        "lineHeight": {
+          "value": "24"
+        },
+        "fontWeight": {
+          "value": "regular"
+        },
+        "letterSpacing": {
+          "value": "0.5"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "body"
+        }
+      },
+      "bodyMedium": {
+        "fontSize": {
+          "value": "14"
+        },
+        "lineHeight": {
+          "value": "20"
+        },
+        "fontWeight": {
+          "value": "regular"
+        },
+        "letterSpacing": {
+          "value": "0.25"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "subheadline"
+        }
+      },
+      "bodySmall": {
+        "fontSize": {
+          "value": "12"
+        },
+        "lineHeight": {
+          "value": "16"
+        },
+        "fontWeight": {
+          "value": "regular"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "footnote"
+        }
+      },
+      "labelLarge": {
+        "fontSize": {
+          "value": "14"
+        },
+        "lineHeight": {
+          "value": "20"
+        },
+        "fontWeight": {
+          "value": "medium"
+        },
+        "letterSpacing": {
+          "value": "0.1"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "subheadline"
+        }
+      },
+      "labelMedium": {
+        "fontSize": {
+          "value": "12"
+        },
+        "lineHeight": {
+          "value": "16"
+        },
+        "fontWeight": {
+          "value": "medium"
+        },
+        "letterSpacing": {
+          "value": "0.5"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "footnote"
+        }
+      },
+      "labelSmall": {
+        "fontSize": {
+          "value": "11"
+        },
+        "lineHeight": {
+          "value": "16"
+        },
+        "fontWeight": {
+          "value": "medium"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "caption"
+        }
+      },
+      "caption": {
+        "fontSize": {
+          "value": "11",
+          "comment": "Raised from 10 to the 11pt/sp floor"
+        },
+        "lineHeight": {
+          "value": "14"
+        },
+        "fontWeight": {
+          "value": "regular"
+        },
+        "letterSpacing": {
+          "value": "0"
+        },
+        "design": {
+          "value": "default"
+        },
+        "textStyle": {
+          "value": "caption2"
+        }
+      }
     },
-    "body": {
-      "primary": { "fontSize": { "value": "16" }, "lineHeight": { "value": "22" }, "fontWeight": { "value": "regular" } },
-      "secondary": { "fontSize": { "value": "14" }, "lineHeight": { "value": "20" }, "fontWeight": { "value": "regular" } }
-    },
-    "caption": {
-      "countdown": { "fontSize": { "value": "14" }, "lineHeight": { "value": "18" }, "fontWeight": { "value": "medium" } },
-      "badge": { "fontSize": { "value": "12" }, "lineHeight": { "value": "16" }, "fontWeight": { "value": "medium" } }
+    "alias": {
+      "headlineTime": {
+        "value": "headlineSmall",
+        "androidValue": "headlineLarge"
+      },
+      "headlineTitle": {
+        "value": "headlineSmall"
+      },
+      "bodyPrimary": {
+        "value": "bodyLarge"
+      },
+      "bodySecondary": {
+        "value": "bodyMedium"
+      },
+      "captionCountdown": {
+        "value": "labelLarge"
+      },
+      "captionBadge": {
+        "value": "labelMedium"
+      }
     }
   }
 }

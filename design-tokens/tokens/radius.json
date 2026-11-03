@@ -1,10 +1,16 @@
 {
   "radius": {
-    "sm": { "value": "8", "type": "dimension" },
-    "md": { "value": "12", "type": "dimension" },
-    "lg": { "value": "16", "type": "dimension" },
-    "xl": { "value": "28", "type": "dimension" },
-    "sheet": { "value": "34", "type": "dimension" },
-    "full": { "value": "9999", "type": "dimension" }
+    "none": { "value": "0", "type": "dimension", "platforms": ["android"], "androidName": "None" },
+    "sm": { "value": "8", "type": "dimension", "androidName": "Sm" },
+    "md": { "value": "12", "type": "dimension", "androidName": "Md" },
+    "lg": { "value": "16", "type": "dimension", "androidName": "Lg" },
+    "xl": { "value": "28", "type": "dimension", "androidName": "Xl" },
+    "sheet": { "value": "34", "type": "dimension", "androidName": "Sheet" },
+    "full": { "value": "9999", "type": "dimension", "androidName": "Full" },
+    "small": { "value": "{radius.sm}", "type": "dimension", "aliasOf": "sm", "platforms": ["android"], "androidName": "Small", "comment": "Backward compat aliases" },
+    "medium": { "value": "{radius.sm}", "type": "dimension", "aliasOf": "sm", "platforms": ["android"], "androidName": "Medium" },
+    "default": { "value": "{radius.md}", "type": "dimension", "aliasOf": "md", "platforms": ["android"], "androidName": "Default" },
+    "large": { "value": "{radius.lg}", "type": "dimension", "aliasOf": "lg", "platforms": ["android"], "androidName": "Large" },
+    "xLarge": { "value": "{radius.xl}", "type": "dimension", "aliasOf": "xl", "platforms": ["android"], "androidName": "XLarge" }
   }
 }

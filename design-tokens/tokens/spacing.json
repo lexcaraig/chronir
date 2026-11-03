@@ -1,23 +1,32 @@
 {
   "spacing": {
-    "xxs": { "value": "4", "type": "dimension" },
-    "xs": { "value": "8", "type": "dimension" },
-    "sm": { "value": "12", "type": "dimension" },
-    "md": { "value": "16", "type": "dimension" },
-    "lg": { "value": "24", "type": "dimension" },
-    "xl": { "value": "32", "type": "dimension" },
-    "xxl": { "value": "48", "type": "dimension" },
-    "card": {
-      "padding": { "value": "16", "type": "dimension" }
-    },
-    "list": {
-      "gap": { "value": "12", "type": "dimension" }
-    },
-    "touch": {
-      "minTarget": { "value": "44", "type": "dimension", "description": "Minimum touch target (44pt iOS / 48dp Android)" }
-    },
-    "firing": {
-      "buttonZone": { "value": "60", "type": "dimension", "description": "Dismiss/snooze area as percentage of screen height" }
-    }
+    "none": { "value": "0", "type": "dimension", "platforms": ["android"], "androidName": "None" },
+    "xxs": { "value": "4", "type": "dimension", "androidName": "XXSmall" },
+    "xs": { "value": "8", "type": "dimension", "androidName": "XSmall" },
+    "sm": { "value": "12", "type": "dimension", "androidName": "Small" },
+    "md": { "value": "16", "type": "dimension", "androidName": "Medium" },
+    "lg": { "value": "24", "type": "dimension", "androidName": "Large" },
+    "xl": { "value": "32", "type": "dimension", "androidName": "XLarge" },
+    "xxl": { "value": "48", "type": "dimension", "androidName": "XXLarge" },
+    "xxxl": { "value": "{spacing.xxl}", "type": "dimension", "aliasOf": "xxl", "androidName": "XXXLarge", "comment": "alias for backward compat" },
+    "massive": { "value": "64", "type": "dimension", "platforms": ["android"], "androidName": "Massive" },
+    "default": { "value": "{spacing.md}", "type": "dimension", "aliasOf": "md", "platforms": ["android"], "androidName": "Default" },
+    "huge": { "value": "{spacing.xxl}", "type": "dimension", "aliasOf": "xxl", "platforms": ["android"], "androidName": "Huge" },
+    "cardPadding": { "value": "16", "type": "dimension", "androidName": "CardPadding" },
+    "listGap": { "value": "12", "type": "dimension", "androidName": "ListGap" },
+    "touchMinTarget": { "value": "44", "androidValue": "48", "type": "dimension", "androidName": "TouchMinTarget", "comment": "Minimum touch target: 44pt (iOS HIG) / 48dp (Material)" },
+    "snoozeTileMinWidth": { "value": "72", "type": "dimension", "androidName": "SnoozeTileMinWidth", "comment": "Snooze option tile minimum width (grows with text size)" },
+    "snoozeTileMinHeight": { "value": "64", "type": "dimension", "androidName": "SnoozeTileMinHeight", "comment": "Snooze option tile minimum height (grows with text size)" },
+    "statusStroke": { "value": "2", "type": "dimension", "androidName": "StatusStroke", "comment": "Card outline for snoozed / pending status" },
+    "holdRingSize": { "value": "120", "type": "dimension", "platforms": ["android"], "androidName": "HoldRingSize", "comment": "Hold-to-dismiss progress ring diameter" },
+    "holdRingStroke": { "value": "6", "type": "dimension", "platforms": ["android"], "androidName": "HoldRingStroke", "comment": "Hold-to-dismiss progress ring stroke width" },
+    "lockIconSize": { "value": "14", "type": "dimension", "platforms": ["android"], "androidName": "LockIconSize", "comment": "Small lock glyph on Plus-gated rows and chips" },
+    "maxContentWidth": { "value": "840", "type": "dimension", "platforms": ["android"], "androidName": "MaxContentWidth", "comment": "Max readable content width on tablets / foldables" },
+    "hairline": { "value": "0.5", "type": "dimension", "platforms": ["ios"], "comment": "Card / field stroke width" },
+    "firingButtonZone": { "value": "60", "type": "dimension", "androidName": "FiringButtonZone", "comment": "Minimum height of the firing screen's primary dismiss / snooze controls" },
+    "photoPreviewHeight": { "value": "120", "type": "dimension", "platforms": ["ios"], "comment": "Attached-photo preview height in alarm creation / detail" },
+    "firingPhotoMaxWidth": { "value": "280", "type": "dimension", "platforms": ["ios"], "comment": "Max width of the photo on the firing screen" },
+    "firingPhotoMaxHeight": { "value": "160", "type": "dimension", "platforms": ["ios"], "comment": "Max height of the photo on the firing screen" },
+    "splashLogoSize": { "value": "180", "type": "dimension", "platforms": ["ios"], "comment": "Brand mark size on the splash screen" }
   }
 }
