@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_next_alarm">Next alarm</string>
+    <string name="widget_upcoming_alarms">Upcoming alarms</string>
+    <string name="widget_no_alarms">No upcoming alarms</string>
+    <string name="widget_mark_done">Mark %1$s as done</string>
+    <string name="widget_marked_done">Marked %1$s done</string>
+    <string name="widget_open_app">Tap to open Chronir</string>
+    <string name="widget_next_alarm_description">Your next Chronir alarm, with Mark Done</string>
+    <string name="widget_alarm_list_description">Your upcoming Chronir alarms, with Mark Done</string>
+    <!-- Widget picker preview sample content -->
+    <string name="widget_preview_title_1" translatable="false">Pay rent</string>
+    <string name="widget_preview_time_1" translatable="false">Mon, Dec 1 · 9:00 AM</string>
+    <string name="widget_preview_title_2" translatable="false">Replace water filter</string>
+    <string name="widget_preview_time_2" translatable="false">Fri, Dec 5 · 6:00 PM</string>
+    <string name="widget_preview_title_3" translatable="false">Renew car registration</string>
+    <string name="widget_preview_time_3" translatable="false">Mar 15 · 10:00 AM</string>
+</resources>

@@ -4,7 +4,7 @@
 **Category:** Feature
 **Effort:** Medium (2-3 days)
 **Platform:** Android
-**Status:** Open
+**Status:** In progress (code committed; device test pending: place both widgets)
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 
 ---

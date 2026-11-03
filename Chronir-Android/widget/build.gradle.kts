@@ -29,12 +29,14 @@ android {
 dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:data"))
+    implementation(project(":core:services"))
+    implementation(project(":core:designsystem"))
+    implementation(libs.hilt.android)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
 
     implementation(libs.glance.appwidget)
-    implementation(libs.glance.material3)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
