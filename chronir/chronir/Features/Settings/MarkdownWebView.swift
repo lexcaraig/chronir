@@ -9,7 +9,10 @@ struct MarkdownWebView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
-        let webView = WKWebView()
+        // The page is static markdown; nothing in it should run.
+        let configuration = WKWebViewConfiguration()
+        configuration.defaultWebpagePreferences.allowsContentJavaScript = false
+        let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.isOpaque = false
         webView.backgroundColor = .clear
         webView.scrollView.backgroundColor = .clear
@@ -27,9 +30,11 @@ struct MarkdownWebView: UIViewRepresentable {
             decidePolicyFor navigationAction: WKNavigationAction,
             decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
         ) {
-            if navigationAction.navigationType == .linkActivated,
-               let url = navigationAction.request.url {
-                UIApplication.shared.open(url)
+            if navigationAction.navigationType == .linkActivated {
+                if let url = navigationAction.request.url,
+                   ["http", "https", "mailto"].contains(url.scheme?.lowercased() ?? "") {
+                    UIApplication.shared.open(url)
+                }
                 decisionHandler(.cancel)
             } else {
                 decisionHandler(.allow)

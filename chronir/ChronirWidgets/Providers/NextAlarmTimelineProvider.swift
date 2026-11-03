@@ -47,7 +47,13 @@ struct NextAlarmTimelineProvider: AppIntentTimelineProvider {
             refreshDate = now.addingTimeInterval(900)
         }
 
-        let entries = WidgetRelevance.entryDates(now: now, fireDate: alarm?.nextFireDate, until: refreshDate)
+        var entryDates = WidgetRelevance.entryDates(now: now, fireDate: alarm?.nextFireDate, until: refreshDate)
+        // The circular gauge prints a remaining value ("5h", "42m"); give it an entry at every change
+        // so it never sits on a stale reading between reloads.
+        if context.family == .accessoryCircular, let fireDate = alarm?.nextFireDate, fireDate != .distantFuture {
+            entryDates += AccessoryCircularView.valueChangeDates(fireDate: fireDate, after: now, before: refreshDate)
+        }
+        let entries = Set(entryDates).sorted()
             .map { date in
                 NextAlarmEntry(
                     date: date,

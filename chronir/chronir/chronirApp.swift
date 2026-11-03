@@ -135,6 +135,7 @@ struct ChronirApp: App {
                 } else {
                     await AlarmScheduler.shared.auditAlarmRegistrations()
                 }
+                AlarmSchedulingStatus.shared.reconcile()
                 await WidgetDataService.shared.refresh()
                 await LiveActivityService.shared.cleanupOrphanedActivities()
                 await LiveActivityService.shared.refreshLiveActivity()

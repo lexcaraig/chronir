@@ -238,6 +238,7 @@ struct AlarmListView: View {
         .alarmRowConfirmations(alarmToDelete: $alarmToDelete, alarmToSkip: $alarmToSkip, context: modelContext)
         .onAppear {
             refreshNextFireDates()
+            schedulingStatus.reconcile()
         }
         .onReceive(alarmCheckTimer) { _ in
             checkForFiringAlarms()

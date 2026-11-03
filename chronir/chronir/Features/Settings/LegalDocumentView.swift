@@ -240,17 +240,27 @@ struct LegalDocumentView: View {
     }
 
     private func processInline(_ text: String) -> String {
+        // Escape first so downloaded text can never inject markup; the rules below add the only tags.
         var result = text
+            .replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+            .replacingOccurrences(of: "\"", with: "&quot;")
         // Bold: **text**
         result = result.replacingOccurrences(
             of: #"\*\*(.+?)\*\*"#,
             with: "<strong>$1</strong>",
             options: .regularExpression
         )
-        // Links: [text](url)
+        // Links: [text](url) — web and mail only; any other scheme keeps just its text.
+        result = result.replacingOccurrences(
+            of: #"\[(.+?)\]\(((?:https?|mailto):[^()\[\]\s]+)\)"#,
+            with: "<a href=\"$2\">$1</a>",
+            options: [.regularExpression, .caseInsensitive]
+        )
         result = result.replacingOccurrences(
             of: #"\[(.+?)\]\((.+?)\)"#,
-            with: "<a href=\"$2\">$1</a>",
+            with: "$1",
             options: .regularExpression
         )
         // Inline code: `text`

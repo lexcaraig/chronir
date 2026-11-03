@@ -41,6 +41,8 @@ struct AlarmCard: View {
     @Binding var isEnabled: Bool
     var streak: Int = 0
     var isPlusUser: Bool = false
+    /// AlarmKit rejected the last registration: the alarm will not ring until it is scheduled again.
+    var isUnscheduled: Bool = false
 
     private var lastCompletedText: String? {
         guard let date = alarm.lastCompletedAt else { return nil }
@@ -116,6 +118,78 @@ struct AlarmCard: View {
         .accessibilityLabel("\(alarm.timesOfDay.count) times a day")
     }
 
+    /// Schedule, category and status badges. Shared by the one-line and stacked layouts.
+    @ViewBuilder
+    private var statusBadges: some View {
+        ChronirBadge(schedule: alarm.schedule)
+        if let cat = alarm.alarmCategory {
+            ChronirBadge(cat.displayName, category: cat)
+        }
+        if let badge = visualState.statusBadge {
+            ChronirBadge(
+                badge.text,
+                color: badge.color,
+                icon: badge.icon,
+                foreground: visualState.statusBadgeForeground
+            )
+        }
+        if isUnscheduled && visualState != .inactive {
+            ChronirBadge(
+                "Not scheduled",
+                color: ColorTokens.badgeErrorBackground,
+                icon: "exclamationmark.triangle.fill",
+                foreground: ColorTokens.badgeErrorForeground
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var timeDisplay: some View {
+        HStack(alignment: .firstTextBaseline) {
+            if visualState != .inactive {
+                AlarmTimeDisplay(
+                    time: alarm.nextFireDate,
+                    countdownText: countdownText
+                )
+            } else {
+                ChronirText(
+                    alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
+                    style: .headlineTime,
+                    color: ColorTokens.textSecondary
+                )
+            }
+            if alarm.hasMultipleTimes {
+                multipleTimesBadge
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var trailingBadges: some View {
+        if isPlusUser && streak >= 2 {
+            ChronirBadge(
+                "\(streak) streak",
+                color: streakBadgeColors.background,
+                icon: streakBadgeIcon,
+                foreground: streakBadgeColors.foreground
+            )
+        } else if !isPlusUser && streak >= 3 {
+            ChronirBadge(
+                "streak",
+                color: ColorTokens.badgeNeutralBackground,
+                foreground: ColorTokens.badgeNeutralForeground
+            )
+        }
+        if alarm.isPersistent {
+            ChronirBadge(
+                "Persistent",
+                color: ColorTokens.badgeWarningBackground,
+                icon: "bell.badge.fill",
+                foreground: ColorTokens.badgeWarningForeground
+            )
+        }
+    }
+
     var body: some View {
         TimelineView(.periodic(from: .now, by: 60)) { _ in
             VStack(alignment: .leading, spacing: SpacingTokens.sm) {
@@ -128,67 +202,33 @@ struct AlarmCard: View {
                             // badge and the toggle carry the state.
                             color: visualState == .inactive ? ColorTokens.textSecondary : ColorTokens.textPrimary
                         )
-                        HStack(spacing: SpacingTokens.xxs) {
-                            ChronirBadge(schedule: alarm.schedule)
-                            if let cat = alarm.alarmCategory {
-                                ChronirBadge(cat.displayName, category: cat)
-                            }
-                            if let badge = visualState.statusBadge {
-                                ChronirBadge(
-                                    badge.text,
-                                    color: badge.color,
-                                    icon: badge.icon,
-                                    foreground: visualState.statusBadgeForeground
-                                )
-                            }
+                        // Badges never truncate, so they stack when one line can't hold them
+                        // (accessibility text sizes, long category names).
+                        ViewThatFits(in: .horizontal) {
+                            HStack(spacing: SpacingTokens.xxs) { statusBadges }
+                            VStack(alignment: .leading, spacing: SpacingTokens.xxs) { statusBadges }
                         }
                     }
                     .accessibilityElement(children: .combine)
                     Spacer()
                     // The label stays hidden on screen but names the switch for VoiceOver.
                     Toggle(alarm.title, isOn: $isEnabled)
-                        .tint(ColorTokens.primary)
+                        .tint(ColorTokens.toggleOn)
                         .labelsHidden()
                 }
 
-                HStack(alignment: .firstTextBaseline) {
-                    if visualState != .inactive {
-                        AlarmTimeDisplay(
-                            time: alarm.nextFireDate,
-                            countdownText: countdownText
-                        )
-                    } else {
-                        ChronirText(
-                            alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
-                            style: .headlineTime,
-                            color: ColorTokens.textSecondary
-                        )
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline) {
+                        timeDisplay
+                        Spacer()
+                        HStack(spacing: SpacingTokens.xxs) { trailingBadges }
                     }
-                    if alarm.hasMultipleTimes {
-                        multipleTimesBadge
-                    }
-                    Spacer()
-                    if isPlusUser && streak >= 2 {
-                        ChronirBadge(
-                            "\(streak) streak",
-                            color: streakBadgeColors.background,
-                            icon: streakBadgeIcon,
-                            foreground: streakBadgeColors.foreground
-                        )
-                    } else if !isPlusUser && streak >= 3 {
-                        ChronirBadge(
-                            "streak",
-                            color: ColorTokens.badgeNeutralBackground,
-                            foreground: ColorTokens.badgeNeutralForeground
-                        )
-                    }
-                    if alarm.isPersistent {
-                        ChronirBadge(
-                            "Persistent",
-                            color: ColorTokens.badgeWarningBackground,
-                            icon: "bell.badge.fill",
-                            foreground: ColorTokens.badgeWarningForeground
-                        )
+                    VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
+                        timeDisplay
+                        ViewThatFits(in: .horizontal) {
+                            HStack(spacing: SpacingTokens.xxs) { trailingBadges }
+                            VStack(alignment: .leading, spacing: SpacingTokens.xxs) { trailingBadges }
+                        }
                     }
                 }
                 .accessibilityElement(children: .combine)
@@ -263,6 +303,33 @@ private extension AlarmCard {
     .background(ColorTokens.backgroundPrimary)
 }
 
+#Preview("Not Scheduled") {
+    @Previewable @State var isEnabled = true
+    AlarmCard(
+        alarm: AlarmCard.sampleAlarm,
+        visualState: .active,
+        isEnabled: $isEnabled,
+        isUnscheduled: true
+    )
+    .padding()
+    .background(ColorTokens.backgroundPrimary)
+}
+
+#Preview("Accessibility Text Size") {
+    @Previewable @State var isEnabled = true
+    AlarmCard(
+        alarm: AlarmCard.sampleAlarmMonthly,
+        visualState: .pending,
+        isEnabled: $isEnabled,
+        streak: 12,
+        isPlusUser: true,
+        isUnscheduled: true
+    )
+    .padding()
+    .background(ColorTokens.backgroundPrimary)
+    .dynamicTypeSize(.accessibility3)
+}
+
 #Preview("Dark — All States") {
     @Previewable @State var enabled1 = true
     @Previewable @State var enabled2 = false
@@ -272,6 +339,7 @@ private extension AlarmCard {
             AlarmCard(alarm: AlarmCard.sampleAlarm, visualState: .active, isEnabled: $enabled1)
             AlarmCard(alarm: AlarmCard.sampleAlarmMonthly, visualState: .inactive, isEnabled: $enabled2)
             AlarmCard(alarm: AlarmCard.sampleAlarm, visualState: .snoozed, isEnabled: $enabled3)
+            AlarmCard(alarm: AlarmCard.sampleAlarm, visualState: .active, isEnabled: $enabled1, isUnscheduled: true)
         }
         .padding()
     }

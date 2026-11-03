@@ -8,7 +8,7 @@ struct ChronirToggle: View {
         Toggle(isOn: userChange) {
             ChronirText(label, style: .bodyPrimary)
         }
-        .tint(ColorTokens.primary)
+        .tint(ColorTokens.toggleOn)
     }
 
     /// Plays haptics only for user-initiated flips (not programmatic changes to `isOn`),

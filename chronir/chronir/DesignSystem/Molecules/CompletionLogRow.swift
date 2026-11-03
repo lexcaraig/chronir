@@ -4,6 +4,8 @@ struct CompletionLogRow: View {
     let log: CompletionLog
     let alarmTitle: String?
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private var actionIcon: String {
         switch log.action {
         case .completed: return "checkmark.circle.fill"
@@ -35,7 +37,24 @@ struct CompletionLogRow: View {
         }
     }
 
-    var body: some View {
+    @ViewBuilder
+    private var badges: some View {
+        if log.snoozeCount > 0 {
+            ChronirBadge(
+                "\(log.snoozeCount)x snoozed",
+                color: ColorTokens.badgeWarningBackground,
+                foreground: ColorTokens.badgeWarningForeground
+            )
+        }
+        ChronirBadge(
+            actionLabel,
+            color: actionColors.background,
+            icon: actionIcon,
+            foreground: actionColors.foreground
+        )
+    }
+
+    private var summary: some View {
         HStack(spacing: SpacingTokens.md) {
             Image(systemName: actionIcon)
                 .foregroundStyle(log.action == .skipped ? ColorTokens.textSecondary : actionColors.background)
@@ -53,23 +72,21 @@ struct CompletionLogRow: View {
                     color: ColorTokens.textSecondary
                 )
             }
+        }
+    }
 
-            Spacer()
-
-            HStack(spacing: SpacingTokens.xs) {
-                if log.snoozeCount > 0 {
-                    ChronirBadge(
-                        "\(log.snoozeCount)x snoozed",
-                        color: ColorTokens.badgeWarningBackground,
-                        foreground: ColorTokens.badgeWarningForeground
-                    )
-                }
-                ChronirBadge(
-                    actionLabel,
-                    color: actionColors.background,
-                    icon: actionIcon,
-                    foreground: actionColors.foreground
-                )
+    var body: some View {
+        // Badges never truncate: at accessibility sizes they drop below the title, and stack if needed.
+        let isLargeText = dynamicTypeSize.isAccessibilitySize
+        let layout = isLargeText
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: SpacingTokens.xs))
+            : AnyLayout(HStackLayout(spacing: SpacingTokens.md))
+        layout {
+            summary
+            if !isLargeText { Spacer() }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: SpacingTokens.xs) { badges }
+                VStack(alignment: .leading, spacing: SpacingTokens.xs) { badges }
             }
         }
         .padding(.vertical, SpacingTokens.xs)
@@ -100,4 +117,9 @@ private struct CompletionLogRowGallery: View {
 #Preview("Dark") {
     CompletionLogRowGallery()
         .environment(\.colorScheme, .dark)
+}
+
+#Preview("Accessibility Text Size") {
+    CompletionLogRowGallery()
+        .dynamicTypeSize(.accessibility3)
 }

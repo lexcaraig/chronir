@@ -2,6 +2,8 @@ import Testing
 import Foundation
 @testable import chronir
 
+// The edge-case matrix (month-end, leap year, DST, timezones, relative schedules) lives in one suite by design (TEST-01).
+// swiftlint:disable:next type_body_length
 struct DateCalculatorTests {
     private let calendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)

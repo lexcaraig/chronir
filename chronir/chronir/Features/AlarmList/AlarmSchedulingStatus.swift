@@ -10,9 +10,23 @@ import Observation
 final class AlarmSchedulingStatus {
     static let shared = AlarmSchedulingStatus()
 
-    private(set) var failedAlarmIDs: Set<UUID> = []
+    /// Persisted (UserDefaults, not SwiftData) so the "won't ring" warning survives a relaunch.
+    /// An entry is cleared only by a later successful schedule, disabling, or deleting the alarm.
+    private(set) var failedAlarmIDs: Set<UUID>
 
-    private init() {}
+    private static let defaultsKey = "failedAlarmIDs"
+
+    private init() {
+        let stored = UserDefaults.standard.stringArray(forKey: Self.defaultsKey) ?? []
+        failedAlarmIDs = Set(stored.compactMap(UUID.init(uuidString:)))
+    }
+
+    /// Writes only on a real change: every write to an observed set re-renders the alarm list.
+    private func markFailed(_ id: UUID, _ failed: Bool) {
+        guard failedAlarmIDs.contains(id) != failed else { return }
+        if failed { failedAlarmIDs.insert(id) } else { failedAlarmIDs.remove(id) }
+        UserDefaults.standard.set(failedAlarmIDs.map(\.uuidString), forKey: Self.defaultsKey)
+    }
 
     /// Registers the alarm with `AlarmScheduler` and records the outcome.
     /// Returns `true` only when AlarmKit accepted the registration.
@@ -22,13 +36,13 @@ final class AlarmSchedulingStatus {
             try await AlarmScheduler.shared.scheduleAlarm(alarm)
             // `scheduleAlarm` returns without registering anything when alarm permission is denied.
             guard AlarmManager.shared.authorizationState == .authorized else {
-                failedAlarmIDs.insert(alarm.id)
+                markFailed(alarm.id, true)
                 return false
             }
-            failedAlarmIDs.remove(alarm.id)
+            markFailed(alarm.id, false)
             return true
         } catch {
-            failedAlarmIDs.insert(alarm.id)
+            markFailed(alarm.id, true)
             return false
         }
     }
@@ -49,6 +63,22 @@ final class AlarmSchedulingStatus {
     }
 
     func clear(_ id: UUID) {
-        failedAlarmIDs.remove(id)
+        markFailed(id, false)
+    }
+
+    /// Drops warnings for alarms that another path (launch reschedule, Siri, widget) has since
+    /// registered with AlarmKit, so a persisted warning never claims a scheduled alarm won't ring.
+    func reconcile() {
+        guard !failedAlarmIDs.isEmpty else { return }
+        let registered: [AlarmKit.Alarm]
+        do {
+            registered = try AlarmManager.shared.alarms
+        } catch {
+            return // can't tell; keep the warnings rather than hide a real failure
+        }
+        let scheduled = Set(registered.map { AlarmScheduler.baseAlarmID(for: $0.id) })
+        for id in failedAlarmIDs.intersection(scheduled) {
+            markFailed(id, false)
+        }
     }
 }

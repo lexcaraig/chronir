@@ -13,9 +13,6 @@ enum GlassTokens {
     /// Card corners (28pt) — content cards; glass-styled control surfaces
     static let cardRadius: CGFloat = RadiusTokens.xl
 
-    /// Sheet corners (34pt) — glass-styled modal sheets
-    static let sheetRadius: CGFloat = RadiusTokens.sheet
-
     // MARK: - Glass Variants
 
     /// Navigation bars, tab bars, toolbar chrome

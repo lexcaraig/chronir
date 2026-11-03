@@ -32,7 +32,7 @@ struct WallpaperPickerView: View {
 
             // Loading overlay
             if isLoading {
-                Color.black.opacity(0.5) // token-exempt: photo scrim, no scrim token exists
+                ColorTokens.scrim.opacity(0.5)
                     .ignoresSafeArea()
                 VStack(spacing: SpacingTokens.md) {
                     ProgressView()
@@ -84,7 +84,7 @@ struct WallpaperPickerView: View {
 
                 // Dark scrim for light wallpapers
                 if wallpaperImage != nil && settings.wallpaperIsLight {
-                    Color.black.opacity(0.35) // token-exempt: legibility scrim over a light photo
+                    ColorTokens.scrim.opacity(0.35)
                         .allowsHitTesting(false)
                 }
 

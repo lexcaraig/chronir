@@ -143,7 +143,8 @@ struct AlarmListRow: View {
                 visualState: visualState,
                 isEnabled: $isEnabled,
                 streak: streak,
-                isPlusUser: isPlusUser
+                isPlusUser: isPlusUser,
+                isUnscheduled: isUnscheduled
             )
         }
         .contentShape(Rectangle())

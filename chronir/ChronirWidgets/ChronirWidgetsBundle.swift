@@ -40,7 +40,7 @@ private struct NextAlarmWidgetView: View {
             AccessoryInlineView(alarm: entry.alarm)
                 .containerBackground(for: .widget) {}
         case .accessoryCircular:
-            AccessoryCircularView(alarm: entry.alarm)
+            AccessoryCircularView(alarm: entry.alarm, date: entry.date)
                 .containerBackground(for: .widget) {}
         case .systemSmall:
             SystemSmallView(alarm: entry.alarm, pinnedMissing: entry.pinnedMissing)
