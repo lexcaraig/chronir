@@ -1,6 +1,6 @@
 # BUG-02: Android alarms stop after one fire unless dismissed in-app
 
-**Status:** Untested
+**Status:** Completed
 **Platform:** Android
 
 ## Problem
@@ -12,3 +12,7 @@
 ## Verification
 - [x] ktlint + unit tests + assembleRelease green (2026-11-03, EXIT 0)
 - [ ] Device: weekly alarm, let it fire, tap Dismiss on the notification only, confirm `adb shell dumpsys alarm | grep chronir` shows the next week's registration
+
+## QA
+
+Verified on device by the user (Lex) on 2026-11-03 — reported working.

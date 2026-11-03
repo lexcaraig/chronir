@@ -1,6 +1,6 @@
 # BUG-01: iOS alarms stop firing after the app is unopened for days
 
-**Status:** In Progress
+**Status:** Completed
 **Platform:** iOS
 
 ## Problem
@@ -20,3 +20,7 @@ Secondary bugs found alongside:
 - [x] DateCalculatorTests pass (new horizon tests)
 - [x] Simulator build green
 - [ ] Device: create weekly alarm, force-quit app, let it fire, confirm next week's registration exists
+
+## QA
+
+Verified on device by the user (Lex) on 2026-11-03 — reported working.

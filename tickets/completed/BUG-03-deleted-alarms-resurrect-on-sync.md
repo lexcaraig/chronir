@@ -1,6 +1,6 @@
 # BUG-03: Deleted alarms come back after cloud sync (iOS)
 
-**Status:** Untested
+**Status:** Completed
 **Platform:** iOS
 **Effort:** Low
 
@@ -15,3 +15,7 @@ Deleting an alarm from the category detail screen removed it locally but never d
 - [x] swiftlint clean on touched files
 - [x] `xcodebuild test` green (simulator)
 - [ ] Device "lexpresswayyy": Plus account, delete an alarm, force-quit, relaunch, confirm it stays deleted
+
+## QA
+
+Verified on device by the user (Lex) on 2026-11-03 — reported working.
