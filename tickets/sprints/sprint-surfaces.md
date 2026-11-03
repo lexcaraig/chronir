@@ -11,12 +11,12 @@
 
 | Ticket | Title | Status |
 |--------|-------|--------|
-| [FEAT-06](../open/FEAT-06-widget-mark-done-intents.md) | AlarmEntity + Mark Done from widgets/Siri (foundation) | Open |
-| [FEAT-07](../open/FEAT-07-control-center-controls.md) | Control Center / Lock Screen controls | Open |
-| [FEAT-08](../open/FEAT-08-spotlight-indexing.md) | Spotlight indexing | Open |
-| [FEAT-09](../open/FEAT-09-configurable-widget.md) | Configurable widget | Open |
-| [FEAT-10](../open/FEAT-10-focus-filters.md) | Focus filters | Open |
-| [FEAT-11](../open/FEAT-11-tipkit-discoverability.md) | TipKit hints | Open |
+| [FEAT-06](../untested/FEAT-06-widget-mark-done-intents.md) | AlarmEntity + Mark Done from widgets/Siri (foundation) | Untested (needs device check) |
+| [FEAT-07](../untested/FEAT-07-control-center-controls.md) | Control Center / Lock Screen controls | Untested (needs device check) |
+| [FEAT-08](../untested/FEAT-08-spotlight-indexing.md) | Spotlight indexing | Untested (needs device check) |
+| [FEAT-09](../untested/FEAT-09-configurable-widget.md) | Configurable widget | Untested (needs device check) |
+| [FEAT-10](../untested/FEAT-10-focus-filters.md) | Focus filters | Untested (needs device check) |
+| [FEAT-11](../untested/FEAT-11-tipkit-discoverability.md) | TipKit hints | Untested (needs device check) |
 
 ## Phase 2 — Android surfaces (no council)
 
