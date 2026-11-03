@@ -4,7 +4,7 @@
 **Category:** Feature
 **Effort:** Low (1 day)
 **Platform:** iOS
-**Status:** Open
+**Status:** In Progress
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 
 ---
@@ -27,3 +27,13 @@ FEAT-06
 **Commands:** `/implement-task {ID}` → `/precommit-review` → commit
 **Pre-flight:** read `chronir/ChronirWidgets/`, `chronir/chronir/Core/Intents/`, `AlarmScheduler` (AE-02/AE-03)
 **Post-flight:** swiftlint, `xcodebuild test`, on-device check on lexpresswayyy
+
+## Implementation Notes
+- The Next Alarm widget (small, circular, inline) uses `AppIntentConfiguration` with `NextAlarmConfigurationIntent`, offering an optional alarm or category. It keeps the same `kind`, so widgets already placed default to "next alarm".
+- Found along the way: `WidgetDataService` always wrote `nil` for the category, so widgets never showed category colors or icons. `AlarmSummary` now carries the category. This was needed for category pinning and also fixes the colors.
+- A pinned alarm that was deleted or disabled falls back to the next alarm, with a "Pinned alarm removed" note on the small widget.
+- Out of scope: the list widget (medium/rectangular) stays a static configuration.
+
+## Verification
+- `xcodebuild build` + `xcodebuild test -only-testing:chronirTests` (iPhone 17 Pro sim, iOS 26.2): BUILD SUCCEEDED, TEST SUCCEEDED; swiftlint clean
+- On-device check on lexpresswayyy: still to do (long-press widget → Edit Widget → pick an alarm or category; delete the pinned alarm and check it falls back)

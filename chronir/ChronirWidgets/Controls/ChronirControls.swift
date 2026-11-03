@@ -6,7 +6,10 @@ import WidgetKit
 
 struct NextAlarmControl: ControlWidget {
     var body: some ControlWidgetConfiguration {
-        StaticControlConfiguration(kind: "com.chronir.ios.control.nextAlarm", provider: NextAlarmControlProvider()) { alarm in
+        StaticControlConfiguration(
+            kind: "com.chronir.ios.control.nextAlarm",
+            provider: NextAlarmControlProvider()
+        ) { alarm in
             ControlWidgetButton(action: OpenChronirLinkIntent(path: alarm.map { "alarm/\($0.id.uuidString)" } ?? "")) {
                 Label(alarm?.title ?? "No upcoming alarms", systemImage: "alarm")
             }

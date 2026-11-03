@@ -27,4 +27,18 @@ enum WidgetDataReader {
     static func nextAlarm() -> WidgetAlarmData? {
         loadAlarms().first { $0.nextFireDate != .distantFuture }
     }
+
+    /// Resolves a widget configuration. `pinnedMissing` is true when the pinned alarm was deleted or
+    /// disabled, in which case the next alarm is shown instead.
+    static func alarm(for config: NextAlarmConfigurationIntent) -> (alarm: WidgetAlarmData?, pinnedMissing: Bool) {
+        let scheduled = loadAlarms().filter { $0.nextFireDate != .distantFuture }
+        if let pinned = config.alarm {
+            if let match = scheduled.first(where: { $0.id == pinned.id }) { return (match, false) }
+            return (scheduled.first, true)
+        }
+        if let category = config.category {
+            return (scheduled.first { $0.categoryName == category.rawValue }, false)
+        }
+        return (scheduled.first, false)
+    }
 }

@@ -4,6 +4,7 @@ import WidgetKit
 /// Home screen small widget: next alarm with category color accent
 struct SystemSmallView: View {
     let alarm: WidgetAlarmData?
+    var pinnedMissing = false
 
     var body: some View {
         if let alarm {
@@ -20,6 +21,13 @@ struct SystemSmallView: View {
                     .font(.system(.headline, design: .rounded))
                     .lineLimit(2)
                     .foregroundStyle(WidgetTokens.textPrimary)
+
+                if pinnedMissing {
+                    Text("Pinned alarm removed")
+                        .font(.system(.caption2))
+                        .foregroundStyle(WidgetTokens.textTertiary)
+                        .lineLimit(1)
+                }
 
                 Spacer()
 

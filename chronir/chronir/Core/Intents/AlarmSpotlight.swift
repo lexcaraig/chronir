@@ -16,7 +16,9 @@ struct OpenAlarmIntent: OpenIntent {
 
     func perform() async throws -> some IntentResult & OpensIntent {
         // Deep link rather than an in-process notification: onOpenURL is delivered on cold launch too.
-        guard let url = URL(string: "chronir://alarm/\(target.id.uuidString)") else { throw AlarmIntentError.alarmNotFound }
+        guard let url = URL(string: "chronir://alarm/\(target.id.uuidString)") else {
+            throw AlarmIntentError.alarmNotFound
+        }
         return .result(opensIntent: OpenURLIntent(url))
     }
 }

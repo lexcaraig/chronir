@@ -4,9 +4,10 @@ import SwiftUI
 struct NextAlarmEntry: TimelineEntry {
     let date: Date
     let alarm: WidgetAlarmData?
+    var pinnedMissing = false
 }
 
-struct NextAlarmTimelineProvider: TimelineProvider {
+struct NextAlarmTimelineProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> NextAlarmEntry {
         NextAlarmEntry(
             date: Date(),
@@ -23,18 +24,18 @@ struct NextAlarmTimelineProvider: TimelineProvider {
         )
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (NextAlarmEntry) -> Void) {
-        if context.isPreview {
-            completion(placeholder(in: context))
-        } else {
-            let alarm = WidgetDataReader.nextAlarm()
-            completion(NextAlarmEntry(date: Date(), alarm: alarm))
-        }
+    func snapshot(for configuration: NextAlarmConfigurationIntent, in context: Context) async -> NextAlarmEntry {
+        if context.isPreview { return placeholder(in: context) }
+        let resolved = WidgetDataReader.alarm(for: configuration)
+        return NextAlarmEntry(date: Date(), alarm: resolved.alarm, pinnedMissing: resolved.pinnedMissing)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<NextAlarmEntry>) -> Void) {
-        let alarm = WidgetDataReader.nextAlarm()
-        let entry = NextAlarmEntry(date: Date(), alarm: alarm)
+    func timeline(
+        for configuration: NextAlarmConfigurationIntent, in context: Context
+    ) async -> Timeline<NextAlarmEntry> {
+        let resolved = WidgetDataReader.alarm(for: configuration)
+        let alarm = resolved.alarm
+        let entry = NextAlarmEntry(date: Date(), alarm: alarm, pinnedMissing: resolved.pinnedMissing)
 
         // Refresh at the alarm's fire time (if within 24h), or every 15 minutes
         let refreshDate: Date
@@ -45,6 +46,6 @@ struct NextAlarmTimelineProvider: TimelineProvider {
             refreshDate = Date().addingTimeInterval(900)
         }
 
-        completion(Timeline(entries: [entry], policy: .after(refreshDate)))
+        return Timeline(entries: [entry], policy: .after(refreshDate))
     }
 }

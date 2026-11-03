@@ -30,8 +30,8 @@ final class WidgetDataService: Sendable {
                     nextFireDate: summary.nextFireDate,
                     scheduleDisplayName: summary.scheduleDisplayName,
                     cycleType: summary.cycleType.rawValue,
-                    categoryName: nil,
-                    categoryIconName: nil,
+                    categoryName: summary.category?.rawValue,
+                    categoryIconName: summary.category?.iconName,
                     colorTag: nil
                 )
             }

@@ -18,11 +18,14 @@ struct NextAlarmWidget: Widget {
     let kind = "NextAlarmWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: NextAlarmTimelineProvider()) { entry in
+        // Same kind as the former StaticConfiguration, so placed widgets keep working with the default (next alarm).
+        AppIntentConfiguration(
+            kind: kind, intent: NextAlarmConfigurationIntent.self, provider: NextAlarmTimelineProvider()
+        ) { entry in
             NextAlarmWidgetView(entry: entry)
         }
         .configurationDisplayName("Next Alarm")
-        .description("Shows your next upcoming alarm with a countdown.")
+        .description("Shows your next alarm, or one you pick, with a countdown.")
         .supportedFamilies([.accessoryInline, .accessoryCircular, .systemSmall])
     }
 }
@@ -40,10 +43,10 @@ private struct NextAlarmWidgetView: View {
             AccessoryCircularView(alarm: entry.alarm)
                 .containerBackground(for: .widget) {}
         case .systemSmall:
-            SystemSmallView(alarm: entry.alarm)
+            SystemSmallView(alarm: entry.alarm, pinnedMissing: entry.pinnedMissing)
                 .containerBackground(.fill.tertiary, for: .widget)
         default:
-            SystemSmallView(alarm: entry.alarm)
+            SystemSmallView(alarm: entry.alarm, pinnedMissing: entry.pinnedMissing)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
     }

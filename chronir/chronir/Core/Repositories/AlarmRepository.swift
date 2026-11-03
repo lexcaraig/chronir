@@ -19,6 +19,7 @@ struct AlarmSummary: Sendable {
     let nextFireDate: Date
     let scheduleDisplayName: String
     let cycleType: CycleType
+    let category: AlarmCategory?
 }
 
 @ModelActor
@@ -96,7 +97,8 @@ actor AlarmRepository: AlarmRepositoryProtocol {
                 title: alarm.title,
                 nextFireDate: alarm.nextFireDate,
                 scheduleDisplayName: alarm.schedule.displayName,
-                cycleType: alarm.cycleType
+                cycleType: alarm.cycleType,
+                category: alarm.alarmCategory
             )
         }
     }
