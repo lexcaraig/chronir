@@ -44,7 +44,7 @@ struct CompleteAlarmIntent: LiveActivityIntent {
     // Completing suppresses an alarm, so never from a locked phone.
     static let authenticationPolicy: IntentAuthenticationPolicy = .requiresAuthentication
 
-    @Parameter(title: "Alarm")
+    @Parameter(title: "Alarm", requestValueDialog: "Which alarm?")
     var alarm: AlarmEntity
 
     /// The occurrence the widget showed; a stale or repeated tap no-ops instead of completing the next one.

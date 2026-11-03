@@ -17,6 +17,8 @@ final class SystemSurfacesUITests: XCTestCase {
 
     override func tearDownWithError() throws {
         app.activate()
+        let notNow = springboard.buttons["Not Now"] // App Store rating prompt triggered by completions
+        if notNow.waitForExistence(timeout: 3) { notNow.tap() }
         if !app.staticTexts["Alarms"].exists, app.navigationBars.buttons.firstMatch.exists {
             app.navigationBars.buttons.firstMatch.tap() // back out of detail
         }
@@ -47,10 +49,18 @@ final class SystemSurfacesUITests: XCTestCase {
         let countdown = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Alarm in")).firstMatch
         XCTAssertTrue(countdown.waitForExistence(timeout: 5))
         let before = countdown.label
-        XCUIDevice.shared.siriService.activate(voiceRecognitionText: "Mark \(title) as done in Chronir")
+        XCUIDevice.shared.siriService.activate(voiceRecognitionText: "Mark an alarm as done in Chronir")
+        sleep(5) // Siri asks "Which alarm?"
+        let ask = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        ask.name = "04-siri-which-alarm"
+        ask.lifetime = .keepAlways
+        add(ask)
+        XCUIDevice.shared.siriService.activate(voiceRecognitionText: title)
         for step in 1...6 { // Siri resolves the alarm, runs the intent, replies
             sleep(2)
-            add(XCTAttachment(screenshot: XCUIScreen.main.screenshot())) // full screen, includes Siri's UI
+            let shot = XCTAttachment(screenshot: XCUIScreen.main.screenshot()) // full screen, includes Siri's UI
+            shot.lifetime = .keepAlways
+            add(shot)
             _ = step
         }
         app.activate()

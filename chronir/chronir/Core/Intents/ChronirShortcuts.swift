@@ -36,7 +36,10 @@ struct ChronirShortcuts: AppShortcutsProvider {
             intent: CompleteAlarmIntent(),
             phrases: [
                 "Mark \(\.$alarm) as done in \(.applicationName)",
-                "Complete \(\.$alarm) in \(.applicationName)"
+                "Complete \(\.$alarm) in \(.applicationName)",
+                // No alarm name: Siri asks "Which alarm?" — doesn't depend on Siri having indexed alarm names.
+                "Mark an alarm as done in \(.applicationName)",
+                "Complete an alarm in \(.applicationName)"
             ],
             shortTitle: "Mark as Done",
             systemImageName: "checkmark.circle"

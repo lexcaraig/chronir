@@ -51,3 +51,9 @@ No council run: this is clear-cut work. Default is Free (widgets are Free today)
 - `CompleteAlarmIntentTests`: 8/8 pass on device (completion advances one cycle + logs; stale or double tap does nothing; pending path; one-time; disabled throws; entity query)
 - Siri UI test: **FAILS**. Siri says "I don't see an app for that" for "Mark {alarm} as done in Chronir". The phrase is in the compiled App Intents metadata, and the older phrase "What's my next alarm in Chronir" works, so Siri is not matching the alarm-name values. Open.
 - AlarmKit registrations can't be checked from a test process (see memory alarmkit-test-process); this still needs a real alarm to fire on device.
+
+### Device run 2026-11-03 17:33 / 17:36 (lexpresswayyy): Siri PASS
+- Added a phrase without the alarm name, "Mark an alarm as done in Chronir". Siri asks **"Which alarm?"** with the list of alarms (via `requestValueDialog`).
+- `SystemSurfacesUITests.testDeepLinkCreateAndSiriMarkDone` passed twice in a row on device. Siri replied "Marked \"Zeta Test Oscar\" as done."; the countdown went from 5d 14h to 12d 14h and showed "Last completed: Today".
+- The named phrase ("Mark {alarm} as done") still gets "I don't see an app for that" on these freshly reinstalled builds. It stays registered and may start working once Siri has indexed the alarm names; recheck after an overnight install.
+- Side effect: test completions trigger the App Store rating prompt (`AppReviewService.recordCompletion`); the UI test dismisses it.

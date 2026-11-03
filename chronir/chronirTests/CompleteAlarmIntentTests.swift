@@ -205,7 +205,8 @@ struct CompleteAlarmIntentTests {
     private func spotlightTitles(matching text: String) async throws -> [String] {
         let context = CSSearchQueryContext()
         context.fetchAttributes = ["title", "displayName"]
-        let query = CSSearchQuery(queryString: "(title == \"\(text)*\"cd || displayName == \"\(text)*\"cd)", queryContext: context)
+        let queryString = "(title == \"\(text)*\"cd || displayName == \"\(text)*\"cd)"
+        let query = CSSearchQuery(queryString: queryString, queryContext: context)
         var titles: [String] = []
         for try await result in query.results {
             titles.append(result.item.attributeSet.title ?? result.item.attributeSet.displayName ?? "?")
