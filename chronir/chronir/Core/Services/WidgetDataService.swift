@@ -44,6 +44,7 @@ final class WidgetDataService: Sendable {
             WidgetCenter.shared.reloadAllTimelines()
             ControlCenter.shared.reloadAllControls()
 
+            ChronirShortcuts.updateAppShortcutParameters() // so Siri knows new alarm names
             await AlarmSpotlightIndex.replace(with: summaries.map {
                 AlarmEntity(id: $0.id, title: $0.title, scheduleDisplayName: $0.scheduleDisplayName)
             })
