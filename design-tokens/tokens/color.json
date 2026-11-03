@@ -267,6 +267,12 @@
           "lightHighContrast": { "value": "{color.primitive.neutral.1000}", "type": "color" },
           "darkHighContrast": { "value": "{color.primitive.darkNeutral.1100}", "type": "color" }
         },
+        "toggleOn": {
+          "light": { "value": "{color.primitive.neutral.900}", "type": "color", "comment": "Switch track when on; the system thumb is always white, so dark mode can't reuse the light primary" },
+          "dark": { "value": "{color.primitive.neutral.700}", "type": "color" },
+          "lightHighContrast": { "value": "{color.primitive.neutral.1000}", "type": "color" },
+          "darkHighContrast": { "value": "{color.primitive.neutral.800}", "type": "color" }
+        },
         "onPrimary": {
           "light": { "value": "{color.theme.light.onPrimary}", "type": "color", "comment": "Text/icons on a primary fill" },
           "dark": { "value": "{color.theme.dark.onPrimary}", "type": "color" }
@@ -288,12 +294,6 @@
           "dark": { "value": "{color.theme.dark.textTertiary}", "type": "color" },
           "lightHighContrast": { "value": "{color.theme.lightHighContrast.textTertiary}", "type": "color" },
           "darkHighContrast": { "value": "{color.theme.darkHighContrast.textTertiary}", "type": "color" }
-        },
-        "textDisabled": {
-          "light": { "value": "{color.theme.light.textDisabled}", "type": "color" },
-          "dark": { "value": "{color.theme.dark.textDisabled}", "type": "color" },
-          "lightHighContrast": { "value": "{color.theme.lightHighContrast.textDisabled}", "type": "color" },
-          "darkHighContrast": { "value": "{color.theme.darkHighContrast.textDisabled}", "type": "color" }
         },
         "textError": {
           "light": { "value": "{color.theme.light.textError}", "type": "color" },
@@ -336,35 +336,10 @@
           "dark": { "value": "{color.theme.dark.borderDefault}", "type": "color" },
           "lightHighContrast": { "value": "{color.theme.lightHighContrast.borderDefault}", "type": "color" },
           "darkHighContrast": { "value": "{color.theme.darkHighContrast.borderDefault}", "type": "color" }
-        },
-        "borderFocused": {
-          "light": { "value": "{color.primitive.neutral.900}", "type": "color" },
-          "dark": { "value": "{color.primitive.darkNeutral.700}", "type": "color" },
-          "lightHighContrast": { "value": "{color.theme.lightHighContrast.borderFocused}", "type": "color" },
-          "darkHighContrast": { "value": "{color.theme.darkHighContrast.borderFocused}", "type": "color" }
-        },
-        "iconPrimary": {
-          "light": { "value": "{color.theme.light.iconPrimary}", "type": "color" },
-          "dark": { "value": "{color.theme.dark.iconPrimary}", "type": "color" },
-          "lightHighContrast": { "value": "{color.theme.lightHighContrast.iconPrimary}", "type": "color" },
-          "darkHighContrast": { "value": "{color.theme.darkHighContrast.iconPrimary}", "type": "color" }
-        },
-        "iconSecondary": {
-          "light": { "value": "{color.primitive.neutral.610}", "type": "color" },
-          "dark": { "value": "{color.primitive.neutral.610}", "type": "color" },
-          "lightHighContrast": { "value": "{color.theme.lightHighContrast.iconSecondary}", "type": "color" },
-          "darkHighContrast": { "value": "{color.theme.darkHighContrast.iconSecondary}", "type": "color" }
         }
-      },
-      "alarm": {
-        "alarmActiveBackground": { "value": "{color.primitive.amber.500}", "type": "color" },
-        "alarmActiveForeground": { "value": "{color.primitive.gray.900}", "type": "color" },
-        "alarmInactiveBackground": { "value": "{color.primitive.gray.100}", "type": "color" },
-        "alarmInactiveForeground": { "value": "{color.primitive.gray.400}", "type": "color" }
       },
       "firing": {
         "firingBackground": { "value": "{color.primitive.black}", "type": "color", "comment": "iOS ships pure black on the firing screen (OLED)" },
-        "firingForeground": { "value": "{color.firing.foreground}", "type": "color" },
         "firingTextPrimary": { "value": "{color.firing.textPrimary}", "type": "color" },
         "firingTextSecondary": { "value": "{color.firing.textSecondary}", "type": "color" },
         "firingControlFill": { "value": "{color.firing.controlFill}", "type": "color" },

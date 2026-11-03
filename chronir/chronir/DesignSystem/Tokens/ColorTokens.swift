@@ -58,12 +58,13 @@ extension ColorTokens {
 
 extension ColorTokens {
     static let primary = adaptive(light: 0x3B3D42, dark: 0xBFC1C4, highContrast: (0x292A2E, 0xE2E3E4))
+    /// Switch track when on; the system thumb is always white, so dark mode can't reuse the light primary
+    static let toggleOn = adaptive(light: 0x3B3D42, dark: 0x6B6E76, highContrast: (0x292A2E, 0x505258))
     /// Text/icons on a primary fill
     static let onPrimary = adaptive(light: 0xFFFFFF, dark: 0x1E1F21)
     static let textPrimary = adaptive(light: 0x1E1F21, dark: 0xE2E3E4, highContrast: (0x111213, 0xF5F5F5))
     static let textSecondary = adaptive(light: 0x6B6E76, dark: 0x96999E, highContrast: (0x505258, 0xBFC1C4))
     static let textTertiary = adaptive(light: 0x6B6E76, dark: 0x96999E, highContrast: (0x505258, 0xBFC1C4))
-    static let textDisabled = adaptive(light: 0xB7B9BE, dark: 0x4B4D51, highContrast: (0x7D818A, 0x7E8188))
     static let textError = adaptive(light: 0xC81E1E, dark: 0xF87171, highContrast: (0xA61B1B, 0xFCA5A5))
     static let textWarning = adaptive(light: 0xA84D08, dark: 0xFFB800, highContrast: (0x92400E, 0xFCD34D))
     static let backgroundPrimary = adaptive(light: 0xF2F2F7, dark: 0x242528)
@@ -73,18 +74,6 @@ extension ColorTokens {
     static let surfaceElevated = adaptive(light: 0xFFFFFF, dark: 0x1F1F21)
     static let surfacePrimary = adaptive(light: 0xF8F8F8, dark: 0x242528)
     static let borderDefault = adaptive(light: 0xDDDEE1, dark: 0x63666B, highContrast: (0x7D818A, 0x7E8188))
-    static let borderFocused = adaptive(light: 0x3B3D42, dark: 0x96999E, highContrast: (0x1E1F21, 0xE2E3E4))
-    static let iconPrimary = adaptive(light: 0x3B3D42, dark: 0xBFC1C4, highContrast: (0x1E1F21, 0xE2E3E4))
-    static let iconSecondary = adaptive(light: 0x7D8088, dark: 0x7D8088, highContrast: (0x505258, 0xA9ABAF))
-}
-
-// MARK: - Alarm State (non-adaptive)
-
-extension ColorTokens {
-    static let alarmActiveBackground = Color(hex: 0xFFB800)
-    static let alarmActiveForeground = Color(hex: 0x111111)
-    static let alarmInactiveBackground = Color(hex: 0xF1F3F5)
-    static let alarmInactiveForeground = Color(hex: 0x9CA3AF)
 }
 
 // MARK: - Firing Screen (always dark — never follows the app theme)
@@ -92,7 +81,6 @@ extension ColorTokens {
 extension ColorTokens {
     /// iOS ships pure black on the firing screen (OLED)
     static let firingBackground = Color(hex: 0x000000)
-    static let firingForeground = Color(hex: 0xF5F5F5)
     static let firingTextPrimary = Color(hex: 0xF5F5F5)
     static let firingTextSecondary = Color(hex: 0xA9ABAF)
     static let firingControlFill = Color(hex: 0x303134)
