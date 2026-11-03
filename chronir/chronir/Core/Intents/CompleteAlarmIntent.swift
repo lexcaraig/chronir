@@ -63,6 +63,10 @@ struct CompleteAlarmIntent: LiveActivityIntent {
         .result(dialog: "") // never runs — the system performs LiveActivityIntents in the app
     }
     #else
+    /// Test seam: integration tests run on a real (possibly Plus, signed-in) device and must never upload
+    /// throwaway alarms to the user's Firestore.
+    @MainActor static var syncsToCloud = true
+
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         guard let repo = AlarmRepository.shared else { throw AlarmIntentError.repositoryUnavailable }
@@ -88,7 +92,9 @@ struct CompleteAlarmIntent: LiveActivityIntent {
         model.updatedAt = Date()
         try context.save()
 
-        Task { await CloudSyncService.shared.pushAlarmModel(model) }
+        if Self.syncsToCloud {
+            Task { await CloudSyncService.shared.pushAlarmModel(model) }
+        }
         await WidgetDataService.shared.refresh()
         await LiveActivityService.shared.refreshLiveActivity()
         return .result(dialog: "Marked \"\(model.title)\" as done.")
