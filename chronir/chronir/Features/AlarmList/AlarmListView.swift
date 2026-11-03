@@ -485,17 +485,21 @@ extension AlarmListView {
             for alarm in activeAlarms where alarm.isPendingConfirmation {
                 PendingConfirmationService.shared.autoCompletePending(alarm: alarm)
             }
-            let enabled = activeAlarms.filter(\.isEnabled)
-            if enabled.count > limit {
-                let sorted = enabled.sorted { $0.createdAt < $1.createdAt }
-                for alarm in sorted.dropFirst(limit) {
-                    AlarmRowActions.setEnabled(alarm, false)
-                }
+            let excess = AlarmLimitPolicy.alarmsToDisable(enabled: activeAlarms.filter(\.isEnabled), limit: limit)
+            guard !excess.isEmpty else { return }
+            for alarm in excess {
+                AlarmRowActions.setEnabled(alarm, false)
             }
+            AlarmLimitPolicy.save(AlarmLimitPolicy.load().union(excess.map(\.id)))
         } else if !tier.isFreeTier {
-            for alarm in activeAlarms where !alarm.isEnabled {
+            // Restore only what the limit turned off; alarms the user paused stay paused.
+            let limitDisabled = AlarmLimitPolicy.load()
+            guard !limitDisabled.isEmpty else { return }
+            let disabled = activeAlarms.filter { !$0.isEnabled }
+            for alarm in AlarmLimitPolicy.alarmsToRestore(disabled: disabled, limitDisabled: limitDisabled) {
                 AlarmRowActions.setEnabled(alarm, true)
             }
+            AlarmLimitPolicy.save([])
         }
     }
 }

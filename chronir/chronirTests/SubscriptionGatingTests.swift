@@ -80,16 +80,38 @@ struct AlarmLimitEnforcementTests {
         #expect(canCreateAlarm(tier: .plus, currentCount: 100) == true)
     }
 
-    @Test func downgradeFreeTierDisablesExcess() {
-        // Simulate: user has 5 alarms sorted by createdAt, downgrades to free
-        // Logic: keep first `limit` alarms enabled, rest disabled
-        let totalAlarms = 5
-        let limit = SubscriptionTier.free.alarmLimit!
-        let enabledCount = min(totalAlarms, limit)
-        let disabledCount = totalAlarms - enabledCount
+    private func alarm(_ title: String, ageDays: Double) -> Alarm {
+        let alarm = Alarm(title: title)
+        alarm.createdAt = Date().addingTimeInterval(-ageDays * 86_400)
+        return alarm
+    }
 
-        #expect(enabledCount == 3)
-        #expect(disabledCount == 2)
+    @Test func downgradeFreeTierDisablesNewestExcess() {
+        let alarms = (1...5).map { alarm("A\($0)", ageDays: Double(10 - $0)) } // A1 oldest
+        let limit = SubscriptionTier.free.alarmLimit ?? 3
+        let toDisable = AlarmLimitPolicy.alarmsToDisable(enabled: alarms, limit: limit)
+        #expect(toDisable.map(\.title) == ["A4", "A5"])
+        #expect(AlarmLimitPolicy.alarmsToDisable(enabled: Array(alarms.prefix(3)), limit: limit).isEmpty)
+    }
+
+    @Test func upgradeRestoresOnlyLimitDisabledAlarms() {
+        let pausedByLimit = alarm("Limit", ageDays: 1)
+        let pausedByUser = alarm("User", ageDays: 2)
+        let restored = AlarmLimitPolicy.alarmsToRestore(
+            disabled: [pausedByLimit, pausedByUser],
+            limitDisabled: [pausedByLimit.id]
+        )
+        #expect(restored.map(\.id) == [pausedByLimit.id])
+    }
+
+    @Test func limitDisabledIDsRoundTrip() throws {
+        let defaults = try #require(UserDefaults(suiteName: "AlarmLimitPolicyTests"))
+        defaults.removePersistentDomain(forName: "AlarmLimitPolicyTests")
+        let ids: Set<UUID> = [UUID(), UUID()]
+        AlarmLimitPolicy.save(ids, to: defaults)
+        #expect(AlarmLimitPolicy.load(from: defaults) == ids)
+        AlarmLimitPolicy.save([], to: defaults)
+        #expect(AlarmLimitPolicy.load(from: defaults).isEmpty)
     }
 }
 
