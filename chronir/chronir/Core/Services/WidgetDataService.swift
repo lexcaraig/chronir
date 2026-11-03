@@ -43,6 +43,10 @@ final class WidgetDataService: Sendable {
 
             WidgetCenter.shared.reloadAllTimelines()
             ControlCenter.shared.reloadAllControls()
+
+            await AlarmSpotlightIndex.replace(with: summaries.map {
+                AlarmEntity(id: $0.id, title: $0.title, scheduleDisplayName: $0.scheduleDisplayName)
+            })
         } catch {
             // Non-critical — widget just shows stale data
         }
