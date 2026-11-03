@@ -4,7 +4,7 @@
 **Category:** Feature
 **Effort:** Medium (2-3 days)
 **Platform:** iOS
-**Status:** Open
+**Status:** In Progress
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 
 ---
@@ -33,3 +33,16 @@ No council run: this is clear-cut work. Default is Free (widgets are Free today)
 **Commands:** `/implement-task {ID}` → `/precommit-review` → commit
 **Pre-flight:** read `chronir/ChronirWidgets/`, `chronir/chronir/Core/Intents/`, `AlarmScheduler` (AE-02/AE-03)
 **Post-flight:** swiftlint, `xcodebuild test`, on-device check on lexpresswayyy
+
+## Implementation Notes
+- `CompleteAlarmIntent` is a `LiveActivityIntent` in a file compiled into both the app and the widget extension (`#if CHRONIR_WIDGET_EXTENSION`), so iOS runs `perform()` in the app process.
+- When the alarm hasn't fired yet: log `.completed` for the upcoming occurrence, then advance from `max(nextFireDate, now)`. When it's waiting for confirmation (Plus): use `PendingConfirmationService.confirmDone`.
+- Review fixes: requires an unlocked phone (`.requiresAuthentication`), `expectedFireDate` guard against stale or double taps, uses the main `ModelContext`, refreshes the Live Activity after saving.
+- Mark Done is on the small and medium widgets. I left it off accessoryRectangular because the Lock Screen widget is too small for a tap target.
+- No unit test: everything the intent does goes through singletons that need AlarmKit and the live data store (the date math is DateCalculator, which already has tests). An on-device check covers it.
+
+## Verification
+- `xcodebuild build` (iPhone 17 Pro sim, iOS 26.2): BUILD SUCCEEDED, no new warnings
+- `xcodebuild test -only-testing:chronirTests`: TEST SUCCEEDED
+- swiftlint: no findings in changed files
+- On-device check on lexpresswayyy: still to do (tap Mark Done on the widget, then confirm the next occurrence still fires; Siri "Mark {alarm} as done in Chronir")

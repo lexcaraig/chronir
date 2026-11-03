@@ -32,5 +32,14 @@ struct ChronirShortcuts: AppShortcutsProvider {
             shortTitle: "List Alarms",
             systemImageName: "list.bullet"
         )
+        AppShortcut(
+            intent: CompleteAlarmIntent(),
+            phrases: [
+                "Mark \(\.$alarm) as done in \(.applicationName)",
+                "Complete \(\.$alarm) in \(.applicationName)"
+            ],
+            shortTitle: "Mark as Done",
+            systemImageName: "checkmark.circle"
+        )
     }
 }

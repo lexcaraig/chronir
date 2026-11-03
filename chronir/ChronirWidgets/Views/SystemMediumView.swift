@@ -36,8 +36,11 @@ struct SystemMediumView: View {
                 }
 
                 ForEach(alarms.prefix(3), id: \.id) { alarm in
-                    Link(destination: URL(string: "chronir://alarm/\(alarm.id.uuidString)")!) {
-                        alarmRow(alarm)
+                    HStack(spacing: WidgetTokens.spacingSM) {
+                        Link(destination: URL(string: "chronir://alarm/\(alarm.id.uuidString)")!) {
+                            alarmRow(alarm)
+                        }
+                        MarkDoneButton(alarm: alarm)
                     }
                 }
 

@@ -23,14 +23,20 @@ struct SystemSmallView: View {
 
                 Spacer()
 
-                Text(alarm.nextFireDate, style: .relative)
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(WidgetTokens.textSecondary)
+                HStack(alignment: .bottom) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(alarm.nextFireDate, style: .relative)
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(WidgetTokens.textSecondary)
 
-                Text(alarm.scheduleDisplayName)
-                    .font(.system(.caption2))
-                    .foregroundStyle(WidgetTokens.textSecondary)
-                    .lineLimit(1)
+                        Text(alarm.scheduleDisplayName)
+                            .font(.system(.caption2))
+                            .foregroundStyle(WidgetTokens.textSecondary)
+                            .lineLimit(1)
+                    }
+                    Spacer(minLength: 0)
+                    MarkDoneButton(alarm: alarm)
+                }
             }
             .padding(WidgetTokens.spacingMD)
             .widgetURL(URL(string: "chronir://alarm/\(alarm.id.uuidString)"))

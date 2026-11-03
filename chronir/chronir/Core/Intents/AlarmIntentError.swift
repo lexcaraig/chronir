@@ -5,6 +5,7 @@ enum AlarmIntentError: Error, CustomLocalizedStringResourceConvertible {
     case repositoryUnavailable
     case schedulingFailed
     case invalidInput
+    case alarmNotFound
 
     var localizedStringResource: LocalizedStringResource {
         switch self {
@@ -16,6 +17,8 @@ enum AlarmIntentError: Error, CustomLocalizedStringResourceConvertible {
             return "Failed to schedule the alarm. Please try again."
         case .invalidInput:
             return "The alarm name is invalid. Please provide a non-empty name."
+        case .alarmNotFound:
+            return "That alarm isn't scheduled anymore."
         }
     }
 }

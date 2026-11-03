@@ -29,6 +29,8 @@
 		F8ABAE9EFBFB07EB9E2D70C9 /* NextAlarmTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF66B8DFDEAAE640923D2790 /* NextAlarmTimelineProvider.swift */; };
 		G00G0001000100010001000C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000B /* GoogleSignIn */; };
 		G00G0001000100010001000E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000D /* GoogleSignInSwift */; };
+		FE06MRKDONE00000000000001 /* MarkDoneButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE06MRKDONE00000000000002 /* MarkDoneButton.swift */; };
+		FE06CMPLINT00000000000001 /* CompleteAlarmIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE06CMPLINT00000000000002 /* CompleteAlarmIntent.swift */; };
 		LA01CNTDWN000000000000001 /* CountdownLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */; };
 /* End PBXBuildFile section */
 
@@ -90,6 +92,8 @@
 		E6721AC3A371FCE4AD59D5EE /* SystemSmallView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SystemSmallView.swift; sourceTree = "<group>"; };
 		EB0B6A154604127003821537 /* AccessoryCircularView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccessoryCircularView.swift; sourceTree = "<group>"; };
 		F34EC1576DB35B27DD1B996E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WidgetKit.framework; sourceTree = "<group>"; };
+		FE06MRKDONE00000000000002 /* MarkDoneButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MarkDoneButton.swift; sourceTree = "<group>"; };
+		FE06CMPLINT00000000000002 /* CompleteAlarmIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CompleteAlarmIntent.swift; path = chronir/Core/Intents/CompleteAlarmIntent.swift; sourceTree = SOURCE_ROOT; };
 		LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CountdownLiveActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -168,6 +172,7 @@
 				48C5CF0A3715CD9DF481D6FA /* WidgetModels.swift */,
 				53181FD86F74F8B837004D4B /* WidgetDataReader.swift */,
 				09D2E7F5277E4349C3925F37 /* WidgetTokens.swift */,
+				FE06CMPLINT00000000000002 /* CompleteAlarmIntent.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -204,6 +209,7 @@
 				E6721AC3A371FCE4AD59D5EE /* SystemSmallView.swift */,
 				08AE9839E0387CBFD0E77474 /* SystemMediumView.swift */,
 				LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */,
+				FE06MRKDONE00000000000002 /* MarkDoneButton.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -428,6 +434,8 @@
 				F8ABAE9EFBFB07EB9E2D70C9 /* NextAlarmTimelineProvider.swift in Sources */,
 				2D8D898DDC53E540CE88A441 /* AlarmListTimelineProvider.swift in Sources */,
 				LA01CNTDWN000000000000001 /* CountdownLiveActivityView.swift in Sources */,
+				FE06MRKDONE00000000000001 /* MarkDoneButton.swift in Sources */,
+				FE06CMPLINT00000000000001 /* CompleteAlarmIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
