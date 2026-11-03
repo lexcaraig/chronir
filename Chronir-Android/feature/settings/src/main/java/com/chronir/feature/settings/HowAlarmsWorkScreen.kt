@@ -20,19 +20,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.atoms.ChronirIcon
 import com.chronir.designsystem.atoms.ChronirIconSize
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.molecules.SettingsSection
-import com.chronir.designsystem.tokens.ColorTokens
+import com.chronir.designsystem.theme.ChronirPreview
+import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,15 +44,12 @@ fun HowAlarmsWorkScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { ChronirText("How Alarms Work", style = ChronirTextStyle.TitleMedium) },
+                title = { Text("How Alarms Work") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
             )
         },
         modifier = modifier
@@ -69,7 +66,7 @@ fun HowAlarmsWorkScreen(
                         text = "Chronir uses Android's AlarmManager with setAlarmClock() to schedule high-priority alarms " +
                             "that fire reliably, even when the device is in Do Not Disturb mode.",
                         style = ChronirTextStyle.BodySecondary,
-                        color = ColorTokens.TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -77,7 +74,6 @@ fun HowAlarmsWorkScreen(
             SettingsSection(header = "What You Control") {
                 Column(modifier = Modifier.padding(SpacingTokens.Medium)) {
                     BulletRow("Alarm title, category, and notes")
-                    BulletRow("Alarm sound and vibration")
                     BulletRow("Snooze duration (in-app)")
                     BulletRow("Require Dismissal for critical alarms")
                     BulletRow("Pre-alarm warning notifications")
@@ -104,7 +100,7 @@ fun HowAlarmsWorkScreen(
                     Spacer(Modifier.height(SpacingTokens.Small))
                     TipRow(
                         icon = Icons.Default.Info,
-                        text = "Keep alarm titles under 32 characters to avoid truncation in notifications"
+                        text = "Keep alarm titles under 40 characters to avoid truncation in notifications"
                     )
                     Spacer(Modifier.height(SpacingTokens.Small))
                     TipRow(
@@ -136,13 +132,13 @@ private fun BulletRow(text: String) {
         ChronirText(
             text = "\u2022",
             style = ChronirTextStyle.BodySecondary,
-            color = ColorTokens.TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.width(SpacingTokens.Small))
         ChronirText(
             text = text,
             style = ChronirTextStyle.BodySecondary,
-            color = ColorTokens.TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -157,19 +153,21 @@ private fun TipRow(icon: ImageVector, text: String) {
             imageVector = icon,
             contentDescription = null,
             size = ChronirIconSize.Small,
-            tint = ColorTokens.Primary
+            tint = MaterialTheme.colorScheme.onSurface
         )
         Spacer(Modifier.width(SpacingTokens.Small))
         ChronirText(
             text = text,
             style = ChronirTextStyle.BodySecondary,
-            color = ColorTokens.TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
-@Preview(showBackground = true)
+@ChronirPreview
 @Composable
 private fun HowAlarmsWorkScreenPreview() {
-    HowAlarmsWorkScreen(onBack = {})
+    ChronirTheme(dynamicColor = false) {
+        HowAlarmsWorkScreen(onBack = {})
+    }
 }

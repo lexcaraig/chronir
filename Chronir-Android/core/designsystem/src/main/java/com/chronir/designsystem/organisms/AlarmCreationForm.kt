@@ -6,10 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.atoms.ChronirButton
 import com.chronir.designsystem.molecules.LabeledTextField
 import com.chronir.designsystem.molecules.TimePickerField
+import com.chronir.designsystem.theme.ChronirPreview
+import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @Composable
@@ -46,14 +47,16 @@ fun AlarmCreationForm(
     }
 }
 
-@Preview(showBackground = true)
+@ChronirPreview
 @Composable
 private fun AlarmCreationFormPreview() {
-    AlarmCreationForm(
-        title = "",
-        onTitleChange = {},
-        timeText = "08:00 AM",
-        onTimeClick = {},
-        onSave = {}
-    )
+    ChronirTheme(dynamicColor = false) {
+        AlarmCreationForm(
+            title = "",
+            onTitleChange = {},
+            timeText = "8:00 AM",
+            onTimeClick = {},
+            onSave = {}
+        )
+    }
 }

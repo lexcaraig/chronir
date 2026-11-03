@@ -26,13 +26,24 @@ enum class SubscriptionTier {
 
 enum class BillingPlan { MONTHLY, ANNUAL }
 
+enum class RestoreResult { RESTORED, NOTHING_TO_RESTORE, FAILED }
+
+/**
+ * Prices come only from Google Play (formatted in the buyer's currency); they stay null until
+ * product details load, so the UI never shows a guessed price.
+ */
 data class SubscriptionState(
     val tier: SubscriptionTier = SubscriptionTier.FREE,
     val isLoading: Boolean = false,
-    val monthlyPrice: String = "$1.99",
-    val annualPrice: String = "$19.99",
+    val monthlyPrice: String? = null,
+    val annualPrice: String? = null,
+    val monthlyPriceMicros: Long? = null,
+    val annualPriceMicros: Long? = null,
+    val priceCurrencyCode: String? = null,
     val monthlyAvailable: Boolean = false,
-    val annualAvailable: Boolean = false
+    val annualAvailable: Boolean = false,
+    /** True when connecting to Play or loading products failed; the paywall offers a retry. */
+    val productsUnavailable: Boolean = false
 )
 
 @Singleton
@@ -55,6 +66,7 @@ class BillingService
         private var annualProductDetails: ProductDetails? = null
 
         fun initialize() {
+            _subscriptionState.value = _subscriptionState.value.copy(productsUnavailable = false)
             billingClient = BillingClient.newBuilder(context)
                 .setListener(this)
                 .enablePendingPurchases()
@@ -65,11 +77,13 @@ class BillingService
                     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                         queryProducts()
                         queryExistingPurchases()
+                    } else {
+                        _subscriptionState.value = _subscriptionState.value.copy(productsUnavailable = true)
                     }
                 }
 
                 override fun onBillingServiceDisconnected() {
-                    // Will retry on next operation
+                    // Will retry on next operation (see refreshProducts)
                 }
             })
         }
@@ -95,41 +109,55 @@ class BillingService
                     monthlyProductDetails = productDetailsList.find { it.productId == PRODUCT_MONTHLY }
                     annualProductDetails = productDetailsList.find { it.productId == PRODUCT_ANNUAL }
 
-                    val monthlyPrice = monthlyProductDetails?.subscriptionOfferDetails
-                        ?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
-                    val annualPrice = annualProductDetails?.subscriptionOfferDetails
-                        ?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()?.formattedPrice
+                    val monthlyPhase = monthlyProductDetails?.subscriptionOfferDetails
+                        ?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()
+                    val annualPhase = annualProductDetails?.subscriptionOfferDetails
+                        ?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()
 
                     _subscriptionState.value = _subscriptionState.value.copy(
-                        monthlyPrice = monthlyPrice ?: "$1.99",
-                        annualPrice = annualPrice ?: "$19.99",
-                        monthlyAvailable = monthlyProductDetails != null,
-                        annualAvailable = annualProductDetails != null
+                        monthlyPrice = monthlyPhase?.formattedPrice,
+                        annualPrice = annualPhase?.formattedPrice,
+                        monthlyPriceMicros = monthlyPhase?.priceAmountMicros,
+                        annualPriceMicros = annualPhase?.priceAmountMicros,
+                        priceCurrencyCode = annualPhase?.priceCurrencyCode ?: monthlyPhase?.priceCurrencyCode,
+                        monthlyAvailable = monthlyPhase != null,
+                        annualAvailable = annualPhase != null,
+                        productsUnavailable = monthlyPhase == null && annualPhase == null
                     )
+                } else {
+                    _subscriptionState.value = _subscriptionState.value.copy(productsUnavailable = true)
                 }
             }
         }
 
-        private fun queryExistingPurchases() {
+        private fun queryExistingPurchases(onComplete: (RestoreResult) -> Unit = {}) {
             val params = QueryPurchasesParams.newBuilder()
                 .setProductType(BillingClient.ProductType.SUBS)
                 .build()
 
-            billingClient?.queryPurchasesAsync(params) { billingResult, purchases ->
-                if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    val hasActive = purchases.any {
-                        it.purchaseState == Purchase.PurchaseState.PURCHASED
-                    }
-                    _subscriptionState.value = _subscriptionState.value.copy(
-                        tier = if (hasActive) SubscriptionTier.PLUS else SubscriptionTier.FREE
-                    )
-                    // Acknowledge unacknowledged purchases
-                    purchases.filter {
-                        it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isAcknowledged
-                    }.forEach { purchase ->
-                        acknowledgePurchase(purchase)
-                    }
+            val client = billingClient
+            if (client == null || !client.isReady) {
+                onComplete(RestoreResult.FAILED)
+                return
+            }
+            client.queryPurchasesAsync(params) { billingResult, purchases ->
+                if (billingResult.responseCode != BillingClient.BillingResponseCode.OK) {
+                    onComplete(RestoreResult.FAILED)
+                    return@queryPurchasesAsync
                 }
+                val hasActive = purchases.any {
+                    it.purchaseState == Purchase.PurchaseState.PURCHASED
+                }
+                _subscriptionState.value = _subscriptionState.value.copy(
+                    tier = if (hasActive) SubscriptionTier.PLUS else SubscriptionTier.FREE
+                )
+                // Acknowledge unacknowledged purchases
+                purchases.filter {
+                    it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isAcknowledged
+                }.forEach { purchase ->
+                    acknowledgePurchase(purchase)
+                }
+                onComplete(if (hasActive) RestoreResult.RESTORED else RestoreResult.NOTHING_TO_RESTORE)
             }
         }
 
@@ -161,8 +189,21 @@ class BillingService
             return billingClient?.launchBillingFlow(activity, billingFlowParams)
         }
 
-        fun restorePurchases() {
-            queryExistingPurchases()
+        /** Re-queries Play for active subscriptions and reports what it found. */
+        fun restorePurchases(onComplete: (RestoreResult) -> Unit = {}) {
+            queryExistingPurchases(onComplete)
+        }
+
+        /** Retries loading prices, reconnecting to Play first if the connection dropped. */
+        fun refreshProducts() {
+            val client = billingClient
+            if (client != null && client.isReady) {
+                _subscriptionState.value = _subscriptionState.value.copy(productsUnavailable = false)
+                queryProducts()
+            } else {
+                destroy()
+                initialize()
+            }
         }
 
         override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {

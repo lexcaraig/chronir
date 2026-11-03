@@ -5,7 +5,7 @@ import android.os.Build
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import com.chronir.designsystem.tokens.ColorTokens
+import com.chronir.designsystem.tokens.ColorSchemeTokens
 
 object DynamicColorProvider {
 
@@ -21,34 +21,35 @@ object DynamicColorProvider {
     }
 
     /**
-     * Applies Chronir brand overrides on top of a dynamic color scheme.
-     * All brand colors are overridden to maintain the neutral Chronir palette
-     * regardless of the user's wallpaper-derived colors.
+     * Applies Chronir brand accents on top of a dynamic (wallpaper) scheme.
+     *
+     * Only the accent families (primary / secondary / tertiary / error and their on-, container and
+     * inverse roles, plus surfaceTint) are replaced, and always from the Chronir scheme that MATCHES
+     * [darkTheme]. Surfaces, containers, outlines and their on-colors stay from [scheme], so every
+     * text/surface pair still comes from one coherent scheme. (The previous version forced dark-only
+     * surface roles onto light dynamic schemes, giving ~1.1:1 text in sheets and dialogs.)
      */
-    fun applyChronirOverrides(scheme: ColorScheme): ColorScheme = scheme.copy(
-        primary = ColorTokens.Primary,
-        onPrimary = ColorTokens.OnPrimary,
-        primaryContainer = ColorTokens.PrimaryContainer,
-        onPrimaryContainer = ColorTokens.OnPrimaryContainer,
-        secondary = ColorTokens.Secondary,
-        onSecondary = ColorTokens.OnSecondary,
-        secondaryContainer = ColorTokens.SecondaryContainer,
-        onSecondaryContainer = ColorTokens.OnSecondaryContainer,
-        tertiary = ColorTokens.Tertiary,
-        onTertiary = ColorTokens.OnTertiary,
-        tertiaryContainer = ColorTokens.TertiaryContainer,
-        onTertiaryContainer = ColorTokens.OnTertiaryContainer,
-        error = ColorTokens.Error,
-        onError = ColorTokens.OnError,
-        errorContainer = ColorTokens.ErrorContainer,
-        onErrorContainer = ColorTokens.OnErrorContainer,
-        surface = ColorTokens.Surface,
-        onSurface = ColorTokens.OnSurface,
-        surfaceVariant = ColorTokens.SurfaceVariant,
-        onSurfaceVariant = ColorTokens.OnSurfaceVariant,
-        background = ColorTokens.Background,
-        onBackground = ColorTokens.OnBackground,
-        outline = ColorTokens.Outline,
-        outlineVariant = ColorTokens.OutlineVariant
-    )
+    fun applyChronirOverrides(scheme: ColorScheme, darkTheme: Boolean): ColorScheme {
+        val brand = if (darkTheme) ColorSchemeTokens.Dark else ColorSchemeTokens.Light
+        return scheme.copy(
+            primary = brand.primary,
+            onPrimary = brand.onPrimary,
+            primaryContainer = brand.primaryContainer,
+            onPrimaryContainer = brand.onPrimaryContainer,
+            inversePrimary = brand.inversePrimary,
+            secondary = brand.secondary,
+            onSecondary = brand.onSecondary,
+            secondaryContainer = brand.secondaryContainer,
+            onSecondaryContainer = brand.onSecondaryContainer,
+            tertiary = brand.tertiary,
+            onTertiary = brand.onTertiary,
+            tertiaryContainer = brand.tertiaryContainer,
+            onTertiaryContainer = brand.onTertiaryContainer,
+            error = brand.error,
+            onError = brand.onError,
+            errorContainer = brand.errorContainer,
+            onErrorContainer = brand.onErrorContainer,
+            surfaceTint = brand.surfaceTint
+        )
+    }
 }

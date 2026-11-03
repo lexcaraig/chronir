@@ -11,9 +11,10 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
+import com.chronir.designsystem.theme.ChronirPreview
+import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,14 +48,16 @@ fun <T> SegmentedOptionPicker(
     }
 }
 
-@Preview(showBackground = true)
+@ChronirPreview
 @Composable
 private fun SegmentedOptionPickerPreview() {
-    SegmentedOptionPicker(
-        label = "Theme",
-        options = listOf("Light", "Dark", "Dynamic"),
-        selected = "Dynamic",
-        onSelect = {},
-        labelMapper = { it }
-    )
+    ChronirTheme(dynamicColor = false) {
+        SegmentedOptionPicker(
+            label = "Theme",
+            options = listOf("Light", "Dark", "Dynamic"),
+            selected = "Dynamic",
+            onSelect = {},
+            labelMapper = { it }
+        )
+    }
 }

@@ -74,7 +74,8 @@ enum class ChronirTextStyle {
 
 /**
  * Resolves the ChronirTextStyle from MaterialTheme.typography so text scaling is applied.
- * DisplayAlarm and Caption fall back to static tokens since they have no M3 equivalent.
+ * Each M3-scale entry maps one-to-one to its M3 role (and to the same TypographyTokens value used by
+ * toTextStyle()). DisplayAlarm and Caption are component tokens with no M3 role.
  */
 @Composable
 private fun ChronirTextStyle.resolve(): TextStyle {
@@ -91,7 +92,7 @@ private fun ChronirTextStyle.resolve(): TextStyle {
         // Full M3 scale
         ChronirTextStyle.DisplayLarge -> typography.displayLarge
         ChronirTextStyle.DisplayMedium -> typography.displayMedium
-        ChronirTextStyle.DisplaySmall -> typography.displayMedium // displaySmall maps to our DisplaySmall via AppTypography
+        ChronirTextStyle.DisplaySmall -> typography.displaySmall
         ChronirTextStyle.HeadlineLarge -> typography.headlineLarge
         ChronirTextStyle.HeadlineMedium -> typography.headlineMedium
         ChronirTextStyle.HeadlineSmall -> typography.headlineSmall
@@ -104,7 +105,7 @@ private fun ChronirTextStyle.resolve(): TextStyle {
         ChronirTextStyle.LabelLarge -> typography.labelLarge
         ChronirTextStyle.LabelMedium -> typography.labelMedium
         ChronirTextStyle.LabelSmall -> typography.labelSmall
-        ChronirTextStyle.Caption -> TypographyTokens.Caption // 10sp — no M3 equivalent
+        ChronirTextStyle.Caption -> TypographyTokens.Caption // 11sp — no M3 equivalent
     }
 }
 

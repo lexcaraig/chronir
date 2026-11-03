@@ -1,18 +1,35 @@
 package com.chronir.designsystem.molecules
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.chronir.designsystem.tokens.ColorTokens
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.ChronirThemePreview
+import com.chronir.designsystem.theme.chronirColors
 import com.chronir.designsystem.tokens.SpacingTokens
 
+/**
+ * Outlined text field whose [label] is the field's own M3 label (so TalkBack announces it with the
+ * field). [maxLength] caps input, but never silently: text past the limit is cut to the limit and
+ * the field shows an error until the user edits below it. [softWarningLength] shows a non-blocking
+ * warning in `chronirColors.textWarning`. A caller-owned validation error is shown by passing
+ * [isError] with [supportingText]; the message is announced politely by TalkBack.
+ */
 @Composable
 fun LabeledTextField(
     label: String,
@@ -23,65 +40,114 @@ fun LabeledTextField(
     maxLength: Int = 0,
     softWarningLength: Int = 0,
     singleLine: Boolean = true,
-    minLines: Int = 1
+    minLines: Int = 1,
+    isError: Boolean = false,
+    supportingText: String? = null
 ) {
-    Column(modifier = modifier) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(bottom = SpacingTokens.XSmall)
-        )
-        OutlinedTextField(
-            value = value,
-            onValueChange = { newValue ->
-                if (maxLength > 0 && newValue.length > maxLength) return@OutlinedTextField
+    var hitLimit by remember { mutableStateOf(false) }
+    val showSoftWarning = softWarningLength > 0 && value.length > softWarningLength
+    val showError = hitLimit || isError
+    val message = when {
+        hitLimit -> "Limit is $maxLength characters"
+        supportingText != null -> supportingText
+        showSoftWarning -> "Titles over $softWarningLength characters may be truncated on the lock screen"
+        else -> null
+    }
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = { newValue ->
+            if (maxLength > 0 && newValue.length > maxLength) {
+                hitLimit = true
+                onValueChange(newValue.take(maxLength))
+            } else {
+                hitLimit = false
                 onValueChange(newValue)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder) },
-            singleLine = singleLine,
-            minLines = if (singleLine) 1 else minLines
+            }
+        },
+        modifier = modifier.fillMaxWidth(),
+        label = { Text(label) },
+        placeholder = if (placeholder.isNotEmpty()) {
+            { Text(placeholder) }
+        } else {
+            null
+        },
+        isError = showError,
+        singleLine = singleLine,
+        minLines = if (singleLine) 1 else minLines,
+        supportingText = if (maxLength > 0 || message != null) {
+            {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    if (message != null) {
+                        Text(
+                            text = message,
+                            color = when {
+                                showError -> MaterialTheme.colorScheme.error
+                                supportingText != null -> MaterialTheme.chronirColors.textSecondary
+                                else -> MaterialTheme.chronirColors.textWarning
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .semantics { if (showError) liveRegion = LiveRegionMode.Polite }
+                        )
+                        Spacer(Modifier.width(SpacingTokens.XSmall))
+                    } else {
+                        Spacer(Modifier.weight(1f))
+                    }
+                    if (maxLength > 0) {
+                        Text(text = "${value.length}/$maxLength", textAlign = TextAlign.End)
+                    }
+                }
+            }
+        } else {
+            null
+        }
+    )
+}
+
+@ChronirThemePreview
+@Composable
+private fun LabeledTextFieldPreview() {
+    ChronirTheme(dynamicColor = false) {
+        LabeledTextField(
+            label = "Alarm Title",
+            value = "",
+            onValueChange = {},
+            placeholder = "Enter alarm name",
+            modifier = Modifier.padding(SpacingTokens.Medium)
         )
-        if (maxLength > 0) {
-            Text(
-                text = "${value.length}/$maxLength",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(top = SpacingTokens.XXSmall)
-            )
-        }
-        if (softWarningLength > 0 && value.length > softWarningLength) {
-            Text(
-                text = "Titles over $softWarningLength characters may be truncated on the lock screen",
-                style = MaterialTheme.typography.labelSmall,
-                color = ColorTokens.Warning,
-                modifier = Modifier.padding(top = SpacingTokens.XXSmall)
-            )
-        }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun LabeledTextFieldPreview() {
-    LabeledTextField(
-        label = "Alarm Title",
-        value = "",
-        onValueChange = {},
-        placeholder = "Enter alarm name"
-    )
-}
-
-@Preview(showBackground = true)
+@ChronirThemePreview
 @Composable
 private fun LabeledTextFieldWithMaxLengthPreview() {
-    LabeledTextField(
-        label = "Alarm Title",
-        value = "Morning Workout",
-        onValueChange = {},
-        placeholder = "Enter alarm name",
-        maxLength = 60
-    )
+    ChronirTheme(dynamicColor = false) {
+        LabeledTextField(
+            label = "Alarm Title",
+            value = "Renew the car registration and insurance",
+            onValueChange = {},
+            placeholder = "Enter alarm name",
+            maxLength = 60,
+            softWarningLength = 30,
+            modifier = Modifier.padding(SpacingTokens.Medium)
+        )
+    }
+}
+
+@ChronirThemePreview
+@Composable
+private fun LabeledTextFieldErrorPreview() {
+    ChronirTheme(dynamicColor = false) {
+        LabeledTextField(
+            label = "Alarm Title",
+            value = "",
+            onValueChange = {},
+            placeholder = "Enter alarm name",
+            maxLength = 60,
+            isError = true,
+            supportingText = "Enter a name for this alarm.",
+            modifier = Modifier.padding(SpacingTokens.Medium)
+        )
+    }
 }

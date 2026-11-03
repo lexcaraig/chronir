@@ -1,6 +1,5 @@
 package com.chronir.designsystem.atoms
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,13 +13,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.chronir.designsystem.theme.ChronirDynamicPreview
+import com.chronir.designsystem.theme.ChronirPreview
 import com.chronir.designsystem.theme.ChronirTheme
-import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
-import com.chronir.designsystem.tokens.TypographyTokens
 
 enum class ChronirButtonStyle {
     Primary,
@@ -40,14 +38,14 @@ fun ChronirButton(
     val containerColor = when (style) {
         ChronirButtonStyle.Primary -> MaterialTheme.colorScheme.primary
         ChronirButtonStyle.Secondary -> MaterialTheme.colorScheme.surfaceVariant
-        ChronirButtonStyle.Destructive -> ColorTokens.Error
+        ChronirButtonStyle.Destructive -> MaterialTheme.colorScheme.error
         ChronirButtonStyle.Ghost -> Color.Transparent
     }
 
     val contentColor = when (style) {
         ChronirButtonStyle.Primary -> MaterialTheme.colorScheme.onPrimary
         ChronirButtonStyle.Secondary -> MaterialTheme.colorScheme.onSurface
-        ChronirButtonStyle.Destructive -> Color.White
+        ChronirButtonStyle.Destructive -> MaterialTheme.colorScheme.onError
         ChronirButtonStyle.Ghost -> MaterialTheme.colorScheme.primary
     }
 
@@ -64,7 +62,7 @@ fun ChronirButton(
         ) {
             Text(
                 text = text,
-                style = TypographyTokens.LabelLarge,
+                style = MaterialTheme.typography.labelLarge,
                 color = contentColor
             )
         }
@@ -81,20 +79,32 @@ fun ChronirButton(
         ) {
             Text(
                 text = text,
-                style = TypographyTokens.LabelLarge
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }
 }
 
-@Preview(name = "Buttons — Light", showBackground = true)
-@Preview(name = "Buttons — Dark", showBackground = true, uiMode = UI_MODE_NIGHT_YES)
+@ChronirPreview
 @Composable
 private fun ChronirButtonPreview() {
     ChronirTheme(dynamicColor = false) {
         Column(modifier = Modifier.padding(SpacingTokens.Medium)) {
             ChronirButton(text = "Primary Action", onClick = {})
             ChronirButton(text = "Secondary", onClick = {}, style = ChronirButtonStyle.Secondary)
+            ChronirButton(text = "Delete", onClick = {}, style = ChronirButtonStyle.Destructive)
+            ChronirButton(text = "Ghost Action", onClick = {}, style = ChronirButtonStyle.Ghost)
+            ChronirButton(text = "Disabled", onClick = {}, enabled = false)
+        }
+    }
+}
+
+@ChronirDynamicPreview
+@Composable
+private fun ChronirButtonDynamicPreview() {
+    ChronirTheme(dynamicColor = true) {
+        Column(modifier = Modifier.padding(SpacingTokens.Medium)) {
+            ChronirButton(text = "Primary Action", onClick = {})
             ChronirButton(text = "Delete", onClick = {}, style = ChronirButtonStyle.Destructive)
             ChronirButton(text = "Ghost Action", onClick = {}, style = ChronirButtonStyle.Ghost)
         }

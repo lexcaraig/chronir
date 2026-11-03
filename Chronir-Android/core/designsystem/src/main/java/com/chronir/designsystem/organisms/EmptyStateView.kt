@@ -14,7 +14,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.chronir.designsystem.atoms.ChronirButton
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
@@ -22,6 +23,12 @@ import com.chronir.designsystem.theme.ChronirPreview
 import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.SpacingTokens
 
+/**
+ * First-run empty state. It centers itself in whatever height it is given: host it in a
+ * non-scrolling slot, or in a `LazyColumn` item with `Modifier.fillParentMaxSize()`
+ * (e.g. `SingleColumnTemplate(lazyContent = { item { EmptyStateView(…, Modifier.fillParentMaxSize()) } })`).
+ * Inside a plain `verticalScroll` column there is no height to center in, so it sits at the top.
+ */
 @Composable
 fun EmptyStateView(
     onCreateAlarm: () -> Unit,
@@ -36,8 +43,8 @@ fun EmptyStateView(
     ) {
         Icon(
             imageVector = Icons.Outlined.NotificationsOff,
-            contentDescription = "No alarms",
-            modifier = Modifier.size(64.dp),
+            contentDescription = null, // decorative; the heading below says it
+            modifier = Modifier.size(SpacingTokens.Massive),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
@@ -45,7 +52,8 @@ fun EmptyStateView(
 
         ChronirText(
             text = "No alarms yet",
-            style = ChronirTextStyle.HeadlineTitle
+            style = ChronirTextStyle.HeadlineTitle,
+            modifier = Modifier.semantics { heading() }
         )
 
         Spacer(Modifier.height(SpacingTokens.Small))

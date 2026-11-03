@@ -9,9 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.Role
 import com.chronir.designsystem.atoms.ChronirBadge
 import com.chronir.designsystem.atoms.ChronirButton
 import com.chronir.designsystem.atoms.ChronirButtonStyle
@@ -33,6 +34,7 @@ import com.chronir.designsystem.organisms.AlarmCard
 import com.chronir.designsystem.organisms.AlarmVisualState
 import com.chronir.designsystem.templates.SingleColumnTemplate
 import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.ChronirThemePreview
 import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.Alarm
@@ -61,7 +63,7 @@ fun ComponentCatalog(
             ChronirText(text = "Headline Time", style = ChronirTextStyle.HeadlineTime)
             ChronirText(text = "Headline Title", style = ChronirTextStyle.HeadlineTitle)
             ChronirText(text = "Body Primary", style = ChronirTextStyle.BodyPrimary)
-            ChronirText(text = "Body Secondary", style = ChronirTextStyle.BodySecondary, color = ColorTokens.TextSecondary)
+            ChronirText(text = "Body Secondary", style = ChronirTextStyle.BodySecondary, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
             Spacer(Modifier.height(SpacingTokens.Medium))
 
@@ -75,10 +77,26 @@ fun ComponentCatalog(
 
             // Badges
             Row(horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Small)) {
-                ChronirBadge(label = "Weekly", containerColor = ColorTokens.BadgeWeekly)
-                ChronirBadge(label = "Monthly", containerColor = ColorTokens.BadgeMonthly)
-                ChronirBadge(label = "Annual", containerColor = ColorTokens.BadgeAnnual)
-                ChronirBadge(label = "Custom", containerColor = ColorTokens.BadgeCustom)
+                ChronirBadge(
+                    label = "Weekly",
+                    containerColor = ColorTokens.BadgeWeeklyBackground,
+                    contentColor = ColorTokens.BadgeWeeklyForeground
+                )
+                ChronirBadge(
+                    label = "Monthly",
+                    containerColor = ColorTokens.BadgeMonthlyBackground,
+                    contentColor = ColorTokens.BadgeMonthlyForeground
+                )
+                ChronirBadge(
+                    label = "Annual",
+                    containerColor = ColorTokens.BadgeAnnualBackground,
+                    contentColor = ColorTokens.BadgeAnnualForeground
+                )
+                ChronirBadge(
+                    label = "Custom",
+                    containerColor = ColorTokens.BadgeCustomBackground,
+                    contentColor = ColorTokens.BadgeCustomForeground
+                )
             }
 
             Spacer(Modifier.height(SpacingTokens.Medium))
@@ -95,7 +113,7 @@ fun ComponentCatalog(
             AlarmTimeDisplay(timeText = "3:45 PM", countdownText = "Alarm in 6h 32m")
             Spacer(Modifier.height(SpacingTokens.Medium))
             AlarmToggleRow(title = "Workout", subtitle = "Every Monday", isEnabled = true, onToggle = {
-            }, badgeLabel = "Weekly", badgeColor = ColorTokens.BadgeWeekly)
+            }, badgeLabel = "Weekly", badgeColor = ColorTokens.BadgeWeeklyBackground)
             Spacer(Modifier.height(SpacingTokens.Medium))
             SnoozeOptionBar(onSnooze = {})
         }
@@ -155,19 +173,19 @@ fun ComponentCatalog(
             ChronirText(
                 text = "SingleColumnTemplate — wraps scrollable content with top bar",
                 style = ChronirTextStyle.BodySecondary,
-                color = ColorTokens.TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(SpacingTokens.Small))
             ChronirText(
                 text = "ModalSheetTemplate — bottom sheet with content slot",
                 style = ChronirTextStyle.BodySecondary,
-                color = ColorTokens.TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(SpacingTokens.Small))
             ChronirText(
                 text = "FullScreenAlarmTemplate — full-screen overlay for firing",
                 style = ChronirTextStyle.BodySecondary,
-                color = ColorTokens.TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -184,16 +202,16 @@ private fun CatalogSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onToggle)
+                .clickable(role = Role.Button, onClickLabel = if (isExpanded) "Collapse" else "Expand", onClick = onToggle)
                 .padding(SpacingTokens.Medium),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ChronirText(text = title.uppercase(), style = ChronirTextStyle.LabelLarge, color = ColorTokens.TextSecondary)
+            ChronirText(text = title, style = ChronirTextStyle.TitleSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
-                contentDescription = if (isExpanded) "Collapse" else "Expand",
-                tint = ColorTokens.TextSecondary
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         if (isExpanded) {
@@ -206,11 +224,11 @@ private fun CatalogSection(
                 content()
             }
         }
-        HorizontalDivider(color = ColorTokens.BorderDefault)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
-@Preview(showBackground = true)
+@ChronirThemePreview
 @Composable
 private fun ComponentCatalogPreview() {
     ChronirTheme(dynamicColor = false) {

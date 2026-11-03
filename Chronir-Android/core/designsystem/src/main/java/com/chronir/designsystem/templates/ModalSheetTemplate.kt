@@ -4,12 +4,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.chronir.designsystem.atoms.ChronirText
+import com.chronir.designsystem.atoms.ChronirTextStyle
+import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.ChronirThemePreview
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,9 +40,24 @@ fun ModalSheetTemplate(
     }
 }
 
-@Preview(showBackground = true)
+/** Sheet body with the same padding the template applies (ModalBottomSheet itself needs a window). */
+@ChronirThemePreview
 @Composable
-private fun ModalSheetTemplatePreview() {
-    // Bottom sheets require a host; preview is limited
-    Text("TODO: ModalSheetTemplate Preview")
+private fun ModalSheetTemplateContentPreview() {
+    ChronirTheme(dynamicColor = false) {
+        Surface(color = MaterialTheme.colorScheme.surfaceContainerLow) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(SpacingTokens.Default)
+            ) {
+                ChronirText(text = "Custom snooze", style = ChronirTextStyle.TitleLarge)
+                ChronirText(
+                    text = "Pick how long to snooze this alarm.",
+                    style = ChronirTextStyle.BodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
 }

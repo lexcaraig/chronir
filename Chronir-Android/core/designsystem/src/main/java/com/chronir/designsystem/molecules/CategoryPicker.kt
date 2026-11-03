@@ -22,10 +22,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
-import com.chronir.designsystem.tokens.ColorTokens
+import com.chronir.designsystem.theme.ChronirDynamicPreview
+import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.ChronirThemePreview
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.AlarmCategory
 
@@ -38,17 +39,6 @@ private fun AlarmCategory.icon(): ImageVector = when (this) {
     AlarmCategory.PERSONAL -> Icons.Filled.Person
     AlarmCategory.PETS -> Icons.Filled.Pets
     AlarmCategory.SUBSCRIPTIONS -> Icons.Filled.CreditCard
-}
-
-private fun AlarmCategory.color() = when (this) {
-    AlarmCategory.HOME -> ColorTokens.CategoryHome
-    AlarmCategory.HEALTH -> ColorTokens.CategoryHealth
-    AlarmCategory.FINANCE -> ColorTokens.CategoryFinance
-    AlarmCategory.VEHICLE -> ColorTokens.CategoryVehicle
-    AlarmCategory.WORK -> ColorTokens.CategoryWork
-    AlarmCategory.PERSONAL -> ColorTokens.CategoryPersonal
-    AlarmCategory.PETS -> ColorTokens.CategoryPets
-    AlarmCategory.SUBSCRIPTIONS -> ColorTokens.CategorySubscriptions
 }
 
 @Composable
@@ -64,42 +54,57 @@ fun CategoryPicker(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = SpacingTokens.XSmall)
         )
+        val chipColors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondaryContainer
+        )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(SpacingTokens.Small)) {
             item {
                 FilterChip(
                     selected = selected == null,
                     onClick = { onSelect(null) },
-                    label = { Text("None") }
+                    label = { Text("None") },
+                    colors = chipColors
                 )
             }
-            items(AlarmCategory.entries.toList()) { category ->
+            items(AlarmCategory.entries, key = { it.name }) { category ->
                 val isSelected = selected == category
                 FilterChip(
                     selected = isSelected,
                     onClick = { onSelect(if (isSelected) null else category) },
                     label = { Text(category.displayName) },
                     leadingIcon = {
-                        Icon(
-                            imageVector = category.icon(),
-                            contentDescription = category.displayName
-                        )
+                        // Decorative: the chip label already names the category.
+                        Icon(imageVector = category.icon(), contentDescription = null)
                     },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = category.color().copy(alpha = 0.2f),
-                        selectedLabelColor = category.color(),
-                        selectedLeadingIconColor = category.color()
-                    )
+                    colors = chipColors
                 )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@ChronirThemePreview
 @Composable
 private fun CategoryPickerPreview() {
-    CategoryPicker(
-        selected = AlarmCategory.HOME,
-        onSelect = {}
-    )
+    ChronirTheme(dynamicColor = false) {
+        CategoryPicker(
+            selected = AlarmCategory.HOME,
+            onSelect = {},
+            modifier = Modifier.padding(SpacingTokens.Medium)
+        )
+    }
+}
+
+@ChronirDynamicPreview
+@Composable
+private fun CategoryPickerDynamicPreview() {
+    ChronirTheme(dynamicColor = true) {
+        CategoryPicker(
+            selected = AlarmCategory.FINANCE,
+            onSelect = {},
+            modifier = Modifier.padding(SpacingTokens.Medium)
+        )
+    }
 }

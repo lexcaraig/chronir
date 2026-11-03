@@ -4,12 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chronir.data.repository.AlarmRepository
 import com.chronir.model.Alarm
-import com.chronir.model.AlarmCategory
 import com.chronir.model.AlarmTemplate
-import com.chronir.model.CycleType
-import com.chronir.model.FollowUpInterval
-import com.chronir.model.PersistenceLevel
-import com.chronir.model.Schedule
 import com.chronir.services.AlarmScheduler
 import com.chronir.services.BillingService
 import com.chronir.services.DateCalculator
@@ -22,32 +17,21 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
 import javax.inject.Inject
 
+/** A save problem shown as a snackbar; [offerUpgrade] adds an "Upgrade" action to the paywall. */
+data class EditorMessage(
+    val text: String,
+    val offerUpgrade: Boolean = false
+)
+
 data class AlarmCreationUiState(
-    val title: String = "",
-    val hour: Int = 8,
-    val minute: Int = 0,
-    val cycleType: CycleType = CycleType.WEEKLY,
-    val persistenceLevel: PersistenceLevel = PersistenceLevel.NOTIFICATION_ONLY,
-    val note: String = "",
-    val selectedDays: Set<Int> = setOf(2),
-    val dayOfMonth: Int = 1,
-    val annualMonth: Int = LocalDate.now().monthValue,
-    val annualDay: Int = LocalDate.now().dayOfMonth,
-    val oneTimeDate: LocalDate = LocalDate.now().plusDays(1),
-    val category: AlarmCategory? = null,
-    val additionalTimes: List<LocalTime> = emptyList(),
-    val preAlarmMinutes: Int = 0,
-    val followUpInterval: FollowUpInterval = FollowUpInterval.THIRTY_MINUTES,
-    val repeatInterval: Int = 1,
+    val form: AlarmFormState = AlarmFormState(),
     val isPlusTier: Boolean = false,
     val isSaving: Boolean = false,
     val saveSuccess: Boolean = false,
-    val errorMessage: String? = null
+    val titleError: String? = null,
+    val message: EditorMessage? = null
 )
 
 @HiltViewModel
@@ -61,11 +45,16 @@ class AlarmCreationViewModel
     ) : ViewModel() {
 
         companion object {
-            private const val FREE_TIER_ALARM_LIMIT = 3
+            const val FREE_TIER_ALARM_LIMIT = 3
+            const val TITLE_REQUIRED = "Enter a name for this alarm."
+            const val FREE_LIMIT_MESSAGE = "Free includes $FREE_TIER_ALARM_LIMIT alarms. Upgrade to Plus for unlimited alarms."
         }
 
         private val _uiState = MutableStateFlow(AlarmCreationUiState())
         val uiState: StateFlow<AlarmCreationUiState> = _uiState.asStateFlow()
+
+        private val isPlusTier: Boolean
+            get() = billingService.subscriptionState.value.tier != SubscriptionTier.FREE
 
         init {
             viewModelScope.launch {
@@ -75,185 +64,52 @@ class AlarmCreationViewModel
             }
         }
 
-        fun updateTitle(title: String) {
-            if (title.length <= 60) {
-                _uiState.update { it.copy(title = title) }
-            }
-        }
-
-        fun updateTime(hour: Int, minute: Int) {
-            _uiState.update { it.copy(hour = hour, minute = minute) }
-        }
-
-        fun updateCycleType(cycleType: CycleType) {
-            _uiState.update { it.copy(cycleType = cycleType) }
-        }
-
-        fun updatePersistenceLevel(level: PersistenceLevel) {
-            _uiState.update { it.copy(persistenceLevel = level) }
-        }
-
-        fun updateNote(note: String) {
-            if (note.length <= 500 && _uiState.value.isPlusTier) {
-                _uiState.update { it.copy(note = note) }
-            }
-        }
-
-        fun toggleDay(day: Int) {
-            _uiState.update { state ->
-                val newDays = if (state.selectedDays.contains(day)) {
-                    if (state.selectedDays.size > 1) state.selectedDays - day else state.selectedDays
-                } else {
-                    state.selectedDays + day
-                }
-                state.copy(selectedDays = newDays)
-            }
-        }
-
-        fun updateDayOfMonth(day: Int) {
-            _uiState.update { it.copy(dayOfMonth = day.coerceIn(1, 31)) }
-        }
-
-        fun updateAnnualMonth(month: Int) {
-            _uiState.update { it.copy(annualMonth = month.coerceIn(1, 12)) }
-        }
-
-        fun updateAnnualDay(day: Int) {
-            _uiState.update { it.copy(annualDay = day.coerceIn(1, 31)) }
-        }
-
-        fun updateOneTimeDate(date: LocalDate) {
-            _uiState.update { it.copy(oneTimeDate = date) }
-        }
-
-        fun updateCategory(category: AlarmCategory?) {
-            _uiState.update { it.copy(category = category) }
-        }
-
-        fun updatePreAlarmMinutes(minutes: Int) {
-            // Extended pre-alarm offsets (>30min) require Plus
-            val isFree = billingService.subscriptionState.value.tier == SubscriptionTier.FREE
-            if (isFree && minutes > 30) {
+        fun onFormEvent(event: AlarmFormEvent) {
+            val plus = isPlusTier
+            if (event.requiresPlus(plus)) {
                 _uiState.update {
-                    it.copy(errorMessage = "Extended pre-alarm offsets require Plus subscription.")
+                    it.copy(message = EditorMessage("This option is part of Plus.", offerUpgrade = true))
                 }
                 return
             }
-            _uiState.update { it.copy(preAlarmMinutes = minutes) }
-        }
-
-        fun updateFollowUpInterval(interval: FollowUpInterval) {
-            _uiState.update { it.copy(followUpInterval = interval) }
-        }
-
-        fun addAdditionalTime(hour: Int, minute: Int) {
             _uiState.update { state ->
-                val newTime = LocalTime.of(hour, minute)
-                if (state.additionalTimes.contains(newTime)) state
-                else state.copy(additionalTimes = state.additionalTimes + newTime)
-            }
-        }
-
-        fun removeAdditionalTime(index: Int) {
-            _uiState.update { state ->
-                state.copy(additionalTimes = state.additionalTimes.toMutableList().apply { removeAt(index) })
-            }
-        }
-
-        fun loadTemplate(template: AlarmTemplate) {
-            _uiState.update {
-                it.copy(
-                    title = template.name,
-                    cycleType = template.cycleType,
-                    hour = template.timeOfDay.hour,
-                    minute = template.timeOfDay.minute,
-                    persistenceLevel = template.persistenceLevel,
-                    preAlarmMinutes = template.preAlarmMinutes,
-                    note = if (it.isPlusTier) template.note else "",
-                    category = template.category,
-                    selectedDays = when (val s = template.schedule) {
-                        is Schedule.Weekly -> s.daysOfWeek.toSet()
-                        else -> it.selectedDays
-                    },
-                    dayOfMonth = when (val s = template.schedule) {
-                        is Schedule.MonthlyDate -> s.dayOfMonth
-                        else -> it.dayOfMonth
-                    },
-                    annualMonth = when (val s = template.schedule) {
-                        is Schedule.Annual -> s.month
-                        else -> it.annualMonth
-                    },
-                    annualDay = when (val s = template.schedule) {
-                        is Schedule.Annual -> s.dayOfMonth
-                        else -> it.annualDay
-                    },
-                    repeatInterval = when (val s = template.schedule) {
-                        is Schedule.Weekly -> s.interval
-                        is Schedule.MonthlyDate -> s.interval
-                        is Schedule.Annual -> s.interval
-                        else -> it.repeatInterval
-                    }
+                val clearsTitleError = event is AlarmFormEvent.TitleChanged || event is AlarmFormEvent.TemplateLoaded
+                state.copy(
+                    form = state.form.reduce(event, plus),
+                    titleError = if (clearsTitleError) null else state.titleError
                 )
             }
         }
 
-        fun updateRepeatInterval(interval: Int) {
-            _uiState.update { it.copy(repeatInterval = interval.coerceIn(1, 52)) }
-        }
+        fun loadTemplate(template: AlarmTemplate) = onFormEvent(AlarmFormEvent.TemplateLoaded(template))
 
-        fun togglePersistence(enabled: Boolean) {
-            _uiState.update {
-                it.copy(
-                    persistenceLevel = if (enabled) PersistenceLevel.FULL else PersistenceLevel.NOTIFICATION_ONLY
-                )
-            }
+        fun messageShown() {
+            _uiState.update { it.copy(message = null) }
         }
 
         fun saveAlarm() {
-            val state = _uiState.value
-            if (state.title.isBlank()) {
-                _uiState.update { it.copy(errorMessage = "Title is required") }
+            val form = _uiState.value.form
+            if (form.title.isBlank()) {
+                _uiState.update { it.copy(titleError = TITLE_REQUIRED, message = EditorMessage(TITLE_REQUIRED)) }
                 return
             }
 
-            _uiState.update { it.copy(isSaving = true, errorMessage = null) }
+            _uiState.update { it.copy(isSaving = true, titleError = null, message = null) }
 
             viewModelScope.launch {
                 try {
-                    // Free tier: 3-alarm limit
-                    val tier = billingService.subscriptionState.value.tier
-                    if (tier == SubscriptionTier.FREE) {
-                        val existingCount = alarmRepository.observeAlarms().first().size
-                        if (existingCount >= FREE_TIER_ALARM_LIMIT) {
-                            _uiState.update {
-                                it.copy(
-                                    isSaving = false,
-                                    errorMessage = "Free plan is limited to $FREE_TIER_ALARM_LIMIT alarms. " +
-                                        "Upgrade to Plus for unlimited alarms."
-                                )
-                            }
-                            return@launch
+                    // Free tier: 3-alarm limit (also checked before the form opens; this is the enforcing gate).
+                    if (!isPlusTier && alarmRepository.observeAlarms().first().size >= FREE_TIER_ALARM_LIMIT) {
+                        _uiState.update {
+                            it.copy(isSaving = false, message = EditorMessage(FREE_LIMIT_MESSAGE, offerUpgrade = true))
                         }
+                        return@launch
                     }
-                    val schedule = buildSchedule(state)
-                    val timeOfDay = LocalTime.of(state.hour, state.minute)
 
-                    val alarm = Alarm(
-                        title = state.title.trim(),
-                        cycleType = state.cycleType,
-                        timeOfDay = timeOfDay,
-                        schedule = schedule,
-                        persistenceLevel = state.persistenceLevel,
-                        preAlarmMinutes = state.preAlarmMinutes,
-                        followUpIntervalMinutes = state.followUpInterval.minutes,
-                        additionalTimesOfDay = state.additionalTimes,
-                        colorTag = state.category?.colorTag,
-                        iconName = state.category?.iconKey,
-                        note = state.note.trim()
+                    val alarm = form.applyTo(Alarm(title = form.title.trim()))
+                    val alarmWithFireDate = alarm.copy(
+                        nextFireDate = dateCalculator.calculateNextFireDate(alarm, Instant.now())
                     )
-
-                    val nextFireDate = dateCalculator.calculateNextFireDate(alarm, Instant.now())
-                    val alarmWithFireDate = alarm.copy(nextFireDate = nextFireDate)
 
                     alarmRepository.saveAlarm(alarmWithFireDate)
                     // The alarm is saved at this point: a scheduling failure must not keep the screen open,
@@ -263,44 +119,9 @@ class AlarmCreationViewModel
                     _uiState.update { it.copy(isSaving = false, saveSuccess = true) }
                 } catch (e: Exception) {
                     _uiState.update {
-                        it.copy(
-                            isSaving = false,
-                            errorMessage = "Failed to save alarm. Please try again."
-                        )
+                        it.copy(isSaving = false, message = EditorMessage("Couldn't save the alarm. Try again."))
                     }
                 }
             }
-        }
-
-        private fun buildSchedule(state: AlarmCreationUiState): Schedule = when (state.cycleType) {
-            CycleType.ONE_TIME -> {
-                val fireInstant = state.oneTimeDate
-                    .atTime(state.hour, state.minute)
-                    .atZone(ZoneId.systemDefault())
-                    .toInstant()
-                Schedule.OneTime(fireDate = fireInstant)
-            }
-            CycleType.WEEKLY -> Schedule.Weekly(
-                daysOfWeek = state.selectedDays.sorted(),
-                interval = state.repeatInterval
-            )
-            CycleType.MONTHLY_DATE -> Schedule.MonthlyDate(
-                dayOfMonth = state.dayOfMonth,
-                interval = state.repeatInterval
-            )
-            CycleType.MONTHLY_RELATIVE -> Schedule.MonthlyRelative(
-                weekOfMonth = 1,
-                dayOfWeek = 2,
-                interval = state.repeatInterval
-            )
-            CycleType.ANNUAL -> Schedule.Annual(
-                month = state.annualMonth,
-                dayOfMonth = state.annualDay,
-                interval = state.repeatInterval
-            )
-            CycleType.CUSTOM_DAYS -> Schedule.CustomDays(
-                intervalDays = 7,
-                startDate = Instant.now()
-            )
         }
     }

@@ -19,8 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,14 +29,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
-import com.chronir.designsystem.tokens.ColorTokens
+import com.chronir.designsystem.molecules.CompletionStatusBadge
+import com.chronir.designsystem.theme.ChronirPreview
+import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
+import com.chronir.designsystem.util.rememberTimeFormatter
 import com.chronir.model.CompletionAction
 import com.chronir.model.CompletionRecord
 import com.chronir.services.StreakInfo
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,15 +52,12 @@ fun CompletionHistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { ChronirText(text = "Completion History", style = ChronirTextStyle.TitleMedium) },
+                title = { Text("Completion History") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
             )
         },
         modifier = modifier
@@ -89,7 +88,10 @@ fun CompletionHistoryScreen(
                 }
             } else {
                 items(uiState.records, key = { it.id }) { record ->
-                    CompletionRecordRow(record = record)
+                    CompletionRecordRow(
+                        record = record,
+                        alarmTitle = uiState.alarmTitles[record.alarmId]
+                    )
                 }
             }
         }
@@ -134,8 +136,9 @@ private fun StatColumn(label: String, value: String) {
 }
 
 @Composable
-private fun CompletionRecordRow(record: CompletionRecord) {
-    val dateFormatter = DateTimeFormatter.ofPattern("MMM d, h:mm a")
+private fun CompletionRecordRow(record: CompletionRecord, alarmTitle: String?) {
+    // Locale- and 12/24-hour-aware, e.g. "Nov 3, 8:00 PM" or "3 Nov, 20:00".
+    val dateFormatter = rememberTimeFormatter(dateSkeleton = "MMMd")
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -150,8 +153,13 @@ private fun CompletionRecordRow(record: CompletionRecord) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 ChronirText(
-                    text = record.alarmId.take(8) + "...",
-                    style = ChronirTextStyle.BodyMedium
+                    text = alarmTitle ?: "Deleted alarm",
+                    style = ChronirTextStyle.BodyMedium,
+                    color = if (alarmTitle == null) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
                 )
                 ChronirText(
                     text = record.timestamp.atZone(ZoneId.systemDefault()).format(dateFormatter),
@@ -160,22 +168,26 @@ private fun CompletionRecordRow(record: CompletionRecord) {
                 )
             }
             Spacer(Modifier.width(SpacingTokens.Small))
-            ChronirText(
-                text = when (record.action) {
-                    CompletionAction.COMPLETED -> "Completed"
-                    CompletionAction.SNOOZED -> "Snoozed"
-                    CompletionAction.MISSED -> "Missed"
-                    CompletionAction.SKIPPED -> "Skipped"
-                    CompletionAction.PENDING_CONFIRMATION -> "Pending"
-                },
-                style = ChronirTextStyle.LabelMedium,
-                color = when (record.action) {
-                    CompletionAction.COMPLETED -> ColorTokens.Success
-                    CompletionAction.SNOOZED -> ColorTokens.Warning
-                    CompletionAction.MISSED -> ColorTokens.Error
-                    CompletionAction.SKIPPED -> MaterialTheme.colorScheme.onSurfaceVariant
-                    CompletionAction.PENDING_CONFIRMATION -> ColorTokens.PendingOrange
-                }
+            CompletionStatusBadge(action = record.action)
+        }
+    }
+}
+
+@ChronirPreview
+@Composable
+private fun CompletionRecordRowPreview() {
+    ChronirTheme(dynamicColor = false) {
+        Column(modifier = Modifier.padding(SpacingTokens.Default)) {
+            StreakCard(streakInfo = StreakInfo(3, 5, 12, 0.8f))
+            Spacer(Modifier.height(SpacingTokens.Small))
+            CompletionRecordRow(
+                record = CompletionRecord(alarmId = "a", userId = "", action = CompletionAction.COMPLETED),
+                alarmTitle = "Pay Rent"
+            )
+            Spacer(Modifier.height(SpacingTokens.Small))
+            CompletionRecordRow(
+                record = CompletionRecord(alarmId = "b", userId = "", action = CompletionAction.MISSED),
+                alarmTitle = null
             )
         }
     }

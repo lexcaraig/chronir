@@ -27,8 +27,8 @@ import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
+import com.chronir.designsystem.util.rememberTimeFormatter
 import com.chronir.model.AlarmTemplate
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +74,7 @@ private fun TemplateCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+    val timeFormatter = rememberTimeFormatter()
 
     Card(
         modifier = modifier

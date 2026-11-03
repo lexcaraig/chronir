@@ -1,17 +1,22 @@
 package com.chronir
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +26,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,10 +35,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialException
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -43,25 +49,20 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.chronir.data.repository.SettingsRepository
 import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.LocalChronirHapticsEnabled
 import com.chronir.feature.alarmcreation.AlarmCreationScreen
 import com.chronir.feature.alarmdetail.AlarmDetailScreen
 import com.chronir.feature.alarmlist.AlarmListScreen
-import com.chronir.feature.alarmlist.CategoryDetailScreen
+import com.chronir.feature.alarmlist.AlarmListViewModel
 import com.chronir.feature.paywall.PaywallScreen
-import com.chronir.feature.settings.AccountScreen
-import com.chronir.feature.settings.AccountViewModel
 import com.chronir.feature.settings.CompletionHistoryScreen
 import com.chronir.feature.settings.HowAlarmsWorkScreen
 import com.chronir.feature.settings.LegalDocumentScreen
 import com.chronir.feature.settings.SettingsScreen
-import com.chronir.feature.settings.SoundPickerScreen
 import com.chronir.feature.settings.SubscriptionScreen
-import com.chronir.feature.settings.WallpaperPickerScreen
 import com.chronir.model.ThemePreference
 import com.chronir.services.BillingService
 import com.chronir.services.OverdueAlarmChecker
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -75,8 +76,8 @@ sealed class Screen(
     data object AlarmList : Screen(
         route = "alarm_list",
         label = "Alarms",
-        selectedIcon = Icons.Filled.Notifications,
-        unselectedIcon = Icons.Outlined.Notifications
+        selectedIcon = Icons.Filled.Alarm,
+        unselectedIcon = Icons.Outlined.Alarm
     )
 
     data object Settings : Screen(
@@ -89,16 +90,13 @@ sealed class Screen(
 
 private val screens = listOf(Screen.AlarmList, Screen.Settings)
 
-// TODO: Replace with actual web client ID from Firebase Console → Authentication → Sign-in method → Google
-private const val GOOGLE_WEB_CLIENT_ID = ""
+// Platform default 3-button-navigation scrims (same values enableEdgeToEdge() uses by default).
+private val NavBarLightScrim = Color.argb(0xE6, 0xFF, 0xFF, 0xFF)
+private val NavBarDarkScrim = Color.argb(0x80, 0x1B, 0x1B, 0x1B)
 
 private const val ROUTE_ALARM_CREATION = "alarm_creation"
 private const val ROUTE_ALARM_DETAIL = "alarm_detail/{alarmId}"
-private const val ROUTE_CATEGORY_DETAIL = "category_detail/{category}"
 private const val ROUTE_COMPLETION_HISTORY = "completion_history"
-private const val ROUTE_SOUND_PICKER = "sound_picker"
-private const val ROUTE_WALLPAPER_PICKER = "wallpaper_picker"
-private const val ROUTE_ACCOUNT = "account"
 private const val ROUTE_SUBSCRIPTION = "subscription"
 private const val ROUTE_PAYWALL = "paywall"
 private const val ROUTE_HOW_ALARMS_WORK = "how_alarms_work"
@@ -121,7 +119,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         billingService.initialize()
-        enableEdgeToEdge()
         handleDeepLink(intent)
         lifecycle.addObserver(object : androidx.lifecycle.DefaultLifecycleObserver {
             override fun onDestroy(owner: androidx.lifecycle.LifecycleOwner) {
@@ -154,23 +151,36 @@ class MainActivity : ComponentActivity() {
                 ThemePreference.DYNAMIC -> null
             }
 
+            val useDarkTheme = darkTheme ?: isSystemInDarkTheme()
+
+            // Status/navigation bar icons follow the app's resolved theme, not the system night mode.
+            DisposableEffect(useDarkTheme) {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { useDarkTheme },
+                    navigationBarStyle = SystemBarStyle.auto(NavBarLightScrim, NavBarDarkScrim) { useDarkTheme }
+                )
+                onDispose {}
+            }
+
             ChronirTheme(
-                darkTheme = darkTheme ?: androidx.compose.foundation.isSystemInDarkTheme(),
+                darkTheme = useDarkTheme,
                 dynamicColor = settings.themePreference == ThemePreference.DYNAMIC,
                 textScale = settings.textSizePreference.scaleFactor
             ) {
-                if (!settings.hasCompletedOnboarding) {
-                    val scope = rememberCoroutineScope()
-                    OnboardingScreen(
-                        onComplete = {
-                            scope.launch {
-                                settingsRepository.setHasCompletedOnboarding(true)
+                CompositionLocalProvider(LocalChronirHapticsEnabled provides settings.hapticFeedbackEnabled) {
+                    if (!settings.hasCompletedOnboarding) {
+                        val scope = rememberCoroutineScope()
+                        OnboardingScreen(
+                            onComplete = {
+                                scope.launch {
+                                    settingsRepository.setHasCompletedOnboarding(true)
+                                }
                             }
+                        )
+                    } else {
+                        ChronirNavigation(deepLinkAlarmId = deepLinkAlarmId.value) {
+                            deepLinkAlarmId.value = null
                         }
-                    )
-                } else {
-                    ChronirNavigation(deepLinkAlarmId = deepLinkAlarmId.value) {
-                        deepLinkAlarmId.value = null
                     }
                 }
             }
@@ -186,7 +196,8 @@ class MainActivity : ComponentActivity() {
         val data = intent?.data ?: return
         if (data.scheme == "chronir" && data.host == "alarm") {
             val alarmId = data.pathSegments?.firstOrNull()
-            if (!alarmId.isNullOrBlank()) {
+            // SEC-05: only well-formed alarm IDs (UUIDs) are acted on.
+            if (alarmId != null && runCatching { java.util.UUID.fromString(alarmId) }.isSuccess) {
                 deepLinkAlarmId.value = alarmId
             }
         }
@@ -199,6 +210,8 @@ private fun ChronirNavigation(
     onDeepLinkConsumed: () -> Unit = {}
 ) {
     val navController = rememberNavController()
+    // Same Free-tier check the list's + button uses, so the form never opens when it can't be saved.
+    val canCreateAlarm by hiltViewModel<AlarmListViewModel>().canCreateAlarm.collectAsStateWithLifecycle()
 
     LaunchedEffect(deepLinkAlarmId) {
         if (deepLinkAlarmId != null) {
@@ -209,8 +222,11 @@ private fun ChronirNavigation(
         }
     }
 
+    // Each screen's own Scaffold/TopAppBar applies the status-bar inset. This outer Scaffold only
+    // reserves the bottom bar, and consumes that space so inner screens don't pad it again.
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0),
         bottomBar = {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
@@ -218,11 +234,7 @@ private fun ChronirNavigation(
 
             val hideBottomBar = currentRoute == ROUTE_ALARM_CREATION ||
                 currentRoute == ROUTE_ALARM_DETAIL ||
-                currentRoute == ROUTE_CATEGORY_DETAIL ||
                 currentRoute == ROUTE_COMPLETION_HISTORY ||
-                currentRoute == ROUTE_SOUND_PICKER ||
-                currentRoute == ROUTE_WALLPAPER_PICKER ||
-                currentRoute == ROUTE_ACCOUNT ||
                 currentRoute == ROUTE_SUBSCRIPTION ||
                 currentRoute == ROUTE_PAYWALL ||
                 currentRoute == ROUTE_HOW_ALARMS_WORK ||
@@ -232,7 +244,22 @@ private fun ChronirNavigation(
                     containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onSurface
                 ) {
-                    screens.forEach { screen ->
+                    screens.forEachIndexed { index, screen ->
+                        if (index == 1) {
+                            NavigationBarItem(
+                                icon = { Icon(imageVector = Icons.Filled.Add, contentDescription = null) },
+                                label = { Text("New") },
+                                selected = false,
+                                colors = NavigationBarItemDefaults.colors(
+                                    unselectedIconColor = MaterialTheme.colorScheme.primary,
+                                    unselectedTextColor = MaterialTheme.colorScheme.primary
+                                ),
+                                modifier = Modifier.semantics { contentDescription = "Create alarm" },
+                                onClick = {
+                                    navController.navigate(if (canCreateAlarm) ROUTE_ALARM_CREATION else ROUTE_PAYWALL)
+                                }
+                            )
+                        }
                         val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
                         NavigationBarItem(
                             icon = {
@@ -268,7 +295,9 @@ private fun ChronirNavigation(
         NavHost(
             navController = navController,
             startDestination = Screen.AlarmList.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
         ) {
             composable(Screen.AlarmList.route) {
                 AlarmListScreen(
@@ -277,22 +306,14 @@ private fun ChronirNavigation(
                     },
                     onNavigateToDetail = { alarmId ->
                         navController.navigate("alarm_detail/$alarmId")
-                    }
+                    },
+                    onNavigateToPaywall = { navController.navigate(ROUTE_PAYWALL) }
                 )
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     onNavigateToHistory = {
                         navController.navigate(ROUTE_COMPLETION_HISTORY)
-                    },
-                    onNavigateToSoundPicker = {
-                        navController.navigate(ROUTE_SOUND_PICKER)
-                    },
-                    onNavigateToWallpaper = {
-                        navController.navigate(ROUTE_WALLPAPER_PICKER)
-                    },
-                    onNavigateToAccount = {
-                        navController.navigate(ROUTE_ACCOUNT)
                     },
                     onNavigateToSubscription = {
                         navController.navigate(ROUTE_SUBSCRIPTION)
@@ -321,72 +342,9 @@ private fun ChronirNavigation(
                     onNavigateToPaywall = { navController.navigate(ROUTE_PAYWALL) }
                 )
             }
-            composable(
-                route = ROUTE_CATEGORY_DETAIL,
-                arguments = listOf(navArgument("category") { type = NavType.StringType })
-            ) { backStackEntry ->
-                CategoryDetailScreen(
-                    category = backStackEntry.arguments?.getString("category") ?: "",
-                    onBack = { navController.popBackStack() },
-                    onNavigateToDetail = { alarmId ->
-                        navController.navigate("alarm_detail/$alarmId")
-                    }
-                )
-            }
             composable(ROUTE_COMPLETION_HISTORY) {
                 CompletionHistoryScreen(
                     onBack = { navController.popBackStack() }
-                )
-            }
-            composable(ROUTE_SOUND_PICKER) {
-                SoundPickerScreen(
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(ROUTE_WALLPAPER_PICKER) {
-                WallpaperPickerScreen(
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(ROUTE_ACCOUNT) {
-                val context = LocalContext.current
-                val scope = rememberCoroutineScope()
-                val accountViewModel: AccountViewModel =
-                    androidx.hilt.navigation.compose.hiltViewModel()
-                AccountScreen(
-                    onBack = { navController.popBackStack() },
-                    onSignInClicked = {
-                        if (GOOGLE_WEB_CLIENT_ID.isEmpty()) {
-                            android.widget.Toast.makeText(
-                                context,
-                                "Google Sign-In not configured yet",
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
-                            return@AccountScreen
-                        }
-                        scope.launch {
-                            try {
-                                val googleIdOption = GetGoogleIdOption.Builder()
-                                    .setFilterByAuthorizedAccounts(false)
-                                    .setServerClientId(GOOGLE_WEB_CLIENT_ID)
-                                    .build()
-                                val request = GetCredentialRequest.Builder()
-                                    .addCredentialOption(googleIdOption)
-                                    .build()
-                                val credentialManager = CredentialManager.create(context)
-                                val result = credentialManager.getCredential(
-                                    context = context as android.app.Activity,
-                                    request = request
-                                )
-                                val googleIdToken = GoogleIdTokenCredential
-                                    .createFrom(result.credential.data)
-                                    .idToken
-                                accountViewModel.signInWithGoogleIdToken(googleIdToken)
-                            } catch (e: GetCredentialException) {
-                                Log.e("GoogleSignIn", "Sign-in failed", e)
-                            }
-                        }
-                    }
                 )
             }
             composable(ROUTE_SUBSCRIPTION) {

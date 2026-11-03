@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chronir.designsystem.organisms.AlarmFiringView
 import com.chronir.designsystem.templates.FullScreenAlarmTemplate
+import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.model.CycleType
 
 @Composable
@@ -61,7 +62,7 @@ fun AlarmFiringScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = ColorTokens.FiringControlProgress)
             }
         }
     }

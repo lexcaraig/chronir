@@ -5,8 +5,9 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.atoms.ChronirBadge
+import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.ChronirThemePreview
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -26,8 +27,10 @@ fun ChronirBadgeGroup(
     }
 }
 
-@Preview(showBackground = true)
+@ChronirThemePreview
 @Composable
 private fun ChronirBadgeGroupPreview() {
-    ChronirBadgeGroup(labels = listOf("Weekly", "Persistent", "Shared"))
+    ChronirTheme(dynamicColor = false) {
+        ChronirBadgeGroup(labels = listOf("Weekly", "Persistent", "Shared"))
+    }
 }

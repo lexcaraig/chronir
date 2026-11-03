@@ -10,8 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.chronir.designsystem.atoms.ChronirBadge
+import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.ChronirThemePreview
 import com.chronir.designsystem.tokens.SpacingTokens
 
 data class GroupMember(
@@ -46,13 +47,15 @@ fun GroupMemberList(
     }
 }
 
-@Preview(showBackground = true)
+@ChronirThemePreview
 @Composable
 private fun GroupMemberListPreview() {
-    GroupMemberList(
-        members = listOf(
-            GroupMember("Alice", "Owner"),
-            GroupMember("Bob", "Member")
+    ChronirTheme(dynamicColor = false) {
+        GroupMemberList(
+            members = listOf(
+                GroupMember("Alice", "Owner"),
+                GroupMember("Bob", "Member")
+            )
         )
-    )
+    }
 }

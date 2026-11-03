@@ -11,6 +11,7 @@ import com.chronir.services.SubscriptionTier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,30 +21,15 @@ class SettingsViewModel
     @Inject
     constructor(
         private val settingsRepository: SettingsRepository,
-        private val billingService: BillingService
+        billingService: BillingService
     ) : ViewModel() {
 
-        val isPlusUser: Boolean
-            get() = billingService.subscriptionState.value.tier != SubscriptionTier.FREE
+        val isPlusUser: StateFlow<Boolean> = billingService.subscriptionState
+            .map { it.tier != SubscriptionTier.FREE }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
         val uiState: StateFlow<UserSettings> = settingsRepository.settings
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())
-
-        fun setSnoozeEnabled(enabled: Boolean) {
-            viewModelScope.launch { settingsRepository.setSnoozeEnabled(enabled) }
-        }
-
-        fun setSlideToStop(enabled: Boolean) {
-            viewModelScope.launch { settingsRepository.setSlideToStop(enabled) }
-        }
-
-        fun setHapticFeedback(enabled: Boolean) {
-            viewModelScope.launch { settingsRepository.setHapticFeedback(enabled) }
-        }
-
-        fun setFixedTimezone(enabled: Boolean) {
-            viewModelScope.launch { settingsRepository.setFixedTimezone(enabled) }
-        }
 
         fun setThemePreference(theme: ThemePreference) {
             viewModelScope.launch { settingsRepository.setThemePreference(theme) }
@@ -55,5 +41,9 @@ class SettingsViewModel
 
         fun setGroupByCategory(enabled: Boolean) {
             viewModelScope.launch { settingsRepository.setGroupByCategory(enabled) }
+        }
+
+        fun setHapticFeedback(enabled: Boolean) {
+            viewModelScope.launch { settingsRepository.setHapticFeedback(enabled) }
         }
     }

@@ -8,12 +8,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.chronir.data.repository.SettingsRepository
+import com.chronir.data.repository.UserSettings
 import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.LocalChronirHapticsEnabled
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AlarmFiringActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
     companion object {
         const val EXTRA_ALARM_ID = "extra_alarm_id"
@@ -35,12 +45,15 @@ class AlarmFiringActivity : ComponentActivity() {
         val alarmId = intent?.getStringExtra(EXTRA_ALARM_ID)
 
         setContent {
+            val settings by settingsRepository.settings.collectAsStateWithLifecycle(initialValue = UserSettings())
             ChronirTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    AlarmFiringScreen(
-                        alarmId = alarmId,
-                        onDismissed = { stopServiceAndFinish() }
-                    )
+                CompositionLocalProvider(LocalChronirHapticsEnabled provides settings.hapticFeedbackEnabled) {
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        AlarmFiringScreen(
+                            alarmId = alarmId,
+                            onDismissed = { stopServiceAndFinish() }
+                        )
+                    }
                 }
             }
         }

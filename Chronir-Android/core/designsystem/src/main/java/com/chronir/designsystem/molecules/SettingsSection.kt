@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
+import com.chronir.designsystem.theme.ChronirTheme
+import com.chronir.designsystem.theme.ChronirThemePreview
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
@@ -23,15 +25,18 @@ fun SettingsSection(
     content: @Composable () -> Unit
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
+        // Material section header: sentence case, titleSmall in primary, a TalkBack heading.
         ChronirText(
-            text = header.uppercase(),
-            style = ChronirTextStyle.LabelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(
-                start = SpacingTokens.Medium,
-                bottom = SpacingTokens.XSmall,
-                top = SpacingTokens.Medium
-            )
+            text = header,
+            style = ChronirTextStyle.TitleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .padding(
+                    start = SpacingTokens.Medium,
+                    bottom = SpacingTokens.XSmall,
+                    top = SpacingTokens.Large
+                )
+                .semantics { heading() }
         )
         Surface(
             shape = RoundedCornerShape(RadiusTokens.Md),
@@ -56,13 +61,17 @@ fun SettingsSection(
     }
 }
 
-@Preview(showBackground = true)
+@ChronirThemePreview
 @Composable
 private fun SettingsSectionPreview() {
-    SettingsSection(
-        header = "Alarm Behavior",
-        footer = "These settings affect all alarms."
-    ) {
-        Text("Toggle rows go here", modifier = Modifier.padding(SpacingTokens.Medium))
+    ChronirTheme(dynamicColor = false) {
+        SettingsSection(
+            header = "Alarm behavior",
+            footer = "These settings affect all alarms.",
+            modifier = Modifier.padding(SpacingTokens.Medium)
+        ) {
+            AlarmToggleRow(title = "Snooze", subtitle = "Allow snoozing when an alarm fires", isEnabled = true, onToggle = {})
+            SettingsNavigationRow(title = "Alarm sound", value = "Default", onClick = {})
+        }
     }
 }

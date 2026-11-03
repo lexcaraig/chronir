@@ -7,7 +7,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.semantics.Role
+import com.chronir.designsystem.theme.ChronirPreview
+import com.chronir.designsystem.theme.ChronirTheme
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @Composable
@@ -15,16 +17,18 @@ fun TimePickerField(
     label: String,
     timeText: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickLabel: String = "Change time"
 ) {
     Column(
         modifier = modifier
-            .clickable(onClick = onClick)
+            .clickable(role = Role.Button, onClickLabel = onClickLabel, onClick = onClick)
             .padding(vertical = SpacingTokens.Default)
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = timeText,
@@ -33,12 +37,15 @@ fun TimePickerField(
     }
 }
 
-@Preview(showBackground = true)
+@ChronirPreview
 @Composable
 private fun TimePickerFieldPreview() {
-    TimePickerField(
-        label = "Alarm Time",
-        timeText = "08:30 AM",
-        onClick = {}
-    )
+    ChronirTheme(dynamicColor = false) {
+        TimePickerField(
+            label = "Alarm time",
+            timeText = "8:30 AM",
+            onClick = {},
+            modifier = Modifier.padding(horizontal = SpacingTokens.Medium)
+        )
+    }
 }

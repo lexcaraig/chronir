@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,7 +38,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.chronir.designsystem.atoms.ChronirButton
 import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
-import com.chronir.designsystem.tokens.ColorTokens
 import com.chronir.designsystem.tokens.SpacingTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,7 +66,7 @@ fun AccountScreen(
                     showDeleteConfirmation = false
                     viewModel.deleteAccount()
                 }) {
-                    ChronirText(text = "Delete", style = ChronirTextStyle.BodyMedium, color = ColorTokens.Error)
+                    ChronirText(text = "Delete", style = ChronirTextStyle.BodyMedium, color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
@@ -80,7 +80,7 @@ fun AccountScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { ChronirText(text = "Account", style = ChronirTextStyle.TitleMedium) },
+                title = { Text("Account") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -106,7 +106,7 @@ fun AccountScreen(
             // Avatar
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(80.dp) // token-exempt: avatar size
                     .background(
                         MaterialTheme.colorScheme.primaryContainer,
                         CircleShape
@@ -124,7 +124,7 @@ fun AccountScreen(
                         Icons.Filled.Person,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(40.dp)
+                        modifier = Modifier.size(SpacingTokens.XXLarge)
                     )
                 }
             }
@@ -163,7 +163,7 @@ fun AccountScreen(
                     ChronirText(
                         text = "Delete Account",
                         style = ChronirTextStyle.BodyMedium,
-                        color = ColorTokens.Error
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             } else {
@@ -188,7 +188,7 @@ fun AccountScreen(
                 ChronirText(
                     text = error,
                     style = ChronirTextStyle.BodySmall,
-                    color = ColorTokens.Error
+                    color = MaterialTheme.colorScheme.error
                 )
             }
         }

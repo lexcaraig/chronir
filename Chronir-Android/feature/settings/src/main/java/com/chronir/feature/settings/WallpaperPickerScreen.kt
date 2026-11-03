@@ -24,14 +24,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,6 +42,8 @@ import com.chronir.designsystem.atoms.ChronirText
 import com.chronir.designsystem.atoms.ChronirTextStyle
 import com.chronir.designsystem.tokens.RadiusTokens
 import com.chronir.designsystem.tokens.SpacingTokens
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,15 +63,12 @@ fun WallpaperPickerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { ChronirText(text = "Wallpaper", style = ChronirTextStyle.TitleMedium) },
+                title = { Text("Wallpaper") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
             )
         },
         modifier = modifier
@@ -95,12 +95,12 @@ fun WallpaperPickerScreen(
             ) {
                 val uri = wallpaperUri
                 if (uri != null) {
-                    val bitmap = remember(uri) {
-                        BitmapFactory.decodeFile(uri.path)
+                    val bitmap by produceState<ImageBitmap?>(initialValue = null, uri) {
+                        value = withContext(Dispatchers.IO) { decodeSampled(uri.path, PREVIEW_MAX_PX) }
                     }
-                    if (bitmap != null) {
+                    bitmap?.let { image ->
                         Image(
-                            bitmap = bitmap.asImageBitmap(),
+                            bitmap = image,
                             contentDescription = "Wallpaper preview",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
@@ -140,4 +140,17 @@ fun WallpaperPickerScreen(
             Spacer(Modifier.height(SpacingTokens.Large))
         }
     }
+}
+
+/** Longest edge the 9:16 preview needs; decoding a full 12 MP photo for it wastes ~48 MB. */
+private const val PREVIEW_MAX_PX = 1080
+
+/** Decodes [path] downsampled by a power of two so its longest edge is about [maxPx]. Call off the main thread. */
+private fun decodeSampled(path: String?, maxPx: Int): ImageBitmap? {
+    if (path == null) return null
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(path, bounds)
+    var sample = 1
+    while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= maxPx) sample *= 2
+    return BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample })?.asImageBitmap()
 }
