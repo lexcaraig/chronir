@@ -7,6 +7,8 @@ struct ChronirWidgetsBundle: WidgetBundle {
         NextAlarmWidget()
         AlarmListWidget()
         CountdownLiveActivityWidget()
+        NextAlarmControl()
+        NewAlarmControl()
     }
 }
 

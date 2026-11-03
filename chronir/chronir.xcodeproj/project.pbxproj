@@ -31,6 +31,7 @@
 		G00G0001000100010001000E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = G00G0001000100010001000D /* GoogleSignInSwift */; };
 		FE06MRKDONE00000000000001 /* MarkDoneButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE06MRKDONE00000000000002 /* MarkDoneButton.swift */; };
 		FE06CMPLINT00000000000001 /* CompleteAlarmIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE06CMPLINT00000000000002 /* CompleteAlarmIntent.swift */; };
+		FE07CONTROLS0000000000001 /* ChronirControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07CONTROLS0000000000002 /* ChronirControls.swift */; };
 		LA01CNTDWN000000000000001 /* CountdownLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */; };
 /* End PBXBuildFile section */
 
@@ -94,6 +95,7 @@
 		F34EC1576DB35B27DD1B996E /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WidgetKit.framework; sourceTree = "<group>"; };
 		FE06MRKDONE00000000000002 /* MarkDoneButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MarkDoneButton.swift; sourceTree = "<group>"; };
 		FE06CMPLINT00000000000002 /* CompleteAlarmIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CompleteAlarmIntent.swift; path = chronir/Core/Intents/CompleteAlarmIntent.swift; sourceTree = SOURCE_ROOT; };
+		FE07CONTROLS0000000000002 /* ChronirControls.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Controls/ChronirControls.swift; sourceTree = "<group>"; };
 		LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CountdownLiveActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -221,6 +223,7 @@
 				D30B8C6CB9C2649E573D3949 /* Views */,
 				32ECB4223B108875AE703207 /* Providers */,
 				1C7355E3B1C7FD85B173DCF1 /* ChronirWidgetsBundle.swift */,
+				FE07CONTROLS0000000000002 /* ChronirControls.swift */,
 				84C31D2FC5398E207C60D5DA /* ChronirWidgets.entitlements */,
 			);
 			path = ChronirWidgets;
@@ -436,6 +439,7 @@
 				LA01CNTDWN000000000000001 /* CountdownLiveActivityView.swift in Sources */,
 				FE06MRKDONE00000000000001 /* MarkDoneButton.swift in Sources */,
 				FE06CMPLINT00000000000001 /* CompleteAlarmIntent.swift in Sources */,
+				FE07CONTROLS0000000000001 /* ChronirControls.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

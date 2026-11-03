@@ -20,6 +20,7 @@ struct ChronirApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var showSplash = true
     @State private var deepLinkAlarmID: UUID?
+    @State private var deepLinkCreateAlarm = false
 
     init() {
         FirebaseApp.configure()
@@ -89,7 +90,7 @@ struct ChronirApp: App {
         WindowGroup {
             ZStack {
                 NavigationStack {
-                    AlarmListView(deepLinkAlarmID: $deepLinkAlarmID)
+                    AlarmListView(deepLinkAlarmID: $deepLinkAlarmID, deepLinkCreateAlarm: $deepLinkCreateAlarm)
                 }
 
                 if showSplash {
@@ -409,9 +410,13 @@ struct ChronirApp: App {
                 }
             }
             .onOpenURL { url in
-                // Handle chronir://alarm/{id} deep links from widgets
-                guard url.scheme == "chronir",
-                      url.host == "alarm",
+                // Handle chronir://alarm/{id} and chronir://new deep links from widgets and controls
+                guard url.scheme == "chronir" else { return }
+                if url.host == "new" {
+                    deepLinkCreateAlarm = true
+                    return
+                }
+                guard url.host == "alarm",
                       let idString = url.pathComponents.dropFirst().first,
                       let alarmID = UUID(uuidString: idString) else { return }
                 deepLinkAlarmID = alarmID

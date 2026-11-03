@@ -7,10 +7,12 @@ struct AlarmListView: View {
     @Query(sort: \Alarm.nextFireDate) private var alarms: [Alarm]
     @Environment(\.modelContext) private var modelContext
     var deepLinkAlarmID: Binding<UUID?>
+    var deepLinkCreateAlarm: Binding<Bool>
     @State private var showingCreateAlarm = false
 
-    init(deepLinkAlarmID: Binding<UUID?>) {
+    init(deepLinkAlarmID: Binding<UUID?>, deepLinkCreateAlarm: Binding<Bool>) {
         self.deepLinkAlarmID = deepLinkAlarmID
+        self.deepLinkCreateAlarm = deepLinkCreateAlarm
     }
     @State private var enabledStates: [UUID: Bool] = [:]
     @State private var selectedAlarmID: UUID?
@@ -166,6 +168,11 @@ struct AlarmListView: View {
                 }
                 deepLinkAlarmID.wrappedValue = nil
             }
+        }
+        .onChange(of: deepLinkCreateAlarm.wrappedValue) {
+            guard deepLinkCreateAlarm.wrappedValue else { return }
+            deepLinkCreateAlarm.wrappedValue = false
+            requestCreateAlarm()
         }
         .navigationDestination(item: $selectedCategory) { category in
             CategoryDetailView(category: category)
@@ -587,7 +594,7 @@ extension AlarmListView {
 
 #Preview {
     NavigationStack {
-        AlarmListView(deepLinkAlarmID: .constant(nil))
+        AlarmListView(deepLinkAlarmID: .constant(nil), deepLinkCreateAlarm: .constant(false))
     }
     .modelContainer(for: Alarm.self, inMemory: true)
 }

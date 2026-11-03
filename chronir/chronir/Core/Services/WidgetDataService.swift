@@ -42,6 +42,7 @@ final class WidgetDataService: Sendable {
             try data.write(to: fileURL, options: .atomic)
 
             WidgetCenter.shared.reloadAllTimelines()
+            ControlCenter.shared.reloadAllControls()
         } catch {
             // Non-critical — widget just shows stale data
         }
@@ -57,5 +58,6 @@ final class WidgetDataService: Sendable {
         try? data.write(to: fileURL, options: .atomic)
 
         WidgetCenter.shared.reloadAllTimelines()
+            ControlCenter.shared.reloadAllControls()
     }
 }

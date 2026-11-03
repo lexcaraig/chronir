@@ -4,7 +4,7 @@
 **Category:** Feature
 **Effort:** Low (1 day)
 **Platform:** iOS
-**Status:** Open
+**Status:** In Progress
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 
 ---
@@ -28,3 +28,9 @@ FEAT-06 (`AlarmEntity`)
 **Commands:** `/implement-task {ID}` → `/precommit-review` → commit
 **Pre-flight:** read `chronir/ChronirWidgets/`, `chronir/chronir/Core/Intents/`, `AlarmScheduler` (AE-02/AE-03)
 **Post-flight:** swiftlint, `xcodebuild test`, on-device check on lexpresswayyy
+
+## Verification
+- `xcodebuild build` (iPhone 17 Pro sim, iOS 26.2): BUILD SUCCEEDED (built together with the FEAT-06 fixes)
+- SDK check: `OpenURLIntent` (iOS 18+) has no restriction on running from an extension; controls open `chronir://` links through it
+- `chronir://new` opens creation through `requestCreateAlarm()`, so the Free 3-alarm limit still applies
+- On-device check on lexpresswayyy: still to do (add both controls in Control Center; Next Alarm opens the alarm, New Alarm opens creation)
