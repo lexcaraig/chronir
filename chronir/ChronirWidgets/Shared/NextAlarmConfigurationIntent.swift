@@ -12,16 +12,5 @@ struct NextAlarmConfigurationIntent: WidgetConfigurationIntent {
     var alarm: AlarmEntity?
 
     @Parameter(title: "Category")
-    var category: WidgetCategory?
-}
-
-/// Mirrors the app's `AlarmCategory` raw values (the widget extension can't import the app).
-enum WidgetCategory: String, AppEnum {
-    case home, health, finance, vehicle, work, personal, pets, subscriptions
-
-    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Category"
-    static let caseDisplayRepresentations: [WidgetCategory: DisplayRepresentation] = [
-        .home: "Home", .health: "Health", .finance: "Finance", .vehicle: "Vehicle",
-        .work: "Work", .personal: "Personal", .pets: "Pets", .subscriptions: "Subscriptions"
-    ]
+    var category: AlarmCategoryAppEnum?
 }

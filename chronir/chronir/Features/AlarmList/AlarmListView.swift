@@ -5,6 +5,7 @@ import AlarmKit
 
 struct AlarmListView: View {
     @Query(sort: \Alarm.nextFireDate) private var alarms: [Alarm]
+    @AppStorage(FocusFilterStore.key, store: FocusFilterStore.defaults) private var focusCategoriesRaw = ""
     @Environment(\.modelContext) private var modelContext
     var deepLinkAlarmID: Binding<UUID?>
     var deepLinkCreateAlarm: Binding<Bool>
@@ -51,6 +52,16 @@ struct AlarmListView: View {
                         top: SpacingTokens.xs, leading: SpacingTokens.md,
                         bottom: SpacingTokens.xs, trailing: SpacingTokens.md
                     ))
+                }
+            }
+
+            if !focusCategoriesRaw.isEmpty {
+                Section {
+                    Label("Filtered by Focus", systemImage: "moon.fill")
+                        .font(.footnote)
+                        .foregroundStyle(ColorTokens.textSecondary)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                 }
             }
 
@@ -444,8 +455,12 @@ struct AlarmListView: View {
         alarms.filter { $0.cycleType == .oneTime && !$0.isEnabled && !isPending($0) }
     }
 
+    /// Display-only: never use for tier enforcement or scheduling (those read `activeAlarms`).
     private var filteredAlarms: [Alarm] {
-        let source = activeAlarms
+        let focusCategories = FocusFilterStore.parse(focusCategoriesRaw)
+        let source = focusCategories.isEmpty ? activeAlarms : activeAlarms.filter {
+            focusCategories.contains($0.alarmCategory?.rawValue ?? "")
+        }
         let filtered = if let filter = selectedCategoryFilter {
             source.filter { $0.alarmCategory == filter }
         } else {

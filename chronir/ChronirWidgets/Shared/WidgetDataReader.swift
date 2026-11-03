@@ -19,8 +19,10 @@ enum WidgetDataReader {
     static func loadAlarms() -> [WidgetAlarmData] {
         let payload = load()
         let now = Date()
+        let focusCategories = FocusFilterStore.categories
         return (payload?.alarms ?? [])
             .filter { $0.nextFireDate > now || $0.nextFireDate == .distantFuture }
+            .filter { focusCategories.isEmpty || focusCategories.contains($0.categoryName ?? "") }
             .sorted { $0.nextFireDate < $1.nextFireDate }
     }
 

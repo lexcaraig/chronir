@@ -33,6 +33,7 @@
 		FE06CMPLINT00000000000001 /* CompleteAlarmIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE06CMPLINT00000000000002 /* CompleteAlarmIntent.swift */; };
 		FE07CONTROLS0000000000001 /* ChronirControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07CONTROLS0000000000002 /* ChronirControls.swift */; };
 		FE09CONFIGINT000000000001 /* NextAlarmConfigurationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE09CONFIGINT000000000002 /* NextAlarmConfigurationIntent.swift */; };
+		FE10CATENUM00000000000001 /* AlarmCategoryAppEnum.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE10CATENUM00000000000002 /* AlarmCategoryAppEnum.swift */; };
 		LA01CNTDWN000000000000001 /* CountdownLiveActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +99,7 @@
 		FE06CMPLINT00000000000002 /* CompleteAlarmIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CompleteAlarmIntent.swift; path = chronir/Core/Intents/CompleteAlarmIntent.swift; sourceTree = SOURCE_ROOT; };
 		FE07CONTROLS0000000000002 /* ChronirControls.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Controls/ChronirControls.swift; sourceTree = "<group>"; };
 		FE09CONFIGINT000000000002 /* NextAlarmConfigurationIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NextAlarmConfigurationIntent.swift; sourceTree = "<group>"; };
+		FE10CATENUM00000000000002 /* AlarmCategoryAppEnum.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AlarmCategoryAppEnum.swift; path = chronir/Core/Intents/AlarmCategoryAppEnum.swift; sourceTree = SOURCE_ROOT; };
 		LA01CNTDWN000000000000002 /* CountdownLiveActivityView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CountdownLiveActivityView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -178,6 +180,7 @@
 				09D2E7F5277E4349C3925F37 /* WidgetTokens.swift */,
 				FE06CMPLINT00000000000002 /* CompleteAlarmIntent.swift */,
 				FE09CONFIGINT000000000002 /* NextAlarmConfigurationIntent.swift */,
+				FE10CATENUM00000000000002 /* AlarmCategoryAppEnum.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -444,6 +447,7 @@
 				FE06CMPLINT00000000000001 /* CompleteAlarmIntent.swift in Sources */,
 				FE07CONTROLS0000000000001 /* ChronirControls.swift in Sources */,
 				FE09CONFIGINT000000000001 /* NextAlarmConfigurationIntent.swift in Sources */,
+				FE10CATENUM00000000000001 /* AlarmCategoryAppEnum.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
