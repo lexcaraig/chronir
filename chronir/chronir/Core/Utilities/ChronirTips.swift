@@ -15,9 +15,14 @@ struct AddWidgetTip: Tip {
     }
 }
 
-/// Points out pre-alarm warnings in the creation form.
+/// Points out pre-alarm warnings in the creation form — not on the very first alarm, where the popover
+/// would intercept the first tap on the name field.
 struct PreAlarmTip: Tip {
     var title: Text { Text("Get a heads-up") }
     var message: Text? { Text("Pre-alarm warnings remind you days before a big deadline.") }
     var image: Image? { Image(systemName: "bell.badge") }
+
+    var rules: [Rule] {
+        #Rule(AddWidgetTip.$alarmCount) { $0 >= 1 }
+    }
 }

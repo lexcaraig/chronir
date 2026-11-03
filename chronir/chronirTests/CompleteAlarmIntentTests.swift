@@ -1,3 +1,4 @@
+import CoreSpotlight
 import Foundation
 import SwiftData
 import Testing
@@ -181,6 +182,35 @@ struct CompleteAlarmIntentTests {
             let resolved = try await AlarmEntityQuery().entities(for: [alarm.id])
             #expect(resolved.map(\.id) == [alarm.id])
         }
+    }
+
+    // MARK: - FEAT-08
+
+    @Test("Spotlight index contains indexed alarms and drops removed ones")
+    func spotlightIndexRoundTrip() async throws {
+        let marker = "Spotlightcheck\(Int.random(in: 1000...9999))"
+        let entity = AlarmEntity(id: UUID(), title: marker, scheduleDisplayName: "Annual")
+        await AlarmSpotlightIndex.replace(with: [entity])
+        try await Task.sleep(for: .seconds(2))
+        let found = try await spotlightTitles(matching: marker)
+        #expect(found.contains(marker), "indexed titles: \(found)")
+
+        await AlarmSpotlightIndex.replace(with: [])
+        try await Task.sleep(for: .seconds(2))
+        #expect(try await spotlightTitles(matching: marker).isEmpty)
+
+        await WidgetDataService.shared.refresh() // restore the real index
+    }
+
+    private func spotlightTitles(matching text: String) async throws -> [String] {
+        let context = CSSearchQueryContext()
+        context.fetchAttributes = ["title", "displayName"]
+        let query = CSSearchQuery(queryString: "(title == \"\(text)*\"cd || displayName == \"\(text)*\"cd)", queryContext: context)
+        var titles: [String] = []
+        for try await result in query.results {
+            titles.append(result.item.attributeSet.title ?? result.item.attributeSet.displayName ?? "?")
+        }
+        return titles
     }
 
     // MARK: - FEAT-10
