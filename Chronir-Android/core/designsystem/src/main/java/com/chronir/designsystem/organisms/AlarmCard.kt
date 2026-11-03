@@ -35,6 +35,7 @@ import com.chronir.model.Alarm
 import com.chronir.model.CycleType
 import com.chronir.model.PersistenceLevel
 import com.chronir.model.Schedule
+import com.chronir.model.countdownText
 import java.time.Instant
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -164,7 +165,7 @@ fun AlarmCard(
                     if (visualState != AlarmVisualState.Inactive) {
                         AlarmTimeDisplay(
                             timeText = alarm.timeOfDay.format(timeFormatter),
-                            countdownText = if (visualState == AlarmVisualState.Active) "Alarm in 6h 32m" else null
+                            countdownText = if (visualState == AlarmVisualState.Active) countdownText(alarm.nextFireDate) else null
                         )
                     } else {
                         ChronirText(
