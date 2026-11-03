@@ -4,7 +4,7 @@
 **Category:** Feature
 **Effort:** Medium (2-3 days)
 **Platform:** iOS
-**Status:** In Progress
+**Status:** Untested
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 
 ---
