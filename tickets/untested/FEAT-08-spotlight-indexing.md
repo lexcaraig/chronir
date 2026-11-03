@@ -34,3 +34,8 @@ FEAT-06
 - Tapping a Spotlight result runs `OpenAlarmIntent`, which opens `chronir://alarm/{id}` (UUID-validated in `onOpenURL`, and works when the app starts from closed)
 - The index stays on device (CoreSpotlight); no alarm content is logged
 - On-device check on lexpresswayyy: still to do (search an alarm's title in Spotlight, then tap the result to open its detail screen)
+
+### Device run 2026-11-03 (lexpresswayyy)
+- `spotlightIndexRoundTrip` passes on device: the title can be found through `CSSearchQuery`, and it is removed after a replace
+- Spotlight's own results screen showed only web suggestions for the test title in the UI run, so whether Chronir results appear there still needs a manual look
+- Also fixed by fdf40f9: Spotlight results open through `chronir://alarm/{id}`, which wasn't registered before

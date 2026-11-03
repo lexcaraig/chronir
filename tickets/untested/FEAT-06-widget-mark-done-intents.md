@@ -46,3 +46,8 @@ No council run: this is clear-cut work. Default is Free (widgets are Free today)
 - `xcodebuild test -only-testing:chronirTests`: TEST SUCCEEDED
 - swiftlint: no findings in changed files
 - On-device check on lexpresswayyy: still to do (tap Mark Done on the widget, then confirm the next occurrence still fires; Siri "Mark {alarm} as done in Chronir")
+
+### Device run 2026-11-03 (lexpresswayyy)
+- `CompleteAlarmIntentTests`: 8/8 pass on device (completion advances one cycle + logs; stale or double tap does nothing; pending path; one-time; disabled throws; entity query)
+- Siri UI test: **FAILS**. Siri says "I don't see an app for that" for "Mark {alarm} as done in Chronir". The phrase is in the compiled App Intents metadata, and the older phrase "What's my next alarm in Chronir" works, so Siri is not matching the alarm-name values. Open.
+- AlarmKit registrations can't be checked from a test process (see memory alarmkit-test-process); this still needs a real alarm to fire on device.

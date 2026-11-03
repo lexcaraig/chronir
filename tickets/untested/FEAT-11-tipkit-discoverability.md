@@ -35,3 +35,6 @@ New users get a one-time hint, at the moment it's relevant, for snooze options, 
 ## Verification
 - `xcodebuild build` + `xcodebuild test -only-testing:chronirTests` (iPhone 17 Pro sim, iOS 26.2): BUILD SUCCEEDED, TEST SUCCEEDED; swiftlint clean
 - On-device check on lexpresswayyy: still to do (create a 2nd alarm and check the widget tip appears and can be dismissed; open creation and check the pre-alarm popover shows once)
+
+### Device run 2026-11-03 (lexpresswayyy)
+- UI test screenshot showed the pre-alarm popover blocking the first tap on the name field on the very first alarm. Fixed in fdf40f9: the tip now needs at least 1 existing alarm.

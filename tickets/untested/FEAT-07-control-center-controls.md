@@ -34,3 +34,8 @@ FEAT-06 (`AlarmEntity`)
 - SDK check: `OpenURLIntent` (iOS 18+) has no restriction on running from an extension; controls open `chronir://` links through it
 - `chronir://new` opens creation through `requestCreateAlarm()`, so the Free 3-alarm limit still applies
 - On-device check on lexpresswayyy: still to do (add both controls in Control Center; Next Alarm opens the alarm, New Alarm opens creation)
+
+### Device run 2026-11-03 (lexpresswayyy)
+- UI test found that `chronir://` was **not registered** (LaunchServices error 115), so both controls failed to open the app. Fixed in fdf40f9 (CFBundleURLTypes).
+- UI test passes: `chronir://new` opens the create screen (screenshot `00-creation-from-deeplink`), the alarm is created and appears in the list (`01-created`)
+- Still manual: adding the controls in Control Center
