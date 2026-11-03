@@ -4,7 +4,7 @@
 **Category:** QA / Design
 **Effort:** Large
 **Platform:** iOS + Android
-**Status:** Untested (committed c512309, 23b9666, 871637a)
+**Status:** Untested (follow-ups committed 4162154, c41dccf, Android; one by-hand check listed under Evidence)
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 
 ---
@@ -31,7 +31,7 @@ Reports: `/private/tmp/claude-501/-Users-lexcaraig-development-Chronir/f38bf2b4-
 - [x] No emojis in UI (Android paywall feature rows now Material icons)
 - [x] Builds, lint and unit tests green on both platforms
 - [x] Device check: iOS lexpresswayyy + Android Nothing phone, light/dark/large text, screenshots in tickets/screenshots/QA-05/
-- [ ] Re-audit scores recorded
+- [x] Re-audit scores recorded
 
 ## Orchestration
 **Agents:** design-system-builder, ios-developer, android-developer (read-and-inject), code-reviewer
@@ -53,9 +53,36 @@ Reports: `/private/tmp/claude-501/-Users-lexcaraig-development-Chronir/f38bf2b4-
 - iOS simulator unit suite (all other suites) passed; Android `ktlintCheck test assembleDebug` green.
 - /precommit-review: simplify (3 fixed), security (0 critical/high), optimize (0 high-impact, 2 fixed).
 
-### Deferred
-- iOS `LegalDocumentView` renders remote markdown as unescaped HTML in a JS-enabled WKWebView (pre-existing; escape + scheme allowlist + disable JS).
-- iOS dark-mode toggle "on" state: white thumb on light-grey track is low-contrast (state still readable by position/fill).
-- 14 unused generated iOS tokens; unused Android `organisms/AlarmCreationForm.kt`.
-- Pre-existing swiftlint error: `DateCalculatorTests` type_body_length (682 > 500).
-- Re-audit (Impeccable audit.native) not yet run, so post-fix scores aren't recorded.
+
+## Follow-ups (2026-11-04, second pass)
+
+### Re-audit (Impeccable audit.native, /20)
+| Area | Baseline | After |
+|---|---|---|
+| iOS core screens | 11 | 15 |
+| iOS paywall / onboarding / settings / widgets | 11 | 16 |
+| iOS design system | 11 | 16 |
+| Android design system + widgets | 9 | 17 |
+| Android screens | 10 | 15 |
+Report: session scratchpad `impeccable-reaudit.md`.
+
+### Fixed
+- iOS legal/FAQ renderer: text HTML-escaped before markdown, links limited to http/https/mailto, JavaScript off, tap handler re-checks the scheme.
+- iOS switches use a new `toggleOn` token (dark mode no longer puts the white thumb on a light-grey track).
+- Unused tokens removed (iOS alarm*, firingForeground, textDisabled/borderFocused/iconPrimary/iconSecondary, GlassTokens.sheetRadius); unused Android `organisms/AlarmCreationForm.kt` deleted.
+- `DateCalculatorTests` type_body_length: scoped disable (one suite by design, TEST-01); swiftlint now 0 errors.
+- Perf: AlarmSchedulingStatus writes only on real changes; AlarmListViewModel shares one Room flow; editor date formatter remembered.
+- iOS: wallpaper scrims use `ColorTokens.scrim`; badge rows wrap at accessibility sizes; "won't ring" warnings persist across relaunch, the card shows "Not scheduled", and `reconcile()` drops warnings for alarms AlarmKit has registered via any path; circular lock-screen widget stays accurate in the last 24 h.
+- iOS `LabeledTextField` names the field for VoiceOver.
+- Android: stepper labels match behavior; bottom-bar New announces as a "Create alarm" button; editor screens pad for the keyboard (`imePadding` + `adjustResize`); compact widget 64dp so nothing clips; firing screen scrolls when it doesn't fit.
+
+### Skipped, with reason
+- iOS swipe-down on an edited sheet still just blocks (Cancel asks to discard). A delegate-proxy hook was tried and reverted: it depends on SwiftUI-owned presentation internals and didn't fire reliably on device.
+- Google button official "G" mark: needs Google's brand asset from you.
+- Paywall hero symbol, native `Form` rewrite, Android grouped settings plates, extra Glass previews, high-contrast values for onPrimary/surfaces/badges: design choices, not defects; worth a separate design ticket.
+
+### Evidence (second pass)
+- iPhone: `SystemSurfacesUITests` passed; leftover "Zeta Test" alarm removed; unedited sheet swipe closes.
+- iOS simulator unit tests: 152 passed. Android `ktlintCheck test assembleDebug` green; New item exposes "Create alarm", clickable, not selectable (uiautomator).
+- Keyboard over Note: Note is Plus-locked on the Free test account, so verified by build + review only.
+- Observed under UI-test launches: AlarmKit refused a 5-day-out alarm and the new warning showed it. Needs a by-hand check in normal use (create an alarm by hand; it should not say "Not scheduled").
