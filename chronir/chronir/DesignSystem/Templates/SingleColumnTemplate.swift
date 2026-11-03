@@ -24,6 +24,8 @@ struct SingleColumnTemplate<Content: View, FloatingAction: View>: View {
                 .padding(.horizontal, 0)
                 .padding(.vertical, SpacingTokens.md)
             }
+            // Keep the last row clear of the floating action (56pt button + its padding).
+            .contentMargins(.bottom, hasFloatingAction ? SpacingTokens.xxl + SpacingTokens.xl : 0, for: .scrollContent)
             .background(ColorTokens.backgroundPrimary)
             .navigationTitle(title)
 
@@ -31,6 +33,10 @@ struct SingleColumnTemplate<Content: View, FloatingAction: View>: View {
                 .padding(SpacingTokens.lg)
         }
     }
+}
+
+private extension SingleColumnTemplate {
+    var hasFloatingAction: Bool { FloatingAction.self != EmptyView.self }
 }
 
 extension SingleColumnTemplate where FloatingAction == EmptyView {
@@ -44,7 +50,7 @@ extension SingleColumnTemplate where FloatingAction == EmptyView {
     }
 }
 
-#Preview {
+#Preview("Light") {
     NavigationStack {
         SingleColumnTemplate(title: "Alarms") {
             Text("Content goes here")
@@ -52,6 +58,8 @@ extension SingleColumnTemplate where FloatingAction == EmptyView {
         }
     }
 }
+
+private let fabSize = SpacingTokens.xxl + SpacingTokens.xs // 56pt
 
 #Preview("With FAB") {
     NavigationStack {
@@ -64,11 +72,22 @@ extension SingleColumnTemplate where FloatingAction == EmptyView {
                 label: {
                     Image(systemName: "plus")
                         .font(.title2.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 56, height: 56)
+                        .foregroundStyle(ColorTokens.onPrimary)
+                        .frame(width: fabSize, height: fabSize)
                         .chronirGlassTintedCircle(tint: ColorTokens.primary)
                 }
             )
+            .accessibilityLabel("New Alarm")
         }
     }
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        SingleColumnTemplate(title: "Alarms") {
+            Text("Content goes here")
+                .foregroundStyle(ColorTokens.textPrimary)
+        }
+    }
+    .environment(\.colorScheme, .dark)
 }

@@ -23,12 +23,9 @@ extension View {
         modifier(GlassTintedCircleModifier(tint: tint))
     }
 
-    /// Untinted glass circle (e.g. unselected day pickers).
-    func chronirGlassCircle() -> some View {
-        modifier(GlassCircleModifier())
-    }
-
-    /// Glass card surface (e.g. alarm cards over wallpaper or dark background).
+    /// Content card surface (alarm and category cards). Cards are content, not controls, so they are
+    /// never Liquid Glass: opaque `surfaceCard` in Light/Dark, a system material over the wallpaper in
+    /// the Glass theme (it adapts to Reduce Transparency and Increase Contrast on its own).
     func chronirGlassCard() -> some View {
         modifier(GlassCardModifier())
     }
@@ -43,11 +40,6 @@ extension View {
         modifier(GlassSelectableCircleModifier(isSelected: isSelected, tint: tint))
     }
 
-    /// Selectable glass card — tinted glass when selected, plain card when not.
-    func chronirGlassSelectableCard(isSelected: Bool, tint: Color = ColorTokens.primary) -> some View {
-        modifier(GlassSelectableCardModifier(isSelected: isSelected, tint: tint))
-    }
-
     /// Wallpaper background with saved transform (scale/offset) and light-image scrim.
     /// Falls back to `ColorTokens.backgroundGradient` when no wallpaper is set.
     /// In Light/Dark themes, uses a solid `backgroundPrimary` color.
@@ -57,6 +49,9 @@ extension View {
 }
 
 // MARK: - Modifier Implementations
+
+/// Hairline around unselected chips (1pt).
+private let chipStroke = SpacingTokens.hairline * 2
 
 private struct GlassButtonModifier: ViewModifier {
     let tint: Color?
@@ -111,32 +106,20 @@ private struct GlassTintedCircleModifier: ViewModifier {
     }
 }
 
-private struct GlassCircleModifier: ViewModifier {
-    @Environment(\.chronirTheme) private var theme
-
-    func body(content: Content) -> some View {
-        if theme.isGlassActive {
-            content.glassEffect(GlassTokens.element, in: .circle)
-        } else {
-            content.background(ColorTokens.surfaceCard, in: .circle)
-        }
-    }
-}
-
 private struct GlassCardModifier: ViewModifier {
     @Environment(\.chronirTheme) private var theme
 
     func body(content: Content) -> some View {
-        if theme.isGlassActive {
-            content.glassEffect(GlassTokens.card, in: .rect(cornerRadius: GlassTokens.cardRadius))
-        } else {
-            content
-                .background(ColorTokens.surfaceCard, in: .rect(cornerRadius: GlassTokens.cardRadius))
-                .overlay(
-                    RoundedRectangle(cornerRadius: GlassTokens.cardRadius)
-                        .stroke(ColorTokens.borderDefault, lineWidth: 0.5)
-                )
-        }
+        let shape = RoundedRectangle(cornerRadius: GlassTokens.cardRadius)
+        content
+            .background {
+                if theme.isGlassActive {
+                    shape.fill(.regularMaterial)
+                } else {
+                    shape.fill(ColorTokens.surfaceCard)
+                }
+            }
+            .overlay(shape.stroke(ColorTokens.borderDefault, lineWidth: SpacingTokens.hairline))
     }
 }
 
@@ -154,7 +137,10 @@ private struct GlassSelectableCapsuleModifier: ViewModifier {
                 in: .capsule
             )
         } else {
-            content.background(isSelected ? tint : ColorTokens.surfaceCard, in: .capsule)
+            // Unselected chips get a hairline so they stay visible on a surfaceCard section too.
+            content
+                .background(isSelected ? tint : ColorTokens.surfaceCard, in: .capsule)
+                .overlay(Capsule().stroke(isSelected ? .clear : ColorTokens.borderDefault, lineWidth: chipStroke))
         }
     }
 }
@@ -173,40 +159,17 @@ private struct GlassSelectableCircleModifier: ViewModifier {
                 in: .circle
             )
         } else {
-            content.background(isSelected ? tint : ColorTokens.surfaceCard, in: .circle)
-        }
-    }
-}
-
-private struct GlassSelectableCardModifier: ViewModifier {
-    let isSelected: Bool
-    let tint: Color
-    @Environment(\.chronirTheme) private var theme
-
-    func body(content: Content) -> some View {
-        if theme.isGlassActive {
-            content.glassEffect(
-                isSelected
-                    ? GlassTokens.card.tint(tint).interactive()
-                    : GlassTokens.card,
-                in: .rect(cornerRadius: GlassTokens.cardRadius)
-            )
-        } else {
             content
-                .background(
-                    isSelected ? tint : ColorTokens.surfaceCard,
-                    in: .rect(cornerRadius: GlassTokens.cardRadius)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: GlassTokens.cardRadius)
-                        .stroke(ColorTokens.borderDefault, lineWidth: 0.5)
-                )
+                .background(isSelected ? tint : ColorTokens.surfaceCard, in: .circle)
+                .overlay(Circle().stroke(isSelected ? .clear : ColorTokens.borderDefault, lineWidth: chipStroke))
         }
     }
 }
 
 private struct WallpaperBackgroundModifier: ViewModifier {
     @Environment(\.chronirTheme) private var theme
+    private let settings = UserSettings.shared
+    private let loader = WallpaperImageLoader.shared
 
     func body(content: Content) -> some View {
         content
@@ -219,27 +182,30 @@ private struct WallpaperBackgroundModifier: ViewModifier {
                         .ignoresSafeArea()
                 }
             }
+            .task(id: theme.isGlassActive ? settings.wallpaperImageName : nil) {
+                guard theme.isGlassActive else { return }
+                await loader.load(named: settings.wallpaperImageName)
+            }
     }
 
     @ViewBuilder
     private var wallpaperOrGradient: some View {
-        if let name = UserSettings.shared.wallpaperImageName,
-           let data = try? Data(contentsOf: WallpaperPickerView.wallpaperURL(for: name)),
-           let uiImage = UIImage(data: data) {
+        if settings.wallpaperImageName != nil, let uiImage = loader.image {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFill()
-                .scaleEffect(UserSettings.shared.wallpaperScale)
+                .scaleEffect(settings.wallpaperScale)
                 .offset(CGSize(
-                    width: UserSettings.shared.wallpaperOffsetX,
-                    height: UserSettings.shared.wallpaperOffsetY
+                    width: settings.wallpaperOffsetX,
+                    height: settings.wallpaperOffsetY
                 ))
                 .ignoresSafeArea()
                 .overlay {
-                    if UserSettings.shared.wallpaperIsLight {
-                        Color.black.opacity(0.35).ignoresSafeArea()
+                    if settings.wallpaperIsLight {
+                        ColorTokens.scrim.opacity(0.35).ignoresSafeArea()
                     }
                 }
+                .accessibilityHidden(true)
         } else {
             ColorTokens.backgroundGradient
                 .ignoresSafeArea()

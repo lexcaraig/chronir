@@ -1,3 +1,7 @@
+// Premium shared alarms (Phase 4, Sprint 11+) is not built. `CHRONIR_PREMIUM` is never defined, so this
+// scaffolding is compiled out of the shipping app (no placeholder UI in the binary). Define the flag in
+// SWIFT_ACTIVE_COMPILATION_CONDITIONS when Premium work starts.
+#if CHRONIR_PREMIUM
 import Foundation
 import Observation
 
@@ -32,3 +36,4 @@ final class SharedAlarmViewModel {
         // TODO: Implement in Sprint 4
     }
 }
+#endif

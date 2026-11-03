@@ -1,11 +1,13 @@
 import SwiftUI
 import PhotosUI
+import ImageIO
 
 struct WallpaperPickerView: View {
     @Bindable private var settings = UserSettings.shared
     @State private var selectedItem: PhotosPickerItem?
     @State private var wallpaperImage: UIImage?
     @State private var isLoading = false
+    @State private var loadError: String?
 
     // Gesture state for pinch/drag
     @State private var scale: CGFloat = 1.0
@@ -30,16 +32,17 @@ struct WallpaperPickerView: View {
 
             // Loading overlay
             if isLoading {
-                Color.black.opacity(0.5)
+                Color.black.opacity(0.5) // token-exempt: photo scrim, no scrim token exists
                     .ignoresSafeArea()
                 VStack(spacing: SpacingTokens.md) {
                     ProgressView()
-                        .tint(.white)
-                        .scaleEffect(1.5)
-                    Text("Applying wallpaper...")
+                        .tint(ColorTokens.firingTextPrimary)
+                        .controlSize(.large)
+                    Text("Applying wallpaper\u{2026}")
                         .chronirFont(.bodySecondary)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(ColorTokens.firingTextPrimary)
                 }
+                .accessibilityElement(children: .combine)
             }
         }
         .navigationTitle("Background Wallpaper")
@@ -50,8 +53,8 @@ struct WallpaperPickerView: View {
                 await loadAndSavePhoto()
             }
         }
-        .onAppear {
-            loadCurrentWallpaper()
+        .task {
+            await loadCurrentWallpaper()
         }
     }
 
@@ -81,7 +84,7 @@ struct WallpaperPickerView: View {
 
                 // Dark scrim for light wallpapers
                 if wallpaperImage != nil && settings.wallpaperIsLight {
-                    Color.black.opacity(0.35)
+                    Color.black.opacity(0.35) // token-exempt: legibility scrim over a light photo
                         .allowsHitTesting(false)
                 }
 
@@ -226,7 +229,13 @@ struct WallpaperPickerView: View {
                 }
             }
 
-            if wallpaperImage != nil {
+            if let loadError {
+                Label(loadError, systemImage: "exclamationmark.triangle.fill")
+                    .chronirFont(.bodyMedium)
+                    .foregroundStyle(ColorTokens.textError)
+                    .padding(SpacingTokens.sm)
+                    .background(ColorTokens.surfaceCard, in: .rect(cornerRadius: RadiusTokens.md))
+            } else if wallpaperImage != nil {
                 ChronirText(
                     "Pinch to zoom \u{2022} Drag to reposition",
                     style: .caption,
@@ -240,58 +249,53 @@ struct WallpaperPickerView: View {
 
     @MainActor
     private func loadAndSavePhoto() async {
+        guard let item = selectedItem else { return }
         isLoading = true
-
-        guard let item = selectedItem,
-              let data = try? await item.loadTransferable(type: Data.self),
-              let uiImage = UIImage(data: data) else {
-            isLoading = false
-            return
-        }
-
-        let jpegData = uiImage.jpegData(compressionQuality: 0.8)
-        guard let jpegData else {
-            isLoading = false
-            return
-        }
-
-        let filename = "wallpaper.jpg"
-        let url = Self.wallpaperURL(for: filename)
+        loadError = nil
+        defer { isLoading = false }
 
         do {
-            try jpegData.write(to: url)
-            settings.wallpaperImageName = filename
-            settings.wallpaperIsLight = Self.isImageLight(uiImage)
-            wallpaperImage = uiImage
+            guard let data = try await item.loadTransferable(type: Data.self) else {
+                throw WallpaperError.unreadable
+            }
+            // Decode, downscale to screen size, and write both files off the main thread.
+            let saved = try await Task.detached(priority: .userInitiated) {
+                try Self.saveDownscaled(data)
+            }.value
+            settings.wallpaperImageName = Self.wallpaperFilename
+            settings.wallpaperIsLight = Self.isImageLight(saved)
+            wallpaperImage = saved
             resetTransform()
+            await WallpaperImageLoader.shared.reload() // same filename, so refresh the cached background now
         } catch {
-            // Wallpaper save failed — user can retry
+            AnalyticsService.shared.recordError(error, context: "wallpaper_save")
+            loadError = "Couldn't use that photo. Try another."
         }
-
-        // Brief delay so the user sees the loading state
-        try? await Task.sleep(for: .milliseconds(400))
-        isLoading = false
     }
 
     private func removeWallpaper() {
         if let name = settings.wallpaperImageName {
-            let url = Self.wallpaperURL(for: name)
-            try? FileManager.default.removeItem(at: url)
+            try? FileManager.default.removeItem(at: Self.wallpaperURL(for: name))
+            try? FileManager.default.removeItem(at: Self.wallpaperURL(for: Self.thumbnailFilename))
         }
+        loadError = nil
         settings.wallpaperImageName = nil
         settings.wallpaperIsLight = false
         wallpaperImage = nil
         selectedItem = nil
         resetTransform()
+        Task { await WallpaperImageLoader.shared.reload() }
     }
 
-    private func loadCurrentWallpaper() {
+    private func loadCurrentWallpaper() async {
         guard let name = settings.wallpaperImageName else { return }
         let url = Self.wallpaperURL(for: name)
-        if let data = try? Data(contentsOf: url) {
-            wallpaperImage = UIImage(data: data)
-            loadTransform()
-        }
+        let image = await Task.detached(priority: .userInitiated) {
+            (try? Data(contentsOf: url)).flatMap { Self.downsample($0, maxPixelSize: Self.maxWallpaperPixels) }
+        }.value
+        guard let image else { return }
+        wallpaperImage = image
+        loadTransform()
     }
 
     // MARK: - Brightness Detection
@@ -329,9 +333,68 @@ struct WallpaperPickerView: View {
         return averageBrightness > 140
     }
 
+}
+
+// MARK: - Storage
+
+extension WallpaperPickerView {
+
+    nonisolated static let wallpaperFilename = "wallpaper.jpg"
+    nonisolated static let thumbnailFilename = "wallpaper-thumb.jpg"
+    /// Longest iPhone screen edge in pixels; wallpapers are never stored larger than this.
+    nonisolated private static let maxWallpaperPixels: CGFloat = 2_868
+    /// 32 pt Settings thumbnail at up to 3x, with headroom.
+    nonisolated private static let thumbnailPixels: CGFloat = 160
+
+    private enum WallpaperError: Error {
+        case unreadable
+        case encodeFailed
+    }
+
+    /// Downsamples the picked photo to screen resolution (never decoding the full bitmap), then writes the
+    /// wallpaper and a small Settings thumbnail. Returns the saved wallpaper image.
+    nonisolated private static func saveDownscaled(_ data: Data) throws -> UIImage {
+        guard let image = downsample(data, maxPixelSize: maxWallpaperPixels),
+              let thumbnail = downsample(data, maxPixelSize: thumbnailPixels) else {
+            throw WallpaperError.unreadable
+        }
+        guard let jpeg = image.jpegData(compressionQuality: 0.8),
+              let thumbJPEG = thumbnail.jpegData(compressionQuality: 0.8) else {
+            throw WallpaperError.encodeFailed
+        }
+        try jpeg.write(to: wallpaperURL(for: wallpaperFilename), options: .atomic)
+        try thumbJPEG.write(to: wallpaperURL(for: thumbnailFilename), options: .atomic)
+        return image
+    }
+
+    /// ImageIO thumbnail decode: memory scales with `maxPixelSize`, not the source resolution.
+    nonisolated static func downsample(_ data: Data, maxPixelSize: CGFloat) -> UIImage? {
+        let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+        guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions) else { return nil }
+        let options = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+        ] as CFDictionary
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else { return nil }
+        return UIImage(cgImage: cgImage)
+    }
+
+    /// Settings-row thumbnail, decoded off the main thread. Falls back to downsampling the full wallpaper
+    /// for installs saved before the thumbnail existed.
+    static func loadThumbnail(named name: String?) async -> UIImage? {
+        guard let name else { return nil }
+        return await Task.detached(priority: .utility) {
+            let thumbURL = wallpaperURL(for: thumbnailFilename)
+            let data = (try? Data(contentsOf: thumbURL)) ?? (try? Data(contentsOf: wallpaperURL(for: name)))
+            return data.flatMap { downsample($0, maxPixelSize: thumbnailPixels) }
+        }.value
+    }
+
     // MARK: - Helpers
 
-    static func wallpaperURL(for filename: String) -> URL {
+    nonisolated static func wallpaperURL(for filename: String) -> URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent(filename)
     }
@@ -423,8 +486,12 @@ private struct TransformGestureView: UIViewRepresentable {
     }
 }
 
-#Preview {
-    NavigationStack {
-        WallpaperPickerView()
-    }
+#Preview("Light") {
+    NavigationStack { WallpaperPickerView() }
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack { WallpaperPickerView() }
+    .preferredColorScheme(.dark)
 }

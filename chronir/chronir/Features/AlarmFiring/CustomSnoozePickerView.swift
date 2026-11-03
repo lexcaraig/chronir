@@ -1,83 +1,101 @@
 import SwiftUI
 
 struct CustomSnoozePickerView: View {
+    @State private var days: Int = 0
     @State private var hours: Int = 0
     @State private var minutes: Int = 5
     let onConfirm: (TimeInterval) -> Void
     @Environment(\.dismiss) private var dismiss
 
+    private static let minimumSeconds: TimeInterval = 300
+    /// Long-cycle snoozes go up to 30 days, the range the old 0–720 hour wheel covered.
+    private static let maxDays = 30
+
     var body: some View {
         NavigationStack {
             VStack(spacing: SpacingTokens.lg) {
-                ChronirText("Custom Snooze Duration", style: .headlineMedium)
-                    .padding(.top, SpacingTokens.lg)
-
-                HStack(spacing: SpacingTokens.md) {
-                    VStack(spacing: SpacingTokens.xs) {
-                        ChronirText("Hours", style: .labelMedium, color: ColorTokens.textSecondary)
-                        Picker("Hours", selection: $hours) {
-                            ForEach(0...720, id: \.self) { hour in
-                                Text("\(hour)").tag(hour)
-                            }
-                        }
-                        .pickerStyle(.wheel)
-                        .frame(width: 100, height: 150)
-                    }
-
-                    VStack(spacing: SpacingTokens.xs) {
-                        ChronirText("Minutes", style: .labelMedium, color: ColorTokens.textSecondary)
-                        Picker("Minutes", selection: $minutes) {
-                            ForEach(0...59, id: \.self) { minute in
-                                Text("\(minute)").tag(minute)
-                            }
-                        }
-                        .pickerStyle(.wheel)
-                        .frame(width: 100, height: 150)
-                    }
+                HStack(spacing: SpacingTokens.xs) {
+                    wheel("Days", selection: $days, range: 0...Self.maxDays)
+                    wheel("Hours", selection: $hours, range: 0...23)
+                    wheel("Minutes", selection: $minutes, range: 0...59)
                 }
+                .padding(.horizontal, SpacingTokens.md)
 
-                if totalSeconds > 0 {
-                    ChronirText(durationLabel, style: .bodySecondary, color: ColorTokens.textSecondary)
-                }
+                ChronirText(
+                    statusLabel,
+                    style: .bodySecondary,
+                    color: isBelowMinimum ? ColorTokens.textWarning : ColorTokens.textSecondary,
+                    alignment: .center
+                )
+                .accessibilityAddTraits(.updatesFrequently)
 
-                Spacer()
+                Spacer(minLength: 0)
 
                 ChronirButton("Snooze", style: .primary) {
-                    guard totalSeconds >= 300 else { return } // 5 min minimum
+                    guard !isBelowMinimum else { return }
                     onConfirm(totalSeconds)
                     dismiss()
                 }
-                .disabled(totalSeconds < 300)
-                .opacity(totalSeconds < 300 ? 0.4 : 1.0)
+                .disabled(isBelowMinimum)
                 .padding(.horizontal, SpacingTokens.xxxl)
                 .padding(.bottom, SpacingTokens.lg)
             }
+            .padding(.top, SpacingTokens.md)
             .background(ColorTokens.backgroundPrimary)
+            .navigationTitle("Custom Snooze")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
+    }
+
+    private func wheel(_ title: String, selection: Binding<Int>, range: ClosedRange<Int>) -> some View {
+        VStack(spacing: SpacingTokens.xs) {
+            ChronirText(title, style: .labelMedium, color: ColorTokens.textSecondary)
+                .accessibilityHidden(true)
+            Picker(title, selection: selection) {
+                ForEach(range, id: \.self) { value in
+                    Text("\(value)").tag(value)
+                }
+            }
+            .pickerStyle(.wheel)
+            .frame(maxWidth: .infinity)
+        }
     }
 
     private var totalSeconds: TimeInterval {
-        TimeInterval(hours * 3600 + minutes * 60)
+        TimeInterval(((days * 24 + hours) * 60 + minutes) * 60)
     }
 
-    private var durationLabel: String {
-        if hours > 0 && minutes > 0 {
-            return "Snooze for \(hours)h \(minutes)m"
-        } else if hours > 0 {
-            return "Snooze for \(hours) hour\(hours == 1 ? "" : "s")"
-        } else {
-            return "Snooze for \(minutes) minute\(minutes == 1 ? "" : "s")"
-        }
+    private var isBelowMinimum: Bool { totalSeconds < Self.minimumSeconds }
+
+    private var statusLabel: String {
+        if isBelowMinimum { return "Minimum snooze is 5 minutes" }
+        let parts = [
+            unit(days, "day"),
+            unit(hours, "hour"),
+            unit(minutes, "minute")
+        ].compactMap { $0 }
+        return "Snooze for " + parts.joined(separator: " ")
+    }
+
+    private func unit(_ value: Int, _ name: String) -> String? {
+        value > 0 ? "\(value) \(name)\(value == 1 ? "" : "s")" : nil
     }
 }
 
-#Preview {
-    CustomSnoozePickerView { _ in
-    }
+#Preview("Light") {
+    CustomSnoozePickerView { _ in }
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    CustomSnoozePickerView { _ in }
+        .preferredColorScheme(.dark)
 }

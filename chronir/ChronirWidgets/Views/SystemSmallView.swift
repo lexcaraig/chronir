@@ -5,6 +5,7 @@ import WidgetKit
 struct SystemSmallView: View {
     let alarm: WidgetAlarmData?
     var pinnedMissing = false
+    @Environment(\.widgetRenderingMode) private var renderingMode
 
     var body: some View {
         if let alarm {
@@ -12,7 +13,13 @@ struct SystemSmallView: View {
                 HStack {
                     Image(systemName: alarm.categoryIconName ?? "bell.fill")
                         .font(.caption)
-                        .foregroundStyle(WidgetTokens.categoryColor(for: alarm.categoryName))
+                        .foregroundStyle(
+                            renderingMode == .fullColor
+                                ? AnyShapeStyle(WidgetTokens.categoryColor(for: alarm.categoryName))
+                                : AnyShapeStyle(.primary)
+                        )
+                        .widgetAccentable()
+                        .accessibilityHidden(true)
                     Spacer()
                     cycleBadge(alarm.cycleType)
                 }
@@ -24,60 +31,63 @@ struct SystemSmallView: View {
 
                 if pinnedMissing {
                     Text("Pinned alarm removed")
-                        .font(.system(.caption2))
-                        .foregroundStyle(WidgetTokens.textTertiary)
+                        .font(.caption2)
+                        .foregroundStyle(WidgetTokens.textSecondary)
                         .lineLimit(1)
                 }
 
-                Spacer()
+                Spacer(minLength: 0)
 
-                HStack(alignment: .bottom) {
+                HStack(alignment: .bottom, spacing: WidgetTokens.spacingXS) {
                     VStack(alignment: .leading, spacing: 0) {
                         Text(alarm.nextFireDate, style: .relative)
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(WidgetTokens.textSecondary)
 
                         Text(alarm.scheduleDisplayName)
-                            .font(.system(.caption2))
+                            .font(.caption2)
                             .foregroundStyle(WidgetTokens.textSecondary)
                             .lineLimit(1)
                     }
                     Spacer(minLength: 0)
                     MarkDoneButton(alarm: alarm)
+                        // Pull the 44pt target into the corner so it doesn't eat the text column.
+                        .padding(.trailing, -WidgetTokens.spacingSM)
+                        .padding(.bottom, -WidgetTokens.spacingSM)
                 }
             }
-            .padding(WidgetTokens.spacingMD)
             .widgetURL(URL(string: "chronir://alarm/\(alarm.id.uuidString)"))
         } else {
             VStack(spacing: WidgetTokens.spacingSM) {
                 Image(systemName: "bell.slash")
                     .font(.title2)
                     .foregroundStyle(WidgetTokens.textSecondary)
+                    .accessibilityHidden(true)
                 Text("No alarms")
                     .font(.system(.caption, design: .rounded))
                     .foregroundStyle(WidgetTokens.textSecondary)
             }
-            .padding(WidgetTokens.spacingMD)
         }
     }
 
     private func cycleBadge(_ cycleType: String) -> some View {
-        Text(cycleDisplayName(cycleType))
-            .font(.system(size: 9, weight: .medium))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
+        Text(WidgetAlarmData.cycleDisplayName(cycleType))
+            .font(.caption2.weight(.medium))
+            .padding(.horizontal, WidgetTokens.spacingSM)
+            .padding(.vertical, WidgetTokens.spacingXS / 2)
             .background(.quaternary)
             .clipShape(Capsule())
     }
+}
 
-    private func cycleDisplayName(_ raw: String) -> String {
-        switch raw {
-        case "weekly": return "Weekly"
-        case "monthlyDate", "monthlyRelative": return "Monthly"
-        case "annual": return "Annual"
-        case "customDays": return "Custom"
-        case "oneTime": return "One-Time"
-        default: return raw.capitalized
-        }
-    }
+#Preview("Light", as: .systemSmall) {
+    NextAlarmWidget()
+} timeline: {
+    NextAlarmEntry(date: .now, alarm: .preview)
+}
+
+#Preview("Empty", as: .systemSmall) {
+    NextAlarmWidget()
+} timeline: {
+    NextAlarmEntry(date: .now, alarm: nil)
 }

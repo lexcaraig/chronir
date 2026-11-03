@@ -6,57 +6,56 @@ struct ChronirCategoryPicker: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Category", style: .labelMedium, color: ColorTokens.textSecondary)
+                .accessibilityAddTraits(.isHeader)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: SpacingTokens.sm) {
-                    noneButton
+                    ChronirChip(
+                        "None",
+                        systemImage: "xmark.circle",
+                        isSelected: selection == nil,
+                        accessibilityLabel: "No category"
+                    ) {
+                        select(nil)
+                    }
                     ForEach(AlarmCategory.allCases) { category in
-                        categoryButton(category)
+                        let pair = ChronirBadge.pair(for: category)
+                        ChronirChip(
+                            category.displayName,
+                            systemImage: category.iconName,
+                            isSelected: selection == category,
+                            tint: pair.background,
+                            selectedForeground: pair.foreground
+                        ) {
+                            select(category)
+                        }
                     }
                 }
             }
         }
     }
 
-    private var noneButton: some View {
-        Button {
-            selection = nil
-            if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
-        } label: {
-            HStack(spacing: SpacingTokens.xxs) {
-                Image(systemName: "xmark.circle")
-                    .chronirFont(.labelSmall)
-                Text("None")
-                    .chronirFont(.labelLarge)
-            }
-            .foregroundStyle(selection == nil ? .white : ColorTokens.textSecondary)
-            .padding(.horizontal, SpacingTokens.md)
-            .padding(.vertical, SpacingTokens.sm)
-            .chronirGlassSelectableCapsule(isSelected: selection == nil)
-        }
-    }
-
-    private func categoryButton(_ category: AlarmCategory) -> some View {
-        Button {
-            selection = category
-            if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
-        } label: {
-            HStack(spacing: SpacingTokens.xxs) {
-                Image(systemName: category.iconName)
-                    .chronirFont(.labelSmall)
-                Text(category.displayName)
-                    .chronirFont(.labelLarge)
-            }
-            .foregroundStyle(selection == category ? .white : ColorTokens.textSecondary)
-            .padding(.horizontal, SpacingTokens.md)
-            .padding(.vertical, SpacingTokens.sm)
-            .chronirGlassSelectableCapsule(isSelected: selection == category, tint: category.color)
-        }
+    private func select(_ category: AlarmCategory?) {
+        selection = category
+        #if os(iOS)
+        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
+        #endif
     }
 }
 
-#Preview {
-    @Previewable @State var selection: AlarmCategory? = .home
-    ChronirCategoryPicker(selection: $selection)
-        .padding()
+private struct CategoryPickerPreview: View {
+    @State var selection: AlarmCategory?
+
+    var body: some View {
+        ChronirCategoryPicker(selection: $selection)
+            .padding()
+    }
+}
+
+#Preview("Light") {
+    CategoryPickerPreview(selection: .home)
         .background(ColorTokens.backgroundPrimary)
+}
+
+#Preview("Dark") {
+    DarkPreview { CategoryPickerPreview(selection: .vehicle) }
 }

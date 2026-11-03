@@ -19,6 +19,9 @@ struct ChronirIcon: View {
     var size: ChronirIconSize
     var color: Color
 
+    /// Grows the icon with Dynamic Type so it keeps pace with adjacent `ChronirText`.
+    @ScaledMetric(relativeTo: .body) private var dynamicScale: CGFloat = 1
+
     init(
         systemName: String,
         size: ChronirIconSize = .medium,
@@ -33,28 +36,39 @@ struct ChronirIcon: View {
         Image(systemName: systemName)
             .resizable()
             .scaledToFit()
-            .frame(width: size.points, height: size.points)
+            .frame(width: size.points * dynamicScale, height: size.points * dynamicScale)
             .foregroundStyle(color)
     }
 }
 
-#Preview("Icon Sizes") {
-    HStack(spacing: SpacingTokens.lg) {
-        ChronirIcon(systemName: "alarm.fill", size: .small, color: ColorTokens.textSecondary)
-        ChronirIcon(systemName: "alarm.fill", size: .medium, color: ColorTokens.primary)
-        ChronirIcon(systemName: "alarm.fill", size: .large, color: ColorTokens.warning)
+private struct ChronirIconGallery: View {
+    var body: some View {
+        VStack(spacing: SpacingTokens.lg) {
+            HStack(spacing: SpacingTokens.lg) {
+                ChronirIcon(systemName: "alarm.fill", size: .small, color: ColorTokens.textSecondary)
+                ChronirIcon(systemName: "alarm.fill", size: .medium, color: ColorTokens.primary)
+                ChronirIcon(systemName: "alarm.fill", size: .large, color: ColorTokens.warning)
+            }
+            HStack(spacing: SpacingTokens.lg) {
+                ChronirIcon(systemName: "bell.fill", color: ColorTokens.primary)
+                ChronirIcon(systemName: "checkmark.circle.fill", color: ColorTokens.success)
+                ChronirIcon(systemName: "exclamationmark.triangle.fill", color: ColorTokens.warning)
+                ChronirIcon(systemName: "xmark.circle.fill", color: ColorTokens.error)
+            }
+        }
+        .padding()
     }
-    .padding()
-    .background(ColorTokens.backgroundPrimary)
 }
 
-#Preview("Icon Colors") {
-    HStack(spacing: SpacingTokens.lg) {
-        ChronirIcon(systemName: "bell.fill", color: ColorTokens.primary)
-        ChronirIcon(systemName: "checkmark.circle.fill", color: ColorTokens.success)
-        ChronirIcon(systemName: "exclamationmark.triangle.fill", color: ColorTokens.warning)
-        ChronirIcon(systemName: "xmark.circle.fill", color: ColorTokens.error)
-    }
-    .padding()
-    .background(ColorTokens.backgroundPrimary)
+#Preview("Light") {
+    ChronirIconGallery()
+        .background(ColorTokens.backgroundPrimary)
+}
+
+#Preview("Dark") {
+    DarkPreview { ChronirIconGallery() }
+}
+
+#Preview("Dynamic Type") {
+    DynamicTypePreview { ChronirIconGallery() }
 }

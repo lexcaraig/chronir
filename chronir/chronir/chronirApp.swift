@@ -94,6 +94,12 @@ struct ChronirApp: App {
                 NavigationStack {
                     AlarmListView(deepLinkAlarmID: $deepLinkAlarmID, deepLinkCreateAlarm: $deepLinkCreateAlarm)
                 }
+                .onAppear {
+                    // Content is ready as soon as the list exists: no fixed splash delay, short crossfade.
+                    withAnimation(AnimationTokens.standard) {
+                        showSplash = false
+                    }
+                }
 
                 if showSplash {
                     SplashView()
@@ -103,14 +109,9 @@ struct ChronirApp: App {
             }
             .environment(\.textSizeScale, settings.textSizePreference.scaleFactor)
             .environment(\.chronirTheme, settings.themePreference)
+            // nil for "System" follows the device appearance.
             .preferredColorScheme(settings.themePreference.colorScheme)
             .tint(ColorTokens.primary)
-            .task {
-                try? await Task.sleep(for: .seconds(0.8))
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    showSplash = false
-                }
-            }
             .modelContainer(container)
             .task {
                 os_signpost(.begin, log: perfLog, name: "subscriptionCheck")

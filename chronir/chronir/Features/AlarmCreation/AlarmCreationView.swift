@@ -30,16 +30,26 @@ struct AlarmCreationView: View {
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
     @State private var showTemplateLibrary = false
+    @State private var pendingTemplate: AlarmTemplate?
     @Environment(\.dismiss) private var dismiss
 
     private var hasUnsavedChanges: Bool {
-        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        hasTypedText
             || selectedImage != nil
             || category != nil
+            || cycleType != .weekly
+            || repeatInterval != 1
             || timesOfDay != [TimeOfDay(hour: 8, minute: 0)]
             || selectedDays != [2]
+            || daysOfMonth != [1]
+            || !preAlarmOffsets.isEmpty
+            || soundName != UserSettings.shared.selectedAlarmSound
             || isPersistent
+    }
+
+    private var hasTypedText: Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
@@ -47,6 +57,9 @@ struct AlarmCreationView: View {
             title: "New Alarm",
             onDismiss: { dismiss() },
             onSave: { saveAndDismiss() },
+            // The template asks before Cancel discards edits and blocks swipe-down while dirty.
+            hasUnsavedChanges: hasUnsavedChanges,
+            discardTitle: "Discard This Alarm?",
             content: {
                 AlarmCreationForm(
                     title: $title,
@@ -75,12 +88,10 @@ struct AlarmCreationView: View {
                         Button {
                             showTemplateLibrary = true
                         } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "doc.on.doc")
-                                Text("Templates")
-                            }
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(ColorTokens.primary)
+                            Label("Templates", systemImage: "doc.on.doc")
+                                .labelStyle(.titleAndIcon)
+                                .chronirFont(.labelLarge)
+                                .foregroundStyle(ColorTokens.primary)
                         }
                     }
                 }
@@ -93,11 +104,34 @@ struct AlarmCreationView: View {
         )
         .sheet(isPresented: $showTemplateLibrary) {
             TemplateLibraryView { template in
-                applyTemplate(template)
+                if hasTypedText {
+                    pendingTemplate = template
+                } else {
+                    applyTemplate(template)
+                }
             }
         }
-        .interactiveDismissDisabled(hasUnsavedChanges)
-        .alert("Save Failed", isPresented: .constant(saveError != nil)) {
+        .confirmationDialog(
+            "Replace your name and note?",
+            isPresented: Binding(
+                get: { pendingTemplate != nil },
+                set: { if !$0 { pendingTemplate = nil } }
+            ),
+            titleVisibility: .visible,
+            presenting: pendingTemplate
+        ) { template in
+            Button("Use \"\(template.title)\"") { applyTemplate(template) }
+            Button("Keep Mine", role: .cancel) {}
+        } message: { _ in
+            Text("The template fills in its own name, note, schedule and category.")
+        }
+        .alert(
+            "Couldn't Save Alarm",
+            isPresented: Binding(
+                get: { saveError != nil },
+                set: { if !$0 { saveError = nil } }
+            )
+        ) {
             Button("OK") { saveError = nil }
         } message: {
             Text(saveError ?? "")
@@ -110,55 +144,6 @@ struct AlarmCreationView: View {
         }
         .onChange(of: title) {
             titleError = nil
-        }
-    }
-
-    private var photoSection: some View {
-        VStack(alignment: .leading, spacing: SpacingTokens.sm) {
-            ChronirText("Photo (optional)", style: .labelMedium, color: ColorTokens.textSecondary)
-
-            if let selectedImage {
-                ZStack(alignment: .topTrailing) {
-                    Image(uiImage: selectedImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(height: 120)
-                        .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
-
-                    Button {
-                        self.selectedImage = nil
-                        selectedPhotoItem = nil
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title3)
-                            .foregroundStyle(.white, .black.opacity(0.5))
-                    }
-                    .padding(SpacingTokens.xs)
-                }
-            }
-
-            PhotosPicker(
-                selection: $selectedPhotoItem,
-                matching: .images,
-                photoLibrary: .shared()
-            ) {
-                HStack(spacing: SpacingTokens.sm) {
-                    Image(systemName: "photo.badge.plus")
-                    ChronirText(
-                        selectedImage == nil ? "Add Photo" : "Change Photo",
-                        style: .bodyMedium,
-                        color: ColorTokens.primary
-                    )
-                }
-            }
-            .onChange(of: selectedPhotoItem) {
-                Task {
-                    if let data = try? await selectedPhotoItem?.loadTransferable(type: Data.self),
-                       let image = UIImage(data: data) {
-                        selectedImage = image
-                    }
-                }
-            }
         }
     }
 
@@ -260,16 +245,18 @@ struct AlarmCreationView: View {
 
         do {
             try modelContext.save()
-            if UserSettings.shared.hapticsEnabled {
-                HapticService.shared.playSuccess()
-            }
             let alarmToSync = alarm
             Task {
-                do {
-                    _ = await PermissionManager.shared.requestAlarmPermission()
-                    try await AlarmScheduler.shared.scheduleAlarm(alarmToSync)
-                } catch {
-                    // Schedule failed — alarm will fire on next app launch
+                _ = await PermissionManager.shared.requestAlarmPermission()
+                // A failed registration is surfaced on the alarm list ("isn't scheduled and won't
+                // ring"); AlarmKit never launches the app, so it would not fix itself later.
+                let scheduled = await AlarmSchedulingStatus.shared.schedule(alarmToSync)
+                if UserSettings.shared.hapticsEnabled {
+                    if scheduled {
+                        HapticService.shared.playSuccess()
+                    } else {
+                        HapticService.shared.playError()
+                    }
                 }
                 await CloudSyncService.shared.pushAlarmModel(alarmToSync)
             }
@@ -312,11 +299,79 @@ struct AlarmCreationView: View {
     }
 }
 
-#Preview {
+// MARK: - Photo
+
+extension AlarmCreationView {
+    private var photoSection: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.sm) {
+            ChronirText("Photo (optional)", style: .labelMedium, color: ColorTokens.textSecondary)
+
+            if let selectedImage {
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: selectedImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: SpacingTokens.photoPreviewHeight)
+                        .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+                        .accessibilityLabel("Alarm photo")
+
+                    Button {
+                        self.selectedImage = nil
+                        selectedPhotoItem = nil
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            // token-exempt: white glyph on a dark scrim stays legible over any photo
+                            .foregroundStyle(.white, .black.opacity(0.5))
+                            .frame(minWidth: SpacingTokens.touchMinTarget, minHeight: SpacingTokens.touchMinTarget)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel("Remove Photo")
+                }
+            }
+
+            PhotosPicker(
+                selection: $selectedPhotoItem,
+                matching: .images,
+                photoLibrary: .shared()
+            ) {
+                HStack(spacing: SpacingTokens.sm) {
+                    Image(systemName: "photo.badge.plus")
+                    ChronirText(
+                        selectedImage == nil ? "Add Photo" : "Change Photo",
+                        style: .bodyMedium,
+                        color: ColorTokens.primary
+                    )
+                }
+            }
+            .onChange(of: selectedPhotoItem) {
+                Task {
+                    if let data = try? await selectedPhotoItem?.loadTransferable(type: Data.self),
+                       let image = UIImage(data: data) {
+                        selectedImage = image
+                    }
+                }
+            }
+        }
+    }
+}
+
+#Preview("Light") {
     // swiftlint:disable:next force_try
     let container = try! ModelContainer(
         for: Alarm.self,
         configurations: ModelConfiguration(isStoredInMemoryOnly: true)
     )
     AlarmCreationView(modelContext: container.mainContext)
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    // swiftlint:disable:next force_try
+    let container = try! ModelContainer(
+        for: Alarm.self,
+        configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+    )
+    AlarmCreationView(modelContext: container.mainContext)
+        .preferredColorScheme(.dark)
 }

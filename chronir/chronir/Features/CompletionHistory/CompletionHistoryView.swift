@@ -7,6 +7,7 @@ struct CompletionHistoryView: View {
 
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: CompletionHistoryViewModel
+    @State private var showPaywall = false
 
     init(alarmID: UUID? = nil, alarmTitle: String? = nil) {
         self.alarmID = alarmID
@@ -41,6 +42,9 @@ struct CompletionHistoryView: View {
                 viewModel.loadLogs(context: modelContext)
             }
         }
+        .fullScreenCover(isPresented: $showPaywall) {
+            PaywallView(highlight: .history)
+        }
         .onChange(of: SubscriptionService.shared.currentTier) {
             if isPlusOrHigher {
                 viewModel.loadLogs(context: modelContext)
@@ -51,24 +55,25 @@ struct CompletionHistoryView: View {
     private var upgradePrompt: some View {
         VStack(spacing: SpacingTokens.lg) {
             Image(systemName: "lock.fill")
-                .font(.system(size: 48))
+                .font(.largeTitle)
+                .imageScale(.large)
                 .foregroundStyle(ColorTokens.textSecondary)
+                .accessibilityHidden(true)
+            // Copy comes from PlusFeature so the upsell can't drift from the paywall.
             ChronirText(
-                "Completion History",
-                style: .headlineMedium
+                PlusFeature.history.title,
+                style: .headlineMedium,
+                alignment: .center
             )
             ChronirText(
-                "Upgrade to Plus to track your alarm completions, view streaks, and build consistency.",
+                PlusFeature.history.benefit,
                 style: .bodySecondary,
-                color: ColorTokens.textSecondary
+                color: ColorTokens.textSecondary,
+                alignment: .center
             )
-            .multilineTextAlignment(.center)
-            NavigationLink(destination: PaywallView()) {
-                ChronirText("Upgrade to Plus", style: .headlineSmall, color: .white)
-                    .frame(maxWidth: .infinity)
-                    .padding(SpacingTokens.md)
-                    .background(ColorTokens.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+            // Same presentation as every other paywall entry point (full-screen cover).
+            ChronirButton("Upgrade to Plus", style: .primary) {
+                showPaywall = true
             }
             .padding(.horizontal, SpacingTokens.xxxl)
         }
@@ -77,23 +82,11 @@ struct CompletionHistoryView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: SpacingTokens.lg) {
-            Image(systemName: "clock.badge.checkmark")
-                .font(.system(size: 48))
-                .foregroundStyle(ColorTokens.textSecondary)
-            ChronirText(
-                "No completion history yet",
-                style: .bodySecondary,
-                color: ColorTokens.textSecondary
-            )
-            ChronirText(
-                "Completions will appear here after your alarms fire.",
-                style: .caption,
-                color: ColorTokens.textSecondary
-            )
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
+        ContentUnavailableView(
+            "No Completions Yet",
+            systemImage: "clock.badge.checkmark",
+            description: Text("Completions will appear here after your alarms fire.")
+        )
     }
 
     private var logList: some View {
@@ -119,33 +112,47 @@ struct CompletionHistoryView: View {
     }
 
     private var streakSection: some View {
-        Section {
-            HStack {
-                VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
-                    ChronirText("Current Streak", style: .labelMedium, color: ColorTokens.textSecondary)
-                    ChronirText(
-                        "\(StreakCalculator.currentStreak(from: viewModel.logs))",
-                        style: .headlineLarge
-                    )
-                }
+        let current = StreakCalculator.currentStreak(from: viewModel.logs)
+        let longest = StreakCalculator.longestStreak(from: viewModel.logs)
+        return Section {
+            HStack(alignment: .top) {
+                streakColumn("Current Streak", value: current, alignment: .leading)
                 Spacer()
-                VStack(alignment: .trailing, spacing: SpacingTokens.xxs) {
-                    ChronirText("Longest Streak", style: .labelMedium, color: ColorTokens.textSecondary)
-                    ChronirText(
-                        "\(StreakCalculator.longestStreak(from: viewModel.logs))",
-                        style: .headlineLarge
-                    )
-                }
+                streakColumn("Longest Streak", value: longest, alignment: .trailing)
             }
         } header: {
             ChronirText("Streaks", style: .labelLarge, color: ColorTokens.textSecondary)
+        } footer: {
+            ChronirText(
+                "Occurrences marked done in a row. A skip doesn't break a streak; a snooze does.",
+                style: .bodySmall,
+                color: ColorTokens.textSecondary
+            )
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
+
+    private func streakColumn(_ title: String, value: Int, alignment: HorizontalAlignment) -> some View {
+        VStack(alignment: alignment, spacing: SpacingTokens.xxs) {
+            ChronirText(title, style: .labelMedium, color: ColorTokens.textSecondary)
+            ChronirText("\(value)", style: .headlineLarge)
+            ChronirText("done in a row", style: .bodySmall, color: ColorTokens.textSecondary)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title): \(value) done in a row")
+    }
 }
 
-#Preview {
+#Preview("Light") {
     NavigationStack {
         CompletionHistoryView()
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        CompletionHistoryView()
+    }
+    .preferredColorScheme(.dark)
 }

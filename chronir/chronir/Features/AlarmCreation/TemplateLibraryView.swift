@@ -70,34 +70,38 @@ struct TemplateLibraryView: View {
         } label: {
             HStack(spacing: SpacingTokens.md) {
                 Image(systemName: template.iconName)
-                    .font(.system(size: 16, weight: .medium))
+                    .chronirFont(.titleSmall)
                     .foregroundStyle(template.category.color)
-                    .frame(width: 36, height: 36)
+                    .frame(width: SpacingTokens.xl, height: SpacingTokens.xl)
                     .background(template.category.color.opacity(0.12), in: .circle)
+                    .accessibilityHidden(true)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
                     ChronirText(template.title, style: .bodyPrimary)
                     ChronirText(
                         template.intervalDescription,
-                        style: .caption,
+                        style: .bodySmall,
                         color: ColorTokens.textSecondary
                     )
                 }
 
                 Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(ColorTokens.textTertiary)
             }
             .padding(SpacingTokens.md)
             .background(ColorTokens.surfaceCard, in: .rect(cornerRadius: RadiusTokens.md))
+            .contentShape(.rect(cornerRadius: RadiusTokens.md))
         }
+        .buttonStyle(.plain)
+        .accessibilityHint("Fills in the new alarm with this template")
     }
 }
 
-#Preview {
-    TemplateLibraryView { _ in
-        // Preview action
-    }
+#Preview("Light") {
+    TemplateLibraryView { _ in }
+        .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    TemplateLibraryView { _ in }
+        .preferredColorScheme(.dark)
 }

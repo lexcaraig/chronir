@@ -2,19 +2,24 @@ import Foundation
 import Observation
 import SwiftUI
 
+/// Raw values are persisted in UserDefaults ("themePreference"); never rename existing cases.
 enum ThemePreference: String, CaseIterable {
-    case light, dark, liquidGlass
+    /// Follows the device appearance. Default for anyone who hasn't picked a theme.
+    case system, light, dark, liquidGlass
 
     var displayName: String {
         switch self {
+        case .system: return "System"
         case .light: return "Light"
         case .dark: return "Dark"
         case .liquidGlass: return "Glass"
         }
     }
 
+    /// `nil` lets the device appearance through (`preferredColorScheme(nil)`).
     var colorScheme: ColorScheme? {
         switch self {
+        case .system: return nil
         case .light: return .light
         case .dark: return .dark
         case .liquidGlass: return .dark
@@ -139,8 +144,10 @@ final class UserSettings {
         hapticsEnabled = Self.defaults.bool(forKey: "hapticsEnabled")
         let textSizeRaw = Self.defaults.string(forKey: "textSizePreference") ?? TextSizePreference.standard.rawValue
         textSizePreference = TextSizePreference(rawValue: textSizeRaw) ?? .standard
-        let themeRaw = Self.defaults.string(forKey: "themePreference") ?? ThemePreference.light.rawValue
-        themePreference = ThemePreference(rawValue: themeRaw) ?? .light
+        // Users who explicitly chose Light/Dark/Glass keep it; nothing stored (or an unknown value)
+        // follows the device.
+        let themeRaw = Self.defaults.string(forKey: "themePreference")
+        themePreference = themeRaw.flatMap(ThemePreference.init(rawValue:)) ?? .system
         liveActivityEnabled = Self.defaults.bool(forKey: "liveActivityEnabled")
     }
 }

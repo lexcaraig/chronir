@@ -7,6 +7,7 @@ struct AlarmDetailView: View {
     @Query(sort: \Alarm.nextFireDate) private var existingAlarms: [Alarm]
     @State private var viewModel = AlarmDetailViewModel()
     @State private var showDeleteConfirmation = false
+    @State private var showDiscardConfirmation = false
     @State private var selectedPhotoItem: PhotosPickerItem?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
@@ -17,7 +18,17 @@ struct AlarmDetailView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
+            // While there are unsaved edits, Back becomes Cancel so edits aren't lost silently.
+            // (SwiftUI can't intercept the system Back button, so the edge swipe is unavailable
+            // only while the form is dirty.)
+            .navigationBarBackButtonHidden(viewModel.hasUnsavedChanges)
             .toolbar {
+                if viewModel.hasUnsavedChanges {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { showDiscardConfirmation = true }
+                            .foregroundStyle(ColorTokens.textSecondary)
+                    }
+                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         let saved = viewModel.updateAlarm(
@@ -27,16 +38,25 @@ struct AlarmDetailView: View {
                         if saved { dismiss() }
                     }
                     .foregroundStyle(ColorTokens.primary)
+                    .disabled(!viewModel.hasUnsavedChanges)
                 }
             }
-            .alert("Delete Alarm", isPresented: $showDeleteConfirmation) {
+            .confirmationDialog(
+                "Discard your changes?",
+                isPresented: $showDiscardConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Discard Changes", role: .destructive) { dismiss() }
+                Button("Keep Editing", role: .cancel) {}
+            }
+            .alert("Delete Alarm?", isPresented: $showDeleteConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button("Delete", role: .destructive) {
                     viewModel.deleteAlarm(context: modelContext)
                     dismiss()
                 }
             } message: {
-                Text("Are you sure you want to delete \"\(viewModel.title)\"?")
+                Text("\"\(viewModel.title)\" and its completion history will be deleted. This can't be undone.")
             }
             .confirmationDialog(
                 viewModel.warningMessage ?? "",
@@ -50,7 +70,13 @@ struct AlarmDetailView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             }
-            .alert("Save Failed", isPresented: .constant(viewModel.errorMessage != nil)) {
+            .alert(
+                "Couldn't Save Changes",
+                isPresented: Binding(
+                    get: { viewModel.errorMessage != nil && viewModel.alarm != nil },
+                    set: { if !$0 { viewModel.errorMessage = nil } }
+                )
+            ) {
                 Button("OK") { viewModel.errorMessage = nil }
             } message: {
                 Text(viewModel.errorMessage ?? "")
@@ -74,9 +100,11 @@ struct AlarmDetailView: View {
         } else if viewModel.alarm != nil {
             alarmForm
         } else {
-            Text("Alarm not found")
-                .foregroundStyle(ColorTokens.textSecondary)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ContentUnavailableView(
+                "Alarm Not Found",
+                systemImage: "alarm",
+                description: Text("It may have been deleted on another screen or device.")
+            )
         }
     }
 
@@ -121,6 +149,7 @@ struct AlarmDetailView: View {
                         Image(systemName: "clock.badge.checkmark")
                         ChronirText("View History", style: .bodyMedium, color: ColorTokens.primary)
                     }
+                    .frame(minHeight: SpacingTokens.touchMinTarget)
                 }
                 .padding(.horizontal, SpacingTokens.lg)
                 .padding(.top, SpacingTokens.md)
@@ -159,20 +188,25 @@ struct AlarmDetailView: View {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(height: 120)
+                        .frame(height: SpacingTokens.photoPreviewHeight)
                         .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.md))
+                        .accessibilityLabel("Alarm photo")
 
                     if isPlusTier {
                         Button {
                             viewModel.selectedImage = nil
                             viewModel.removePhoto = true
+                            viewModel.photoEdited = true
                             selectedPhotoItem = nil
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.title3)
+                                // token-exempt: white glyph on a dark scrim stays legible over any photo
                                 .foregroundStyle(.white, .black.opacity(0.5))
+                                .frame(minWidth: SpacingTokens.touchMinTarget, minHeight: SpacingTokens.touchMinTarget)
+                                .contentShape(Rectangle())
                         }
-                        .padding(SpacingTokens.xs)
+                        .accessibilityLabel("Remove Photo")
                     }
                 }
             }
@@ -198,6 +232,7 @@ struct AlarmDetailView: View {
                            let image = UIImage(data: data) {
                             viewModel.selectedImage = image
                             viewModel.removePhoto = false
+                            viewModel.photoEdited = true
                         }
                     }
                 }
@@ -206,9 +241,18 @@ struct AlarmDetailView: View {
     }
 }
 
-#Preview {
+#Preview("Light") {
     NavigationStack {
         AlarmDetailView(alarmID: UUID())
     }
     .modelContainer(for: Alarm.self, inMemory: true)
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        AlarmDetailView(alarmID: UUID())
+    }
+    .modelContainer(for: Alarm.self, inMemory: true)
+    .preferredColorScheme(.dark)
 }

@@ -9,8 +9,10 @@ struct SoundPicker: View {
     var body: some View {
         List {
             ForEach(AlarmSoundService.allSounds) { sound in
+                let isLocked = sound.requiresPlus && !isPlusTier
+                let isSelected = selectedSound == sound.name
                 Button {
-                    if sound.requiresPlus && !isPlusTier {
+                    if isLocked {
                         showPaywall?()
                     } else {
                         selectedSound = sound.name
@@ -19,29 +21,25 @@ struct SoundPicker: View {
                 } label: {
                     HStack(spacing: SpacingTokens.md) {
                         Image(systemName: sound.iconName)
-                            .font(.system(size: 14))
-                            .foregroundStyle(sound.requiresPlus && !isPlusTier
-                                ? ColorTokens.textTertiary
-                                : ColorTokens.primary)
-                            .frame(width: 28)
+                            .chronirFont(.bodyMedium)
+                            .foregroundStyle(isLocked ? ColorTokens.textTertiary : ColorTokens.primary)
+                            .frame(minWidth: SpacingTokens.lg + SpacingTokens.xxs)
 
                         ChronirText(
                             sound.displayName,
                             style: .bodyPrimary,
-                            color: sound.requiresPlus && !isPlusTier
-                                ? ColorTokens.textTertiary
-                                : ColorTokens.textPrimary
+                            color: isLocked ? ColorTokens.textTertiary : ColorTokens.textPrimary
                         )
 
-                        if sound.requiresPlus && !isPlusTier {
+                        if isLocked {
                             Image(systemName: "lock.fill")
-                                .font(.system(size: 11))
+                                .chronirFont(.labelSmall)
                                 .foregroundStyle(ColorTokens.textTertiary)
                         }
 
                         Spacer()
 
-                        if selectedSound == sound.name {
+                        if isSelected {
                             ChronirIcon(
                                 systemName: "checkmark",
                                 size: .small,
@@ -49,7 +47,13 @@ struct SoundPicker: View {
                             )
                         }
                     }
+                    .frame(minHeight: SpacingTokens.touchMinTarget)
+                    .contentShape(Rectangle())
                 }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(isLocked ? "\(sound.displayName), requires Plus" : sound.displayName)
+                .accessibilityHint(isLocked ? "Opens the upgrade screen" : "Plays a preview")
+                .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
                 .listRowBackground(ColorTokens.surfaceCard)
             }
         }
@@ -74,8 +78,15 @@ struct DefaultSoundPicker: View {
     }
 }
 
-#Preview {
+#Preview("Light") {
+    NavigationStack {
+        SoundPicker(selectedSound: .constant("alarm"), isPlusTier: false)
+    }
+}
+
+#Preview("Dark") {
     NavigationStack {
         SoundPicker(selectedSound: .constant("alarm"), isPlusTier: true)
     }
+    .environment(\.colorScheme, .dark)
 }

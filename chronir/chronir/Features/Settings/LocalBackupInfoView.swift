@@ -1,57 +1,70 @@
 import SwiftUI
 
 struct LocalBackupInfoView: View {
+    @State private var showPaywall = false
+
     var body: some View {
         List {
             Section {
-                VStack(alignment: .leading, spacing: SpacingTokens.sm) {
-                    ChronirText(
-                        backupDescription,
-                        style: .bodySecondary,
-                        color: ColorTokens.textSecondary
-                    )
-                }
+                ChronirText(
+                    backupDescription,
+                    style: .bodySecondary,
+                    color: ColorTokens.textSecondary
+                )
             } header: {
-                ChronirText("How It Works", style: .labelLarge, color: ColorTokens.textSecondary)
+                Text("How It Works")
             }
             .listRowBackground(ColorTokens.surfaceCard)
 
             Section {
                 comparisonRow(
                     tier: "Free",
-                    detail: "Local storage only. Backed up via iCloud device backup.",
+                    detail: "Stored on this iPhone only. Included in your iCloud device backup.",
                     badge: ColorTokens.textSecondary
                 )
-                // TODO: Update when cloud backup is built (Sprint 10+)
                 comparisonRow(
                     tier: "Plus",
-                    detail: "Unlimited alarms, custom snooze, pre-alarm warnings, photo attachments, and completion history.",
+                    detail: PlusFeature.cloudBackup.benefit
+                        + " Sign in to back up and sync your alarms to the cloud.",
                     badge: ColorTokens.primary
                 )
             } header: {
-                ChronirText("Free vs Plus", style: .labelLarge, color: ColorTokens.textSecondary)
+                Text("Free vs Plus")
             }
             .listRowBackground(ColorTokens.surfaceCard)
 
             Section {
-                VStack(alignment: .leading, spacing: SpacingTokens.sm) {
-                    tipRow(
-                        icon: "icloud",
-                        text: "Enable iCloud Backup in Settings > Apple ID > iCloud"
-                    )
-                    tipRow(
-                        icon: "arrow.clockwise",
-                        text: "Backups happen automatically when locked, charging, and on Wi-Fi"
-                    )
+                Button { showPaywall = true } label: {
+                    Label {
+                        ChronirText("Upgrade to Plus", style: .bodyPrimary, color: ColorTokens.primary)
+                    } icon: {
+                        Image(systemName: PlusFeature.cloudBackup.iconName)
+                            .foregroundStyle(ColorTokens.primary)
+                    }
                 }
+            }
+            .listRowBackground(ColorTokens.surfaceCard)
+
+            Section {
+                tipRow(
+                    icon: "icloud",
+                    text: "Enable iCloud Backup in Settings > Apple ID > iCloud."
+                )
+                tipRow(
+                    icon: "arrow.clockwise",
+                    text: "Backups happen automatically when your iPhone is locked, charging, and on Wi-Fi."
+                )
             } header: {
-                ChronirText("Tips", style: .labelLarge, color: ColorTokens.textSecondary)
+                Text("Tips")
             }
             .listRowBackground(ColorTokens.surfaceCard)
         }
         .scrollContentBackground(.hidden)
         .background(ColorTokens.backgroundPrimary)
         .navigationTitle("Backup & Sync")
+        .fullScreenCover(isPresented: $showPaywall) {
+            PaywallView(highlight: .cloudBackup)
+        }
     }
 
     // swiftlint:disable:next line_length
@@ -63,18 +76,28 @@ struct LocalBackupInfoView: View {
             ChronirText(detail, style: .bodySecondary, color: ColorTokens.textSecondary)
         }
         .padding(.vertical, SpacingTokens.xxs)
+        .accessibilityElement(children: .combine)
     }
 
     private func tipRow(icon: String, text: String) -> some View {
         HStack(alignment: .top, spacing: SpacingTokens.sm) {
             ChronirIcon(systemName: icon, size: .small, color: ColorTokens.primary)
+                .accessibilityHidden(true)
             ChronirText(text, style: .bodySecondary, color: ColorTokens.textSecondary)
         }
     }
 }
 
-#Preview {
+#Preview("Light") {
     NavigationStack {
         LocalBackupInfoView()
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        LocalBackupInfoView()
+    }
+    .preferredColorScheme(.dark)
 }

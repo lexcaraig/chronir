@@ -5,6 +5,7 @@ struct NextAlarmEntry: TimelineEntry {
     let date: Date
     let alarm: WidgetAlarmData?
     var pinnedMissing = false
+    var relevance: TimelineEntryRelevance?
 }
 
 struct NextAlarmTimelineProvider: AppIntentTimelineProvider {
@@ -35,7 +36,7 @@ struct NextAlarmTimelineProvider: AppIntentTimelineProvider {
     ) async -> Timeline<NextAlarmEntry> {
         let resolved = WidgetDataReader.alarm(for: configuration)
         let alarm = resolved.alarm
-        let entry = NextAlarmEntry(date: Date(), alarm: alarm, pinnedMissing: resolved.pinnedMissing)
+        let now = Date()
 
         // Refresh at the alarm's fire time (if within 24h), or every 15 minutes
         let refreshDate: Date
@@ -43,9 +44,18 @@ struct NextAlarmTimelineProvider: AppIntentTimelineProvider {
            fireDate.timeIntervalSinceNow < 86400 && fireDate.timeIntervalSinceNow > 0 {
             refreshDate = fireDate
         } else {
-            refreshDate = Date().addingTimeInterval(900)
+            refreshDate = now.addingTimeInterval(900)
         }
 
-        return Timeline(entries: [entry], policy: .after(refreshDate))
+        let entries = WidgetRelevance.entryDates(now: now, fireDate: alarm?.nextFireDate, until: refreshDate)
+            .map { date in
+                NextAlarmEntry(
+                    date: date,
+                    alarm: alarm,
+                    pinnedMissing: resolved.pinnedMissing,
+                    relevance: WidgetRelevance.relevance(at: date, fireDate: alarm?.nextFireDate)
+                )
+            }
+        return Timeline(entries: entries, policy: .after(refreshDate))
     }
 }

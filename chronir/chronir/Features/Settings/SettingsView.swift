@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     @Bindable private var settings = UserSettings.shared
+    @State private var wallpaperThumbnail: UIImage?
 
     private var isPlusTier: Bool {
         SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
@@ -48,13 +49,9 @@ struct SettingsView: View {
                 }
             }
         } header: {
-            ChronirText("Alarm Behavior", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Alarm Behavior")
         } footer: {
-            ChronirText(
-                "Snooze and dismiss settings apply in-app only. Lock screen behavior is controlled by iOS.",
-                style: .caption,
-                color: ColorTokens.textSecondary
-            )
+            Text("Snooze and dismiss settings apply in-app only. Lock screen behavior is controlled by iOS.")
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
@@ -77,14 +74,12 @@ struct SettingsView: View {
                 )
             )
         } header: {
-            ChronirText("Timezone", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Timezone")
         } footer: {
-            ChronirText(
+            Text(
                 settings.timezoneMode == .fixed
                     ? "Alarms fire at the time set in their original timezone."
-                    : "Alarms adjust to your current timezone.",
-                style: .caption,
-                color: ColorTokens.textSecondary
+                    : "Alarms adjust to your current timezone."
             )
         }
         .listRowBackground(ColorTokens.surfaceCard)
@@ -106,14 +101,13 @@ struct SettingsView: View {
                     HStack {
                         ChronirText("Background Wallpaper", style: .bodyPrimary)
                         Spacer()
-                        if let name = settings.wallpaperImageName,
-                           let data = try? Data(contentsOf: WallpaperPickerView.wallpaperURL(for: name)),
-                           let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
+                        if settings.wallpaperImageName != nil, let wallpaperThumbnail {
+                            Image(uiImage: wallpaperThumbnail)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 32, height: 32)
                                 .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
+                                .accessibilityLabel("Custom wallpaper")
                         } else {
                             ChronirText(
                                 "None",
@@ -122,6 +116,9 @@ struct SettingsView: View {
                             )
                         }
                     }
+                }
+                .task(id: settings.wallpaperImageName) {
+                    wallpaperThumbnail = await WallpaperPickerView.loadThumbnail(named: settings.wallpaperImageName)
                 }
             }
 
@@ -137,7 +134,7 @@ struct SettingsView: View {
                 isOn: $settings.groupAlarmsByCategory
             )
         } header: {
-            ChronirText("Appearance", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Appearance")
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
@@ -158,13 +155,9 @@ struct SettingsView: View {
                 Task { await LiveActivityService.shared.refreshLiveActivity() }
             }
         } header: {
-            ChronirText("Notifications", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Notifications")
         } footer: {
-            ChronirText(
-                "Shows a countdown on your Lock Screen when an alarm is within 1 hour.",
-                style: .caption,
-                color: ColorTokens.textSecondary
-            )
+            Text("Shows a countdown on your Lock Screen when an alarm is within 1 hour.")
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
@@ -183,7 +176,7 @@ struct SettingsView: View {
                 }
             }
         } header: {
-            ChronirText("History", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("History")
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
@@ -217,15 +210,11 @@ struct SettingsView: View {
                 }
             } else {
                 NavigationLink(destination: LocalBackupInfoView()) {
-                    HStack {
-                        ChronirText("Backup & Sync", style: .bodyPrimary)
-                        Spacer()
-                        ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
-                    }
+                    ChronirText("Backup & Sync", style: .bodyPrimary)
                 }
             }
         } header: {
-            ChronirText("Data", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Data")
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
@@ -251,7 +240,7 @@ struct SettingsView: View {
                 }
             }
         } header: {
-            ChronirText("Developer", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Developer")
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
@@ -263,8 +252,9 @@ struct SettingsView: View {
             HStack {
                 ChronirText("Version", style: .bodyPrimary)
                 Spacer()
-                ChronirText("1.2.0", style: .bodySecondary, color: ColorTokens.textSecondary)
+                ChronirText(appVersion, style: .bodySecondary, color: ColorTokens.textSecondary)
             }
+            .accessibilityElement(children: .combine)
             NavigationLink(destination: HowAlarmsWorkView()) {
                 ChronirText("How Alarms Work", style: .bodyPrimary)
             }
@@ -278,21 +268,39 @@ struct SettingsView: View {
                 ChronirText("Terms of Service", style: .bodyPrimary)
             }
         } header: {
-            ChronirText("About", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("About")
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
 
-    // swiftlint:disable:next force_unwrapping
-    private let faqURL = URL(string: "https://gist.githubusercontent.com/lexcaraig/46b6ba8d4fcfc7768c86e22d7f056f6d/raw/")!
+    /// "1.2.4 (17)" from the bundle, so it can never go stale.
+    private var appVersion: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "\u{2014}"
+        guard let build = info?["CFBundleVersion"] as? String else { return version }
+        return "\(version) (\(build))"
+    }
+
+    // Bundled so the FAQ matches this build and opens offline; the Gist is only a fallback.
+    private let faqURL = Bundle.main.url(forResource: "FAQ", withExtension: "md")
+        // swiftlint:disable:next force_unwrapping
+        ?? URL(string: "https://gist.githubusercontent.com/lexcaraig/46b6ba8d4fcfc7768c86e22d7f056f6d/raw/")!
     // swiftlint:disable:next force_unwrapping
     private let privacyURL = URL(string: "https://gist.githubusercontent.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c/raw/")!
     // swiftlint:disable:next force_unwrapping
     private let termsURL = URL(string: "https://gist.githubusercontent.com/lexcaraig/b5087828d62c2f0aa190b9814f57bcf9/raw/")!
 }
 
-#Preview {
+#Preview("Light") {
     NavigationStack {
         SettingsView()
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        SettingsView()
+    }
+    .preferredColorScheme(.dark)
 }

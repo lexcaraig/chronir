@@ -77,7 +77,7 @@ final class LiveActivityService {
         guard let activityID = currentActivityID else { return }
 
         if let activity = Activity<AlarmCountdownAttributes>.activities.first(where: { $0.id == activityID }) {
-            await activity.end(nil, dismissalPolicy: .immediate)
+            await activity.end(nil, dismissalPolicy: dismissalPolicy(for: activity))
         }
 
         currentActivityID = nil
@@ -87,13 +87,24 @@ final class LiveActivityService {
     /// Clean up orphaned activities on cold launch (e.g. app was killed).
     func cleanupOrphanedActivities() async {
         for activity in Activity<AlarmCountdownAttributes>.activities {
-            await activity.end(nil, dismissalPolicy: .immediate)
+            await activity.end(nil, dismissalPolicy: dismissalPolicy(for: activity))
         }
         currentActivityID = nil
         currentAlarmID = nil
     }
 
     // MARK: - Private
+
+    /// If the app wakes after the alarm's fire time, keep the ended activity on screen until 15 minutes
+    /// past that time instead of removing it the instant the app runs. Before the fire time, end now.
+    private func dismissalPolicy(
+        for activity: Activity<AlarmCountdownAttributes>,
+        now: Date = Date()
+    ) -> ActivityUIDismissalPolicy {
+        let fireDate = activity.content.state.fireDate
+        guard fireDate <= now else { return .immediate }
+        return .after(fireDate.addingTimeInterval(15 * 60))
+    }
 
     private func findNextImminentAlarm(before cutoff: Date, now: Date) async -> Alarm? {
         guard let alarms = try? await repository.fetchAll() else { return nil }

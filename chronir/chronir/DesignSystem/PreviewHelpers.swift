@@ -10,12 +10,15 @@ struct DarkPreview<Content: View>: View {
 
     var body: some View {
         content
-            .preferredColorScheme(.dark)
             .background(ColorTokens.backgroundPrimary)
+            .environment(\.colorScheme, .dark)
+            .environment(\.chronirTheme, .dark)
     }
 }
 
 /// Wraps content in both light and dark mode side by side.
+/// Uses `.environment(\.colorScheme)` per half — `.preferredColorScheme` is window-wide,
+/// so two conflicting values would render both halves in the same scheme.
 struct ThemePreview<Content: View>: View {
     let content: Content
 
@@ -24,15 +27,20 @@ struct ThemePreview<Content: View>: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
+        VStack(spacing: 0) {
             content
-                .preferredColorScheme(.light)
                 .frame(maxWidth: .infinity)
+                .padding()
+                .background(ColorTokens.backgroundPrimary)
+                .environment(\.colorScheme, .light)
+                .environment(\.chronirTheme, .light)
 
             content
-                .preferredColorScheme(.dark)
                 .frame(maxWidth: .infinity)
+                .padding()
                 .background(ColorTokens.backgroundPrimary)
+                .environment(\.colorScheme, .dark)
+                .environment(\.chronirTheme, .dark)
         }
     }
 }
@@ -46,20 +54,25 @@ struct DynamicTypePreview<Content: View>: View {
     }
 
     var body: some View {
-        VStack(spacing: SpacingTokens.md) {
-            content
-                .environment(\.dynamicTypeSize, .xSmall)
-            content
-                .environment(\.dynamicTypeSize, .large)
-            content
-                .environment(\.dynamicTypeSize, .xxxLarge)
+        ScrollView {
+            VStack(spacing: SpacingTokens.md) {
+                content
+                    .environment(\.dynamicTypeSize, .xSmall)
+                content
+                    .environment(\.dynamicTypeSize, .large)
+                content
+                    .environment(\.dynamicTypeSize, .xxxLarge)
+                content
+                    .environment(\.dynamicTypeSize, .accessibility3)
+            }
+            .padding()
         }
-        .padding()
         .background(ColorTokens.backgroundPrimary)
     }
 }
 
-/// Wraps content in a GlassEffectContainer with dark background for glass previews.
+/// Liquid Glass preview: activates the glass theme (`\.chronirTheme = .liquidGlass`) so every
+/// theme-aware glass modifier renders glass, over the default glass gradient in the dark scheme.
 struct GlassPreview<Content: View>: View {
     let content: Content
 
@@ -71,24 +84,9 @@ struct GlassPreview<Content: View>: View {
         AdaptiveGlassContainer {
             content
         }
-        .preferredColorScheme(.dark)
-        .background(ColorTokens.backgroundPrimary)
-    }
-}
-
-/// Wraps content for component state matrix (useful for buttons, toggles, etc.)
-struct StateMatrixPreview<Content: View>: View {
-    let content: Content
-
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-
-    var body: some View {
-        ScrollView {
-            content
-                .padding()
-        }
-        .background(ColorTokens.backgroundPrimary)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(ColorTokens.backgroundGradient.ignoresSafeArea())
+        .environment(\.chronirTheme, .liquidGlass)
+        .environment(\.colorScheme, .dark)
     }
 }

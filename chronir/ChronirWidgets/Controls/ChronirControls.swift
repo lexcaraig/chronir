@@ -11,7 +11,16 @@ struct NextAlarmControl: ControlWidget {
             provider: NextAlarmControlProvider()
         ) { alarm in
             ControlWidgetButton(action: OpenChronirLinkIntent(path: alarm.map { "alarm/\($0.id.uuidString)" } ?? "")) {
-                Label(alarm?.title ?? "No upcoming alarms", systemImage: "alarm")
+                if let alarm {
+                    Label {
+                        Text(alarm.title)
+                        Text(alarm.nextFireDate.formatted(date: .abbreviated, time: .shortened))
+                    } icon: {
+                        Image(systemName: "alarm")
+                    }
+                } else {
+                    Label("No upcoming alarms", systemImage: "alarm")
+                }
             }
         }
         .displayName("Next Alarm")
@@ -20,7 +29,8 @@ struct NextAlarmControl: ControlWidget {
 }
 
 struct NextAlarmControlProvider: ControlValueProvider {
-    var previewValue: WidgetAlarmData? { nil }
+    /// Shown in the Controls gallery, so it demonstrates a real alarm rather than the empty state.
+    var previewValue: WidgetAlarmData? { .preview }
 
     func currentValue() async throws -> WidgetAlarmData? {
         WidgetDataReader.nextAlarm()

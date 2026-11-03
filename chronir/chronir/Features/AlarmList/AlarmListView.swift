@@ -6,9 +6,11 @@ import AlarmKit
 
 struct AlarmListView: View {
     @Query(sort: \Alarm.nextFireDate) private var alarms: [Alarm]
+    @Query private var completionLogs: [CompletionLog]
     @AppStorage(FocusFilterStore.key, store: FocusFilterStore.defaults) private var focusCategoriesRaw = ""
     private let addWidgetTip = AddWidgetTip()
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openURL) private var openURL
     var deepLinkAlarmID: Binding<UUID?>
     var deepLinkCreateAlarm: Binding<Bool>
     @State private var showingCreateAlarm = false
@@ -17,43 +19,45 @@ struct AlarmListView: View {
         self.deepLinkAlarmID = deepLinkAlarmID
         self.deepLinkCreateAlarm = deepLinkCreateAlarm
     }
-    @State private var enabledStates: [UUID: Bool] = [:]
     @State private var selectedAlarmID: UUID?
     @State private var alarmToDelete: Alarm?
+    @State private var alarmToSkip: Alarm?
     @State private var showUpgradePrompt = false
     @State private var selectedCategoryFilter: AlarmCategory?
     @State private var selectedCategory: AlarmCategory?
     @State private var showArchived = false
-    @State private var confirmedAlarmIDs: Set<UUID> = []
     @State private var paywallViewModel = PaywallViewModel()
     private let subscriptionService = SubscriptionService.shared
+    private let schedulingStatus = AlarmSchedulingStatus.shared
     private var firingCoordinator = AlarmFiringCoordinator.shared
     private let alarmCheckTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        let streaks = AlarmRowActions.streaks(from: completionLogs)
         List {
-            if paywallViewModel.isFreeTier && activeAlarms.count > (paywallViewModel.alarmLimit ?? Int.max) {
+            if !unscheduledAlarms.isEmpty {
                 Section {
-                    HStack(spacing: SpacingTokens.sm) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(ColorTokens.warning)
-                        ChronirText(
-                            "Your subscription has ended. Only your 3 oldest alarms remain active.",
-                            style: .bodySmall,
-                            color: ColorTokens.warning
-                        )
+                    statusBanner(
+                        icon: "exclamationmark.octagon.fill",
+                        iconColor: ColorTokens.textError,
+                        message: unscheduledMessage
+                    ) {
+                        Button("Try Again") { retryUnscheduled() }
+                        Button("Open Settings") { openAppSettings() }
                     }
-                    .padding(SpacingTokens.md)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(ColorTokens.warning.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: RadiusTokens.sm))
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(
-                        top: SpacingTokens.xs, leading: SpacingTokens.md,
-                        bottom: SpacingTokens.xs, trailing: SpacingTokens.md
-                    ))
+                }
+            }
+
+            if paywallViewModel.isFreeTier, let limit = paywallViewModel.alarmLimit, activeAlarms.count > limit {
+                Section {
+                    statusBanner(
+                        icon: "exclamationmark.triangle.fill",
+                        iconColor: ColorTokens.textWarning,
+                        message: "Your Plus subscription has ended. Only your \(limit) oldest alarms stay on; "
+                            + "the rest were turned off."
+                    ) {
+                        Button("Resubscribe") { showUpgradePrompt = true }
+                    }
                 }
             }
 
@@ -64,7 +68,7 @@ struct AlarmListView: View {
             if !focusCategoriesRaw.isEmpty {
                 Section {
                     Label("Filtered by Focus", systemImage: "moon.fill")
-                        .font(.footnote)
+                        .chronirFont(.bodySmall)
                         .foregroundStyle(ColorTokens.textSecondary)
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
@@ -92,10 +96,12 @@ struct AlarmListView: View {
                                         selectedCategoryFilter = nil
                                     }
                                     ForEach(activeCategories) { cat in
+                                        let colors = ChronirBadge.pair(for: cat)
                                         filterChip(
                                             label: cat.displayName,
                                             icon: cat.iconName,
-                                            color: cat.color,
+                                            color: colors.background,
+                                            selectedForeground: colors.foreground,
                                             isSelected: selectedCategoryFilter == cat
                                         ) {
                                             selectedCategoryFilter = selectedCategoryFilter == cat ? nil : cat
@@ -120,11 +126,15 @@ struct AlarmListView: View {
                                 CategoryGroupCard(
                                     category: category,
                                     alarms: alarms,
-                                    enabledStates: enabledStates
+                                    enabledStates: [:]
                                 )
                             }
                             .contentShape(Rectangle())
                             .onTapGesture { selectedCategory = category }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityAddTraits(.isButton)
+                            .accessibilityHint("Shows the \(alarms.count) \(category.displayName) alarms")
+                            .accessibilityAction(.default) { selectedCategory = category }
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
                             .listRowInsets(EdgeInsets(
@@ -132,13 +142,13 @@ struct AlarmListView: View {
                                 bottom: SpacingTokens.xxs, trailing: SpacingTokens.md
                             ))
                         case .individual(let alarm):
-                            alarmRow(alarm)
+                            alarmRow(alarm, streaks: streaks)
                         }
                     }
                 } else {
                     // Default flat list — all alarms as individual rows
                     ForEach(filteredAlarms) { alarm in
-                        alarmRow(alarm)
+                        alarmRow(alarm, streaks: streaks)
                     }
                 }
 
@@ -148,7 +158,7 @@ struct AlarmListView: View {
                             isExpanded: $showArchived
                         ) {
                             ForEach(archivedAlarms) { alarm in
-                                alarmRow(alarm)
+                                alarmRow(alarm, streaks: streaks)
                             }
                         } label: {
                             HStack(spacing: SpacingTokens.xs) {
@@ -200,11 +210,17 @@ struct AlarmListView: View {
                 Image("NavBarLogo")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 28, height: 28)
+                    .frame(width: SpacingTokens.xl, height: SpacingTokens.xl)
+                    .accessibilityHidden(true)
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 NavigationLink(value: "settings") {
-                    Image(systemName: "gear")
+                    Label("Settings", systemImage: "gear")
+                }
+                Button {
+                    requestCreateAlarm()
+                } label: {
+                    Label("New Alarm", systemImage: "plus")
                 }
             }
         }
@@ -212,31 +228,14 @@ struct AlarmListView: View {
             AlarmCreationView(modelContext: modelContext)
         }
         .fullScreenCover(isPresented: $showUpgradePrompt) {
-            PaywallView()
+            PaywallView(highlight: .unlimitedAlarms)
         }
         .navigationDestination(for: String.self) { destination in
             if destination == "settings" {
                 SettingsView()
             }
         }
-        .alert(
-            "Delete Alarm",
-            isPresented: Binding(
-                get: { alarmToDelete != nil },
-                set: { if !$0 { alarmToDelete = nil } }
-            ),
-            presenting: alarmToDelete
-        ) { alarm in
-            Button("Cancel", role: .cancel) {
-                alarmToDelete = nil
-            }
-            Button("Delete", role: .destructive) {
-                deleteAlarm(alarm)
-                alarmToDelete = nil
-            }
-        } message: { alarm in
-            Text("Are you sure you want to delete \"\(alarm.title)\"?")
-        }
+        .alarmRowConfirmations(alarmToDelete: $alarmToDelete, alarmToSkip: $alarmToSkip, context: modelContext)
         .onAppear {
             refreshNextFireDates()
         }
@@ -249,33 +248,6 @@ struct AlarmListView: View {
                 showUpgradePrompt = false
             }
         }
-        .onChange(of: enabledStates) {
-            for (id, isEnabled) in enabledStates {
-                if let alarm = alarms.first(where: { $0.id == id }) {
-                    alarm.isEnabled = isEnabled
-                    alarm.updatedAt = Date()
-                    // Cancel pending state when disabling
-                    if !isEnabled && alarm.isPendingConfirmation {
-                        PendingConfirmationService.shared.cancelPending(alarm: alarm)
-                    }
-                    Task {
-                        do {
-                            if isEnabled {
-                                if alarm.nextFireDate < Date() {
-                                    alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
-                                }
-                                try await AlarmScheduler.shared.scheduleAlarm(alarm)
-                            } else {
-                                try await AlarmScheduler.shared.cancelAlarm(alarm)
-                            }
-                        } catch {
-                            // Toggle failed — alarm state will reconcile on next launch
-                        }
-                        await CloudSyncService.shared.pushAlarmModel(alarm)
-                    }
-                }
-            }
-        }
         .onChange(of: subscriptionService.statusChecked) { _, checked in
             if checked { enforceAlarmLimit() }
         }
@@ -283,33 +255,21 @@ struct AlarmListView: View {
             guard subscriptionService.statusChecked else { return }
             enforceAlarmLimit()
         }
-
-        // FAB overlay
-        AdaptiveGlassContainer {
-            Button {
-                requestCreateAlarm()
-            } label: {
-                Image(systemName: "plus")
-                    .font(.title2.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 56, height: 56)
-                    .chronirGlassTintedCircle(tint: ColorTokens.primary)
-            }
-        }
-        .padding(.bottom, SpacingTokens.lg)
-
-        } // ZStack
     }
 
+    /// Fallback presenter for an alarm that is alerting while the list is on screen (the app-level
+    /// `alarmUpdates` handler is the primary path). The in-memory pass is cheap; AlarmKit is only
+    /// queried once an enabled alarm is actually due, not every second.
     private func checkForFiringAlarms() {
         guard !firingCoordinator.isFiring,
               !firingCoordinator.appIsInBackground else { return }
         let now = Date()
+        let due = alarms.filter {
+            $0.isEnabled && $0.nextFireDate <= now && !firingCoordinator.isHandled($0.id)
+        }
+        guard !due.isEmpty else { return }
         let akAlarms = (try? AlarmManager.shared.alarms) ?? []
-        for alarm in alarms {
-            let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-            guard isEnabled, alarm.nextFireDate <= now,
-                  !firingCoordinator.isHandled(alarm.id) else { continue }
+        for alarm in due {
             // Only present if AlarmKit confirms the alarm is actively alerting
             let akAlarm = AlarmScheduler.activeRegistration(for: alarm.id, in: akAlarms)
             guard akAlarm?.state == .alerting else { continue }
@@ -318,119 +278,90 @@ struct AlarmListView: View {
         }
     }
 
-    private func visualState(for alarm: Alarm) -> AlarmVisualState {
-        let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-        if !isEnabled { return .inactive }
-        if alarm.isPendingConfirmation && !confirmedAlarmIDs.contains(alarm.id) { return .pending }
-        if alarm.snoozeCount > 0 { return .snoozed }
-        return .active
+    private func enabledBinding(for alarm: Alarm) -> Binding<Bool> {
+        AlarmRowActions.enabledBinding(for: alarm, among: activeAlarms) { showUpgradePrompt = true }
     }
 
-    private func enabledBinding(for alarm: Alarm) -> Binding<Bool> {
-        Binding(
-            get: { enabledStates[alarm.id] ?? alarm.isEnabled },
-            set: { newValue in
-                if newValue && !canEnableMoreAlarms() {
-                    showUpgradePrompt = true
-                } else {
-                    enabledStates[alarm.id] = newValue
-                    if UserSettings.shared.hapticsEnabled {
-                        HapticService.shared.playSelection()
-                    }
-                }
-            }
+    private func alarmRow(_ alarm: Alarm, streaks: [UUID: Int]) -> some View {
+        AlarmListRow(
+            alarm: alarm,
+            isEnabled: enabledBinding(for: alarm),
+            streak: streaks[alarm.id] ?? 0,
+            isPlusUser: subscriptionService.currentTier.rank >= SubscriptionTier.plus.rank,
+            isUnscheduled: schedulingStatus.failedAlarmIDs.contains(alarm.id),
+            onOpen: { selectedAlarmID = alarm.id },
+            onDelete: { alarmToDelete = alarm },
+            onSkip: { alarmToSkip = alarm },
+            onConfirmDone: { AlarmRowActions.confirmPending(alarm, context: modelContext) }
         )
     }
 
-    private func canEnableMoreAlarms() -> Bool {
-        guard paywallViewModel.isFreeTier, let limit = paywallViewModel.alarmLimit else { return true }
-        let enabledCount = activeAlarms.filter({ enabledStates[$0.id] ?? $0.isEnabled }).count
-        return enabledCount < limit
-    }
-
-    @ViewBuilder
-    private func alarmRow(_ alarm: Alarm) -> some View {
-        let state = visualState(for: alarm)
-        AdaptiveGlassContainer {
-            AlarmCard(
-                alarm: alarm,
-                visualState: state,
-                isEnabled: enabledBinding(for: alarm),
-                streak: StreakCalculator.currentStreak(from: alarm.completionLogs),
-                isPlusUser: subscriptionService.currentTier.rank >= SubscriptionTier.plus.rank
-            )
-        }
-        .id("\(alarm.id)-\(state)")
-        .contentShape(Rectangle())
-        .onTapGesture {
-            let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-            if !isEnabled && paywallViewModel.isFreeTier {
-                showUpgradePrompt = true
-            } else {
-                selectedAlarmID = alarm.id
+    /// Banner row for list-level status (scheduling failure, subscription downgrade).
+    private func statusBanner<Actions: View>(
+        icon: String,
+        iconColor: Color,
+        message: String,
+        @ViewBuilder actions: () -> Actions
+    ) -> some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.sm) {
+            HStack(alignment: .firstTextBaseline, spacing: SpacingTokens.sm) {
+                Image(systemName: icon)
+                    .foregroundStyle(iconColor)
+                    .accessibilityHidden(true)
+                ChronirText(message, style: .bodyMedium, color: ColorTokens.textPrimary)
             }
+            HStack(spacing: SpacingTokens.lg) {
+                actions()
+            }
+            .buttonStyle(.borderless)
+            .chronirFont(.labelLarge)
+            .foregroundStyle(ColorTokens.primary)
+            .frame(minHeight: SpacingTokens.touchMinTarget)
         }
+        .padding(SpacingTokens.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ColorTokens.surfaceCard, in: RoundedRectangle(cornerRadius: RadiusTokens.md))
         .listRowSeparator(.hidden)
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets(
-            top: SpacingTokens.xxs, leading: SpacingTokens.md,
-            bottom: SpacingTokens.xxs, trailing: SpacingTokens.md
+            top: SpacingTokens.xs, leading: SpacingTokens.md,
+            bottom: SpacingTokens.xs, trailing: SpacingTokens.md
         ))
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive) {
-                alarmToDelete = alarm
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-            Button {
-                selectedAlarmID = alarm.id
-            } label: {
-                Label("Edit", systemImage: "pencil")
-            }
-            .tint(ColorTokens.info)
-            if alarm.cycleType != .oneTime && alarm.isEnabled {
-                Button {
-                    skipOccurrence(alarm)
-                } label: {
-                    Label("Skip", systemImage: "forward.end")
-                }
-                .tint(ColorTokens.warning)
+    }
+
+    private var unscheduledAlarms: [Alarm] {
+        alarms.filter { $0.isEnabled && schedulingStatus.failedAlarmIDs.contains($0.id) }
+    }
+
+    private var unscheduledMessage: String {
+        let lead = unscheduledAlarms.count == 1
+            ? "\"\(unscheduledAlarms[0].title)\" isn't scheduled and won't ring."
+            : "\(unscheduledAlarms.count) alarms aren't scheduled and won't ring."
+        return lead + " Check that Chronir is allowed to set alarms in Settings, then try again."
+    }
+
+    private func retryUnscheduled() {
+        let pending = unscheduledAlarms
+        Task {
+            for alarm in pending {
+                await schedulingStatus.schedule(alarm)
             }
         }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            if alarm.isPendingConfirmation {
-                Button {
-                    confirmPendingAlarm(alarm)
-                } label: {
-                    Label("Done", systemImage: "checkmark.circle.fill")
-                }
-                .tint(ColorTokens.success)
-            }
-            Button {
-                let current = enabledStates[alarm.id] ?? alarm.isEnabled
-                if !current && !canEnableMoreAlarms() {
-                    showUpgradePrompt = true
-                } else {
-                    enabledStates[alarm.id] = !current
-                }
-            } label: {
-                let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-                Label(
-                    isEnabled ? "Disable" : "Enable",
-                    systemImage: isEnabled ? "bell.slash" : "bell"
-                )
-            }
-            .tint(
-                enabledStates[alarm.id] ?? alarm.isEnabled
-                    ? ColorTokens.textSecondary : ColorTokens.success
-            )
+    }
+
+    private func openAppSettings() {
+        #if os(iOS)
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            openURL(url)
         }
+        #endif
     }
 
     private func filterChip(
         label: String,
         icon: String? = nil,
         color: Color = ColorTokens.primary,
+        selectedForeground: Color = ColorTokens.onPrimary,
         isSelected: Bool,
         action: @escaping () -> Void
     ) -> some View {
@@ -443,23 +374,21 @@ struct AlarmListView: View {
                 Text(label)
                     .chronirFont(.labelLarge)
             }
-            .foregroundStyle(isSelected ? .white : ColorTokens.textSecondary)
+            .foregroundStyle(isSelected ? selectedForeground : ColorTokens.textSecondary)
             .padding(.horizontal, SpacingTokens.md)
             .padding(.vertical, SpacingTokens.sm)
+            .frame(minHeight: SpacingTokens.touchMinTarget)
             .chronirGlassSelectableCapsule(isSelected: isSelected, tint: color)
         }
-    }
-
-    private func isPending(_ alarm: Alarm) -> Bool {
-        alarm.isPendingConfirmation && !confirmedAlarmIDs.contains(alarm.id)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var activeAlarms: [Alarm] {
-        alarms.filter { !($0.cycleType == .oneTime && !$0.isEnabled && !isPending($0)) }
+        alarms.filter { !($0.cycleType == .oneTime && !$0.isEnabled && !$0.isPendingConfirmation) }
     }
 
     private var archivedAlarms: [Alarm] {
-        alarms.filter { $0.cycleType == .oneTime && !$0.isEnabled && !isPending($0) }
+        alarms.filter { $0.cycleType == .oneTime && !$0.isEnabled && !$0.isPendingConfirmation }
     }
 
     /// Display-only: never use for tier enforcement or scheduling (those read `activeAlarms`).
@@ -536,50 +465,6 @@ extension AlarmListView {
         }
     }
 
-    private func skipOccurrence(_ alarm: Alarm) {
-        let log = CompletionLog(
-            alarmID: alarm.id,
-            scheduledDate: alarm.nextFireDate,
-            completedAt: Date(),
-            action: .skipped,
-            snoozeCount: alarm.snoozeCount
-        )
-        log.alarm = alarm
-        modelContext.insert(log)
-
-        alarm.snoozeCount = 0
-        alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: alarm.nextFireDate)
-
-        Task {
-            try? await AlarmScheduler.shared.cancelAlarm(alarm)
-            try? await AlarmScheduler.shared.scheduleAlarm(alarm)
-        }
-
-        try? modelContext.save()
-        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
-        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
-    }
-
-    private func confirmPendingAlarm(_ alarm: Alarm) {
-        confirmedAlarmIDs.insert(alarm.id)
-        NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
-        PendingConfirmationService.shared.confirmDone(alarm: alarm)
-        alarm.updatedAt = Date()
-        try? modelContext.save()
-        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
-        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSuccess() }
-    }
-
-    private func deleteAlarm(_ alarm: Alarm) {
-        let alarmID = alarm.id.uuidString
-        Task {
-            try? await AlarmScheduler.shared.cancelAlarm(alarm)
-        }
-        modelContext.delete(alarm)
-        try? modelContext.save()
-        Task { try? await CloudSyncService.shared.deleteRemoteAlarm(id: alarmID) }
-    }
-
     private func refreshNextFireDates() {
         let calculator = DateCalculator()
         let now = Date()
@@ -599,24 +484,33 @@ extension AlarmListView {
             for alarm in activeAlarms where alarm.isPendingConfirmation {
                 PendingConfirmationService.shared.autoCompletePending(alarm: alarm)
             }
-            let enabled = activeAlarms.filter { enabledStates[$0.id] ?? $0.isEnabled }
+            let enabled = activeAlarms.filter(\.isEnabled)
             if enabled.count > limit {
                 let sorted = enabled.sorted { $0.createdAt < $1.createdAt }
                 for alarm in sorted.dropFirst(limit) {
-                    enabledStates[alarm.id] = false
+                    AlarmRowActions.setEnabled(alarm, false)
                 }
             }
         } else if !tier.isFreeTier {
-            for alarm in activeAlarms where !(enabledStates[alarm.id] ?? alarm.isEnabled) {
-                enabledStates[alarm.id] = true
+            for alarm in activeAlarms where !alarm.isEnabled {
+                AlarmRowActions.setEnabled(alarm, true)
             }
         }
     }
 }
 
-#Preview {
+#Preview("Light") {
     NavigationStack {
         AlarmListView(deepLinkAlarmID: .constant(nil), deepLinkCreateAlarm: .constant(false))
     }
     .modelContainer(for: Alarm.self, inMemory: true)
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        AlarmListView(deepLinkAlarmID: .constant(nil), deepLinkCreateAlarm: .constant(false))
+    }
+    .modelContainer(for: Alarm.self, inMemory: true)
+    .preferredColorScheme(.dark)
 }

@@ -36,3 +36,10 @@ struct AlarmTimeDisplay: View {
         .padding()
         .background(ColorTokens.backgroundPrimary)
 }
+
+#Preview("Dark") {
+    DarkPreview {
+        AlarmTimeDisplay(time: Date(), countdownText: "Alarm in 6h 32m")
+            .padding()
+    }
+}

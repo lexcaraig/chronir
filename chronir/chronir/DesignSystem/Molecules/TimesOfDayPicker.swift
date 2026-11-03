@@ -10,9 +10,12 @@ struct TimesOfDayPicker: View {
 
     private let maxTimes = 5
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Times", style: .labelMedium, color: ColorTokens.textSecondary)
+                .accessibilityAddTraits(.isHeader)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: SpacingTokens.sm) {
                     ForEach(Array(sortedTimes.enumerated()), id: \.element) { index, time in
@@ -36,42 +39,69 @@ struct TimesOfDayPicker: View {
         times.sorted()
     }
 
+    /// The edit chip and its remove button are siblings (never a button inside a button), so each
+    /// has its own 44pt target and VoiceOver reaches both.
     private func timeChip(_ time: TimeOfDay, at index: Int) -> some View {
-        Button {
-            editDate = time.asDateToday()
-            editingIndex = index
-            isEditing = true
-        } label: {
-            HStack(spacing: SpacingTokens.xxs) {
-                Text(time.formatted)
-                    .chronirFont(.labelLarge)
-                if times.count > 1 {
-                    Button {
-                        withAnimation { removeTime(at: index) }
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .chronirFont(.labelSmall)
-                    }
+        HStack(spacing: 0) {
+            ChronirChip(
+                time.formatted,
+                isSelected: true,
+                isToggle: false,
+                accessibilityLabel: "Alarm time \(time.formatted)"
+            ) {
+                editDate = time.asDateToday()
+                editingIndex = index
+                isEditing = true
+            }
+            .accessibilityHint("Edit this time")
+            .accessibilityAction(named: "Remove") {
+                if times.count > 1 { remove(at: index) }
+            }
+
+            if times.count > 1 {
+                Button {
+                    remove(at: index)
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .imageScale(.medium)
+                        .foregroundStyle(ColorTokens.textSecondary)
+                        .frame(minWidth: SpacingTokens.touchMinTarget, minHeight: SpacingTokens.touchMinTarget)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Remove \(time.formatted)")
+            }
+        }
+        .contextMenu {
+            if times.count > 1 {
+                Button("Remove \(time.formatted)", systemImage: "trash", role: .destructive) {
+                    remove(at: index)
                 }
             }
-            .foregroundStyle(.white)
-            .padding(.horizontal, SpacingTokens.md)
-            .padding(.vertical, SpacingTokens.sm)
-            .chronirGlassTintedCapsule(tint: ColorTokens.primary)
         }
     }
 
     private var addButton: some View {
-        Button {
+        ChronirChip(
+            "Add",
+            systemImage: "plus",
+            isSelected: false,
+            isToggle: false,
+            accessibilityLabel: "Add alarm time"
+        ) {
             addDate = Date()
             isAdding = true
-        } label: {
-            Image(systemName: "plus")
-                .chronirFont(.labelLarge)
-                .foregroundStyle(ColorTokens.textSecondary)
-                .padding(.horizontal, SpacingTokens.md)
-                .padding(.vertical, SpacingTokens.sm)
-                .chronirGlassCapsule()
+        }
+    }
+
+    private func remove(at index: Int) {
+        let animation = AnimationTokens.resolved(
+            AnimationTokens.spring,
+            reduceMotion: reduceMotion,
+            reducedFallback: AnimationTokens.fast
+        )
+        withAnimation(animation) {
+            removeTime(at: index)
         }
     }
 
@@ -159,20 +189,24 @@ struct TimesOfDayPicker: View {
     }
 }
 
-#Preview {
-    @Previewable @State var times: [TimeOfDay] = [
+private struct TimesOfDayPickerPreview: View {
+    @State var times: [TimeOfDay]
+
+    var body: some View {
+        TimesOfDayPicker(times: $times)
+            .padding()
+    }
+}
+
+#Preview("Light") {
+    TimesOfDayPickerPreview(times: [
         TimeOfDay(hour: 9, minute: 0),
         TimeOfDay(hour: 12, minute: 0),
         TimeOfDay(hour: 17, minute: 0)
-    ]
-    TimesOfDayPicker(times: $times)
-        .padding()
-        .background(ColorTokens.backgroundPrimary)
+    ])
+    .background(ColorTokens.backgroundPrimary)
 }
 
-#Preview("Single Time") {
-    @Previewable @State var times: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
-    TimesOfDayPicker(times: $times)
-        .padding()
-        .background(ColorTokens.backgroundPrimary)
+#Preview("Dark — Single Time") {
+    DarkPreview { TimesOfDayPickerPreview(times: [TimeOfDay(hour: 8, minute: 0)]) }
 }

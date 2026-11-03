@@ -1,3 +1,4 @@
+#if DEBUG
 import SwiftUI
 
 struct ComponentCatalog: View {
@@ -14,11 +15,10 @@ struct ComponentCatalog: View {
 
             Section("Molecules") {
                 NavigationLink("AlarmTimeDisplay") { CatalogAlarmTimeDisplayView() }
-                NavigationLink("AlarmToggleRow") { CatalogAlarmToggleRowView() }
+                NavigationLink("ChronirChip") { CatalogChipView() }
                 NavigationLink("IntervalPicker") { CatalogIntervalPickerView() }
                 NavigationLink("SnoozeOptionBar") { CatalogSnoozeBarView() }
                 NavigationLink("LabeledTextField") { CatalogLabeledTextFieldView() }
-                NavigationLink("TimePickerField") { CatalogTimePickerFieldView() }
                 NavigationLink("TimesOfDayPicker") { CatalogTimesOfDayPickerView() }
                 NavigationLink("ChronirCategoryPicker") { CatalogCategoryPickerView() }
             }
@@ -27,9 +27,7 @@ struct ComponentCatalog: View {
             Section("Organisms") {
                 NavigationLink("AlarmCard") { CatalogAlarmCardView() }
                 NavigationLink("CategoryGroupCard") { CatalogCategoryGroupCardView() }
-                NavigationLink("AlarmListSection") { CatalogAlarmListSectionView() }
                 NavigationLink("EmptyStateView") { CatalogEmptyStateView() }
-                NavigationLink("AlarmFiringOverlay") { CatalogAlarmFiringOverlayView() }
                 NavigationLink("AlarmCreationForm") { CatalogAlarmCreationFormView() }
             }
             .listRowBackground(ColorTokens.surfaceCard)
@@ -147,22 +145,28 @@ private struct CatalogAlarmTimeDisplayView: View {
     }
 }
 
-private struct CatalogAlarmToggleRowView: View {
-    @State private var isEnabled = true
+private struct CatalogChipView: View {
+    @State private var selected: Set<Int> = [2]
 
     var body: some View {
-        VStack {
-            AlarmToggleRow(
-                title: "Morning Workout",
-                subtitle: "Every Monday at 6:30 AM",
-                cycleType: .weekly,
-                isEnabled: $isEnabled
-            )
+        VStack(alignment: .leading, spacing: SpacingTokens.md) {
+            HStack(spacing: SpacingTokens.sm) {
+                ChronirChip("Selected", isSelected: true) {}
+                ChronirChip("Unselected", isSelected: false) {}
+                ChronirChip("Locked", isSelected: false, isLocked: true) {}
+            }
+            HStack(spacing: SpacingTokens.xxs) {
+                ForEach(1...7, id: \.self) { day in
+                    ChronirChip("\(day)", isSelected: selected.contains(day), shape: .circle) {
+                        if selected.contains(day) { selected.remove(day) } else { selected.insert(day) }
+                    }
+                }
+            }
         }
-        .background(ColorTokens.surfaceCard)
         .padding()
+        .frame(maxHeight: .infinity, alignment: .top)
         .background(ColorTokens.backgroundPrimary)
-        .navigationTitle("AlarmToggleRow")
+        .navigationTitle("ChronirChip")
     }
 }
 
@@ -181,9 +185,10 @@ private struct CatalogIntervalPickerView: View {
 
 private struct CatalogSnoozeBarView: View {
     var body: some View {
-        SnoozeOptionBar(onSnooze: { _ in })
+        SnoozeOptionBar(onSnooze: { _ in }, showCustomButton: true, onCustomTap: {})
             .padding()
-            .background(ColorTokens.backgroundPrimary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(ColorTokens.firingBackground)
             .navigationTitle("SnoozeOptionBar")
     }
 }
@@ -196,17 +201,6 @@ private struct CatalogLabeledTextFieldView: View {
             .padding()
             .background(ColorTokens.backgroundPrimary)
             .navigationTitle("LabeledTextField")
-    }
-}
-
-private struct CatalogTimePickerFieldView: View {
-    @State private var time = Date()
-
-    var body: some View {
-        TimePickerField(label: "Time", selection: $time)
-            .padding()
-            .background(ColorTokens.backgroundPrimary)
-            .navigationTitle("TimePickerField")
     }
 }
 
@@ -295,46 +289,11 @@ private struct CatalogCategoryGroupCardView: View {
     }
 }
 
-private struct CatalogAlarmListSectionView: View {
-    @State private var enabledStates: [UUID: Bool] = [:]
-
-    var body: some View {
-        ScrollView {
-            AlarmListSection(
-                title: "Upcoming",
-                alarms: [
-                    Alarm(title: "Workout", cycleType: .weekly, nextFireDate: Date().addingTimeInterval(3600)),
-                    Alarm(
-                        title: "Pay Rent", cycleType: .monthlyDate,
-                        schedule: .monthlyDate(daysOfMonth: [1], interval: 1),
-                        nextFireDate: Date().addingTimeInterval(-3600)
-                    )
-                ],
-                enabledStates: $enabledStates
-            )
-        }
-        .background(ColorTokens.backgroundPrimary)
-        .navigationTitle("AlarmListSection")
-    }
-}
-
 private struct CatalogEmptyStateView: View {
     var body: some View {
         EmptyStateView(onCreateAlarm: {})
             .background(ColorTokens.backgroundPrimary)
             .navigationTitle("EmptyStateView")
-    }
-}
-
-private struct CatalogAlarmFiringOverlayView: View {
-    var body: some View {
-        AlarmFiringOverlay(
-            alarm: Alarm(title: "Morning Workout", cycleType: .weekly, persistenceLevel: .full),
-            snoozeCount: 1,
-            onDismiss: {},
-            onSnooze: { _ in }
-        )
-        .navigationTitle("AlarmFiringOverlay")
     }
 }
 
@@ -456,3 +415,4 @@ private struct CatalogFullScreenView: View {
         ComponentCatalog()
     }
 }
+#endif

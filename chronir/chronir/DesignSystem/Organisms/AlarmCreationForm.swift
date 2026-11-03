@@ -29,120 +29,103 @@ struct AlarmCreationForm: View {
 
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
-            LabeledTextField(
-                label: "Alarm Name",
-                placeholder: "Enter a name...",
-                text: $title,
-                error: titleError,
-                maxLength: AlarmValidator.titleMaxLength,
-                softWarningLength: 32
-            )
+            FormSection("Name & Schedule") {
+                LabeledTextField(
+                    label: "Alarm Name",
+                    placeholder: "Enter a name...",
+                    text: $title,
+                    error: titleError,
+                    maxLength: AlarmValidator.titleMaxLength,
+                    softWarningLength: 32
+                )
 
-            IntervalPicker(
-                selection: $cycleType,
-                options: [.oneTime, .weekly, .monthlyDate, .annual]
-            )
+                IntervalPicker(
+                    selection: $cycleType,
+                    options: [.oneTime, .weekly, .monthlyDate, .annual]
+                )
 
-            if cycleType == .oneTime {
-                oneTimeDatePicker
-            } else if cycleType == .weekly {
-                weeklyDayPicker
-            } else if cycleType == .monthlyDate {
-                monthlyDayPicker
-                if daysOfMonth.contains(where: { $0 > 28 }) {
-                    HStack(spacing: SpacingTokens.xs) {
-                        Image(systemName: "info.circle")
-                            .foregroundStyle(ColorTokens.textSecondary)
+                if cycleType == .oneTime {
+                    oneTimeDatePicker
+                } else if cycleType == .weekly {
+                    weeklyDayPicker
+                } else if cycleType == .monthlyDate {
+                    monthlyDayPicker
+                    if daysOfMonth.contains(where: { $0 > 28 }) {
+                        HStack(alignment: .firstTextBaseline, spacing: SpacingTokens.xs) {
+                            Image(systemName: "info.circle")
+                                .foregroundStyle(ColorTokens.textSecondary)
+                                .accessibilityHidden(true)
+                            ChronirText(
+                                AlarmValidator.ValidationWarning.monthlyDay31.displayMessage,
+                                style: .labelSmall,
+                                color: ColorTokens.textSecondary
+                            )
+                        }
+                    }
+                } else if cycleType == .annual {
+                    FirstOccurrencePicker(
+                        month: $annualMonth,
+                        day: $annualDay,
+                        year: $annualYear,
+                        daysInMonth: daysInSelectedMonth,
+                        yearsAhead: 30
+                    )
+                }
+
+                if cycleType != .oneTime {
+                    repeatIntervalPicker
+                }
+
+                if repeatInterval > 1 && (cycleType == .monthlyDate || cycleType == .monthlyRelative) {
+                    FirstOccurrencePicker(month: $startMonth, year: $startYear, yearsAhead: 10)
+                }
+            }
+
+            FormSection("Time") {
+                TimesOfDayPicker(times: $timesOfDay)
+            }
+
+            FormSection("Alerts") {
+                VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                    ChronirToggle(label: "Require Dismissal", isOn: $isPersistent)
+                    ChronirText(
+                        "Alarm will repeat after snooze until manually dismissed. "
+                            + "Lock screen alerts are managed by iOS and may auto-silence.",
+                        style: .labelSmall,
+                        color: ColorTokens.textSecondary
+                    )
+                }
+
+                if isPersistent && isPlusTier {
+                    VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                        ChronirText("Follow-Up Interval", style: .labelMedium, color: ColorTokens.textSecondary)
+                            .accessibilityHidden(true)
+                        Picker("Follow-Up Interval", selection: $followUpInterval) {
+                            ForEach(FollowUpInterval.allCases) { interval in
+                                Text(interval.displayName).tag(interval)
+                            }
+                        }
+                        .pickerStyle(.segmented)
                         ChronirText(
-                            AlarmValidator.ValidationWarning.monthlyDay31.displayMessage,
+                            "How often to ask \"Did you complete it?\" after stopping.",
                             style: .labelSmall,
                             color: ColorTokens.textSecondary
                         )
                     }
                 }
-            } else if cycleType == .annual {
-                annualDatePicker
+
+                preAlarmSection
+
+                soundSection
             }
 
-            if cycleType != .oneTime {
-                repeatIntervalPicker
-            }
+            FormSection("Details") {
+                ChronirCategoryPicker(selection: $category)
 
-            if repeatInterval > 1 && (cycleType == .monthlyDate || cycleType == .monthlyRelative) {
-                monthlyStartPicker
-            }
-
-            ChronirCategoryPicker(selection: $category)
-
-            TimesOfDayPicker(times: $timesOfDay)
-
-            VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-                ChronirToggle(label: "Require Dismissal", isOn: $isPersistent)
-                ChronirText(
-                    "Alarm will repeat after snooze until manually dismissed. Lock screen alerts are managed by iOS and may auto-silence.",
-                    style: .labelSmall,
-                    color: ColorTokens.textSecondary
-                )
-            }
-
-            if isPersistent && isPlusTier {
-                VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-                    ChronirText("Follow-Up Interval", style: .labelMedium, color: ColorTokens.textSecondary)
-                    Picker("Follow-Up Interval", selection: $followUpInterval) {
-                        ForEach(FollowUpInterval.allCases) { interval in
-                            Text(interval.displayName).tag(interval)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    ChronirText(
-                        "How often to ask \"Did you complete it?\" after stopping.",
-                        style: .labelSmall,
-                        color: ColorTokens.textSecondary
-                    )
-                }
-            }
-
-            preAlarmSection
-
-            soundSection
-
-            if isPlusTier {
-                LabeledTextField(
-                    label: "Note (optional)",
-                    placeholder: "Add a note...",
-                    text: $note,
-                    maxLength: AlarmValidator.noteMaxLength
-                )
-            } else {
-                VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-                    HStack(spacing: SpacingTokens.xxs) {
-                        ChronirText("Note", style: .labelMedium, color: ColorTokens.textSecondary)
-                        Image(systemName: "lock.fill")
-                            .font(.caption2)
-                            .foregroundStyle(ColorTokens.textDisabled)
-                    }
-                    let noteIsEmpty = note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    Button {
-                        showPaywallForNote = true
-                    } label: {
-                        HStack {
-                            ChronirText(
-                                noteIsEmpty ? "Add a note..." : note,
-                                style: .bodyMedium,
-                                color: noteIsEmpty ? ColorTokens.textDisabled : ColorTokens.textPrimary
-                            )
-                            Spacer()
-                        }
-                        .padding(SpacingTokens.md)
-                        .background(ColorTokens.surfaceCard, in: .rect(cornerRadius: RadiusTokens.md))
-                    }
-                }
-                .fullScreenCover(isPresented: $showPaywallForNote) {
-                    PaywallView()
-                }
+                noteSection
             }
         }
-        .padding(SpacingTokens.lg)
+        .padding(SpacingTokens.md)
         .onChange(of: cycleType) { oldValue, newValue in
             savedIntervals[oldValue] = repeatInterval
             repeatInterval = savedIntervals[newValue] ?? 1
@@ -155,11 +138,56 @@ struct AlarmCreationForm: View {
         }
     }
 
+    @ViewBuilder
+    private var noteSection: some View {
+        if isPlusTier {
+            LabeledTextField(
+                label: "Note (optional)",
+                placeholder: "Add a note...",
+                text: $note,
+                maxLength: AlarmValidator.noteMaxLength
+            )
+        } else {
+            VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                HStack(spacing: SpacingTokens.xxs) {
+                    ChronirText("Note", style: .labelMedium, color: ColorTokens.textSecondary)
+                    Image(systemName: "lock.fill")
+                        .font(.caption2)
+                        .foregroundStyle(ColorTokens.textSecondary)
+                }
+                .accessibilityHidden(true)
+                let noteIsEmpty = note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                Button {
+                    showPaywallForNote = true
+                } label: {
+                    HStack {
+                        ChronirText(
+                            noteIsEmpty ? "Add a note..." : note,
+                            style: .bodyMedium,
+                            color: noteIsEmpty ? ColorTokens.textSecondary : ColorTokens.textPrimary
+                        )
+                        Spacer()
+                    }
+                    .padding(SpacingTokens.md)
+                    .frame(minHeight: SpacingTokens.touchMinTarget)
+                    .background(ColorTokens.backgroundPrimary, in: .rect(cornerRadius: RadiusTokens.md))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(noteIsEmpty ? "Note, requires Plus" : "Note, \(note), requires Plus")
+                .accessibilityHint("Opens the upgrade screen")
+            }
+            .fullScreenCover(isPresented: $showPaywallForNote) {
+                PaywallView(highlight: .notes)
+            }
+        }
+    }
+
     private var oneTimeDatePicker: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Date", style: .labelMedium, color: ColorTokens.textSecondary)
+                .accessibilityHidden(true)
             DatePicker(
-                "Fire Date",
+                "Date",
                 selection: $oneTimeDate,
                 in: Date()...,
                 displayedComponents: .date
@@ -174,20 +202,16 @@ struct AlarmCreationForm: View {
     private var weeklyDayPicker: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Days", style: .labelMedium, color: ColorTokens.textSecondary)
-            HStack(spacing: SpacingTokens.xs) {
-                ForEach(dayLabels, id: \.0) { day, label in
-                    Button {
-                        if selectedDays.contains(day) {
-                            if selectedDays.count > 1 { selectedDays.remove(day) }
-                        } else {
-                            selectedDays.insert(day)
-                        }
-                    } label: {
-                        Text(label)
-                            .chronirFont(.labelSmall)
-                            .foregroundStyle(selectedDays.contains(day) ? .white : ColorTokens.textSecondary)
-                            .frame(width: 36, height: 36)
-                            .chronirGlassSelectableCircle(isSelected: selectedDays.contains(day))
+                .accessibilityAddTraits(.isHeader)
+            HStack(spacing: SpacingTokens.xxs) {
+                ForEach(weekdays, id: \.weekday) { day in
+                    ChronirChip(
+                        day.initial,
+                        isSelected: selectedDays.contains(day.weekday),
+                        shape: .circle,
+                        accessibilityLabel: day.name
+                    ) {
+                        toggle(day.weekday, in: &selectedDays)
                     }
                 }
             }
@@ -197,62 +221,30 @@ struct AlarmCreationForm: View {
     private var monthlyDayPicker: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Days of Month", style: .labelMedium, color: ColorTokens.textSecondary)
-            let columns = Array(repeating: GridItem(.flexible(), spacing: SpacingTokens.xs), count: 7)
-            LazyVGrid(columns: columns, spacing: SpacingTokens.xs) {
+                .accessibilityAddTraits(.isHeader)
+            let columns = Array(repeating: GridItem(.flexible(), spacing: SpacingTokens.xxs), count: 7)
+            LazyVGrid(columns: columns, spacing: SpacingTokens.xxs) {
                 ForEach(1...31, id: \.self) { day in
-                    Button {
-                        if daysOfMonth.contains(day) {
-                            if daysOfMonth.count > 1 { daysOfMonth.remove(day) }
-                        } else {
-                            daysOfMonth.insert(day)
-                        }
-                    } label: {
-                        Text("\(day)")
-                            .chronirFont(.labelSmall)
-                            .foregroundStyle(daysOfMonth.contains(day) ? .white : ColorTokens.textSecondary)
-                            .frame(width: 36, height: 36)
-                            .chronirGlassSelectableCircle(isSelected: daysOfMonth.contains(day))
+                    ChronirChip(
+                        "\(day)",
+                        isSelected: daysOfMonth.contains(day),
+                        shape: .circle,
+                        accessibilityLabel: "Day \(day)"
+                    ) {
+                        toggle(day, in: &daysOfMonth)
                     }
                 }
             }
         }
     }
 
-    private var annualDatePicker: some View {
-        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            ChronirText("First Occurrence", style: .labelMedium, color: ColorTokens.textSecondary)
-            HStack(spacing: SpacingTokens.sm) {
-                Picker("Month", selection: $annualMonth) {
-                    ForEach(1...12, id: \.self) { month in
-                        Text(Calendar.current.monthSymbols[month - 1]).tag(month)
-                    }
-                }
-                .pickerStyle(.menu)
-                .fixedSize()
-
-                Picker("Day", selection: $annualDay) {
-                    ForEach(1...daysInSelectedMonth, id: \.self) { day in
-                        Text("\(day)").tag(day)
-                    }
-                }
-                .pickerStyle(.menu)
-                .fixedSize()
-
-                Picker("Year", selection: $annualYear) {
-                    ForEach(currentYear...currentYear + 30, id: \.self) { year in
-                        Text(String(year)).tag(year)
-                    }
-                }
-                .pickerStyle(.menu)
-                .fixedSize()
-
-                Spacer()
-            }
+    /// Adds or removes `value`, keeping at least one selection.
+    private func toggle(_ value: Int, in set: inout Set<Int>) {
+        if set.contains(value) {
+            if set.count > 1 { set.remove(value) }
+        } else {
+            set.insert(value)
         }
-    }
-
-    private var currentYear: Int {
-        Calendar.current.component(.year, from: Date())
     }
 
     private var daysInSelectedMonth: Int {
@@ -267,88 +259,63 @@ struct AlarmCreationForm: View {
         return range.count
     }
 
-    private var monthlyStartPicker: some View {
-        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            ChronirText("First Occurrence", style: .labelMedium, color: ColorTokens.textSecondary)
-            HStack(spacing: SpacingTokens.sm) {
-                Picker("Month", selection: $startMonth) {
-                    ForEach(1...12, id: \.self) { month in
-                        Text(Calendar.current.monthSymbols[month - 1]).tag(month)
-                    }
-                }
-                .pickerStyle(.menu)
-                .fixedSize()
-
-                Picker("Year", selection: $startYear) {
-                    ForEach(currentYear...currentYear + 10, id: \.self) { year in
-                        Text(String(year)).tag(year)
-                    }
-                }
-                .pickerStyle(.menu)
-                .fixedSize()
-
-                Spacer()
-            }
-        }
-    }
-
     @State private var showPaywallFromPreAlarm = false
 
     private var preAlarmSection: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Pre-Alarm Warnings", style: .labelMedium, color: ColorTokens.textSecondary)
+                .accessibilityAddTraits(.isHeader)
                 .popoverTip(PreAlarmTip())
-            HStack(spacing: SpacingTokens.sm) {
-                ForEach(PreAlarmOffset.allCases) { offset in
-                    let isSelected = preAlarmOffsets.contains(offset)
-                    let isLocked = offset.requiresPlus && !isPlusTier
-                    Button {
-                        if isLocked {
-                            showPaywallFromPreAlarm = true
-                        } else if isSelected {
-                            preAlarmOffsets.remove(offset)
-                        } else {
-                            preAlarmOffsets.insert(offset)
-                        }
-                    } label: {
-                        HStack(spacing: SpacingTokens.xxs) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: SpacingTokens.sm) {
+                    ForEach(PreAlarmOffset.allCases) { offset in
+                        let isSelected = preAlarmOffsets.contains(offset)
+                        let isLocked = offset.requiresPlus && !isPlusTier
+                        ChronirChip(
+                            offset.displayName,
+                            isSelected: isSelected,
+                            isLocked: isLocked,
+                            accessibilityLabel: "\(offset.displayName) before"
+                        ) {
                             if isLocked {
-                                Image(systemName: "lock.fill")
-                                    .font(.caption2)
+                                showPaywallFromPreAlarm = true
+                            } else if isSelected {
+                                preAlarmOffsets.remove(offset)
+                            } else {
+                                preAlarmOffsets.insert(offset)
                             }
-                            Text(offset.displayName)
-                                .chronirFont(.labelLarge)
                         }
-                        .foregroundStyle(isSelected ? .white : (isLocked ? ColorTokens.textDisabled : ColorTokens.textSecondary))
-                        .padding(.horizontal, SpacingTokens.md)
-                        .padding(.vertical, SpacingTokens.sm)
-                        .background(isSelected ? ColorTokens.primary : ColorTokens.backgroundTertiary)
-                        .clipShape(Capsule())
                     }
                 }
             }
         }
         .fullScreenCover(isPresented: $showPaywallFromPreAlarm) {
-            PaywallView()
+            PaywallView(highlight: .preAlarm)
         }
     }
 
     private var soundSection: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             ChronirText("Sound", style: .labelMedium, color: ColorTokens.textSecondary)
+                .accessibilityHidden(true)
+            let displayName = AlarmSoundService.allSounds
+                .first { $0.name == soundName }?.displayName ?? "Default"
             Button {
                 showSoundPicker = true
             } label: {
                 HStack {
-                    let displayName = AlarmSoundService.allSounds
-                        .first { $0.name == soundName }?.displayName ?? "Default"
                     ChronirText(displayName, style: .bodyPrimary)
                     Spacer()
                     ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textTertiary)
+                        .accessibilityHidden(true)
                 }
                 .padding(SpacingTokens.md)
-                .background(ColorTokens.surfaceCard, in: .rect(cornerRadius: RadiusTokens.md))
+                .frame(minHeight: SpacingTokens.touchMinTarget)
+                .background(ColorTokens.backgroundPrimary, in: .rect(cornerRadius: RadiusTokens.md))
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Sound, \(displayName)")
+            .accessibilityHint("Choose the alarm sound")
         }
         .sheet(isPresented: $showSoundPicker) {
             NavigationStack {
@@ -367,21 +334,20 @@ struct AlarmCreationForm: View {
             .presentationDetents([.medium, .large])
         }
         .fullScreenCover(isPresented: $showPaywallForSound) {
-            PaywallView()
+            PaywallView(highlight: .sounds)
         }
     }
 
     private var repeatIntervalPicker: some View {
-        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            ChronirText("Repeat Every", style: .labelMedium, color: ColorTokens.textSecondary)
-            HStack(spacing: SpacingTokens.sm) {
-                Stepper(value: $repeatInterval, in: 1...52) {
-                    ChronirText(
-                        "\(repeatInterval) \(intervalUnitLabel)",
-                        style: .bodyLarge
-                    )
-                }
+        Stepper(value: $repeatInterval, in: 1...52) {
+            VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
+                ChronirText("Repeat Every", style: .labelMedium, color: ColorTokens.textSecondary)
+                ChronirText(
+                    "\(repeatInterval) \(intervalUnitLabel)",
+                    style: .bodyLarge
+                )
             }
+            .accessibilityElement(children: .combine)
         }
     }
 
@@ -400,54 +366,106 @@ struct AlarmCreationForm: View {
         }
     }
 
-    // ISO weekday: 1=Mon, 7=Sun
-    private var dayLabels: [(Int, String)] {
-        [(2, "M"), (3, "T"), (4, "W"), (5, "T"), (6, "F"), (7, "S"), (1, "S")]
+    /// Monday-first week as Calendar weekday numbers (1 = Sunday … 7 = Saturday) — what `selectedDays` stores.
+    private var weekdays: [Weekday] {
+        [2, 3, 4, 5, 6, 7, 1].map(Weekday.init)
     }
 }
 
-#Preview {
-    @Previewable @State var title = ""
-    @Previewable @State var cycleType = CycleType.weekly
-    @Previewable @State var repeatInterval = 1
-    @Previewable @State var timesOfDay: [TimeOfDay] = [TimeOfDay(hour: 8, minute: 0)]
-    @Previewable @State var isPersistent = false
-    @Previewable @State var note = ""
-    @Previewable @State var selectedDays: Set<Int> = [2]
-    @Previewable @State var daysOfMonth: Set<Int> = [1]
-    @Previewable @State var annualMonth = Calendar.current.component(.month, from: Date())
-    @Previewable @State var annualDay = Calendar.current.component(.day, from: Date())
-    @Previewable @State var annualYear = Calendar.current.component(.year, from: Date())
-    @Previewable @State var startMonth = Calendar.current.component(.month, from: Date())
-    @Previewable @State var startYear = Calendar.current.component(.year, from: Date())
-    @Previewable @State var category: AlarmCategory?
-    @Previewable @State var preAlarmOffsets: Set<PreAlarmOffset> = []
-    @Previewable @State var oneTimeDate = Date()
-    @Previewable @State var soundName = "alarm"
-    @Previewable @State var followUpInterval = FollowUpInterval.thirtyMinutes
+/// One weekday chip: the very short symbol on screen, the full localized name for VoiceOver.
+private struct Weekday {
+    let weekday: Int
+    var initial: String { Calendar.current.veryShortStandaloneWeekdaySymbols[weekday - 1] }
+    var name: String { Calendar.current.standaloneWeekdaySymbols[weekday - 1] }
+}
 
-    ScrollView {
-        AlarmCreationForm(
-            title: $title,
-            cycleType: $cycleType,
-            repeatInterval: $repeatInterval,
-            timesOfDay: $timesOfDay,
-            isPersistent: $isPersistent,
-            note: $note,
-            selectedDays: $selectedDays,
-            daysOfMonth: $daysOfMonth,
-            annualMonth: $annualMonth,
-            annualDay: $annualDay,
-            annualYear: $annualYear,
-            startMonth: $startMonth,
-            startYear: $startYear,
-            category: $category,
-            preAlarmOffsets: $preAlarmOffsets,
-            oneTimeDate: $oneTimeDate,
-            soundName: $soundName,
-            followUpInterval: $followUpInterval,
-            isPlusTier: true
-        )
+/// Month / (day) / year menus for "First Occurrence". Stacks vertically when the menus no longer fit
+/// one row (large text sizes).
+private struct FirstOccurrencePicker: View {
+    @Binding var month: Int
+    var day: Binding<Int>?
+    @Binding var year: Int
+    var daysInMonth = 31
+    let yearsAhead: Int
+
+    init(month: Binding<Int>, day: Binding<Int>? = nil, year: Binding<Int>, daysInMonth: Int = 31, yearsAhead: Int) {
+        self._month = month
+        self.day = day
+        self._year = year
+        self.daysInMonth = daysInMonth
+        self.yearsAhead = yearsAhead
     }
-    .background(ColorTokens.backgroundPrimary)
+
+    private var currentYear: Int { Calendar.current.component(.year, from: Date()) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            ChronirText("First Occurrence", style: .labelMedium, color: ColorTokens.textSecondary)
+                .accessibilityAddTraits(.isHeader)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: SpacingTokens.sm) {
+                    menus
+                    Spacer()
+                }
+                VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                    menus
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var menus: some View {
+        Picker("Month", selection: $month) {
+            ForEach(1...12, id: \.self) { month in
+                Text(Calendar.current.monthSymbols[month - 1]).tag(month)
+            }
+        }
+        .pickerStyle(.menu)
+        .fixedSize()
+
+        if let day {
+            Picker("Day", selection: day) {
+                ForEach(1...daysInMonth, id: \.self) { day in
+                    Text("\(day)").tag(day)
+                }
+            }
+            .pickerStyle(.menu)
+            .fixedSize()
+        }
+
+        Picker("Year", selection: $year) {
+            ForEach(currentYear...currentYear + yearsAhead, id: \.self) { year in
+                Text(String(year)).tag(year)
+            }
+        }
+        .pickerStyle(.menu)
+        .fixedSize()
+    }
+}
+
+/// Inset-grouped section: a header above a `surfaceCard` panel, so the long form reads as
+/// Name & Schedule / Time / Alerts / Details instead of one undifferentiated column.
+private struct FormSection<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: () -> Content
+
+    init(_ title: String, @ViewBuilder content: @escaping () -> Content) {
+        self.title = title
+        self.content = content
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            ChronirText(title, style: .titleSmall, color: ColorTokens.textPrimary)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.horizontal, SpacingTokens.xxs)
+            VStack(alignment: .leading, spacing: SpacingTokens.lg) {
+                content()
+            }
+            .padding(SpacingTokens.md)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .chronirGlassCard()
+        }
+    }
 }

@@ -4,6 +4,7 @@ import SwiftUI
 struct AlarmListEntry: TimelineEntry {
     let date: Date
     let alarms: [WidgetAlarmData]
+    var relevance: TimelineEntryRelevance?
 }
 
 struct AlarmListTimelineProvider: TimelineProvider {
@@ -47,17 +48,26 @@ struct AlarmListTimelineProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<AlarmListEntry>) -> Void) {
         let alarms = Array(WidgetDataReader.loadAlarms().prefix(5))
-        let entry = AlarmListEntry(date: Date(), alarms: alarms)
+        let now = Date()
+        let soonestFire = alarms.first?.nextFireDate
 
         // Refresh at the soonest alarm's fire time, or every 15 minutes
         let refreshDate: Date
-        if let soonest = alarms.first?.nextFireDate,
+        if let soonest = soonestFire,
            soonest.timeIntervalSinceNow < 86400 && soonest.timeIntervalSinceNow > 0 {
             refreshDate = soonest
         } else {
-            refreshDate = Date().addingTimeInterval(900)
+            refreshDate = now.addingTimeInterval(900)
         }
 
-        completion(Timeline(entries: [entry], policy: .after(refreshDate)))
+        let entries = WidgetRelevance.entryDates(now: now, fireDate: soonestFire, until: refreshDate)
+            .map { date in
+                AlarmListEntry(
+                    date: date,
+                    alarms: alarms,
+                    relevance: WidgetRelevance.relevance(at: date, fireDate: soonestFire)
+                )
+            }
+        completion(Timeline(entries: entries, policy: .after(refreshDate)))
     }
 }

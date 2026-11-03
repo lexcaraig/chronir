@@ -14,13 +14,14 @@ struct CompletionLogRow: View {
         }
     }
 
-    private var actionColor: Color {
+    /// Badge fill + text pair (>= 4.5:1). The fill doubles as the leading icon tint.
+    private var actionColors: (background: Color, foreground: Color) {
         switch log.action {
-        case .completed: return ColorTokens.badgeSuccess
-        case .snoozed: return ColorTokens.badgeWarning
-        case .dismissed: return ColorTokens.badgeError
-        case .skipped: return ColorTokens.textSecondary
-        case .pendingConfirmation: return ColorTokens.info
+        case .completed: return (ColorTokens.badgeSuccessBackground, ColorTokens.badgeSuccessForeground)
+        case .snoozed: return (ColorTokens.badgeWarningBackground, ColorTokens.badgeWarningForeground)
+        case .dismissed: return (ColorTokens.badgeErrorBackground, ColorTokens.badgeErrorForeground)
+        case .skipped: return (ColorTokens.badgeNeutralBackground, ColorTokens.badgeNeutralForeground)
+        case .pendingConfirmation: return (ColorTokens.badgeInfoBackground, ColorTokens.badgeInfoForeground)
         }
     }
 
@@ -37,9 +38,10 @@ struct CompletionLogRow: View {
     var body: some View {
         HStack(spacing: SpacingTokens.md) {
             Image(systemName: actionIcon)
-                .foregroundStyle(actionColor)
+                .foregroundStyle(log.action == .skipped ? ColorTokens.textSecondary : actionColors.background)
                 .font(.title3)
-                .frame(width: 28)
+                .frame(minWidth: SpacingTokens.lg + SpacingTokens.xxs)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
                 if let title = alarmTitle {
@@ -58,12 +60,44 @@ struct CompletionLogRow: View {
                 if log.snoozeCount > 0 {
                     ChronirBadge(
                         "\(log.snoozeCount)x snoozed",
-                        color: ColorTokens.badgeWarning
+                        color: ColorTokens.badgeWarningBackground,
+                        foreground: ColorTokens.badgeWarningForeground
                     )
                 }
-                ChronirBadge(actionLabel, color: actionColor, icon: actionIcon)
+                ChronirBadge(
+                    actionLabel,
+                    color: actionColors.background,
+                    icon: actionIcon,
+                    foreground: actionColors.foreground
+                )
             }
         }
         .padding(.vertical, SpacingTokens.xs)
+        .accessibilityElement(children: .combine)
     }
+}
+
+private struct CompletionLogRowGallery: View {
+    var body: some View {
+        List {
+            CompletionLogRow(log: CompletionLog(alarmID: UUID(), action: .completed), alarmTitle: "Pay Rent")
+            CompletionLogRow(
+                log: CompletionLog(alarmID: UUID(), action: .snoozed, snoozeCount: 2),
+                alarmTitle: "Renew Passport"
+            )
+            CompletionLogRow(log: CompletionLog(alarmID: UUID(), action: .skipped), alarmTitle: nil)
+            CompletionLogRow(log: CompletionLog(alarmID: UUID(), action: .pendingConfirmation), alarmTitle: "Vet Visit")
+        }
+        .scrollContentBackground(.hidden)
+        .background(ColorTokens.backgroundPrimary)
+    }
+}
+
+#Preview("Light") {
+    CompletionLogRowGallery()
+}
+
+#Preview("Dark") {
+    CompletionLogRowGallery()
+        .environment(\.colorScheme, .dark)
 }

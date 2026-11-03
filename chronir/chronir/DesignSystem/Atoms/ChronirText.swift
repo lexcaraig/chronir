@@ -51,40 +51,51 @@ enum ChronirTextStyle {
     case labelSmall
     case caption
 
-    /// Base size, weight, and design for each style (scale = 1.0).
-    var baseAttributes: FontAttributes {
+    /// Generated token spec (size, weight, design, Dynamic Type text style).
+    var spec: TypographyTokens.Spec {
         switch self {
-        // Spec-aligned aliases resolve to their underlying token values
-        case .displayAlarm, .displayLarge: FontAttributes(size: 120, weight: .bold, design: .rounded)
-        case .displayMedium: FontAttributes(size: 57, weight: .bold, design: .rounded)
-        case .displaySmall: FontAttributes(size: 36, weight: .bold, design: .rounded)
-        case .headlineLarge: FontAttributes(size: 32, weight: .semibold, design: .default)
-        case .headlineMedium: FontAttributes(size: 28, weight: .semibold, design: .default)
-        case .headlineSmall, .headlineTime, .headlineTitle:
-            FontAttributes(size: 24, weight: .semibold, design: .default)
-        case .titleLarge: FontAttributes(size: 22, weight: .medium, design: .default)
-        case .titleMedium: FontAttributes(size: 18, weight: .medium, design: .default)
-        case .titleSmall: FontAttributes(size: 16, weight: .medium, design: .default)
-        case .bodyLarge, .bodyPrimary: FontAttributes(size: 16, weight: .regular, design: .default)
-        case .bodyMedium, .bodySecondary: FontAttributes(size: 14, weight: .regular, design: .default)
-        case .bodySmall: FontAttributes(size: 12, weight: .regular, design: .default)
-        case .labelLarge, .captionCountdown: FontAttributes(size: 14, weight: .medium, design: .default)
-        case .labelMedium, .captionBadge: FontAttributes(size: 12, weight: .medium, design: .default)
-        case .labelSmall: FontAttributes(size: 11, weight: .medium, design: .default)
-        case .caption: FontAttributes(size: 10, weight: .regular, design: .default)
+        case .displayAlarm: TypographyTokens.displayAlarmSpec
+        case .headlineTime: TypographyTokens.headlineTimeSpec
+        case .headlineTitle: TypographyTokens.headlineTitleSpec
+        case .bodyPrimary: TypographyTokens.bodyPrimarySpec
+        case .bodySecondary: TypographyTokens.bodySecondarySpec
+        case .captionCountdown: TypographyTokens.captionCountdownSpec
+        case .captionBadge: TypographyTokens.captionBadgeSpec
+        case .displayLarge: TypographyTokens.displayLargeSpec
+        case .displayMedium: TypographyTokens.displayMediumSpec
+        case .displaySmall: TypographyTokens.displaySmallSpec
+        case .headlineLarge: TypographyTokens.headlineLargeSpec
+        case .headlineMedium: TypographyTokens.headlineMediumSpec
+        case .headlineSmall: TypographyTokens.headlineSmallSpec
+        case .titleLarge: TypographyTokens.titleLargeSpec
+        case .titleMedium: TypographyTokens.titleMediumSpec
+        case .titleSmall: TypographyTokens.titleSmallSpec
+        case .bodyLarge: TypographyTokens.bodyLargeSpec
+        case .bodyMedium: TypographyTokens.bodyMediumSpec
+        case .bodySmall: TypographyTokens.bodySmallSpec
+        case .labelLarge: TypographyTokens.labelLargeSpec
+        case .labelMedium: TypographyTokens.labelMediumSpec
+        case .labelSmall: TypographyTokens.labelSmallSpec
+        case .caption: TypographyTokens.captionSpec
         }
     }
 
-    /// Unscaled font (scale = 1.0). Used by widgets and backward-compat paths.
-    var font: Font {
-        let attr = baseAttributes
-        return Font.system(size: attr.size, weight: attr.weight, design: attr.design)
+    /// Base size, weight, and design for each style (default Dynamic Type size, scale = 1.0).
+    var baseAttributes: FontAttributes {
+        FontAttributes(size: spec.size, weight: spec.weight, design: spec.design)
     }
 
-    /// Scaled font using the given scale factor.
+    /// Unscaled font (no Dynamic Type, scale = 1.0). Used by widgets and backward-compat paths.
+    var font: Font { spec.font }
+
+    /// Font scaled by the in-app text-size multiplier only (no Dynamic Type).
     func font(scale: CGFloat) -> Font {
-        let attr = baseAttributes
-        return TypographyTokens.scaled(size: attr.size, weight: attr.weight, design: attr.design, scale: scale)
+        TypographyTokens.scaled(size: spec.size, weight: spec.weight, design: spec.design, scale: scale)
+    }
+
+    /// Dynamic Type metric for this style — the base size scaled relative to its text style.
+    var scaledMetric: ScaledMetric<CGFloat> {
+        ScaledMetric(wrappedValue: spec.size, relativeTo: spec.textStyle)
     }
 }
 
@@ -99,6 +110,7 @@ struct ChronirText: View {
     var minimumScaleFactor: CGFloat
 
     @Environment(\.textSizeScale) private var textSizeScale
+    @ScaledMetric private var dynamicSize: CGFloat
 
     init(
         _ text: String,
@@ -114,11 +126,12 @@ struct ChronirText: View {
         self.maxLines = maxLines
         self.alignment = alignment
         self.minimumScaleFactor = minimumScaleFactor
+        _dynamicSize = style.scaledMetric
     }
 
     var body: some View {
         Text(text)
-            .font(style.font(scale: textSizeScale))
+            .font(style.spec.font(size: style.spec.resolvedSize(dynamicSize: dynamicSize, appScale: textSizeScale)))
             .foregroundStyle(color)
             .lineLimit(maxLines)
             .multilineTextAlignment(alignment)
@@ -128,12 +141,19 @@ struct ChronirText: View {
 
 // MARK: - View Modifier for Direct .font() Call Sites
 
+/// Applies a Chronir type style that scales with Dynamic Type, then by the in-app text-size preference.
 struct ChronirFontModifier: ViewModifier {
     @Environment(\.textSizeScale) private var scale
+    @ScaledMetric private var dynamicSize: CGFloat
     let style: ChronirTextStyle
 
+    init(style: ChronirTextStyle) {
+        self.style = style
+        _dynamicSize = style.scaledMetric
+    }
+
     func body(content: Content) -> some View {
-        content.font(style.font(scale: scale))
+        content.font(style.spec.font(size: style.spec.resolvedSize(dynamicSize: dynamicSize, appScale: scale)))
     }
 }
 
@@ -182,4 +202,28 @@ extension View {
         .padding()
     }
     .background(ColorTokens.backgroundPrimary)
+}
+
+#Preview("Dynamic Type — Accessibility 3") {
+    VStack(alignment: .leading, spacing: SpacingTokens.sm) {
+        ChronirText("Screen Title", style: .headlineTitle)
+        ChronirText("Primary body text", style: .bodyPrimary)
+        ChronirText("Alarm in 6h 32m", style: .captionCountdown, color: ColorTokens.textSecondary)
+        ChronirText("Caption", style: .caption, color: ColorTokens.textTertiary)
+    }
+    .padding()
+    .background(ColorTokens.backgroundPrimary)
+    .dynamicTypeSize(.accessibility3)
+}
+
+#Preview("Dark") {
+    DarkPreview {
+        VStack(alignment: .leading, spacing: SpacingTokens.sm) {
+            ChronirText("Screen Title", style: .headlineTitle)
+            ChronirText("Primary body text", style: .bodyPrimary)
+            ChronirText("Secondary metadata", style: .bodySecondary, color: ColorTokens.textSecondary)
+            ChronirText("Caption", style: .caption, color: ColorTokens.textTertiary)
+        }
+        .padding()
+    }
 }

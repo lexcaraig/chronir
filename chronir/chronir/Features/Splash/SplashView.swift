@@ -1,9 +1,8 @@
 import SwiftUI
 
 struct SplashView: View {
-    @Environment(\.chronirTheme) private var theme
-    @State private var logoScale: CGFloat = 0.85
-    @State private var logoOpacity: CGFloat = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var logoScale: CGFloat = 0.92
 
     var body: some View {
         ZStack {
@@ -13,13 +12,13 @@ struct SplashView: View {
             Image("SplashLogo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 180, height: 180)
-                .scaleEffect(logoScale)
-                .opacity(logoOpacity)
+                .frame(width: SpacingTokens.splashLogoSize, height: SpacingTokens.splashLogoSize)
+                .scaleEffect(reduceMotion ? 1 : logoScale)
+                .accessibilityHidden(true)
         }
         .onAppear {
-            withAnimation(.easeOut(duration: 0.6)) {
-                logoOpacity = 1.0
+            guard !reduceMotion else { return }
+            withAnimation(AnimationTokens.standard) {
                 logoScale = 1.0
             }
         }
@@ -28,12 +27,10 @@ struct SplashView: View {
 
 #Preview("Light") {
     SplashView()
-        .environment(\.chronirTheme, .light)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dark") {
     SplashView()
-        .environment(\.chronirTheme, .dark)
         .preferredColorScheme(.dark)
 }

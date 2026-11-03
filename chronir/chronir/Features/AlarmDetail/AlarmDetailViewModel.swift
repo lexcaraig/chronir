@@ -31,6 +31,8 @@ final class AlarmDetailViewModel {
     var followUpInterval: FollowUpInterval = .thirtyMinutes
     var selectedImage: UIImage?
     var removePhoto = false
+    /// Set by the view when the user picks or removes a photo (UIImage isn't comparable).
+    var photoEdited = false
     var isLoading: Bool = false
     var errorMessage: String?
     var titleError: String?
@@ -38,6 +40,45 @@ final class AlarmDetailViewModel {
     var showWarningDialog: Bool = false
 
     private let dateCalculator = DateCalculator()
+    private var loadedSnapshot: EditSnapshot?
+
+    /// Every editable field, so the view can tell whether anything changed since load.
+    private struct EditSnapshot: Equatable {
+        var title: String
+        var cycleType: CycleType
+        var repeatInterval: Int
+        var timesOfDay: [TimeOfDay]
+        var isPersistent: Bool
+        var note: String
+        var selectedDays: Set<Int>
+        var daysOfMonth: Set<Int>
+        var annualMonth: Int
+        var annualDay: Int
+        var annualYear: Int
+        var startMonth: Int
+        var startYear: Int
+        var category: AlarmCategory?
+        var preAlarmOffsets: Set<PreAlarmOffset>
+        var oneTimeDate: Date
+        var soundName: String
+        var followUpInterval: FollowUpInterval
+    }
+
+    private var currentSnapshot: EditSnapshot {
+        EditSnapshot(
+            title: title, cycleType: cycleType, repeatInterval: repeatInterval, timesOfDay: timesOfDay,
+            isPersistent: isPersistent, note: note, selectedDays: selectedDays, daysOfMonth: daysOfMonth,
+            annualMonth: annualMonth, annualDay: annualDay, annualYear: annualYear,
+            startMonth: startMonth, startYear: startYear, category: category,
+            preAlarmOffsets: preAlarmOffsets, oneTimeDate: oneTimeDate, soundName: soundName,
+            followUpInterval: followUpInterval
+        )
+    }
+
+    var hasUnsavedChanges: Bool {
+        guard let loadedSnapshot else { return false }
+        return photoEdited || currentSnapshot != loadedSnapshot
+    }
 
     func loadAlarm(id: UUID, context: ModelContext) {
         isLoading = true
@@ -95,6 +136,8 @@ final class AlarmDetailViewModel {
             case .oneTime(let fireDate):
                 self.oneTimeDate = fireDate
             }
+            loadedSnapshot = currentSnapshot
+            photoEdited = false
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -209,21 +252,22 @@ final class AlarmDetailViewModel {
 
         do {
             try context.save()
-            if UserSettings.shared.hapticsEnabled {
-                HapticService.shared.playSuccess()
-            }
             titleError = nil
             warningMessage = nil
             showWarningDialog = false
+            loadedSnapshot = currentSnapshot
+            photoEdited = false
             let alarmToSchedule = alarm
-            Task {
-                do {
-                    try await AlarmScheduler.shared.cancelAlarm(alarmToSchedule)
-                    if alarmToSchedule.isEnabled {
-                        try await AlarmScheduler.shared.scheduleAlarm(alarmToSchedule)
+            Task { @MainActor in
+                // A failed registration is surfaced on the alarm list; AlarmKit never launches the
+                // app, so it would not fix itself on a later launch.
+                let scheduled = await AlarmSchedulingStatus.shared.reschedule(alarmToSchedule)
+                if UserSettings.shared.hapticsEnabled {
+                    if scheduled {
+                        HapticService.shared.playSuccess()
+                    } else {
+                        HapticService.shared.playError()
                     }
-                } catch {
-                    // Reschedule failed — alarm will fire on next app launch
                 }
                 await CloudSyncService.shared.pushAlarmModel(alarmToSchedule)
             }
@@ -244,8 +288,9 @@ final class AlarmDetailViewModel {
         // Cancel AlarmKit alarms + all pre-alarm/backup notifications before deleting
         let alarmID = alarm.id
         let alarmIDString = alarmID.uuidString
-        Task {
+        Task { @MainActor in
             try? await AlarmScheduler.shared.cancelAlarm(alarm)
+            AlarmSchedulingStatus.shared.clear(alarmID)
         }
         context.delete(alarm)
         do {

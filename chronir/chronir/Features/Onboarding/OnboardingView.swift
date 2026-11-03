@@ -1,10 +1,15 @@
 import SwiftUI
+import AlarmKit
 
 struct OnboardingView: View {
     @Bindable private var settings = UserSettings.shared
     @Environment(\.chronirTheme) private var theme
     @State private var currentPage = 0
     @State private var permissionGranted = false
+    @State private var permissionDenied = false
+    @State private var isRequestingPermission = false
+    @Environment(\.openURL) private var openURL
+    @ScaledMetric(relativeTo: .largeTitle) private var iconCircleSize: CGFloat = 96
 
     var body: some View {
         TabView(selection: $currentPage) {
@@ -13,10 +18,10 @@ struct OnboardingView: View {
             permissionPage.tag(2)
         }
         .tabViewStyle(.page(indexDisplayMode: .always))
+        .indexViewStyle(.page(backgroundDisplayMode: .interactive))
         .background {
             ColorTokens.backgroundPrimary.ignoresSafeArea()
         }
-        .ignoresSafeArea()
     }
 
     // MARK: - Page 1: Welcome
@@ -27,12 +32,12 @@ struct OnboardingView: View {
             iconCircle(systemName: "bell.fill", color: ColorTokens.primary)
                 .padding(.bottom, SpacingTokens.lg)
             ChronirText(
-                "Never Forget\nWhat Matters",
+                "Never Forget What Matters",
                 style: .headlineTitle,
                 alignment: .center
             )
             ChronirText(
-                "High-persistence alarms for the obligations\nthat can't be missed.",
+                "High-persistence alarms for the obligations that can't be missed.",
                 style: .bodySecondary,
                 color: ColorTokens.textSecondary,
                 alignment: .center
@@ -40,7 +45,7 @@ struct OnboardingView: View {
             Spacer()
             nextButton
         }
-        .padding(SpacingTokens.xl)
+        .modifier(OnboardingPagePadding())
     }
 
     // MARK: - Page 2: Schedules
@@ -51,14 +56,13 @@ struct OnboardingView: View {
             iconCircle(systemName: "calendar.badge.clock", color: ColorTokens.warning)
                 .padding(.bottom, SpacingTokens.lg)
             ChronirText(
-                "Weekly, Monthly,\nAnnually",
+                "Weekly, Monthly, Annually",
                 style: .headlineTitle,
                 alignment: .center
             )
             ChronirText(
-                "Set recurring alarms on any cycle.\n"
-                    + "Rent day, medication refills,\n"
-                    + "insurance renewals \u{2014} all covered.",
+                "Set recurring alarms on any cycle. "
+                    + "Rent day, medication refills, insurance renewals \u{2014} all covered.",
                 style: .bodySecondary,
                 color: ColorTokens.textSecondary,
                 alignment: .center
@@ -66,7 +70,7 @@ struct OnboardingView: View {
             Spacer()
             nextButton
         }
-        .padding(SpacingTokens.xl)
+        .modifier(OnboardingPagePadding())
     }
 
     // MARK: - Page 3: Permissions
@@ -74,62 +78,102 @@ struct OnboardingView: View {
     private var permissionPage: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
-            iconCircle(systemName: "shield.checkered", color: ColorTokens.success)
-                .padding(.bottom, SpacingTokens.lg)
+            iconCircle(
+                systemName: permissionDenied ? "alarm.waves.left.and.right" : "alarm.fill",
+                color: permissionDenied ? ColorTokens.warning : ColorTokens.success
+            )
+            .padding(.bottom, SpacingTokens.lg)
             ChronirText(
-                "Stay Notified",
+                permissionDenied ? "Alarms Are Off" : "Allow Alarms",
                 style: .headlineTitle,
                 alignment: .center
             )
+            .accessibilityAddTraits(.isHeader)
             ChronirText(
-                "Chronir needs notification access to fire alarms\neven when the app is closed.",
+                permissionDenied
+                    ? "Chronir can't ring until alarms are allowed. "
+                        + "Turn on Alarms and Notifications for Chronir in Settings."
+                    : "Chronir uses iOS alarms so reminders ring through Silent and Focus, "
+                        + "even when the app is closed. "
+                        + "You'll also be asked to allow notifications for early warnings.",
                 style: .bodySecondary,
                 color: ColorTokens.textSecondary,
                 alignment: .center
             )
             Spacer()
-            if permissionGranted {
-                ChronirButton("Get Started") {
-                    AnalyticsService.shared.logEvent(AnalyticsEvent.onboardingCompleted, parameters: [
-                        "skipped_permission": false
-                    ])
-                    settings.hasCompletedOnboarding = true
-                }
-            } else {
-                ChronirButton("Enable Alarms") {
-                    Task {
-                        let granted = await PermissionManager.shared.requestAlarmPermission()
-                        permissionGranted = granted
-                        if granted {
-                            AnalyticsService.shared.logEvent(AnalyticsEvent.onboardingCompleted, parameters: [
-                                "skipped_permission": false
-                            ])
-                            settings.hasCompletedOnboarding = true
-                        }
-                    }
-                }
-                Button {
-                    AnalyticsService.shared.logEvent(AnalyticsEvent.onboardingCompleted, parameters: [
-                        "skipped_permission": true
-                    ])
-                    settings.hasCompletedOnboarding = true
-                } label: {
-                    ChronirText("Skip for now", style: .bodySecondary, color: ColorTokens.textSecondary)
-                }
-                .padding(.top, SpacingTokens.xs)
+            permissionActions
+        }
+        .modifier(OnboardingPagePadding())
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            // Returning from Settings: pick up a permission the user just turned on.
+            guard permissionDenied else { return }
+            if AlarmManager.shared.authorizationState == .authorized {
+                permissionDenied = false
+                permissionGranted = true
             }
         }
-        .padding(SpacingTokens.xl)
+    }
+
+    @ViewBuilder
+    private var permissionActions: some View {
+        if permissionGranted {
+            ChronirButton("Get Started") {
+                completeOnboarding(skippedPermission: false)
+            }
+        } else if permissionDenied {
+            ChronirButton("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    openURL(url)
+                }
+            }
+            skipButton("Continue Without Alarms")
+        } else {
+            ChronirButton(isRequestingPermission ? "Requesting\u{2026}" : "Allow Alarms") {
+                guard !isRequestingPermission else { return }
+                isRequestingPermission = true
+                Task {
+                    let granted = await PermissionManager.shared.requestAlarmPermission()
+                    isRequestingPermission = false
+                    if granted {
+                        permissionGranted = true
+                        completeOnboarding(skippedPermission: false)
+                    } else {
+                        permissionDenied = true
+                    }
+                }
+            }
+            .disabled(isRequestingPermission)
+            skipButton("Skip for Now")
+        }
+    }
+
+    private func skipButton(_ title: String) -> some View {
+        Button {
+            completeOnboarding(skippedPermission: true)
+        } label: {
+            ChronirText(title, style: .bodySecondary, color: ColorTokens.textSecondary)
+                .frame(maxWidth: .infinity, minHeight: SpacingTokens.touchMinTarget)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func completeOnboarding(skippedPermission: Bool) {
+        AnalyticsService.shared.logEvent(AnalyticsEvent.onboardingCompleted, parameters: [
+            "skipped_permission": skippedPermission
+        ])
+        settings.hasCompletedOnboarding = true
     }
 
     // MARK: - Helpers
 
     private func iconCircle(systemName: String, color: Color) -> some View {
         Image(systemName: systemName)
-            .font(.system(size: 40, weight: .medium))
+            .font(.largeTitle.weight(.medium))
             .foregroundStyle(color)
-            .frame(width: 96, height: 96)
+            .frame(width: iconCircleSize, height: iconCircleSize)
             .background(color.opacity(0.12), in: .circle)
+            .accessibilityHidden(true)
     }
 
     private var nextButton: some View {
@@ -138,6 +182,16 @@ struct OnboardingView: View {
                 currentPage += 1
             }
         }
+    }
+}
+
+/// Side padding plus room at the bottom for the page indicator, inside the safe area.
+private struct OnboardingPagePadding: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, SpacingTokens.xl)
+            .padding(.top, SpacingTokens.lg)
+            .padding(.bottom, SpacingTokens.xxxl)
     }
 }
 

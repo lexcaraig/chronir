@@ -19,7 +19,7 @@ final class SystemSurfacesUITests: XCTestCase {
         app.activate()
         let notNow = springboard.buttons["Not Now"] // App Store rating prompt triggered by completions
         if notNow.waitForExistence(timeout: 3) { notNow.tap() }
-        if !app.staticTexts["Alarms"].exists, app.navigationBars.buttons.firstMatch.exists {
+        if !app.navigationBars["Alarms"].exists, app.navigationBars.buttons.firstMatch.exists {
             app.navigationBars.buttons.firstMatch.tap() // back out of detail
         }
         _ = deleteAlarm(labelPrefix: title)
@@ -29,7 +29,7 @@ final class SystemSurfacesUITests: XCTestCase {
     func testDeepLinkCreateAndSiriMarkDone() throws {
         // FEAT-07 — the "New Alarm" control opens chronir://new.
         openURL("chronir://new")
-        let nameField = app.textFields["Enter a name..."]
+        let nameField = app.textFields["Alarm Name"] // LabeledTextField labels its TextField with `label`
         XCTAssertTrue(nameField.waitForExistence(timeout: 10), "chronir://new didn't open creation")
         attachScreenshot("00-creation-from-deeplink")
         let closeTip = app.buttons["Close"]
@@ -38,17 +38,18 @@ final class SystemSurfacesUITests: XCTestCase {
         nameField.typeText(title)
         app.buttons["Save"].tap()
         allowSystemAlerts()
-        XCTAssertTrue(app.staticTexts[title].waitForExistence(timeout: 10), "Created alarm not in list")
+        let row = alarmRow(labelPrefix: title)
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "Created alarm not in list")
         attachScreenshot("01-created")
 
         // FEAT-08 indexing is covered by CompleteAlarmIntentTests.spotlightIndexRoundTrip(); Spotlight's own
         // result ranking (web suggestions first) isn't deterministic enough to drive here.
         sleep(30) // Siri registers new App Shortcut parameter values (alarm names) asynchronously
 
-        // FEAT-06 — Siri marks it done; verify the effect in Chronir (the countdown jumps a cycle).
-        let countdown = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Alarm in")).firstMatch
-        XCTAssertTrue(countdown.waitForExistence(timeout: 5))
-        let before = countdown.label
+        // FEAT-06 — Siri marks it done; verify the effect in Chronir (the row's "Next <date>" jumps a cycle).
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        let before = row.label
+        XCTAssertTrue(before.contains("Next "), "Row label has no next fire date: \(before)")
         XCUIDevice.shared.siriService.activate(voiceRecognitionText: "Mark an alarm as done in Chronir")
         sleep(5) // Siri asks "Which alarm?"
         let ask = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
@@ -65,10 +66,10 @@ final class SystemSurfacesUITests: XCTestCase {
         }
         app.activate()
         let changed = NSPredicate(format: "label != %@", before)
-        expectation(for: changed, evaluatedWith: countdown)
+        expectation(for: changed, evaluatedWith: row)
         waitForExpectations(timeout: 15)
         attachScreenshot("05-after-siri")
-        XCTAssertNotEqual(countdown.label, before, "Siri didn't advance the alarm")
+        XCTAssertNotEqual(row.label, before, "Siri didn't advance the alarm")
     }
 
     // MARK: - Helpers
@@ -88,10 +89,16 @@ final class SystemSurfacesUITests: XCTestCase {
         }
     }
 
+    /// An alarm list row is one button-type element whose label starts with the alarm title
+    /// ("<title>, <schedule>, ..., Next <date>") — see AlarmListRow.accessibilityLabel.
+    private func alarmRow(labelPrefix: String) -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", labelPrefix)).firstMatch
+    }
+
     /// Deletes the first alarm whose title starts with `labelPrefix`. Returns false when none is left.
     @discardableResult
     private func deleteAlarm(labelPrefix: String) -> Bool {
-        let row = app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", labelPrefix)).firstMatch
+        let row = alarmRow(labelPrefix: labelPrefix)
         guard row.waitForExistence(timeout: 3) else { return false }
         row.swipeLeft()
         let swipeDelete = app.buttons["Delete"]

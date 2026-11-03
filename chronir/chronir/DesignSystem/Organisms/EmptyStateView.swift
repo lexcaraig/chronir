@@ -3,6 +3,8 @@ import SwiftUI
 struct EmptyStateView: View {
     let onCreateAlarm: () -> Void
 
+    @ScaledMetric(relativeTo: .largeTitle) private var iconSize: CGFloat = 64
+
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
@@ -10,14 +12,16 @@ struct EmptyStateView: View {
             Image(systemName: "bell.slash")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 64, height: 64)
+                .frame(width: iconSize, height: iconSize)
                 .foregroundStyle(ColorTokens.textSecondary)
+                .accessibilityHidden(true)
 
             ChronirText(
                 "No alarms yet",
                 style: .headlineTitle,
                 alignment: .center
             )
+            .accessibilityAddTraits(.isHeader)
 
             ChronirText(
                 "Set recurring alarms that fire weekly, monthly, or yearly.",

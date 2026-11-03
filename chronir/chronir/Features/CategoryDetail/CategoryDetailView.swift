@@ -4,17 +4,21 @@ import SwiftData
 struct CategoryDetailView: View {
     let category: AlarmCategory
     @Query(sort: \Alarm.nextFireDate) private var allAlarms: [Alarm]
+    @Query private var completionLogs: [CompletionLog]
     @Environment(\.modelContext) private var modelContext
-    @State private var enabledStates: [UUID: Bool] = [:]
     @State private var selectedAlarmID: UUID?
     @State private var alarmToDelete: Alarm?
-    @State private var confirmedAlarmIDs: Set<UUID> = []
+    @State private var alarmToSkip: Alarm?
+    @State private var showUpgradePrompt = false
+    private let schedulingStatus = AlarmSchedulingStatus.shared
 
     private var categoryAlarms: [Alarm] {
         allAlarms.filter { $0.alarmCategory == category }
     }
 
     var body: some View {
+        let streaks = AlarmRowActions.streaks(from: completionLogs)
+        let isPlusUser = SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
         List {
             if categoryAlarms.isEmpty {
                 ContentUnavailableView(
@@ -27,12 +31,23 @@ struct CategoryDetailView: View {
             } else {
                 Section {
                     ForEach(categoryAlarms) { alarm in
-                        alarmRow(alarm)
+                        AlarmListRow(
+                            alarm: alarm,
+                            isEnabled: enabledBinding(for: alarm),
+                            streak: streaks[alarm.id] ?? 0,
+                            isPlusUser: isPlusUser,
+                            isUnscheduled: schedulingStatus.failedAlarmIDs.contains(alarm.id),
+                            onOpen: { selectedAlarmID = alarm.id },
+                            onDelete: { alarmToDelete = alarm },
+                            onSkip: { alarmToSkip = alarm },
+                            onConfirmDone: { AlarmRowActions.confirmPending(alarm, context: modelContext) }
+                        )
                     }
                 } header: {
                     HStack(spacing: SpacingTokens.xs) {
                         Image(systemName: category.iconName)
                             .foregroundStyle(category.color)
+                            .accessibilityHidden(true)
                         ChronirText(
                             "\(categoryAlarms.count) alarm\(categoryAlarms.count == 1 ? "" : "s")",
                             style: .labelLarge,
@@ -51,144 +66,29 @@ struct CategoryDetailView: View {
         .navigationDestination(item: $selectedAlarmID) { alarmID in
             AlarmDetailView(alarmID: alarmID)
         }
-        .alert(
-            "Delete Alarm",
-            isPresented: Binding(
-                get: { alarmToDelete != nil },
-                set: { if !$0 { alarmToDelete = nil } }
-            ),
-            presenting: alarmToDelete
-        ) { alarm in
-            Button("Cancel", role: .cancel) {
-                alarmToDelete = nil
-            }
-            Button("Delete", role: .destructive) {
-                deleteAlarm(alarm)
-                alarmToDelete = nil
-            }
-        } message: { alarm in
-            Text("Are you sure you want to delete \"\(alarm.title)\"?")
+        .fullScreenCover(isPresented: $showUpgradePrompt) {
+            PaywallView(highlight: .unlimitedAlarms)
         }
-        .onChange(of: enabledStates) {
-            for (id, isEnabled) in enabledStates {
-                if let alarm = allAlarms.first(where: { $0.id == id }) {
-                    alarm.isEnabled = isEnabled
-                    alarm.updatedAt = Date()
-                    Task {
-                        do {
-                            if isEnabled {
-                                if alarm.nextFireDate < Date() {
-                                    alarm.nextFireDate = DateCalculator().calculateNextFireDate(for: alarm, from: Date())
-                                }
-                                try await AlarmScheduler.shared.scheduleAlarm(alarm)
-                            } else {
-                                try await AlarmScheduler.shared.cancelAlarm(alarm)
-                            }
-                        } catch {
-                            // Toggle failed — alarm state will reconcile on next launch
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private func visualState(for alarm: Alarm) -> AlarmVisualState {
-        let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-        if !isEnabled { return .inactive }
-        if alarm.isPendingConfirmation && !confirmedAlarmIDs.contains(alarm.id) { return .pending }
-        if alarm.snoozeCount > 0 { return .snoozed }
-        return .active
+        .alarmRowConfirmations(alarmToDelete: $alarmToDelete, alarmToSkip: $alarmToSkip, context: modelContext)
     }
 
     private func enabledBinding(for alarm: Alarm) -> Binding<Bool> {
-        Binding(
-            get: { enabledStates[alarm.id] ?? alarm.isEnabled },
-            set: { enabledStates[alarm.id] = $0 }
-        )
-    }
-
-    @ViewBuilder
-    private func alarmRow(_ alarm: Alarm) -> some View {
-        let state = visualState(for: alarm)
-        AlarmCard(
-            alarm: alarm,
-            visualState: state,
-            isEnabled: enabledBinding(for: alarm),
-            streak: StreakCalculator.currentStreak(from: alarm.completionLogs),
-            isPlusUser: SubscriptionService.shared.currentTier.rank >= SubscriptionTier.plus.rank
-        )
-        .id("\(alarm.id)-\(state)")
-        .contentShape(Rectangle())
-        .onTapGesture { selectedAlarmID = alarm.id }
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(
-            top: SpacingTokens.xxs, leading: SpacingTokens.md,
-            bottom: SpacingTokens.xxs, trailing: SpacingTokens.md
-        ))
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive) {
-                alarmToDelete = alarm
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-            Button {
-                selectedAlarmID = alarm.id
-            } label: {
-                Label("Edit", systemImage: "pencil")
-            }
-            .tint(ColorTokens.info)
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            if alarm.isPendingConfirmation {
-                Button {
-                    confirmPendingAlarm(alarm)
-                } label: {
-                    Label("Done", systemImage: "checkmark.circle.fill")
-                }
-                .tint(ColorTokens.success)
-            }
-            Button {
-                let current = enabledStates[alarm.id] ?? alarm.isEnabled
-                enabledStates[alarm.id] = !current
-            } label: {
-                let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
-                Label(
-                    isEnabled ? "Disable" : "Enable",
-                    systemImage: isEnabled ? "bell.slash" : "bell"
-                )
-            }
-            .tint(
-                enabledStates[alarm.id] ?? alarm.isEnabled
-                    ? ColorTokens.textSecondary : ColorTokens.success
-            )
-        }
-    }
-
-    private func confirmPendingAlarm(_ alarm: Alarm) {
-        confirmedAlarmIDs.insert(alarm.id)
-        PendingConfirmationService.shared.confirmDone(alarm: alarm)
-        alarm.updatedAt = Date()
-        try? modelContext.save()
-        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
-        if UserSettings.shared.hapticsEnabled { HapticService.shared.playSuccess() }
-    }
-
-    private func deleteAlarm(_ alarm: Alarm) {
-        let alarmID = alarm.id.uuidString
-        Task {
-            try? await AlarmScheduler.shared.cancelAlarm(alarm)
-        }
-        modelContext.delete(alarm)
-        try? modelContext.save()
-        Task { try? await CloudSyncService.shared.deleteRemoteAlarm(id: alarmID) }
+        AlarmRowActions.enabledBinding(for: alarm, among: allAlarms) { showUpgradePrompt = true }
     }
 }
 
-#Preview {
+#Preview("Light") {
     NavigationStack {
         CategoryDetailView(category: .finance)
     }
     .modelContainer(for: Alarm.self, inMemory: true)
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        CategoryDetailView(category: .finance)
+    }
+    .modelContainer(for: Alarm.self, inMemory: true)
+    .preferredColorScheme(.dark)
 }

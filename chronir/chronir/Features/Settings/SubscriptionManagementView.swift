@@ -3,9 +3,10 @@ import StoreKit
 
 struct SubscriptionManagementView: View {
     private let subscriptionService = SubscriptionService.shared
-    @State private var restoreMessage: String?
+    /// Shares restore + error messaging with the paywall.
+    @State private var viewModel = PaywallViewModel()
     @State private var showPaywall = false
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         List {
@@ -19,8 +20,20 @@ struct SubscriptionManagementView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .sheet(isPresented: $showPaywall) {
+        .fullScreenCover(isPresented: $showPaywall) {
             PaywallView()
+        }
+        .alert(
+            viewModel.alert?.title ?? "",
+            isPresented: Binding(
+                get: { viewModel.alert != nil },
+                set: { if !$0 { viewModel.alert = nil } }
+            ),
+            presenting: viewModel.alert
+        ) { _ in
+            Button("OK", role: .cancel) {}
+        } message: { alert in
+            Text(alert.message)
         }
         .task {
             await subscriptionService.updateSubscriptionStatus()
@@ -39,15 +52,9 @@ struct SubscriptionManagementView: View {
                     color: badgeColor(for: subscriptionService.currentTier)
                 )
             }
+            .accessibilityElement(children: .combine)
 
             // Lifetime plan commented out until pricing is finalized
-            // if subscriptionService.isLifetime {
-            //     HStack {
-            //         ChronirText("Duration", style: .bodyPrimary)
-            //         Spacer()
-            //         ChronirText("Forever", style: .bodySecondary, color: ColorTokens.success)
-            //     }
-            // } else
             if let renewalDate = subscriptionService.renewalDate {
                 HStack {
                     ChronirText("Renews", style: .bodyPrimary)
@@ -58,6 +65,7 @@ struct SubscriptionManagementView: View {
                         color: ColorTokens.textSecondary
                     )
                 }
+                .accessibilityElement(children: .combine)
             }
 
             if let productID = subscriptionService.activeProductID,
@@ -66,16 +74,28 @@ struct SubscriptionManagementView: View {
                     ChronirText("Price", style: .bodyPrimary)
                     Spacer()
                     ChronirText(
-                        product.displayPrice,
+                        priceWithPeriod(product),
                         style: .bodySecondary,
                         color: ColorTokens.textSecondary
                     )
                 }
+                .accessibilityElement(children: .combine)
             }
         } header: {
-            ChronirText("Your Plan", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Your Plan")
         }
         .listRowBackground(ColorTokens.surfaceCard)
+    }
+
+    private func priceWithPeriod(_ product: Product) -> String {
+        guard let period = product.subscription?.subscriptionPeriod else { return product.displayPrice }
+        switch period.unit {
+        case .day: return "\(product.displayPrice)/day"
+        case .week: return "\(product.displayPrice)/week"
+        case .month: return "\(product.displayPrice)/month"
+        case .year: return "\(product.displayPrice)/year"
+        @unknown default: return product.displayPrice
+        }
     }
 
     // MARK: - Plan Comparison
@@ -83,36 +103,56 @@ struct SubscriptionManagementView: View {
     // TODO: Add Premium column back when Premium tier is built (Phase 4, Sprint 11+)
     private var planComparisonSection: some View {
         Section {
-            comparisonRow("Alarms", free: "3", plus: "Unlimited")
-            comparisonRow("Custom Snooze", free: "—", plus: "Yes")
-            comparisonRow("Pre-Alarm Warnings", free: "—", plus: "Yes")
-            comparisonRow("Photo Attachments", free: "—", plus: "Yes")
-            comparisonRow("Completion History", free: "—", plus: "Yes")
+            Grid(alignment: .leading, horizontalSpacing: SpacingTokens.md, verticalSpacing: SpacingTokens.sm) {
+                GridRow {
+                    Text("Feature")
+                    Text("Free").gridColumnAlignment(.center)
+                    Text("Plus").gridColumnAlignment(.center)
+                }
+                .chronirFont(.labelMedium)
+                .foregroundStyle(ColorTokens.textSecondary)
+                .accessibilityHidden(true)
+
+                Divider()
+
+                ForEach(PlusFeature.allCases) { feature in
+                    GridRow {
+                        ChronirText(feature.shortTitle, style: .bodyMedium)
+                        comparisonValue(feature.freeValue, included: false)
+                        comparisonValue(feature.plusValue, included: true)
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(comparisonAccessibilityLabel(feature))
+                }
+            }
+            .padding(.vertical, SpacingTokens.xs)
         } header: {
-            ChronirText("Plan Comparison", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Plan Comparison")
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
 
-    private func comparisonRow(_ feature: String, free: String, plus: String) -> some View {
-        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            ChronirText(feature, style: .bodyPrimary)
-            HStack {
-                tierValue("Free", value: free)
-                Spacer()
-                tierValue("Plus", value: plus)
+    @ViewBuilder
+    private func comparisonValue(_ value: String?, included: Bool) -> some View {
+        Group {
+            if let value {
+                ChronirText(value, style: .labelMedium, color: ColorTokens.textPrimary)
+            } else if included {
+                Image(systemName: "checkmark")
+                    .foregroundStyle(ColorTokens.textPrimary)
+            } else {
+                Image(systemName: "minus")
+                    .foregroundStyle(ColorTokens.textSecondary)
             }
         }
-        .padding(.vertical, SpacingTokens.xxs)
+        .font(.body.weight(.semibold))
+        .frame(minWidth: SpacingTokens.touchMinTarget)
     }
 
-    private func tierValue(_ tier: String, value: String) -> some View {
-        VStack(spacing: 2) {
-            ChronirText(tier, style: .caption, color: ColorTokens.textSecondary)
-            let valueColor = value == "—" ? ColorTokens.textSecondary : ColorTokens.success
-            ChronirText(value, style: .labelSmall, color: valueColor)
-        }
-        .frame(maxWidth: .infinity)
+    private func comparisonAccessibilityLabel(_ feature: PlusFeature) -> String {
+        let free = feature.freeValue ?? "not included"
+        let plus = feature.plusValue ?? "included"
+        return "\(feature.shortTitle). Free: \(free). Plus: \(plus)."
     }
 
     // MARK: - Actions
@@ -121,52 +161,47 @@ struct SubscriptionManagementView: View {
         Section {
             if subscriptionService.currentTier.isFreeTier {
                 Button { showPaywall = true } label: {
-                    HStack {
-                        ChronirText("Upgrade to Plus", style: .bodyPrimary, color: ColorTokens.primary)
-                        Spacer()
-                        ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
-                    }
+                    ChronirText("Upgrade to Plus", style: .bodyPrimary, color: ColorTokens.primary)
                 }
             } else /* if !subscriptionService.isLifetime */ {
                 Button {
-                    Task {
-                        guard let scene = windowScene else { return }
-                        try? await AppStore.showManageSubscriptions(in: scene)
-                    }
+                    Task { await showManageSubscriptions() }
                 } label: {
-                    HStack {
-                        ChronirText("Change Plan", style: .bodyPrimary, color: ColorTokens.primary)
-                        Spacer()
-                        ChronirIcon(systemName: "chevron.right", size: .small, color: ColorTokens.textSecondary)
-                    }
+                    ChronirText("Change Plan", style: .bodyPrimary, color: ColorTokens.primary)
                 }
             }
 
             Button {
-                Task {
-                    await subscriptionService.restorePurchases()
-                    if subscriptionService.currentTier.isFreeTier {
-                        restoreMessage = "No active subscriptions found."
-                    } else {
-                        restoreMessage = "Restored to \(subscriptionService.currentTier.displayName)."
-                    }
-                }
+                Task { await viewModel.restorePurchases() }
             } label: {
-                if subscriptionService.isLoading {
-                    ProgressView()
-                } else {
+                HStack {
                     ChronirText("Restore Purchases", style: .bodyPrimary, color: ColorTokens.primary)
+                    Spacer()
+                    if subscriptionService.isLoading {
+                        ProgressView()
+                    }
                 }
             }
             .disabled(subscriptionService.isLoading)
         } header: {
-            ChronirText("Manage", style: .labelLarge, color: ColorTokens.textSecondary)
+            Text("Manage")
         }
         .listRowBackground(ColorTokens.surfaceCard)
-        .alert("Restore Purchases", isPresented: .constant(restoreMessage != nil)) {
-            Button("OK") { restoreMessage = nil }
-        } message: {
-            Text(restoreMessage ?? "")
+    }
+
+    private func showManageSubscriptions() async {
+        #if os(iOS)
+        if let scene = windowScene {
+            do {
+                try await AppStore.showManageSubscriptions(in: scene)
+                return
+            } catch {
+                AnalyticsService.shared.recordError(error, context: "show_manage_subscriptions")
+            }
+        }
+        #endif
+        if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+            openURL(url)
         }
     }
 
@@ -188,8 +223,16 @@ struct SubscriptionManagementView: View {
     #endif
 }
 
-#Preview {
+#Preview("Light") {
     NavigationStack {
         SubscriptionManagementView()
     }
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        SubscriptionManagementView()
+    }
+    .preferredColorScheme(.dark)
 }

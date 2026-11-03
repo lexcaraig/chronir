@@ -20,16 +20,19 @@ struct CategoryGroupCard: View {
                 Image(systemName: category.iconName)
                     .foregroundStyle(category.color)
                     .font(.title3)
+                    .accessibilityHidden(true)
                 ChronirText(
                     category.displayName,
                     style: .titleMedium,
                     color: ColorTokens.textPrimary
                 )
-                ChronirBadge("\(alarms.count)", color: category.color)
+                ChronirBadge("\(alarms.count)", category: category)
+                    .accessibilityLabel(alarms.count == 1 ? "1 alarm" : "\(alarms.count) alarms")
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundStyle(ColorTokens.textSecondary)
                     .font(.caption.weight(.semibold))
+                    .accessibilityHidden(true)
             }
 
             // Compact alarm rows
@@ -47,22 +50,29 @@ struct CategoryGroupCard: View {
         }
         .padding(SpacingTokens.cardPadding)
         .chronirGlassCard()
+        // The whole card opens the category (chevron) and has no inner controls.
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Shows all \(category.displayName) alarms")
     }
 
     private func compactRow(_ alarm: Alarm) -> some View {
         let isEnabled = enabledStates[alarm.id] ?? alarm.isEnabled
         return HStack(spacing: SpacingTokens.sm) {
-            Circle()
-                .fill(isEnabled ? ColorTokens.success : ColorTokens.textDisabled)
-                .frame(width: 6, height: 6)
-            VStack(alignment: .leading, spacing: 2) {
+            // Shape + text, not color alone: a filled dot for on, a hollow ring plus "Off" for off.
+            Image(systemName: isEnabled ? "circle.fill" : "circle")
+                .imageScale(.small)
+                .font(.caption2)
+                .foregroundStyle(isEnabled ? ColorTokens.success : ColorTokens.textSecondary)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
                 ChronirText(
                     alarm.title,
                     style: .bodyMedium,
-                    color: isEnabled ? ColorTokens.textPrimary : ColorTokens.textDisabled
+                    color: isEnabled ? ColorTokens.textPrimary : ColorTokens.textSecondary
                 )
                 ChronirText(
-                    alarm.schedule.displayName,
+                    isEnabled ? alarm.schedule.displayName : "\(alarm.schedule.displayName) · Off",
                     style: .caption,
                     color: ColorTokens.textSecondary
                 )
@@ -132,6 +142,17 @@ private extension CategoryGroupCard {
                 enabledStates: [:]
             )
         }
+        .padding()
+    }
+}
+
+#Preview("Liquid Glass") {
+    GlassPreview {
+        CategoryGroupCard(
+            category: .vehicle,
+            alarms: CategoryGroupCard.sampleAlarms,
+            enabledStates: [:]
+        )
         .padding()
     }
 }

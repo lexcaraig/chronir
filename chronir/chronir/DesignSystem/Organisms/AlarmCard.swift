@@ -18,9 +18,19 @@ enum AlarmVisualState {
     var statusBadge: (text: String, color: Color, icon: String?)? {
         switch self {
         case .active: return nil
-        case .inactive: return nil
-        case .snoozed: return ("Snoozed", ColorTokens.badgeWarning, "zzz")
-        case .pending: return ("Awaiting Confirmation", ColorTokens.info, "clock.badge.questionmark")
+        case .inactive: return ("Off", ColorTokens.badgeNeutralBackground, "pause.circle")
+        case .snoozed: return ("Snoozed", ColorTokens.badgeWarningBackground, "zzz")
+        case .pending: return ("Awaiting Confirmation", ColorTokens.badgeInfoBackground, "clock.badge.questionmark")
+        }
+    }
+
+    /// Text color for `statusBadge.color` (contrast-checked pair).
+    var statusBadgeForeground: Color? {
+        switch self {
+        case .active: return nil
+        case .inactive: return ColorTokens.badgeNeutralForeground
+        case .snoozed: return ColorTokens.badgeWarningForeground
+        case .pending: return ColorTokens.badgeInfoForeground
         }
     }
 }
@@ -31,10 +41,6 @@ struct AlarmCard: View {
     @Binding var isEnabled: Bool
     var streak: Int = 0
     var isPlusUser: Bool = false
-
-    private var textOpacity: Double {
-        visualState == .inactive ? 0.5 : 1.0
-    }
 
     private var lastCompletedText: String? {
         guard let date = alarm.lastCompletedAt else { return nil }
@@ -48,17 +54,18 @@ struct AlarmCard: View {
             return "Last completed: Today"
         } else if daysDiff <= 7 {
             return "Last completed: \(daysDiff) days ago"
+        } else if cal.isDate(date, equalTo: now, toGranularity: .year) {
+            return "Last completed: \(date.formatted(.dateTime.month(.abbreviated).day()))"
         } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = cal.isDate(date, equalTo: now, toGranularity: .year) ? "MMM d" : "MMM d, yyyy"
-            return "Last completed: \(formatter.string(from: date))"
+            return "Last completed: \(date.formatted(.dateTime.month(.abbreviated).day().year()))"
         }
     }
 
-    private var streakBadgeColor: Color {
-        if streak >= 10 { return ColorTokens.warning } // gold
-        if streak >= 5 { return ColorTokens.success } // accent green
-        return ColorTokens.badgeSuccess // neutral
+    /// Streak tiers: gold (10+), green (5+), neutral. Fill + contrast-checked text.
+    private var streakBadgeColors: (background: Color, foreground: Color) {
+        if streak >= 10 { return (ColorTokens.badgeVehicleBackground, ColorTokens.badgeVehicleForeground) } // amber
+        if streak >= 5 { return (ColorTokens.badgeFinanceBackground, ColorTokens.badgeFinanceForeground) } // green
+        return (ColorTokens.badgeSuccessBackground, ColorTokens.badgeSuccessForeground)
     }
 
     private var streakBadgeIcon: String {
@@ -100,78 +107,105 @@ struct AlarmCard: View {
         }
     }
 
+    private var multipleTimesBadge: some View {
+        ChronirBadge(
+            "+\(alarm.timesOfDay.count - 1)",
+            color: ColorTokens.badgeNeutralBackground,
+            foreground: ColorTokens.badgeNeutralForeground
+        )
+        .accessibilityLabel("\(alarm.timesOfDay.count) times a day")
+    }
+
     var body: some View {
         TimelineView(.periodic(from: .now, by: 60)) { _ in
-        VStack(alignment: .leading, spacing: SpacingTokens.sm) {
-            HStack {
-                VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
-                    ChronirText(
-                        alarm.title,
-                        style: .titleSmall,
-                        color: visualState == .inactive ? ColorTokens.textDisabled : ColorTokens.textPrimary
-                    )
-                    HStack(spacing: SpacingTokens.xxs) {
-                        ChronirBadge(schedule: alarm.schedule)
-                        if let cat = alarm.alarmCategory {
-                            ChronirBadge(cat.displayName, color: cat.color)
-                        }
-                        if let badge = visualState.statusBadge {
-                            ChronirBadge(badge.text, color: badge.color, icon: badge.icon)
+            VStack(alignment: .leading, spacing: SpacingTokens.sm) {
+                HStack {
+                    VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
+                        ChronirText(
+                            alarm.title,
+                            style: .titleSmall,
+                            // Inactive alarms stay readable (textSecondary passes 4.5:1); the "Off"
+                            // badge and the toggle carry the state.
+                            color: visualState == .inactive ? ColorTokens.textSecondary : ColorTokens.textPrimary
+                        )
+                        HStack(spacing: SpacingTokens.xxs) {
+                            ChronirBadge(schedule: alarm.schedule)
+                            if let cat = alarm.alarmCategory {
+                                ChronirBadge(cat.displayName, category: cat)
+                            }
+                            if let badge = visualState.statusBadge {
+                                ChronirBadge(
+                                    badge.text,
+                                    color: badge.color,
+                                    icon: badge.icon,
+                                    foreground: visualState.statusBadgeForeground
+                                )
+                            }
                         }
                     }
+                    .accessibilityElement(children: .combine)
+                    Spacer()
+                    // The label stays hidden on screen but names the switch for VoiceOver.
+                    Toggle(alarm.title, isOn: $isEnabled)
+                        .tint(ColorTokens.primary)
+                        .labelsHidden()
                 }
-                Spacer()
-                Toggle("", isOn: $isEnabled)
-                    .tint(ColorTokens.primary)
-                    .labelsHidden()
-            }
 
-            HStack(alignment: .firstTextBaseline) {
-                if visualState != .inactive {
-                    AlarmTimeDisplay(
-                        time: alarm.nextFireDate,
-                        countdownText: countdownText
-                    )
-                    if alarm.hasMultipleTimes {
-                        ChronirBadge(
-                            "+\(alarm.timesOfDay.count - 1)",
-                            color: ColorTokens.backgroundTertiary
+                HStack(alignment: .firstTextBaseline) {
+                    if visualState != .inactive {
+                        AlarmTimeDisplay(
+                            time: alarm.nextFireDate,
+                            countdownText: countdownText
+                        )
+                    } else {
+                        ChronirText(
+                            alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
+                            style: .headlineTime,
+                            color: ColorTokens.textSecondary
                         )
                     }
-                } else {
-                    ChronirText(
-                        alarm.scheduledTime.formatted(date: .omitted, time: .shortened),
-                        style: .headlineTime,
-                        color: ColorTokens.textDisabled
-                    )
                     if alarm.hasMultipleTimes {
+                        multipleTimesBadge
+                    }
+                    Spacer()
+                    if isPlusUser && streak >= 2 {
                         ChronirBadge(
-                            "+\(alarm.timesOfDay.count - 1)",
-                            color: ColorTokens.backgroundTertiary
+                            "\(streak) streak",
+                            color: streakBadgeColors.background,
+                            icon: streakBadgeIcon,
+                            foreground: streakBadgeColors.foreground
+                        )
+                    } else if !isPlusUser && streak >= 3 {
+                        ChronirBadge(
+                            "streak",
+                            color: ColorTokens.badgeNeutralBackground,
+                            foreground: ColorTokens.badgeNeutralForeground
+                        )
+                    }
+                    if alarm.isPersistent {
+                        ChronirBadge(
+                            "Persistent",
+                            color: ColorTokens.badgeWarningBackground,
+                            icon: "bell.badge.fill",
+                            foreground: ColorTokens.badgeWarningForeground
                         )
                     }
                 }
-                Spacer()
-                if isPlusUser && streak >= 2 {
-                    ChronirBadge("\(streak) streak", color: streakBadgeColor, icon: streakBadgeIcon)
-                } else if !isPlusUser && streak >= 3 {
-                    ChronirBadge("streak", color: ColorTokens.textDisabled)
-                }
-                if alarm.isPersistent {
-                    ChronirBadge("Persistent", color: ColorTokens.badgeWarning, icon: "bell.badge.fill")
+                .accessibilityElement(children: .combine)
+                if let text = lastCompletedText {
+                    ChronirText(text, style: .bodySmall, color: ColorTokens.textTertiary)
                 }
             }
-            if let text = lastCompletedText {
-                ChronirText(text, style: .bodySmall, color: ColorTokens.textTertiary)
-            }
-        }
-        .padding(SpacingTokens.cardPadding)
-        .chronirGlassCard()
-        .overlay(
-            RoundedRectangle(cornerRadius: GlassTokens.cardRadius)
-                .stroke(visualState.accentColor ?? .clear, lineWidth: visualState.accentColor != nil ? 2 : 0)
-        )
-        .opacity(textOpacity)
+            .padding(SpacingTokens.cardPadding)
+            .chronirGlassCard()
+            .overlay(
+                RoundedRectangle(cornerRadius: GlassTokens.cardRadius)
+                    .stroke(
+                        visualState.accentColor ?? .clear,
+                        lineWidth: visualState.accentColor != nil ? SpacingTokens.statusStroke : 0
+                    )
+            )
+            .accessibilityElement(children: .contain)
         }
     }
 }
@@ -240,5 +274,19 @@ private extension AlarmCard {
             AlarmCard(alarm: AlarmCard.sampleAlarm, visualState: .snoozed, isEnabled: $enabled3)
         }
         .padding()
+    }
+}
+
+#Preview("Liquid Glass") {
+    @Previewable @State var isEnabled = true
+    GlassPreview {
+        AlarmCard(
+            alarm: AlarmCard.sampleAlarm,
+            visualState: .active,
+            isEnabled: $isEnabled,
+            streak: 12,
+            isPlusUser: true
+        )
+            .padding()
     }
 }

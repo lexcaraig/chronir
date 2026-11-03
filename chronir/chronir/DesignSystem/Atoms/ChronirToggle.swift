@@ -1,33 +1,49 @@
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 struct ChronirToggle: View {
     let label: String
     @Binding var isOn: Bool
 
     var body: some View {
-        Toggle(isOn: $isOn) {
-            ChronirText(label, style: .bodyMedium)
+        Toggle(isOn: userChange) {
+            ChronirText(label, style: .bodyPrimary)
         }
         .tint(ColorTokens.primary)
-        .onChange(of: isOn) {
-            #if os(iOS)
-            let generator = UIImpactFeedbackGenerator(style: .medium)
-            generator.impactOccurred()
-            #endif
-        }
+    }
+
+    /// Plays haptics only for user-initiated flips (not programmatic changes to `isOn`),
+    /// and only when the user's Haptic Feedback setting is on.
+    private var userChange: Binding<Bool> {
+        Binding(
+            get: { isOn },
+            set: { newValue in
+                isOn = newValue
+                #if os(iOS)
+                if UserSettings.shared.hapticsEnabled { HapticService.shared.playSelection() }
+                #endif
+            }
+        )
     }
 }
 
-#Preview("Toggle States") {
-    @Previewable @State var isOn = true
-    @Previewable @State var isOff = false
-    VStack(spacing: SpacingTokens.md) {
-        ChronirToggle(label: "Enable Alarm", isOn: $isOn)
-        ChronirToggle(label: "Persistent Mode", isOn: $isOff)
+private struct ChronirToggleGallery: View {
+    @State private var isOn = true
+    @State private var isOff = false
+
+    var body: some View {
+        VStack(spacing: SpacingTokens.md) {
+            ChronirToggle(label: "Enable Alarm", isOn: $isOn)
+            ChronirToggle(label: "Persistent Mode", isOn: $isOff)
+        }
+        .padding()
     }
-    .padding()
-    .background(ColorTokens.backgroundPrimary)
+}
+
+#Preview("Light") {
+    ChronirToggleGallery()
+        .background(ColorTokens.backgroundPrimary)
+}
+
+#Preview("Dark") {
+    DarkPreview { ChronirToggleGallery() }
 }

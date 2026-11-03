@@ -5,6 +5,7 @@ struct LegalDocumentView: View {
     let rawURL: URL
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
     @Environment(\.textSizeScale) private var textSizeScale
 
     @State private var markdown: String?
@@ -20,11 +21,18 @@ struct LegalDocumentView: View {
                 MarkdownWebView(htmlContent: buildHTML(markdown))
             } else {
                 VStack(spacing: SpacingTokens.lg) {
-                    ChronirText("Unable to load document.", style: .bodyPrimary)
-                    ChronirButton("Retry", style: .secondary) {
+                    ChronirText("Couldn't load \(title)", style: .titleSmall, alignment: .center)
+                    ChronirText(
+                        "Check your connection and try again.",
+                        style: .bodySecondary,
+                        color: ColorTokens.textSecondary,
+                        alignment: .center
+                    )
+                    ChronirButton("Try Again", style: .secondary) {
                         Task { await fetchDocument() }
                     }
                 }
+                .padding(SpacingTokens.lg)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
@@ -56,7 +64,7 @@ struct LegalDocumentView: View {
         <!DOCTYPE html>
         <html>
         <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>\(generateCSS())</style>
         </head>
         <body>\(html)</body>
@@ -64,48 +72,54 @@ struct LegalDocumentView: View {
         """
     }
 
+    /// CSS built from the app's color tokens for the current appearance, so legal pages follow the theme
+    /// and the single app tint. Text uses `-apple-system-body`, so WebKit follows Dynamic Type; the in-app
+    /// text-size preference multiplies on top. Pinch-zoom stays enabled.
     private func generateCSS() -> String {
-        let scale = textSizeScale
+        let text = cssHex(ColorTokens.textPrimary)
+        let secondary = cssHex(ColorTokens.textSecondary)
+        let link = cssHex(ColorTokens.primary)
+        let border = cssHex(ColorTokens.borderDefault)
+        let headerFill = cssHex(ColorTokens.surfaceCard)
         return """
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font: -apple-system-body; }
         body {
-            font-family: -apple-system, system-ui, sans-serif;
-            font-size: \(16 * scale)px;
+            font-size: \(Int((textSizeScale * 100).rounded()))%;
             line-height: 1.6;
-            color: #1E1F21;
+            color: \(text);
             background: transparent;
-            padding: \(16 * scale)px;
-            -webkit-text-size-adjust: none;
+            padding: 1em;
+            overflow-wrap: break-word;
         }
-        @media (prefers-color-scheme: dark) {
-            body { color: #E2E3E4; }
-            h1, h2, h3, h4 { color: #E2E3E4; }
-            table { border-color: #303134; }
-            th { background: #303134; color: #E2E3E4; }
-            td { border-color: #303134; }
-            hr { border-color: #303134; }
-            a { color: #3B82F6; }
-            blockquote { border-color: #303134; color: #96999E; }
-        }
-        h1 { font-size: \(28 * scale)px; font-weight: 700; margin: \(24 * scale)px 0 \(12 * scale)px; }
-        h2 { font-size: \(22 * scale)px; font-weight: 600; margin: \(20 * scale)px 0 \(10 * scale)px; }
-        h3 { font-size: \(18 * scale)px; font-weight: 600; margin: \(16 * scale)px 0 \(8 * scale)px; }
-        h4 { font-size: \(16 * scale)px; font-weight: 600; margin: \(12 * scale)px 0 \(6 * scale)px; }
-        p { margin: \(8 * scale)px 0; }
-        a { color: #3B82F6; text-decoration: none; }
-        ul, ol { padding-left: \(24 * scale)px; margin: \(8 * scale)px 0; }
-        li { margin: \(4 * scale)px 0; }
-        hr { border: none; border-top: 1px solid #DDDEE1; margin: \(16 * scale)px 0; }
-        table { width: 100%; border-collapse: collapse; margin: \(12 * scale)px 0; font-size: \(14 * scale)px; }
-        th, td { padding: \(8 * scale)px \(12 * scale)px; text-align: left; border: 1px solid #DDDEE1; }
-        th { background: #F2F2F7; font-weight: 600; }
-        blockquote {
-            border-left: 3px solid #DDDEE1;
-            padding-left: \(12 * scale)px;
-            margin: \(8 * scale)px 0;
-            color: #6B6E76;
-        }
+        h1, h2, h3, h4 { color: \(text); line-height: 1.25; }
+        h1 { font-size: 1.75em; font-weight: 700; margin: 1.5em 0 0.75em; }
+        h2 { font-size: 1.375em; font-weight: 600; margin: 1.25em 0 0.625em; }
+        h3 { font-size: 1.125em; font-weight: 600; margin: 1em 0 0.5em; }
+        h4 { font-size: 1em; font-weight: 600; margin: 0.75em 0 0.375em; }
+        p { margin: 0.5em 0; }
+        a { color: \(link); text-decoration: underline; text-underline-offset: 0.15em; }
+        ul, ol { padding-left: 1.5em; margin: 0.5em 0; }
+        li { margin: 0.25em 0; }
+        hr { border: none; border-top: 1px solid \(border); margin: 1em 0; }
+        table { width: 100%; border-collapse: collapse; margin: 0.75em 0; font-size: 0.875em; }
+        th, td { padding: 0.5em 0.75em; text-align: left; border: 1px solid \(border); }
+        th { background: \(headerFill); font-weight: 600; }
+        blockquote { border-left: 3px solid \(border); padding-left: 0.75em; margin: 0.5em 0; color: \(secondary); }
         """
+    }
+
+    /// Resolves a token for the view's current appearance and contrast setting as `#RRGGBB`.
+    private func cssHex(_ color: Color) -> String {
+        let traits = UITraitCollection { traits in
+            traits.userInterfaceStyle = colorScheme == .dark ? .dark : .light
+            traits.accessibilityContrast = colorSchemeContrast == .increased ? .high : .normal
+        }
+        let resolved = UIColor(color).resolvedColor(with: traits)
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        resolved.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        func byte(_ value: CGFloat) -> Int { Int((min(max(value, 0), 1) * 255).rounded()) }
+        return String(format: "#%02X%02X%02X", byte(red), byte(green), byte(blue))
     }
 
     // MARK: - Markdown Parser
@@ -247,4 +261,26 @@ struct LegalDocumentView: View {
         )
         return result
     }
+}
+
+#Preview("Light") {
+    NavigationStack {
+        LegalDocumentView(
+            title: "Privacy Policy",
+            // swiftlint:disable:next force_unwrapping
+            rawURL: URL(string: "https://gist.githubusercontent.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c/raw/")!
+        )
+    }
+    .preferredColorScheme(.light)
+}
+
+#Preview("Dark") {
+    NavigationStack {
+        LegalDocumentView(
+            title: "Privacy Policy",
+            // swiftlint:disable:next force_unwrapping
+            rawURL: URL(string: "https://gist.githubusercontent.com/lexcaraig/1ecd278bb8c97c9d4725f5c9b63cd28c/raw/")!
+        )
+    }
+    .preferredColorScheme(.dark)
 }
