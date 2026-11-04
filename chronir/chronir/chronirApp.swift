@@ -212,89 +212,18 @@ struct ChronirApp: App {
                             // a fresh AlarmKit alarm at the snooze expiry time.
                             // AlarmKit .fixed() schedules don't re-alert after countdown,
                             // so a new alarm is needed for full system sound on re-fire.
-                            let snoozeAlarmID = alarm.id
-                            var alarmTitle: String?
-                            await MainActor.run {
-                                AlarmFiringCoordinator.shared.snoozedInBackground.insert(baseID)
-                                if baseID == AlarmFiringCoordinator.shared.firingAlarmID {
-                                    AlarmFiringCoordinator.shared.dismissFiring()
-                                }
-                                let targetID = baseID
-                                let descriptor = FetchDescriptor<Alarm>(
-                                    predicate: #Predicate<Alarm> { $0.id == targetID }
-                                )
-                                if let model = try? self.container.mainContext.fetch(descriptor).first,
-                                   model.nextFireDate <= Date() {
-                                    alarmTitle = model.title
-                                    model.snoozeCount += 1
-                                    model.nextFireDate = Date().addingTimeInterval(540)
-                                    let log = CompletionLog(
-                                        alarmID: model.id,
-                                        scheduledDate: model.nextFireDate,
-                                        action: .snoozed,
-                                        snoozeCount: model.snoozeCount
-                                    )
-                                    log.alarm = model
-                                    self.container.mainContext.insert(log)
-                                    try? self.container.mainContext.save()
-                                }
-                            }
-                            // Replace the countdown with a fresh alarm so the re-fire
-                            // plays full system alarm sound even on the lock screen.
-                            if let title = alarmTitle {
-                                try? await AlarmScheduler.shared.scheduleSnoozeRefire(
-                                    id: snoozeAlarmID,
-                                    title: title,
-                                    at: Date().addingTimeInterval(540)
-                                )
-                            }
+                            await LockScreenAlarmActions.snooze(registrationID: alarm.id)
                             await LiveActivityService.shared.refreshLiveActivity()
                         default:
+                            // The other horizon registrations of a ringing or snoozed alarm arrive here
+                            // in the same update; they say nothing about it.
+                            if AlarmScheduler.activeRegistration(for: baseID, in: alarms) != nil { continue }
                             await MainActor.run {
-                                // If this alarm was snoozed and its countdown just ended
-                                // without re-alerting, present the firing view ourselves.
-                                // (AlarmKit .fixed() schedules don't re-alert after snooze.)
-                                if AlarmFiringCoordinator.shared.snoozedInBackground.remove(baseID) != nil {
-                                    let targetID = baseID
-                                    let descriptor = FetchDescriptor<Alarm>(
-                                        predicate: #Predicate<Alarm> { $0.id == targetID && $0.isEnabled == true }
-                                    )
-                                    if (try? self.container.mainContext.fetch(descriptor).first) != nil {
-                                        AlarmFiringCoordinator.shared.presentAlarm(id: baseID)
-                                    }
-                                } else if baseID == AlarmFiringCoordinator.shared.firingAlarmID {
+                                // Snooze re-rings through scheduleSnoozeRefire, so nothing to present here.
+                                if baseID == AlarmFiringCoordinator.shared.firingAlarmID {
                                     // Don't dismiss if we intentionally stopped AlarmKit to play custom sound.
                                     if AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(baseID) == nil {
                                         AlarmFiringCoordinator.shared.dismissFiring()
-                                    }
-                                } else if AlarmScheduler.activeRegistration(for: baseID, in: alarms) == nil {
-                                    // Every update lists all registrations, so this alarm's future
-                                    // occurrences arrive here even while another of its registrations
-                                    // is still ringing. Only treat it as stopped once none is active.
-                                    // Alarm stopped that wasn't fired in-app — user handled on lock screen
-                                    AlarmFiringCoordinator.shared.stoppedOnLockScreen.insert(baseID)
-
-                                    // Immediately reschedule next occurrence for recurring alarms
-                                    // so the next weekly/monthly fire happens even if the user never opens the app.
-                                    let stoppedID = baseID
-                                    let stoppedDesc = FetchDescriptor<Alarm>(
-                                        predicate: #Predicate<Alarm> { $0.id == stoppedID && $0.isEnabled == true }
-                                    )
-                                    if let model = try? self.container.mainContext.fetch(stoppedDesc).first,
-                                       model.nextFireDate < Date(),
-                                       model.snoozeCount == 0 {
-                                        if model.cycleType == .oneTime {
-                                            model.isEnabled = false
-                                            model.nextFireDate = .distantFuture
-                                            try? self.container.mainContext.save()
-                                        } else {
-                                            let calc = DateCalculator()
-                                            model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
-                                            try? self.container.mainContext.save()
-                                            Task {
-                                                try? await AlarmScheduler.shared.scheduleAlarm(model)
-                                            }
-                                        }
                                     }
                                 }
                             }
@@ -354,7 +283,7 @@ struct ChronirApp: App {
                         } else if akAlarm?.state == .countdown {
                             // Still in snooze countdown — process if not already by .countdown handler
                             if model.nextFireDate <= now {
-                                handleLockScreenAction(
+                                LockScreenAlarmActions.handle(
                                     model: model,
                                     wasSnoozed: true,
                                     context: context
@@ -365,13 +294,6 @@ struct ChronirApp: App {
                             // (AlarmKit .fixed() schedules don't re-alert after snooze)
                             coordinator.snoozedInBackground.remove(model.id)
                             coordinator.presentAlarm(id: model.id)
-                        } else if coordinator.stoppedOnLockScreen.remove(model.id) != nil {
-                            // User acknowledged on lock screen — auto-complete
-                            handleLockScreenAction(
-                                model: model,
-                                wasSnoozed: false,
-                                context: context
-                            )
                         } else if model.id != coordinator.firingAlarmID {
                             // Alarm was missed — present firing screen
                             PendingConfirmationService.shared.autoCompletePending(alarm: model)
@@ -456,80 +378,6 @@ struct ChronirApp: App {
                       let alarmUUID = UUID(uuidString: alarmIDString) else { return }
                 deepLinkAlarmID = alarmUUID
             }
-        }
-    }
-}
-
-// MARK: - Lock Screen Action Handling
-
-extension ChronirApp {
-    /// Processes a lock screen snooze or stop for a given alarm model.
-    /// Must be called on the main context.
-    @MainActor
-    private func handleLockScreenAction(
-        model: Alarm,
-        wasSnoozed: Bool,
-        context: ModelContext
-    ) {
-        NotificationService.shared.removeDeliveredNotifications(for: model.id)
-
-        if wasSnoozed {
-            // Lock screen snooze
-            model.snoozeCount += 1
-            model.nextFireDate = Date().addingTimeInterval(540) // matches postAlert snooze duration
-            let log = CompletionLog(
-                alarmID: model.id,
-                scheduledDate: model.nextFireDate,
-                action: .snoozed,
-                snoozeCount: model.snoozeCount
-            )
-            log.alarm = model
-            context.insert(log)
-        } else if PendingConfirmationService.shared.isPlusUser {
-            // Lock screen stop — Plus tier: enter pending
-            // Await enterPending before saving to ensure pending state persists
-            Task {
-                await PendingConfirmationService.shared.enterPending(alarm: model)
-                try? context.save()
-                await CloudSyncService.shared.pushAlarmModel(model)
-                await WidgetDataService.shared.refresh()
-                await LiveActivityService.shared.refreshLiveActivity()
-            }
-            return
-        } else {
-            // Lock screen stop — Free tier: complete immediately
-            let calc = DateCalculator()
-            let log = CompletionLog(
-                alarmID: model.id,
-                scheduledDate: model.nextFireDate,
-                action: .completed,
-                snoozeCount: model.snoozeCount
-            )
-            log.alarm = model
-            context.insert(log)
-            model.lastFiredDate = Date()
-            model.lastCompletedAt = Date()
-            model.snoozeCount = 0
-            if model.cycleType == .oneTime {
-                model.isEnabled = false
-                model.nextFireDate = .distantFuture
-                Task {
-                    do { try await AlarmScheduler.shared.cancelAlarm(model) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_lockScreen") }
-                }
-            } else {
-                model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
-                Task {
-                    do { try await AlarmScheduler.shared.cancelAlarm(model) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_lockScreen") }
-                    do { try await AlarmScheduler.shared.scheduleAlarm(model) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_lockScreen") }
-                }
-            }
-            AppReviewService.recordCompletion()
-        }
-        try? context.save()
-        Task {
-            await CloudSyncService.shared.pushAlarmModel(model)
-            await WidgetDataService.shared.refresh()
-            await LiveActivityService.shared.refreshLiveActivity()
         }
     }
 }

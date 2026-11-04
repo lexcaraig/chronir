@@ -36,5 +36,15 @@ Failed to schedule alarm: AlarmServiceError(code: invalidInput)
 
 Device (lexpresswayyy, 15:35, 2026-11-04): it rang, the lock screen showed slide to stop only, and Done re-registered the horizon with 0 schedule failures (AlarmKit next wake 2026-11-05 15:35:50). The log stream dropped during the locked ring window, so the fire moment itself was not observed in the log.
 
-## Known, not fixed
-After a lock-screen stop, the stop branch advances `nextFireDate`, so the foreground "Case 2" never sees the alarm as past due. `stoppedOnLockScreen` is then never consumed, and the lock-screen completion log may not be written. This predates this ticket.
+## Lock-screen Stop and Snooze (fixed 2026-11-04)
+The app inferred lock-screen actions from `alarmUpdates`. AlarmKit drops a `.fixed()` snooze countdown within ~90 ms, so a snooze looked like a stop: the alarm was completed and moved to the next day, and it never re-rang. Lock-screen stops also wrote no completion log.
+- `StopAlarmIntent` / `SnoozeAlarmIntent` (`Core/Intents/AlarmButtonIntents.swift`) are attached as the AlarmKit `stopIntent` / `secondaryIntent`. AlarmKit runs them in the app process, so the app knows which button was tapped. `LockScreenAlarmActions` holds the shared stop, snooze and handle logic, moved out of `ChronirApp`.
+- Removed the inferred "stopped on lock screen" branch and `stoppedOnLockScreen`.
+- `alarmUpdates` `default:` ignores an alarm while any of its registrations is alerting or counting down, because the horizon siblings arrive in the same update. Removed the old "re-present the firing screen after snooze" fallback; it opened and closed the firing view, whose `completeIfNeeded` then completed the snoozed alarm (DB: snoozed 18:42:01.456, completed 18:42:01.863). The snooze re-ring is AlarmKit's job via `scheduleSnoozeRefire` (AE-04).
+
+Device (lexpresswayyy, 2026-11-04, Free, Require Dismissal on, phone locked), from the app-group store:
+- Snoozed 19:00:02, with the re-ring scheduled at 19:09:02. It rang again, and slide to stop at 19:09:08 logged one `.completed`.
+- The alarm moved to 2026-11-05 19:00, `lastCompletedAt` is 19:09:08, and there were 0 "Failed to schedule" lines.
+- iOS unit tests pass.
+
+Not verified: Plus tier (stop goes to pending confirmation), and snoozing while the in-app firing screen is open.

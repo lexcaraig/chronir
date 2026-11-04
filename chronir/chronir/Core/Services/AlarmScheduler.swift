@@ -112,7 +112,9 @@ final class AlarmScheduler: AlarmScheduling {
                         configuration: .init(
                             countdownDuration: snoozeDuration,
                             schedule: .fixed(fireDate),
-                            attributes: buildAttributes(for: alarm)
+                            attributes: buildAttributes(for: alarm),
+                            stopIntent: StopAlarmIntent(registrationID: id),
+                            secondaryIntent: alarm.isPersistent ? SnoozeAlarmIntent(registrationID: id) : nil
                         )
                     )
                 } catch {
@@ -146,7 +148,9 @@ final class AlarmScheduler: AlarmScheduling {
                 configuration: .init(
                     countdownDuration: snoozeDuration,
                     schedule: .fixed(fireDate),
-                    attributes: buildAttributes(title: title, alarmID: id)
+                    attributes: buildAttributes(title: title, alarmID: id),
+                    stopIntent: StopAlarmIntent(registrationID: id),
+                    secondaryIntent: SnoozeAlarmIntent(registrationID: id)
                 )
             )
         } catch {
