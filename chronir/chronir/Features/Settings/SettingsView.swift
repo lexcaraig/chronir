@@ -230,6 +230,7 @@ struct SettingsView: View {
 
     // MARK: - Developer
 
+    #if DEBUG
     private var developerSection: some View {
         Section {
             NavigationLink(destination: ComponentCatalog()) {
@@ -244,6 +245,7 @@ struct SettingsView: View {
         }
         .listRowBackground(ColorTokens.surfaceCard)
     }
+    #endif
 
     // MARK: - About
 
