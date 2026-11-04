@@ -209,10 +209,7 @@ struct ChronirApp: App {
                                 Task { await LiveActivityService.shared.endCurrentActivity() }
                             }
                         case .countdown:
-                            // Snoozed — dismiss firing UI, update model, and schedule
-                            // a fresh AlarmKit alarm at the snooze expiry time.
-                            // AlarmKit .fixed() schedules don't re-alert after countdown,
-                            // so a new alarm is needed for full system sound on re-fire.
+                            // Snoozed: see LockScreenAlarmActions.snooze (a re-fire replaces the countdown).
                             await LockScreenAlarmActions.snooze(registrationID: alarm.id)
                             await LiveActivityService.shared.refreshLiveActivity()
                         default:
@@ -294,8 +291,7 @@ struct ChronirApp: App {
                                 )
                             }
                         } else if coordinator.snoozedInBackground.contains(model.id) {
-                            // Snooze countdown ended while backgrounded — re-present
-                            // (AlarmKit .fixed() schedules don't re-alert after snooze)
+                            // Fallback: the snooze re-fire is gone (failed or dropped), so present in-app.
                             coordinator.snoozedInBackground.remove(model.id)
                             coordinator.presentAlarm(id: model.id)
                         } else if model.id != coordinator.firingAlarmID {

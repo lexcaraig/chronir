@@ -8,7 +8,8 @@ final class AlarmFiringCoordinator {
 
     var firingAlarmID: UUID?
 
-    /// Alarm IDs seen in `.countdown` state via `alarmUpdates` (snoozed from lock screen).
+    /// Alarms snoozed from the system alarm UI (SnoozeAlarmIntent / `.countdown` update);
+    /// restored from `snoozeCount > 0` on cold launch.
     var snoozedInBackground: Set<UUID> = []
 
     /// Alarm IDs already processed, with the timestamp they were handled.

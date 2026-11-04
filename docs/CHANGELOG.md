@@ -4,6 +4,25 @@ All notable changes to the Chronir project are documented here.
 
 ---
 
+## [2026-11-04] — Release v1.3.0 (iOS)
+
+**Type:** Release
+**Branch:** sprint-surfaces
+**Tag:** v1.3.0
+
+### Changes
+- **Widgets and Siri Mark Done (FEAT-06)**, **Control Center / Lock Screen controls (FEAT-07)**, **Spotlight (FEAT-08)**, **configurable widget (FEAT-09)**, **Focus filters (FEAT-10)**, **TipKit hints (FEAT-11)**
+- **Design audit fixes (QA-05)** across screens, paywall, settings and widgets
+- **BUG-07 (P0):** non-persistent alarms were never scheduled (AlarmKit rejected a countdown presentation with nil duration, since v1.2.1). Lock-screen Stop/Snooze are explicit LiveActivityIntents; snooze re-rings; stop logs a completion; system Done completes on Plus; in-app firing screen no longer closes itself. `register()` replaces registrations instead of duplicating them.
+- **BUG-06:** Plus users' disabled alarms no longer re-enable at launch
+- **Privacy:** added `PrivacyInfo.xcprivacy` (UserDefaults, file timestamp reasons); Firebase Analytics collection disabled via `FIREBASE_ANALYTICS_COLLECTION_ENABLED = false`
+
+### QA Status
+- iOS unit tests: PASS
+- Device (lexpresswayyy): BUG-07 Free/Plus lock-screen snooze + stop, in-app snooze, non-persistent fire
+
+---
+
 ## [2026-02-27] — Reddit User Feedback Fixes (iOS)
 
 **Type:** Bug Fix

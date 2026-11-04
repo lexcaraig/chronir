@@ -1,6 +1,6 @@
 # Chronir — App Store Connect: App Privacy
 
-**Last Updated:** February 12, 2026
+**Last Updated:** November 4, 2026 (v1.3.0)
 
 ---
 
@@ -117,6 +117,18 @@ Answer: Yes
 | Used for tracking?         | No                                       |
 | Notes                      | Firebase Crashlytics performance metrics |
 
+### 7. Other User Content (added for v1.3.0; set in App Store Connect)
+
+| Field                      | Value                                                        |
+| -------------------------- | ------------------------------------------------------------ |
+| Category                   | User Content > Other User Content                            |
+| Purpose                    | App Functionality                                            |
+| Linked to user's identity? | Yes                                                          |
+| Used for tracking?         | No                                                           |
+| Notes                      | Plus cloud backup stores alarm title, note, category in Firestore |
+
+> Firebase Analytics collection is disabled in the app (`FIREBASE_ANALYTICS_COLLECTION_ENABLED = false` in Info.plist, v1.3.0), so Usage Data stays "not collected". `IS_ANALYTICS_ENABLED` in GoogleService-Info.plist does not disable it.
+
 ---
 
 ## Data Types NOT Collected
@@ -127,7 +139,7 @@ Answer: Yes
 - Location (precise or coarse)
 - Sensitive Info
 - Contacts
-- User Content (emails, audio, gameplay, customer support, other)
+- User Content (emails, audio, gameplay, customer support)
 - Browsing History
 - Search History
 - Purchases

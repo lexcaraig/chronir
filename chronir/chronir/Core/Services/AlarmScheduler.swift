@@ -96,15 +96,15 @@ final class AlarmScheduler: AlarmScheduling {
         var idMap = Self.idMap
         defer { Self.idMap = idMap }
         // Registrations ringing or in snooze countdown are left alone; replacing one would cut it off.
-        let active = Set(((try? alarmManager.alarms) ?? [])
-            .filter { $0.state == .alerting || $0.state == .countdown }
-            .map(\.id))
+        let current = (try? alarmManager.alarms) ?? []
+        let registered = Set(current.map(\.id))
+        let active = Set(current.filter { $0.state == .alerting || $0.state == .countdown }.map(\.id))
         for (slot, fireDates) in slots.enumerated() {
             for (occurrence, fireDate) in fireDates.enumerated() {
                 let id = Self.registrationID(base: alarm.id, slot: slot, occurrence: occurrence)
                 guard !active.contains(id) else { continue }
                 // Replace, never duplicate: AlarmKit rejects an ID that is still registered (invalidInput).
-                try? alarmManager.cancel(id: id)
+                if registered.contains(id) { try? alarmManager.cancel(id: id) }
                 if id != alarm.id { idMap[id.uuidString] = alarm.id.uuidString }
                 do {
                     _ = try await alarmManager.schedule(

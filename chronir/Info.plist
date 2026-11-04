@@ -4,12 +4,6 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Chronir</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>NSAlarmKitUsageDescription</key>
-	<string>Chronir uses alarms to remind you of recurring obligations.</string>
-	<key>NSSiriUsageDescription</key>
-	<string>Chronir uses Siri to let you create and manage alarms with your voice.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -31,6 +25,14 @@
 			</array>
 		</dict>
 	</array>
+	<key>FIREBASE_ANALYTICS_COLLECTION_ENABLED</key>
+	<false/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Chronir uses alarms to remind you of recurring obligations.</string>
+	<key>NSSiriUsageDescription</key>
+	<string>Chronir uses Siri to let you create and manage alarms with your voice.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>UILaunchScreen</key>

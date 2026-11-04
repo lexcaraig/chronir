@@ -125,13 +125,14 @@ Sign-in required: No
 ### Review Notes
 
 ```
-Chronir is a recurring alarm app. The Free tier allows 2 alarms with no account required. To test the full experience:
+Chronir is a recurring alarm app. The Free tier allows 3 alarms with no account required. To test the full experience:
 
 1. Create an alarm: Tap the + button, set a title, choose a schedule (e.g., Weekly > Sunday at 1:00 PM), and save.
 2. Wait for the alarm to fire, or set it for 1 minute from now to test firing.
 3. On the firing screen, you can Snooze (1h/1d/1w) or Stop the alarm.
 4. NEW in v1.2 (Plus tier): After stopping, a confirmation step asks to mark as Done or Snooze — this prevents accidental completions. In v1.2.1+, you can customize the follow-up reminder interval in Settings.
-5. The 2-alarm limit triggers a paywall prompt when creating a 3rd alarm.
+5. The 3-alarm limit triggers a paywall prompt when creating a 4th alarm.
+NEW in v1.3.0: Home Screen and Lock Screen widgets have a Mark Done button; Siri: "Mark [alarm] as done in Chronir"; Control Center controls (Next alarm, New alarm); alarms appear in Spotlight; Focus filters (Settings > Focus > Chronir) limit which categories are shown.
 6. FAQ, Privacy Policy, and Terms of Service are viewable in-app from Settings > About.
 
 The app uses AlarmKit (iOS 26+) to fire alarms on the lock screen with full sound. Notification permission is requested on first alarm creation.

@@ -5,8 +5,8 @@ import SwiftData
 
 // AlarmKit runs these in the app process when the user taps Stop or Snooze on the lock screen,
 // Dynamic Island, or alarm banner. They tell the app which button was pressed: a snooze countdown
-// is gone within a second (AlarmKit drops it; see scheduleSnoozeRefire), so the alarm list
-// afterwards looks the same for both, and guessing completed snoozed alarms.
+// is gone within a second (AlarmKit drops it; see scheduleSnoozeRefire), so the alarm list looks
+// the same afterwards either way; inferring the button from state completed snoozed alarms.
 
 struct StopAlarmIntent: LiveActivityIntent {
     static let title: LocalizedStringResource = "Stop Alarm"
@@ -121,7 +121,6 @@ enum LockScreenAlarmActions {
         } else {
             // System "Done" completes on every tier: the button says Done, so the alarm is done.
             PendingConfirmationService.shared.cancelPending(alarm: model)
-            let calc = DateCalculator()
             let log = CompletionLog(
                 alarmID: model.id,
                 scheduledDate: model.nextFireDate,
@@ -142,7 +141,7 @@ enum LockScreenAlarmActions {
                     }
                 }
             } else {
-                model.nextFireDate = calc.calculateNextFireDate(for: model, from: Date())
+                model.nextFireDate = DateCalculator().calculateNextFireDate(for: model, from: Date())
                 Task {
                     do { try await AlarmScheduler.shared.cancelAlarm(model) } catch {
                         AnalyticsService.shared.recordError(error, context: "cancel_alarm_lockScreen")
