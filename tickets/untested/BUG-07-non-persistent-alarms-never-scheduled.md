@@ -56,4 +56,4 @@ Device (lexpresswayyy, 2026-11-04, Plus sandbox, locked):
 - Test E: snoozed 23:33:01, re-rang 23:42:01, Done at 23:42:06 logged one `.completed`, `isPendingConfirmation` = 0, next fire 2026-11-05 23:33.
 - iOS unit tests pass.
 
-Not verified on device: in-app snooze (1h/1d/1w/custom) re-ring.
+- In-app snooze (custom 5 min), app open: snoozed 23:44:13, re-rang 23:49:13, Mark as Done at 23:49:26 logged one `.completed`, not pending.
