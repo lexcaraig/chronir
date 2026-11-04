@@ -754,7 +754,7 @@ function calculateNextFireDate(alarm, fromDate = now()):
     - If Plus tier: set `isPendingConfirmation = true`, show confirmation UI (Mark Done / Snooze)
     - If Free tier: treat stop as done (legacy behavior)
     - Pending confirmation clears on: explicit done, snooze, or auto-expiry (24h)
-    - All completion paths (dismiss, performDismiss, handleLockScreenAction, etc.) must clear `isPendingConfirmation`
+    - All completion paths (dismiss, performDismiss, LockScreenAlarmActions.handle, etc.) must clear `isPendingConfirmation`
 8. On dismiss (mark as done):
     - Clear `isPendingConfirmation`
     - Write CompletionRecord

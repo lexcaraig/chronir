@@ -178,6 +178,7 @@ struct ChronirApp: App {
             }
             .task {
                 for await alarms in AlarmManager.shared.alarmUpdates {
+                    var settled = Set<UUID>() // alarms whose default: case already ran in this update
                     for alarm in alarms {
                         // Future occurrences use derived registration IDs; resolve to the owning alarm.
                         let baseID = AlarmScheduler.baseAlarmID(for: alarm.id)
@@ -217,7 +218,10 @@ struct ChronirApp: App {
                         default:
                             // The other horizon registrations of a ringing or snoozed alarm arrive here
                             // in the same update; they say nothing about it.
-                            if AlarmScheduler.activeRegistration(for: baseID, in: alarms) != nil { continue }
+                            // Handle each alarm once: a second pass would find stoppedForCustomSound
+                            // already consumed and close an in-app firing screen that is still ringing.
+                            if AlarmScheduler.activeRegistration(for: baseID, in: alarms) != nil
+                                || !settled.insert(baseID).inserted { continue }
                             await MainActor.run {
                                 // Snooze re-rings through scheduleSnoozeRefire, so nothing to present here.
                                 if baseID == AlarmFiringCoordinator.shared.firingAlarmID {

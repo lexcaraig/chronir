@@ -543,8 +543,8 @@
 
 | #     | Step                                                | Expected Result                            | Pass? |
 | ----- | --------------------------------------------------- | ------------------------------------------ | ----- |
-| 33E.1 | Plus user → alarm fires on lock screen → slide stop | Alarm enters Pending state (not completed) | PASS  |
-| 33E.2 | Open app after lock screen stop                     | Alarm shows Pending badge in list          | PASS  |
+| 33E.1 | Plus user → alarm fires on lock screen → slide stop | Alarm completes (system Done completes on every tier, BUG-07) | —     |
+| 33E.2 | Open app after lock screen stop                     | Alarm shows Last completed: Today, no Pending badge | — |
 | 33E.3 | Follow-up notifications schedule after lock screen  | 3 notifications at +30/+60/+90 minutes     | PASS  |
 
 ### 33F. Edge Cases

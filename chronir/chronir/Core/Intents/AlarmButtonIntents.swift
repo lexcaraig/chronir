@@ -66,10 +66,11 @@ enum LockScreenAlarmActions {
 
     /// Stopped from the system alarm UI: complete the occurrence that was ringing.
     static func stop(registrationID: UUID) {
-        guard let (model, context) = model(for: registrationID),
-              model.nextFireDate <= Date() // already handled (or a stale tap): leave the next occurrence alone
-        else { return }
         let coordinator = AlarmFiringCoordinator.shared
+        guard let (model, context) = model(for: registrationID),
+              model.nextFireDate <= Date(), // already handled (or a stale tap): leave the next occurrence alone
+              model.id != coordinator.firingAlarmID // the in-app firing screen silenced it and owns completion
+        else { return }
         coordinator.snoozedInBackground.remove(model.id)
         coordinator.stoppedForCustomSound.remove(model.id)
         coordinator.markHandled(model.id)
@@ -117,19 +118,9 @@ enum LockScreenAlarmActions {
             )
             log.alarm = model
             context.insert(log)
-        } else if PendingConfirmationService.shared.isPlusUser {
-            // Lock screen stop — Plus tier: enter pending
-            // Await enterPending before saving to ensure pending state persists
-            Task {
-                await PendingConfirmationService.shared.enterPending(alarm: model)
-                try? context.save()
-                await CloudSyncService.shared.pushAlarmModel(model)
-                await WidgetDataService.shared.refresh()
-                await LiveActivityService.shared.refreshLiveActivity()
-            }
-            return
         } else {
-            // Lock screen stop — Free tier: complete immediately
+            // System "Done" completes on every tier: the button says Done, so the alarm is done.
+            PendingConfirmationService.shared.cancelPending(alarm: model)
             let calc = DateCalculator()
             let log = CompletionLog(
                 alarmID: model.id,

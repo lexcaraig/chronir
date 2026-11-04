@@ -47,4 +47,13 @@ Device (lexpresswayyy, 2026-11-04, Free, Require Dismissal on, phone locked), fr
 - The alarm moved to 2026-11-05 19:00, `lastCompletedAt` is 19:09:08, and there were 0 "Failed to schedule" lines.
 - iOS unit tests pass.
 
-Not verified: Plus tier (stop goes to pending confirmation), and snoozing while the in-app firing screen is open.
+## Plus and in-app firing (fixed 2026-11-04)
+- **In-app firing screen closed itself about 1 s after ringing:** it silences AlarmKit to play the chosen sound. The next update then sent each of the 12 registrations through `default:`. The first consumed `stoppedForCustomSound` and the second dismissed the screen, so `completeIfNeeded` put Plus alarms into pending and Mark as Done was ignored (DB: pending at 22:20:01.267). `default:` now handles each alarm once per update, and `StopAlarmIntent` steps aside while the in-app screen owns the alarm.
+- **System "Done" now completes on Plus too (product decision, 2026-11-04):** previously it entered pending confirmation, so the button said Done and the card said it wasn't. The in-app Stop button keeps the confirmation step. `docs/ios-plus-tier-qa-checklist.md` 33E.1–2 is updated.
+
+Device (lexpresswayyy, 2026-11-04, Plus sandbox, locked):
+- Test C (pre-change): snoozed 19:55:04, re-rang, stop → pending (old behaviour).
+- Test E: snoozed 23:33:01, re-rang 23:42:01, Done at 23:42:06 logged one `.completed`, `isPendingConfirmation` = 0, next fire 2026-11-05 23:33.
+- iOS unit tests pass.
+
+Not verified on device: in-app snooze (1h/1d/1w/custom) re-ring.
