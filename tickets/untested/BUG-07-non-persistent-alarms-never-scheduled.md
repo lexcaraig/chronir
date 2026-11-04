@@ -28,5 +28,13 @@ Failed to schedule alarm: AlarmServiceError(code: invalidInput)
 - [x] iOS unit tests pass on the simulator.
 - [ ] Ship in a hotfix release (v1.2.5).
 
-## Follow-up (not fixed here)
-At fire time, the app re-schedules the alarm whose registration is still alerting. AlarmKit rejects it with "duplicate ID". This is harmless, because the other horizon occurrences stay registered, but the fire-time top-up never succeeds. Candidate: `PendingConfirmationService.enterPending` / the fire-time path.
+## Follow-ups fixed (2026-11-04)
+- **Duplicate registration at fire and stop:** `alarmUpdates` lists every registration, so the 11 not-yet-due horizon occurrences hit the "stopped on lock screen" branch while the alarm was still ringing. That branch advanced `nextFireDate`, set `stoppedOnLockScreen`, and re-scheduled on top of live IDs ("duplicate ID", invalidInput). `auditAlarmRegistrations` hit the same duplicate after every fire. Fixes:
+  - `AlarmScheduler.register` now replaces each registration (cancel, then schedule) and skips any that is alerting or in countdown.
+  - The stop branch runs only when no registration of the alarm is active.
+- **Non-persistent alarms showed a dead Snooze:** it silenced the alarm with no re-alert. These alarms now have no secondary button (lock screen shows only slide to stop). In-app snooze is unchanged.
+
+Device (lexpresswayyy, 15:35, 2026-11-04): it rang, the lock screen showed slide to stop only, and Done re-registered the horizon with 0 schedule failures (AlarmKit next wake 2026-11-05 15:35:50). The log stream dropped during the locked ring window, so the fire moment itself was not observed in the log.
+
+## Known, not fixed
+After a lock-screen stop, the stop branch advances `nextFireDate`, so the foreground "Case 2" never sees the alarm as past due. `stoppedOnLockScreen` is then never consumed, and the lock-screen completion log may not be written. This predates this ticket.

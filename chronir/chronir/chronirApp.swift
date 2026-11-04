@@ -267,7 +267,10 @@ struct ChronirApp: App {
                                     if AlarmFiringCoordinator.shared.stoppedForCustomSound.remove(baseID) == nil {
                                         AlarmFiringCoordinator.shared.dismissFiring()
                                     }
-                                } else {
+                                } else if AlarmScheduler.activeRegistration(for: baseID, in: alarms) == nil {
+                                    // Every update lists all registrations, so this alarm's future
+                                    // occurrences arrive here even while another of its registrations
+                                    // is still ringing. Only treat it as stopped once none is active.
                                     // Alarm stopped that wasn't fired in-app — user handled on lock screen
                                     AlarmFiringCoordinator.shared.stoppedOnLockScreen.insert(baseID)
 

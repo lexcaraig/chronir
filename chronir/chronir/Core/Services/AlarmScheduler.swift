@@ -95,9 +95,16 @@ final class AlarmScheduler: AlarmScheduling {
     ) async throws {
         var idMap = Self.idMap
         defer { Self.idMap = idMap }
+        // Registrations ringing or in snooze countdown are left alone; replacing one would cut it off.
+        let active = Set(((try? alarmManager.alarms) ?? [])
+            .filter { $0.state == .alerting || $0.state == .countdown }
+            .map(\.id))
         for (slot, fireDates) in slots.enumerated() {
             for (occurrence, fireDate) in fireDates.enumerated() {
                 let id = Self.registrationID(base: alarm.id, slot: slot, occurrence: occurrence)
+                guard !active.contains(id) else { continue }
+                // Replace, never duplicate: AlarmKit rejects an ID that is still registered (invalidInput).
+                try? alarmManager.cancel(id: id)
                 if id != alarm.id { idMap[id.uuidString] = alarm.id.uuidString }
                 do {
                     _ = try await alarmManager.schedule(
@@ -149,11 +156,15 @@ final class AlarmScheduler: AlarmScheduling {
     }
 
     private func buildAttributes(title: String, alarmID: UUID, isPersistent: Bool = true) -> AlarmAttributes<AlarmMetadataPayload> {
+        // Non-persistent alarms get no Snooze: with no countdown it would silence the alarm
+        // without ever bringing it back.
         let alert = AlarmPresentation.Alert(
             title: LocalizedStringResource(stringLiteral: title),
             stopButton: AlarmButton(text: "Done", textColor: .white, systemImageName: "checkmark.circle"),
-            secondaryButton: AlarmButton(text: "Snooze", textColor: .white, systemImageName: "zzz"),
-            secondaryButtonBehavior: isPersistent ? .countdown : .custom
+            secondaryButton: isPersistent
+                ? AlarmButton(text: "Snooze", textColor: .white, systemImageName: "zzz")
+                : nil,
+            secondaryButtonBehavior: isPersistent ? .countdown : nil
         )
 
         let countdown = AlarmPresentation.Countdown(
