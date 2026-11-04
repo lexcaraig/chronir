@@ -165,8 +165,12 @@ final class AlarmScheduler: AlarmScheduling {
             resumeButton: AlarmButton(text: "Resume", textColor: .white, systemImageName: "play.circle")
         )
 
+        // AlarmKit rejects (invalidInput) a countdown presentation without a countdown duration,
+        // and non-persistent alarms schedule with none.
         return AlarmAttributes(
-            presentation: AlarmPresentation(alert: alert, countdown: countdown, paused: paused),
+            presentation: isPersistent
+                ? AlarmPresentation(alert: alert, countdown: countdown, paused: paused)
+                : AlarmPresentation(alert: alert),
             metadata: AlarmMetadataPayload(alarmID: alarmID.uuidString, title: title),
             tintColor: ColorTokens.primary
         )
