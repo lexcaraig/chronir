@@ -84,3 +84,6 @@ build/
 # Claude Code local setup
 .claude/
 .claude-bak/
+
+# Local QA device evidence (read by ticket gates, not tracked)
+tickets/screenshots/
