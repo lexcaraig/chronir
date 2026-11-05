@@ -7,6 +7,7 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
@@ -69,7 +70,7 @@ class BillingService
             _subscriptionState.value = _subscriptionState.value.copy(productsUnavailable = false)
             billingClient = BillingClient.newBuilder(context)
                 .setListener(this)
-                .enablePendingPurchases()
+                .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
                 .build()
 
             billingClient?.startConnection(object : BillingClientStateListener {
@@ -104,10 +105,10 @@ class BillingService
                 .setProductList(productList)
                 .build()
 
-            billingClient?.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
+            billingClient?.queryProductDetailsAsync(params) { billingResult, result ->
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    monthlyProductDetails = productDetailsList.find { it.productId == PRODUCT_MONTHLY }
-                    annualProductDetails = productDetailsList.find { it.productId == PRODUCT_ANNUAL }
+                    monthlyProductDetails = result.productDetailsList.find { it.productId == PRODUCT_MONTHLY }
+                    annualProductDetails = result.productDetailsList.find { it.productId == PRODUCT_ANNUAL }
 
                     val monthlyPhase = monthlyProductDetails?.subscriptionOfferDetails
                         ?.firstOrNull()?.pricingPhases?.pricingPhaseList?.firstOrNull()

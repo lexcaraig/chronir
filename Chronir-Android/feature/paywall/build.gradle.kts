@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.chronir.feature.paywall"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 31

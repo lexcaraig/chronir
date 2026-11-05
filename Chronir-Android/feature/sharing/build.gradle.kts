@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.chronir.feature.sharing"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 31
