@@ -3,7 +3,7 @@
 **Priority:** P0
 **Category:** Bug
 **Platform:** Android
-**Status:** In Progress
+**Status:** Completed (device-verified 2026-11-03, see Verification)
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 **Found:** 2026-11-03 by on-device automation (Nothing A001T, Android 16 / API 36) while testing ANDROID-02
 
@@ -26,9 +26,9 @@ On a fresh Android 14+ install, creating an alarm registers it with AlarmManager
 The Play Console requires a USE_EXACT_ALARM declaration (core function: alarm clock) when this ships. Lex needs to fill it in at submission.
 
 ## Acceptance Criteria
-- [ ] After install, `dumpsys package` shows USE_EXACT_ALARM granted
-- [ ] Create an alarm: `dumpsys alarm` lists a Chronir AlarmClock registration
-- [ ] One Save tap creates one row, and the screen closes
+- [x] After install, `dumpsys package` shows USE_EXACT_ALARM granted
+- [x] Create an alarm: `dumpsys alarm` lists a Chronir AlarmClock registration
+- [x] One Save tap creates one row, and the screen closes
 
 ## Verification
 - On device (Nothing A001T, Android 16, adb) 2026-11-03: after install `dumpsys package` shows `USE_EXACT_ALARM: granted=true`; `dumpsys alarm` lists the alarms as RTC_WAKEUP `exactAllowReason=policy_permission` at 2026-11-09 08:00, and "Next alarm clock" is the same time

@@ -3,7 +3,7 @@
 **Priority:** P1
 **Category:** Bug
 **Platform:** Android
-**Status:** In Progress
+**Status:** Completed (device-verified 2026-11-03, see Verification)
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 **Found:** 2026-11-03 on device (Nothing A001T): an alarm due Nov 9 08:00 showed "Alarm in 6h 32m"
 
@@ -19,8 +19,8 @@ Each active Android alarm card shows the real time left until `nextFireDate`, in
 `countdownText(to:now:)` in `core/model`, used by `AlarmCard`; `CountdownTest` covers days, hours, under a minute, and past times.
 
 ## Acceptance Criteria
-- [ ] The card for an alarm due in about 5 days shows "Alarm in 5d …" on device
-- [ ] `CountdownTest` passes
+- [x] The card for an alarm due in about 5 days shows "Alarm in 5d …" on device
+- [x] `CountdownTest` passes
 
 ## Verification
 - On device 2026-11-03: alarm cards show "Alarm in 5d 14h" for a Nov 9 08:00 alarm (they showed "Alarm in 6h 32m" before the fix)
