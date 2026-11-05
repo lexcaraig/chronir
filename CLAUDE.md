@@ -79,8 +79,6 @@ Workflow:
 
 Chronir is a high-persistence alarm app for long-cycle recurring tasks (weekly, monthly, annually). It treats long-term obligations with the urgency of a morning wake-up alarm — full-screen, persistent, undeniable.
 
-**Status:** Foundation scaffolded. iOS (SwiftUI/SPM), Android (Jetpack Compose/Gradle multi-module), design token pipeline, Firebase project, and CI/CD workflows are in place. Sprint 1 implementation is next.
-
 ## Platform Strategy
 
 Two **separate native apps** with no shared codebase. Identical information architecture, data models, and feature sets — but platform-specific UI and system integration.
@@ -114,41 +112,6 @@ Component hierarchy: Tokens → Atoms → Molecules → Organisms → Templates 
 
 iOS uses Liquid Glass (`.glassEffect()`); Android uses Material 3 + Dynamic Color. All design system components are prefixed with `Chronir` (e.g., `ChronirButton`, `ChronirText`, `ChronirBadge`).
 
-### Project Structure
-
-```
-Chronir/
-├── chronir/               # Xcode project (chronir.xcodeproj)
-│   └── chronir/
-│       ├── App/              # ChronirApp entry, Configuration (GoogleService-Info.plist)
-│       ├── DesignSystem/     # Tokens, Atoms, Molecules, Organisms, Templates
-│       ├── Features/         # AlarmList, AlarmDetail, AlarmCreation, AlarmFiring, Settings, Sharing, Paywall
-│       ├── Core/             # Models, Services, Repositories, Utilities, Intents (App Intents/Siri)
-│       └── Widgets/          # NextAlarmWidget, CountdownLiveActivity
-├── Chronir-Android/       # Gradle multi-module (settings.gradle.kts)
-│   ├── app/                  # Main app module (Hilt, Navigation, MainActivity)
-│   ├── core/                 # designsystem, model, data, services modules
-│   ├── feature/              # alarmlist, alarmdetail, alarmcreation, alarmfiring, settings, sharing, paywall
-│   ├── widget/               # NextAlarmWidget (Glance)
-│   └── gradle/libs.versions.toml  # Version catalog
-├── design-tokens/            # Style Dictionary v5 pipeline
-│   ├── tokens/               # Source JSON (color, spacing, radius, typography, animation)
-│   ├── build/ios/            # Generated Swift token files
-│   └── build/android/        # Generated Kotlin token files
-├── tickets/                  # Ticket-first workflow system
-│   ├── open/                   # Tickets ready for sprint
-│   ├── in-progress/            # Actively being worked on
-│   ├── untested/               # Done, pending QA
-│   ├── completed/              # Done and verified
-│   ├── backlogs/               # Not yet prioritized
-│   └── sprints/                # Sprint definitions
-├── .github/workflows/        # CI: ios.yml, android.yml, design-tokens.yml
-├── firestore.rules           # Firestore security rules
-└── docs/                     # Spec documents
-```
-
-Features are organized by screen: `AlarmList`, `AlarmDetail`, `AlarmCreation`, `AlarmFiring`, `Settings`, `Sharing`, `Paywall`.
-
 ### Data Flow
 
 - **Local-first:** Alarms always fire from on-device storage. Cloud is secondary.
@@ -175,14 +138,7 @@ cd chronir
 # Lint
 swiftlint
 
-# Build (simulator)
-xcodebuild build \
-  -project chronir.xcodeproj \
-  -scheme chronir \
-  -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
-  -skipMacroValidation \
-  CODE_SIGNING_ALLOWED=NO \
-  CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES
+# Build: see IOS-10 in .claude/rules/ios.md for the simulator name and required flags
 ```
 
 ### Android (Gradle multi-module)
@@ -301,113 +257,9 @@ See `tickets/README.md` for full documentation.
 
 ## Workflows (Custom Commands & Agents)
 
-### Slash Commands
+### Commands and Agents
 
-All commands live in `.claude/commands/`; heuristics in `.claude/skills/<name>/SKILL.md`. Run `/status` to see where you are.
-
-**Core workflow**
-
-| Command | Purpose |
-| --- | --- |
-| `/implement-task` | Main orchestrator — pick up a Chronir ticket, plan, implement (iOS/Android), test, review, simplify, commit, and… |
-| `/implement-ios` | iOS-focused workflow — implement a feature in SwiftUI following Chronir conventions, then lint, test, review, simplify. |
-| `/implement-android` | Android-focused workflow — implement a feature in Jetpack Compose following Chronir conventions, then lint, test… |
-| `/sprint-kickoff` | Initialize a sprint — read the sprint file or roadmap, create the sprint branch from develop, build the task list… |
-| `/phase-qa-gate` | Phase quality gate — lint, tests, release builds, security review, simplify audit, QA-plan cross-reference; moves… |
-| `/create-ticket` | Turn a raw ask into a buildable Chronir ticket (TIER/LAUNCH/QA/FEAT/ANDROID/PREMIUM/BUG/INFRA) with Goal, acceptance… |
-| `/test-ticket` | QA-verify an untested Chronir ticket — gate, acceptance criteria, on-device drive (iOS "lexpresswayyy" / Android… |
-| `/clarify` | Pre-code clarification ritual for M+ tickets. Surfaces assumptions (data shape, tier gating, migration, alarm-engine… |
-| `/plan-feature` | Plan a feature with the architect agent — scan both codebases, design per-platform file changes, alarm-engine and… |
-| `/council` | Convene a multi-lens scoping council (iOS, Android, alarm engine, data/sync, design system, tier, QA) over a feature… |
-| `/create-prd` | Create a Product Requirements Document for a Chronir feature (both platforms, tier placement, alarm-engine and data… |
-| `/scaffold-feature` | Scaffold a new feature on iOS (Features/{Name}) and/or Android (feature/{name} module) following Chronir's MVVM +… |
-| `/status` | Show the active ticket, sprint progress from tickets/ counts, release state, recent lessons, and a suggested next… |
-
-**Quality gates**
-
-| Command | Purpose |
-| --- | --- |
-| `/build-all` | Full quality gate across all Chronir build systems — design tokens, iOS (swiftlint + xcodebuild test), Android… |
-| `/check-all` | Full pre-push verification — tokens, then iOS + Android gates in parallel, then the serial post-barrier gates… |
-| `/lint` | Run swiftlint (iOS) and ktlintCheck (Android), auto-format first, and fix every remaining warning. |
-| `/test` | Run the iOS (xcodebuild test) and Android (gradle test) unit suites and report results; device drives are a separate… |
-| `/fix-tests` | Run the iOS and/or Android test suites, diagnose failures from the real artifacts, fix the cause (never the… |
-| `/simplify` | Review recently changed Swift/Kotlin code for reuse, clarity and scope creep, fix what matters, and write the… |
-| `/security-review` | Diff-scoped security review (auth, Firestore rules/sync, StoreKit/Play Billing gating, Keychain, secrets, local… |
-| `/optimize-review` | Diff-scoped performance review (alarm scheduling loops, SwiftData/Room queries, main-thread work, list rendering… |
-| `/precommit-review` | Run all three pre-commit review gates in one pass — simplify + security-review + optimize-review — and write all… |
-| `/review` | Review the current diff with the code-reviewer agent against the active ticket's acceptance criteria, Chronir… |
-| `/preflight` | Pre-submit preflight — swiftlint --strict, crash-risk and debug-print greps, placeholder/stub scan, and the… |
-| `/pre-submit-audit` | App Store Review compliance audit — crash stubs, non-functional UI, paywall accuracy, debug visibility, permissions… |
-
-**Audits**
-
-| Command | Purpose |
-| --- | --- |
-| `/audit-all` | Run the 4 core audits in parallel (journeys, security, performance, tier-gating) via the audit-full workflow in core… |
-| `/audit-full` | Run the FULL audit across every domain (journeys, security, performance, tier-gating, accessibility, dependencies… |
-| `/audit-journeys` | Full user-journey audit with the journey-auditor agent — verify every story in docs/user-stories-and-backlogs.md and… |
-| `/audit-security` | Full security audit with the security-auditor agent — Firebase Auth + Firestore rules, tier/entitlement enforcement… |
-| `/audit-performance` | Full-codebase performance audit with the performance-auditor agent — alarm scheduling cost, SwiftData/Room queries… |
-| `/audit-tier-gating` | Tier-gating audit — code + unit-test based check that Free (3 alarms, local-only) and Plus features are gated via… |
-| `/audit-accessibility` | Full accessibility audit with the accessibility-auditor agent — VoiceOver/TalkBack labels, Dynamic Type/font… |
-| `/audit-dependencies` | Full dependency and modernness audit with the dependency-auditor agent — SPM packages, Gradle version catalog… |
-| `/audit-code-quality` | Full code-quality audit with the code-quality-auditor agent — convention adherence (CLAUDE.md, MVVM, Chronir*… |
-| `/audit-animations` | Audit Chronir's motion posture (SwiftUI + Compose) against the motion-skill standards — ad-hoc values… |
-| `/audit-methodology` | Print the audit methodology reference card — what each /audit-* checks, who owns it, severity rubric, the lesson… |
-| `/adversarial-verify` | Adversarially verify a plan, ticket, doc, or diff with parallel lens attackers and an evidence-checked verifier… |
-
-**Design**
-
-| Command | Purpose |
-| --- | --- |
-| `/design-audit` | Design-system compliance audit (tokens, Chronir naming, atomic hierarchy, dark mode) for iOS and/or Android.… |
-| `/design-review` | Full design pipeline — Chronir token audit + Impeccable critique → user approval → normalize → polish → re-audit. |
-| `/design-mockup` | Generate or iterate the claude.ai/design mockup for a council-scoped ticket's Design section so the screen is… |
-| `/sync-tokens` | Rebuild design tokens with Style Dictionary and copy the generated Swift/Kotlin files to both platforms, then verify… |
-
-**Release & ops**
-
-| Command | Purpose |
-| --- | --- |
-| `/release` | End-to-end Chronir release — version bump, gates, pre-submit audit, store metadata, docs, tag, archive + upload, asc… |
-| `/deploy` | Deploy Firestore security rules to the cyclealarm-app Firebase project (the only deployable backend surface), with… |
-| `/qa` | QA orchestration for Chronir — use-case inventory from docs/qa-plan.md, test matrix (persona × tier × platform)… |
-| `/update-docs` | Update docs/, CLAUDE.md and README.md after completed work — CHANGELOG always, then a parallel fan-out over… |
-| `/housekeeping` | Scan the repo for drift and stale artifacts — git hygiene, ticket folder/status mismatches, sprint links, orphan… |
-| `/learn-from-mistake` | Capture a lesson from a mistake or multi-attempt fix — root cause, prevention rule — into tasks/lessons.md… |
-| `/optimize-claude-setup` | Audit .claude/ (commands, skills, agents, workflows, hooks, routines), CLAUDE.md and auto-memory against… |
-| `/sessions` | Multi-terminal session blackboard - view peers, update your status/note, clean stale files, or suggest… |
-| `/say` | Post a message to the shared session chat channel (delivered to other terminals on their next turn) |
-
-### Custom Agents
-
-Defined in `.claude/agents/`; see `.claude/agents/README.md` for who spawns what. Worker agents (ios-developer, android-developer, alarm-engine-specialist, firebase-architect, design-system-builder) are read-and-inject: load the file into the prompt of a general-purpose agent.
-
-| Agent | Specialty |
-| --- | --- |
-| `accessibility-auditor` | Accessibility auditor for Chronir — verifies the SwiftUI and Jetpack Compose apps meet WCAG 2.1 AA equivalents for… |
-| `alarm-engine-specialist` | Alarm scheduling reliability specialist for Chronir — AlarmKit (iOS 26) + AlarmManager.setAlarmClock() (Android)… |
-| `android-developer` | Android developer for Chronir — Jetpack Compose + Material 3, Kotlin 2 coroutines/Flow, Hilt, Room (contiguous… |
-| `animation-auditor` | Motion/animation posture auditor for Chronir — holds every animated surface (SwiftUI… |
-| `architect` | System architect for Chronir — designs data models (SwiftData + Room mirrored), Firestore collections/rules… |
-| `code-quality-auditor` | Code quality auditor for Chronir — verifies convention adherence vs CLAUDE.md, .claude/rules/*, and… |
-| `code-reviewer` | Chronir code review — correctness, alarm-reliability, concurrency, SwiftData/Room schema safety, tier gating… |
-| `code-simplifier` | Simplifies recently-changed Chronir code (Swift/SwiftUI, Kotlin/Compose, token JSON) for clarity, consistency, and… |
-| `dependency-auditor` | Dependency and modernness auditor for Chronir — checks the three dependency trees (iOS SPM Package.resolved, Android… |
-| `design-system-builder` | Design-system and token specialist for Chronir — the Style Dictionary v5 pipeline in design-tokens/ (Primitive →… |
-| `device-qa-driver` | On-device acceptance-QA driver for Chronir — drives a real installed build like a real user on the iOS physical… |
-| `firebase-architect` | Firebase specialist for Chronir — Auth (anonymous → Apple/Google), Firestore schema per docs/data-schema.md… |
-| `incident-investigator` | Production incident triage for Chronir. Gathers device-side evidence (Crashlytics, Xcode Console.app / `log stream`… |
-| `ios-developer` | iOS developer for Chronir — SwiftUI, Swift 6 strict concurrency, AlarmKit (iOS 26) with UNNotification fallback… |
-| `journey-auditor` | User journey auditor for Chronir — verifies the implementation faithfully covers every user story in… |
-| `optimizer` | Diff-scoped performance/cost optimizer for Chronir. Reviews ONLY the staged/changed diff for the perf anti-patterns… |
-| `performance-auditor` | Full-codebase performance auditor for Chronir — cold/warm start, alarm-list scroll at 60 items, SwiftUI/Compose… |
-| `qa-engineer` | QA engineer for Chronir — test design + execution across iOS (XCTest/Swift Testing) and Android… |
-| `release-shipper` | Release-pipeline specialist for Chronir — iOS App Store via xcodebuild archive → export/upload → asc release stage →… |
-| `security-auditor` | Security auditor for Chronir — Firebase Auth state + Firestore rules vs docs/technical-spec.md § 6.4, tier gating… |
-| `security-reviewer` | Diff-scoped Chronir security reviewer backing the /security-review and /precommit-review commit gate. Reviews ONLY… |
-| `tier-gating-auditor` | Tier-gating auditor for Chronir — verifies every Free/Plus gate (3-alarm limit, photos, custom snooze, pre-alarm… |
+Commands live in `.claude/commands/` (heuristics in `.claude/skills/<name>/SKILL.md`); run `/status` to see where you are. Agents are in `.claude/agents/`; see `.claude/agents/README.md` for who spawns what. Worker agents (ios-developer, android-developer, alarm-engine-specialist, firebase-architect, design-system-builder) are read-and-inject: load the file into the prompt of a general-purpose agent.
 
 ### Hooks, Rules, Workflows
 
@@ -451,17 +303,6 @@ Record a learning whenever:
 1. **Immediate:** After encountering a mistake, write to `MEMORY.md` (auto-loaded into system prompt) with a concise entry
 2. **Categorized:** For detailed notes, create topic-specific files (e.g., `ios-gotchas.md`, `build-issues.md`, `token-pipeline.md`) and link from `MEMORY.md`
 3. **Format:** Each entry should include: what happened, why it happened, and how to prevent it
-
-### Memory File Structure
-
-```
-~/.claude/projects/.../memory/
-├── MEMORY.md              # Index file (auto-loaded, keep under 200 lines)
-├── build-issues.md        # Build failures and fixes
-├── platform-gotchas.md    # iOS/Android-specific traps
-├── token-pipeline.md      # Design token generation lessons
-└── conventions.md         # Project patterns and conventions discovered
-```
 
 ### Rules
 
