@@ -3,7 +3,7 @@
 **Priority:** P0
 **Category:** Bug
 **Platform:** iOS
-**Status:** Untested (device-verified for one alarm; release pending)
+**Status:** Completed (shipped v1.3.0; verified on the release build 2026-11-05)
 **Sprint:** [sprint-surfaces](../sprints/sprint-surfaces.md)
 
 ---
@@ -26,7 +26,7 @@ Failed to schedule alarm: AlarmServiceError(code: invalidInput)
 - [x] It rings at its time. Device: lexpresswayyy, 14:27, 2026-11-04.
 - [x] After the fire, the following occurrence is still registered (AlarmKit next wake 2026-11-05 14:26:50).
 - [x] iOS unit tests pass on the simulator.
-- [ ] Ship in a hotfix release (v1.2.5).
+- [x] Ship in a release: shipped v1.3.0 (approved, Ready for Distribution, 2026-11-05) instead of a v1.2.5 hotfix.
 
 ## Follow-ups fixed (2026-11-04)
 - **Duplicate registration at fire and stop:** `alarmUpdates` lists every registration, so the 11 not-yet-due horizon occurrences hit the "stopped on lock screen" branch while the alarm was still ringing. That branch advanced `nextFireDate`, set `stoppedOnLockScreen`, and re-scheduled on top of live IDs ("duplicate ID", invalidInput). `auditAlarmRegistrations` hit the same duplicate after every fire. Fixes:
@@ -57,3 +57,11 @@ Device (lexpresswayyy, 2026-11-04, Plus sandbox, locked):
 - iOS unit tests pass.
 
 - In-app snooze (custom 5 min), app open: snoozed 23:44:13, re-rang 23:49:13, Mark as Done at 23:49:26 logged one `.completed`, not pending.
+
+## Verification
+Release build on device: lexpresswayyy, Chronir 1.3.0 (build 1), Release configuration of 4903ff0 (the same app code as the App Store build), installed over the existing app. 2026-11-05, Plus sandbox, `idevicesyslog` AlarmKitCore capture running.
+- **New alarm, force-quit, locked:** "Trst 2" was created at 14:34:23, with `Scheduled alarm` logged for each registration. It rang at 14:36 (screenshot IMG_0799). Snooze at 14:36:12 showed the 8:56 countdown (IMG_0800). It re-rang at 14:45 (IMG_0801). Slide to stop at 14:45:22 logged one `.completed`. The next fire is 2026-11-06 14:36, with nothing pending (IMG_0802).
+- **Edited alarm, force-quit, locked:** "Trst 2" was saved at 14:52:26 for 14:53. It rang. Stop at 14:53:06 logged one `.completed`, and it re-registered for 2026-11-06.
+- **Console:** 0 "Failed to schedule", `invalidInput` or "Not scheduling" lines across about 49k captured lines. `Failed to cancel activity … unknownAlarm` is AlarmKit clearing Live Activities that don't exist (harmless).
+- An earlier miss in the same session (an edited alarm with Require Dismissal on, before the log capture started) didn't reproduce. It is tracked as BUG-08 and is outside this ticket, which covers alarms with Require Dismissal off.
+- Screenshots IMG_0799–0802 were shared in the QA session and go under `tickets/screenshots/BUG-07/`, which is local and not tracked.
