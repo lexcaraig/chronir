@@ -38,3 +38,10 @@ Hilt (2.51.1) keys ViewModels by class name (`@LazyClassKey`). R8 merged `Shared
 
 ## Follow-up
 - No crash reporting on Android (no Crashlytics/Sentry), which is why this was invisible. Worth a ticket.
+
+## Results (2026-11-08, Galaxian A001T, Android 16, local release APK versionCode 5, commit 6f1cd64)
+- Gate: `./gradlew assembleRelease` BUILD SUCCESSFUL; R8 mapping lists 24 `*ViewModel` entries with 0 duplicate obfuscated names.
+- PASS Clean install → 4 onboarding pages → Alarms screen, no crash (`bug-09-01` … `bug-09-04`).
+- PASS New Alarm and Settings open; force-stop + relaunch lands on Alarms (`bug-09-05` … `bug-09-07`). `logcat -b crash`: 0 lines.
+- BLOCKED Play-installed build: the phone's account has early access (`bug-09-08`), but Play shows "Complete account setup" before Install. Needs the phone owner to finish that, then install from Play and reopen the app once.
+- NOT APPLICABLE Shared alarm / wallpaper picker / category detail: none of the three screens is wired into navigation (SharedAlarmScreen is a TODO stub). Their ViewModels are only instantiated through the Hilt key map built at MainActivity creation, which the launch above exercises.
