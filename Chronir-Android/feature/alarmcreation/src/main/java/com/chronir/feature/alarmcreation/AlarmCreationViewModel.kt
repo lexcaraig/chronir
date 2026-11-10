@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.chronir.data.repository.AlarmRepository
 import com.chronir.model.Alarm
 import com.chronir.model.AlarmTemplate
+import com.chronir.services.AlarmLimitPolicy
 import com.chronir.services.AlarmScheduler
 import com.chronir.services.BillingService
 import com.chronir.services.DateCalculator
@@ -45,9 +46,9 @@ class AlarmCreationViewModel
     ) : ViewModel() {
 
         companion object {
-            const val FREE_TIER_ALARM_LIMIT = 3
             const val TITLE_REQUIRED = "Enter a name for this alarm."
-            const val FREE_LIMIT_MESSAGE = "Free includes $FREE_TIER_ALARM_LIMIT alarms. Upgrade to Plus for unlimited alarms."
+            const val FREE_LIMIT_MESSAGE =
+                "Free includes ${AlarmLimitPolicy.FREE_TIER_ALARM_LIMIT} alarms. Upgrade to Plus for unlimited alarms."
         }
 
         private val _uiState = MutableStateFlow(AlarmCreationUiState())
@@ -99,7 +100,7 @@ class AlarmCreationViewModel
             viewModelScope.launch {
                 try {
                     // Free tier: 3-alarm limit (also checked before the form opens; this is the enforcing gate).
-                    if (!isPlusTier && alarmRepository.observeAlarms().first().size >= FREE_TIER_ALARM_LIMIT) {
+                    if (!isPlusTier && alarmRepository.observeAlarms().first().size >= AlarmLimitPolicy.FREE_TIER_ALARM_LIMIT) {
                         _uiState.update {
                             it.copy(isSaving = false, message = EditorMessage(FREE_LIMIT_MESSAGE, offerUpgrade = true))
                         }

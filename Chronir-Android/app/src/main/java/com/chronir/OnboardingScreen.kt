@@ -41,6 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +62,7 @@ import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.feature.settings.AlarmReliabilitySettings
 import com.chronir.feature.settings.AlarmReliabilityStatus
 import com.chronir.feature.settings.rememberAlarmReliabilityStatus
+import com.chronir.services.BatteryOptimizationHelper
 import kotlinx.coroutines.launch
 
 private const val PAGE_COUNT = 4
@@ -150,6 +152,15 @@ fun OnboardingScreen(
                     todo = "Set to Unrestricted, so Android doesn't delay alarms",
                     onClick = { AlarmReliabilitySettings.openBatterySettings(context) }
                 )
+                if (remember { BatteryOptimizationHelper(context).isKnownProblematicOem }) {
+                    ChronirText(
+                        text = "${Build.MANUFACTURER} phones also stop background apps on their own. " +
+                            "Chronir opens the maker's battery screen; allow it to run in the background there.",
+                        style = ChronirTextStyle.BodySecondary,
+                        color = MaterialTheme.chronirColors.textSecondary,
+                        modifier = Modifier.padding(horizontal = SpacingTokens.Medium)
+                    )
+                }
             }
         }
     }

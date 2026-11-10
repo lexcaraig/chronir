@@ -2,10 +2,8 @@ package com.chronir.services
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
-import android.provider.Settings
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +21,9 @@ class BatteryOptimizationHelper
             get() = manufacturer in setOf(
                 "samsung",
                 "xiaomi",
+                "redmi",
                 "huawei",
+                "honor",
                 "oneplus",
                 "oppo",
                 "vivo",
@@ -36,20 +36,13 @@ class BatteryOptimizationHelper
             return pm.isIgnoringBatteryOptimizations(context.packageName)
         }
 
-        fun getBatterySettingsIntent(): Intent {
-            // Try OEM-specific settings first, fall back to standard
-            val oemIntent = getOemBatteryIntent()
-            if (oemIntent != null &&
-                context.packageManager.resolveActivity(oemIntent, 0) != null
-            ) {
-                return oemIntent
-            }
-
-            // Standard Android battery optimization screen
-            return Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                data = Uri.parse("package:${context.packageName}")
-            }
-        }
+        /**
+         * The OEM's own "background restriction" screen when this device has one and it resolves, otherwise null
+         * so the caller falls back to App Info. There is deliberately no
+         * ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS fallback: it needs a permission Chronir does not declare.
+         */
+        fun oemBatterySettingsIntent(): Intent? =
+            getOemBatteryIntent()?.takeIf { context.packageManager.resolveActivity(it, 0) != null }
 
         private fun getOemBatteryIntent(): Intent? = when (manufacturer) {
             "samsung" -> Intent().apply {

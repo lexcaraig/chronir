@@ -39,6 +39,7 @@ import com.chronir.designsystem.theme.chronirColors
 import com.chronir.designsystem.tokens.SpacingTokens
 import com.chronir.model.TextSizePreference
 import com.chronir.model.ThemePreference
+import com.chronir.services.BatteryOptimizationHelper
 
 // Bundled so the FAQ matches this build and opens offline.
 private const val FAQ_URL = "asset:faq.md"
@@ -164,7 +165,7 @@ private fun AlarmReliabilitySection(
 ) {
     SettingsSection(
         header = "Alarm Reliability",
-        footer = batteryGuidanceFooter()
+        footer = batteryGuidanceFooter(LocalContext.current)
     ) {
         PermissionStatusRow(
             title = "Notifications",
@@ -235,21 +236,17 @@ private fun PermissionStatusRow(
 private fun Context.appVersionName(): String =
     runCatching { packageManager.getPackageInfo(packageName, 0).versionName }.getOrNull() ?: ""
 
-private fun batteryGuidanceFooter(): String {
-    val manufacturer = Build.MANUFACTURER.lowercase()
-    return when {
-        manufacturer.contains("samsung") ->
-            "Samsung: Settings > Battery > App Power Management > disable for Chronir"
-        manufacturer.contains("xiaomi") || manufacturer.contains("redmi") ->
-            "Xiaomi: Settings > Battery > App battery saver > Chronir > No restrictions"
-        manufacturer.contains("huawei") || manufacturer.contains("honor") ->
-            "Huawei: Settings > Battery > App launch > Chronir > Manage manually (enable all)"
-        manufacturer.contains("oneplus") || manufacturer.contains("oppo") ->
-            "OnePlus/OPPO: Settings > Battery > Battery optimization > Chronir > Don't optimize"
-        manufacturer.contains("vivo") ->
-            "Vivo: Settings > Battery > Background power consumption > Chronir > enable"
-        else ->
-            "Set Chronir's battery usage to Unrestricted so alarms fire on time."
+/** One line of OEM-specific guidance on makers known to kill background apps; generic advice elsewhere. */
+private fun batteryGuidanceFooter(context: Context): String {
+    val helper = BatteryOptimizationHelper(context)
+    if (!helper.isKnownProblematicOem) return "Set Chronir's battery usage to Unrestricted so alarms fire on time."
+    return when (helper.manufacturer) {
+        "samsung" -> "Samsung: Settings > Battery > App Power Management > disable for Chronir"
+        "xiaomi", "redmi" -> "Xiaomi: Settings > Battery > App battery saver > Chronir > No restrictions"
+        "huawei", "honor" -> "Huawei: Settings > Battery > App launch > Chronir > Manage manually (enable all)"
+        "oneplus", "oppo", "realme" -> "OnePlus/OPPO: Settings > Battery > Battery optimization > Chronir > Don't optimize"
+        "vivo" -> "Vivo: Settings > Battery > Background power consumption > Chronir > enable"
+        else -> "${Build.MANUFACTURER} phones often stop background apps. Set Chronir's battery usage to Unrestricted."
     }
 }
 

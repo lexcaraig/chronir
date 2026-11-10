@@ -49,6 +49,7 @@ import com.chronir.model.AlarmCategory
 import com.chronir.model.CycleType
 import com.chronir.model.PersistenceLevel
 import com.chronir.model.Schedule
+import com.chronir.services.AlarmLimitPolicy
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalTime
@@ -78,7 +79,7 @@ fun AlarmListScreen(
         } else {
             scope.launch {
                 val result = snackbarHostState.showSnackbar(
-                    message = "Free includes ${AlarmListViewModel.FREE_TIER_ALARM_LIMIT} alarms.",
+                    message = "Free includes ${AlarmLimitPolicy.FREE_TIER_ALARM_LIMIT} alarms.",
                     actionLabel = "Upgrade",
                     duration = SnackbarDuration.Long
                 )

@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import com.chronir.services.BatteryOptimizationHelper
 
 /** Live state of the system permissions alarms depend on. */
 data class AlarmReliabilityStatus(
@@ -77,9 +78,13 @@ object AlarmReliabilitySettings {
         }
     }
 
-    /** App info for Chronir, where Battery > Unrestricted lives on stock Android. */
+    /**
+     * The OEM's own background-restriction screen where one exists (Samsung, Xiaomi, Huawei, ...), otherwise
+     * App Info for Chronir, where Battery > Unrestricted lives on stock Android.
+     */
     fun openBatterySettings(context: Context) = context.launch(
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri(context))
+        BatteryOptimizationHelper(context).oemBatterySettingsIntent()
+            ?: Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri(context))
     )
 
     fun openExactAlarmSettings(context: Context) = context.launch(
@@ -92,10 +97,15 @@ object AlarmReliabilitySettings {
             startActivity(withFlags)
         } catch (_: ActivityNotFoundException) {
             // Some OEM builds drop the per-app screens; fall back to app info.
-            startActivity(
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri(this))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
+            openAppInfo()
+        } catch (_: SecurityException) {
+            // OEM battery screens are not always exported; fall back to app info.
+            openAppInfo()
         }
     }
+
+    private fun Context.openAppInfo() = startActivity(
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, packageUri(this))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    )
 }

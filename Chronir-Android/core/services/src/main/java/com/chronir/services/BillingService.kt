@@ -44,7 +44,9 @@ data class SubscriptionState(
     val monthlyAvailable: Boolean = false,
     val annualAvailable: Boolean = false,
     /** True when connecting to Play or loading products failed; the paywall offers a retry. */
-    val productsUnavailable: Boolean = false
+    val productsUnavailable: Boolean = false,
+    /** True once Play has answered a purchases query; before that [tier] is a placeholder, not a verdict. */
+    val isTierResolved: Boolean = false
 )
 
 @Singleton
@@ -150,7 +152,8 @@ class BillingService
                     it.purchaseState == Purchase.PurchaseState.PURCHASED
                 }
                 _subscriptionState.value = _subscriptionState.value.copy(
-                    tier = if (hasActive) SubscriptionTier.PLUS else SubscriptionTier.FREE
+                    tier = if (hasActive) SubscriptionTier.PLUS else SubscriptionTier.FREE,
+                    isTierResolved = true
                 )
                 // Acknowledge unacknowledged purchases
                 purchases.filter {
@@ -212,7 +215,8 @@ class BillingService
                 purchases.forEach { purchase ->
                     if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                         _subscriptionState.value = _subscriptionState.value.copy(
-                            tier = SubscriptionTier.PLUS
+                            tier = SubscriptionTier.PLUS,
+                            isTierResolved = true
                         )
                         if (!purchase.isAcknowledged) {
                             acknowledgePurchase(purchase)

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.chronir.model.TextSizePreference
 import com.chronir.model.ThemePreference
@@ -40,6 +41,12 @@ class SettingsRepository
             val TEXT_SIZE = stringPreferencesKey("text_size_preference")
             val GROUP_BY_CATEGORY = booleanPreferencesKey("group_by_category")
             val HAS_COMPLETED_ONBOARDING = booleanPreferencesKey("has_completed_onboarding")
+            val LIMIT_DISABLED_ALARM_IDS = stringSetPreferencesKey("limit_disabled_alarm_ids")
+        }
+
+        /** IDs of alarms the Free limit turned off, so a later upgrade restores exactly those. */
+        val limitDisabledAlarmIds: Flow<Set<String>> = context.dataStore.data.map { prefs ->
+            prefs[Keys.LIMIT_DISABLED_ALARM_IDS] ?: emptySet()
         }
 
         val settings: Flow<UserSettings> = context.dataStore.data.map { prefs ->
@@ -79,5 +86,11 @@ class SettingsRepository
 
         suspend fun setHasCompletedOnboarding(completed: Boolean) {
             context.dataStore.edit { it[Keys.HAS_COMPLETED_ONBOARDING] = completed }
+        }
+
+        suspend fun setLimitDisabledAlarmIds(ids: Set<String>) {
+            context.dataStore.edit {
+                if (ids.isEmpty()) it.remove(Keys.LIMIT_DISABLED_ALARM_IDS) else it[Keys.LIMIT_DISABLED_ALARM_IDS] = ids
+            }
         }
     }

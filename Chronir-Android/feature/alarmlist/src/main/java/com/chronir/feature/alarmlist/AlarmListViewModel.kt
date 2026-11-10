@@ -7,6 +7,7 @@ import com.chronir.data.repository.SettingsRepository
 import com.chronir.model.Alarm
 import com.chronir.model.AlarmCategory
 import com.chronir.model.CycleType
+import com.chronir.services.AlarmLimitPolicy
 import com.chronir.services.AlarmScheduler
 import com.chronir.services.BillingService
 import com.chronir.services.NotificationCleanupService
@@ -33,11 +34,6 @@ class AlarmListViewModel
         settingsRepository: SettingsRepository
     ) : ViewModel() {
 
-        companion object {
-            /** Mirrors AlarmCreationViewModel.FREE_TIER_ALARM_LIMIT, which enforces it on save. */
-            const val FREE_TIER_ALARM_LIMIT = 3
-        }
-
         // One Room observer shared by every list below.
         private val alarms = alarmRepository.observeAlarms()
             .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), replay = 1)
@@ -47,7 +43,7 @@ class AlarmListViewModel
             alarms,
             billingService.subscriptionState
         ) { alarms, subscription ->
-            subscription.tier != SubscriptionTier.FREE || alarms.size < FREE_TIER_ALARM_LIMIT
+            subscription.tier != SubscriptionTier.FREE || alarms.size < AlarmLimitPolicy.FREE_TIER_ALARM_LIMIT
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
         val groupByCategory: StateFlow<Boolean> = settingsRepository.settings
