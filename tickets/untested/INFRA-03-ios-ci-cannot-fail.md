@@ -17,3 +17,4 @@
 ## Verification (2026-11-10, run 42827976506)
 First real run on `sprint-surfaces` went red at SwiftLint: `--strict` promoted 59 pre-existing warnings to errors. Dropped `--strict` (INFRA-05 tracks the burn-down) and skipped the device-only `CompleteAlarmIntentTests` on the simulator. Android CI was failing on the gitignored `google-services.json`; the test and build jobs now write a stub before Gradle.
 Second run (ec66e6b): lint green, test host aborted at launch because `FirebaseApp.configure()` has no `GoogleService-Info.plist` on the runner; the test job now writes a stub plist first.
+Run for ef16342: SwiftLint green, unit tests green on the runner (stub plist with a 39-char API key; `FIRInstallations validateAPIKey:` rejects anything else). Android CI green since ec66e6b.
