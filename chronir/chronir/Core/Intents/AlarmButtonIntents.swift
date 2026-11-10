@@ -105,6 +105,7 @@ enum LockScreenAlarmActions {
         context: ModelContext
     ) {
         NotificationService.shared.removeDeliveredNotifications(for: model.id)
+        let scheduled = model.nextFireDate // the occurrence acted on (BUG-12)
 
         if wasSnoozed {
             // Lock screen snooze
@@ -112,7 +113,7 @@ enum LockScreenAlarmActions {
             model.nextFireDate = Date().addingTimeInterval(540) // matches postAlert snooze duration
             let log = CompletionLog(
                 alarmID: model.id,
-                scheduledDate: model.nextFireDate,
+                scheduledDate: scheduled,
                 action: .snoozed,
                 snoozeCount: model.snoozeCount
             )
@@ -123,7 +124,7 @@ enum LockScreenAlarmActions {
             PendingConfirmationService.shared.cancelPending(alarm: model)
             let log = CompletionLog(
                 alarmID: model.id,
-                scheduledDate: model.nextFireDate,
+                scheduledDate: scheduled,
                 action: .completed,
                 snoozeCount: model.snoozeCount
             )
@@ -153,7 +154,9 @@ enum LockScreenAlarmActions {
             }
             AppReviewService.recordCompletion()
         }
-        try? context.save()
+        do { try context.save() } catch {
+            AnalyticsService.shared.recordError(error, context: "lock_screen_context_save")
+        }
         Task {
             await CloudSyncService.shared.pushAlarmModel(model)
             await WidgetDataService.shared.refresh()

@@ -61,7 +61,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
             trigger: trigger
         )
 
-        try? await notificationCenter.add(request)
+        await add(request)
     }
 
     func schedulePreAlarmNotifications(for alarm: Alarm) async {
@@ -99,7 +99,7 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
                 trigger: trigger
             )
 
-            try? await notificationCenter.add(request)
+            await add(request)
         }
     }
 
@@ -144,7 +144,14 @@ final class NotificationService: NSObject, NotificationServiceProtocol, UNUserNo
             trigger: trigger
         )
 
-        try? await notificationCenter.add(request)
+        await add(request)
+    }
+
+    /// `add` fails silently without authorization (AE-13); record it instead of `try?` (BUG-13).
+    private func add(_ request: UNNotificationRequest) async {
+        do { try await notificationCenter.add(request) } catch {
+            AnalyticsService.shared.recordError(error, context: "notification_add")
+        }
     }
 
     func cancelBackupNotification(for alarm: Alarm) {
@@ -217,6 +224,13 @@ final class NotificationService: NotificationServiceProtocol {
     func cancelPreAlarmNotification(for alarm: Alarm) {}
     func cancelAllPreAlarmNotifications(for alarm: Alarm) {}
     func scheduleBackupNotification(for alarm: Alarm) async {}
+    /// `add` fails silently without authorization (AE-13); record it instead of `try?` (BUG-13).
+    private func add(_ request: UNNotificationRequest) async {
+        do { try await notificationCenter.add(request) } catch {
+            AnalyticsService.shared.recordError(error, context: "notification_add")
+        }
+    }
+
     func cancelBackupNotification(for alarm: Alarm) {}
     func removeDeliveredNotifications(for alarmID: UUID) {}
 }

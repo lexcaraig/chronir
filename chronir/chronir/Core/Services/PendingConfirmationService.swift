@@ -73,7 +73,9 @@ final class PendingConfirmationService {
                 action: .pendingConfirmation,
                 snoozeCount: 0
             )
-            try? await repo.saveCompletionLog(log)
+            do { try await repo.saveCompletionLog(log) } catch {
+                AnalyticsService.shared.recordError(error, context: "pending_completion_log")
+            }
         }
 
         // Schedule follow-up notifications
@@ -98,7 +100,11 @@ final class PendingConfirmationService {
             snoozeCount: 0
         )
         if let repo = AlarmRepository.shared {
-            Task { try? await repo.saveCompletionLog(log) }
+            Task {
+                do { try await repo.saveCompletionLog(log) } catch {
+                    AnalyticsService.shared.recordError(error, context: "pending_completion_log")
+                }
+            }
         }
 
         AppReviewService.recordCompletion()
@@ -128,7 +134,11 @@ final class PendingConfirmationService {
             snoozeCount: 0
         )
         if let repo = AlarmRepository.shared {
-            Task { try? await repo.saveCompletionLog(log) }
+            Task {
+                do { try await repo.saveCompletionLog(log) } catch {
+                    AnalyticsService.shared.recordError(error, context: "pending_completion_log")
+                }
+            }
         }
     }
 

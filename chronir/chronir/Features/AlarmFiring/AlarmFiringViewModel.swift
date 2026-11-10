@@ -77,15 +77,16 @@ final class AlarmFiringViewModel {
         AlarmScheduler.stopActiveRegistration(for: alarm.id)
         NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
+        let scheduled = alarm.nextFireDate
         alarm.snoozeCount += 1
         alarm.nextFireDate = Date().addingTimeInterval(seconds)
 
         do { try await scheduler.scheduleAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_snooze") }
 
-        saveCompletionLog(alarmID: alarm.id, action: .snoozed)
+        saveCompletionLog(alarmID: alarm.id, scheduled: scheduled, action: .snoozed)
 
         // Save on the view's main context (not the actor's background context)
-        try? modelContext?.save()
+        saveContext()
         Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
 
         stopFiring()
@@ -113,15 +114,16 @@ final class AlarmFiringViewModel {
         AlarmScheduler.stopActiveRegistration(for: alarm.id)
         NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
+        let scheduled = alarm.nextFireDate
         alarm.snoozeCount = 0
-        alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: alarm.nextFireDate)
+        alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: scheduled)
 
         do { try await scheduler.cancelAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_skip") }
         do { try await scheduler.scheduleAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_skip") }
 
-        saveCompletionLog(alarmID: alarm.id, action: .skipped)
+        saveCompletionLog(alarmID: alarm.id, scheduled: scheduled, action: .skipped)
 
-        try? modelContext?.save()
+        saveContext()
         Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
 
         stopFiring()
@@ -148,25 +150,7 @@ final class AlarmFiringViewModel {
         AlarmScheduler.stopActiveRegistration(for: alarm.id)
         NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
-        alarm.lastFiredDate = Date()
-        alarm.lastCompletedAt = Date()
-        alarm.snoozeCount = 0
-
-        if alarm.cycleType == .oneTime {
-            alarm.isEnabled = false
-            alarm.nextFireDate = .distantFuture
-            do { try await scheduler.cancelAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_dismiss") }
-        } else {
-            alarm.nextFireDate = dateCalculator.calculateNextFireDate(for: alarm, from: Date())
-            do { try await scheduler.cancelAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "cancel_alarm_dismiss") }
-            do { try await scheduler.scheduleAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_dismiss") }
-        }
-
-        saveCompletionLog(alarmID: alarm.id, action: .completed)
-
-        // Save on the view's main context (not the actor's background context)
-        try? modelContext?.save()
-        Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
+        await performDismiss(alarm: alarm)
 
         stopFiring()
 
@@ -186,25 +170,24 @@ final class AlarmFiringViewModel {
 
     func stop() async {
         guard let alarm, !isCompleted else { return }
+        // Free tier: Stop is Mark as Done, including the firing-screen teardown (BUG-12).
+        guard await MainActor.run(body: { PendingConfirmationService.shared.isPlusUser }) else {
+            await dismiss()
+            return
+        }
         isCompleted = true
 
         AlarmScheduler.stopActiveRegistration(for: alarm.id)
         NotificationService.shared.removeDeliveredNotifications(for: alarm.id)
 
-        if await MainActor.run(body: { PendingConfirmationService.shared.isPlusUser }) {
-            await PendingConfirmationService.shared.enterPending(alarm: alarm)
+        await PendingConfirmationService.shared.enterPending(alarm: alarm)
 
-            AnalyticsService.shared.logEvent(AnalyticsEvent.alarmCompleted, parameters: [
-                "snooze_count": alarm.snoozeCount,
-                "pending_confirmation": true
-            ])
-        } else {
-            // Free tier — behave like dismiss
-            await performDismiss(alarm: alarm)
-            return
-        }
+        AnalyticsService.shared.logEvent(AnalyticsEvent.alarmCompleted, parameters: [
+            "snooze_count": alarm.snoozeCount,
+            "pending_confirmation": true
+        ])
 
-        try? modelContext?.save()
+        saveContext()
         Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
 
         stopFiring()
@@ -248,7 +231,9 @@ final class AlarmFiringViewModel {
 
         if wasSnoozed {
             alarm.snoozeCount += 1
-            saveCompletionLog(alarmID: alarm.id, action: .snoozed)
+            // The lock-screen handler already moved nextFireDate to the snooze expiry; the
+            // original occurrence is not recoverable here.
+            saveCompletionLog(alarmID: alarm.id, scheduled: alarm.nextFireDate, action: .snoozed)
         } else if await MainActor.run(body: { PendingConfirmationService.shared.isPlusUser }) {
             // Plus tier safety net: enter pending instead of auto-completing
             await PendingConfirmationService.shared.enterPending(alarm: alarm)
@@ -258,12 +243,13 @@ final class AlarmFiringViewModel {
         }
 
         // Save on the view's main context (not the actor's background context)
-        try? modelContext?.save()
+        saveContext()
         Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
     }
 
     /// Shared dismiss logic for Free tier and "Mark as Done" path.
     private func performDismiss(alarm: Alarm) async {
+        let scheduled = alarm.nextFireDate
         alarm.lastFiredDate = Date()
         alarm.lastCompletedAt = Date()
         alarm.snoozeCount = 0
@@ -280,25 +266,35 @@ final class AlarmFiringViewModel {
             do { try await scheduler.scheduleAlarm(alarm) } catch { AnalyticsService.shared.recordError(error, context: "schedule_alarm_performDismiss") }
         }
 
-        saveCompletionLog(alarmID: alarm.id, action: .completed)
+        saveCompletionLog(alarmID: alarm.id, scheduled: scheduled, action: .completed)
 
-        try? modelContext?.save()
+        saveContext()
         Task { await CloudSyncService.shared.pushAlarmModel(alarm) }
     }
 
     // MARK: - Private
 
-    private func saveCompletionLog(alarmID: UUID, action: CompletionAction) {
+    /// AlarmKit is already rescheduled by the time this runs; a lost save would silently drop
+    /// the completion (BUG-13).
+    private func saveContext() {
+        do { try modelContext?.save() } catch {
+            AnalyticsService.shared.recordError(error, context: "firing_context_save")
+        }
+    }
+
+    /// `scheduled` is the occurrence acted on, captured before `nextFireDate` advanced (BUG-12).
+    private func saveCompletionLog(alarmID: UUID, scheduled: Date, action: CompletionAction) {
         guard let alarm else { return }
         let log = CompletionLog(
             alarmID: alarmID,
-            scheduledDate: alarm.nextFireDate,
+            scheduledDate: scheduled,
             action: action,
             snoozeCount: alarm.snoozeCount
         )
         Task {
-            if let repo = AlarmRepository.shared {
-                try? await repo.saveCompletionLog(log)
+            guard let repo = AlarmRepository.shared else { return }
+            do { try await repo.saveCompletionLog(log) } catch {
+                AnalyticsService.shared.recordError(error, context: "save_completion_log")
             }
         }
     }

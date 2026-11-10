@@ -34,11 +34,6 @@ final class AlarmSchedulingStatus {
     func schedule(_ alarm: Alarm) async -> Bool {
         do {
             try await AlarmScheduler.shared.scheduleAlarm(alarm)
-            // `scheduleAlarm` returns without registering anything when alarm permission is denied.
-            guard AlarmManager.shared.authorizationState == .authorized else {
-                markFailed(alarm.id, true)
-                return false
-            }
             markFailed(alarm.id, false)
             return true
         } catch {
