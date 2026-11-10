@@ -869,8 +869,12 @@ Local storage only              Local + Cloud Firestore sync
 
 ### 6.4 Firestore Security Rules
 
+The deployed rules are `firestore.rules` at the repo root (deploy via `/deploy`). This section
+quotes that file verbatim; change both in the same commit (FB-06 / SEC-01).
+
 ```javascript
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -889,18 +893,33 @@ service cloud.firestore {
       }
     }
 
+    // Shared alarms, groups, invites — Premium tier (Phase 4, Sprint 11+)
+    // Rules will be added when Premium features are implemented.
+  }
+}
+```
+
+#### 6.4.1 Premium rules (future, NOT deployed)
+
+Draft for shared alarms, groups and invites (Phase 4). Known issues to resolve before deploying:
+`write` on `resource.data.ownerID` denies creates (no `resource` yet; use `request.resource`),
+`onlyUpdatingFields` is not a built-in and must be a declared function, and the `write` / `update`
+rules overlap (an `allow write` already permits updates).
+
+```javascript
     // Shared alarms: readable by owner and shared members
     match /shared_alarms/{alarmID} {
       allow read: if request.auth != null && (
         request.auth.uid == resource.data.ownerID ||
         request.auth.uid in resource.data.sharedWith
       );
-      allow write: if request.auth != null &&
-        request.auth.uid == resource.data.ownerID;
-      // Shared members can update completedAt and completion records
-      allow update: if request.auth != null &&
-        request.auth.uid in resource.data.sharedWith &&
-        onlyUpdatingFields(['completedAt']);
+      allow create, delete: if request.auth != null &&
+        request.auth.uid == request.resource.data.ownerID;
+      allow update: if request.auth != null && (
+        request.auth.uid == resource.data.ownerID ||
+        (request.auth.uid in resource.data.sharedWith &&
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completedAt']))
+      );
     }
 
     // Groups: readable by members, writable by owner
@@ -908,7 +927,7 @@ service cloud.firestore {
       allow read: if request.auth != null &&
         request.auth.uid in resource.data.memberIDs;
       allow write: if request.auth != null &&
-        request.auth.uid == resource.data.ownerID;
+        request.auth.uid == request.resource.data.ownerID;
     }
 
     // Invites: readable by anyone authenticated (to accept)
@@ -917,8 +936,6 @@ service cloud.firestore {
       allow write: if request.auth != null &&
         request.auth.uid == request.resource.data.createdBy;
     }
-  }
-}
 ```
 
 ---

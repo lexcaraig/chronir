@@ -4,6 +4,18 @@ All notable changes to the Chronir project are documented here.
 
 ---
 
+## [2026-11-05] — Release v1.3.0 (Android)
+
+**Type:** Release
+**Branch:** sprint-surfaces
+**Tag:** v1.3.0-android
+
+### Changes
+- First Google Play release (versionName 1.3.0, versionCode 4; versionCode 5 followed for BUG-09). See `docs/appstoreconnect/releases/v1.3.0-android.md`.
+- **BUG-02:** AlarmReceiver registers the next occurrence on fire. **BUG-04:** USE_EXACT_ALARM on Android 14+. **BUG-09:** ViewModel classes kept from R8 merging (release crash).
+
+---
+
 ## [2026-11-04] — Release v1.3.0 (iOS)
 
 **Type:** Release
@@ -20,6 +32,39 @@ All notable changes to the Chronir project are documented here.
 ### QA Status
 - iOS unit tests: PASS
 - Device (lexpresswayyy): BUG-07 Free/Plus lock-screen snooze + stop, in-app snooze, non-persistent fire
+
+---
+
+## [2026-11-02] — Release v1.2.4 (iOS)
+
+**Type:** Release
+**Tag:** v1.2.4
+
+### Changes
+- Deleted alarms no longer come back after cloud sync; deleting from a category saves right away.
+- Android: register next occurrence when an alarm fires (not shipped on iOS).
+
+---
+
+## [2026-10-17] — Release v1.2.3 (iOS)
+
+**Type:** Release
+**Tag:** v1.2.3
+
+### Changes
+- Alarms keep firing when the app is not opened for days (AlarmKit occurrence horizon).
+- In-app snooze re-alerts at the chosen time; multi-time alarms no longer silenced by a later time.
+
+---
+
+## [2026-03-05] — Release v1.2.2 (iOS)
+
+**Type:** Release
+**Tag:** v1.2.2
+
+### Changes
+- Alarms not firing after completion (iOS + Android).
+- Notes are a Plus feature.
 
 ---
 
