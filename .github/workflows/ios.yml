@@ -40,10 +40,34 @@ jobs:
       - name: Select Xcode
         # Newest Xcode 26 on the runner image; the exact point release changes.
         run: sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)/Contents/Developer"
+      - name: Stub GoogleService-Info.plist
+        # The real file is gitignored (FB-07). FirebaseApp.configure() aborts the test host
+        # at launch without one; a well-formed stub is enough (configure() makes no network call).
+        run: |
+          cat > chronir/chronir/App/Configuration/GoogleService-Info.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>API_KEY</key><string>ci-stub-key</string>
+            <key>GCM_SENDER_ID</key><string>000000000000</string>
+            <key>PLIST_VERSION</key><string>1</string>
+            <key>BUNDLE_ID</key><string>com.chronir.ios</string>
+            <key>PROJECT_ID</key><string>ci-stub</string>
+            <key>STORAGE_BUCKET</key><string>ci-stub.appspot.com</string>
+            <key>IS_ADS_ENABLED</key><false/>
+            <key>IS_ANALYTICS_ENABLED</key><false/>
+            <key>IS_APPINVITE_ENABLED</key><false/>
+            <key>IS_GCM_ENABLED</key><false/>
+            <key>IS_SIGNIN_ENABLED</key><false/>
+            <key>GOOGLE_APP_ID</key><string>1:000000000000:ios:0000000000000000</string>
+          </dict>
+          </plist>
+          PLIST
       - name: Test
         # Same destination and flags as IOS-10 (.claude/rules/ios.md). No `|| true`:
-        # a red build or test must fail the job. CompleteAlarmIntentTests needs real AlarmKit
-        # and crashes the simulator test host before bootstrapping (device-only, INFRA-03).
+        # a red build or test must fail the job. CompleteAlarmIntentTests blocks on the AlarmKit
+        # authorization prompt on the simulator (device-only, INFRA-03).
         run: |
           xcodebuild test \
             -project chronir/chronir.xcodeproj \
