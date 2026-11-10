@@ -76,5 +76,15 @@ jobs:
             -skip-testing:chronirTests/CompleteAlarmIntentTests \
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
             -skipMacroValidation \
+            -resultBundlePath "$RUNNER_TEMP/TestResults.xcresult" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES
+      - name: Upload test results and crash reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-results
+          path: |
+            ${{ runner.temp }}/TestResults.xcresult
+            ~/Library/Logs/DiagnosticReports
+          if-no-files-found: ignore
