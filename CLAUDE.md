@@ -168,11 +168,11 @@ npm run build    # Generates iOS Swift + Android Kotlin token files
 
 ### CI (GitHub Actions)
 
-- `.github/workflows/ios.yml` — SwiftLint → tests → build (macOS 15, Xcode 16)
+- `.github/workflows/ios.yml` — SwiftLint → `xcodebuild test` (unit target, which also builds the app) on macOS 26 / Xcode 26.1
 - `.github/workflows/android.yml` — ktlint → tests → build APK+AAB (JDK 17)
 - `.github/workflows/design-tokens.yml` — Token build on `tokens/` changes
 
-PR triggers lint + tests; merge to main triggers release build.
+PRs and pushes to `main`, `develop`, `sprint-*` trigger lint + tests; push to `main` additionally builds the Android release APK/AAB.
 
 ## Firebase
 

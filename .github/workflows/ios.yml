@@ -19,7 +19,7 @@ concurrency:
 jobs:
   lint:
     name: SwiftLint
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
       - name: Install SwiftLint
@@ -29,21 +29,24 @@ jobs:
           cd chronir
           swiftlint lint --strict --reporter github-actions-logging
 
-  build:
-    name: Build
-    runs-on: macos-15
+  test:
+    name: Unit tests + build
+    runs-on: macos-26
     needs: lint
     steps:
       - uses: actions/checkout@v4
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
-      - name: Build
+        # Newest Xcode 26 on the runner image; the exact point release changes.
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)/Contents/Developer"
+      - name: Test
+        # Same destination and flags as IOS-10 (.claude/rules/ios.md). No `|| true`:
+        # a red build or test must fail the job.
         run: |
-          xcodebuild build \
+          xcodebuild test \
             -project chronir/chronir.xcodeproj \
             -scheme chronir \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -only-testing:chronirTests \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES \
-            | xcpretty || true
+            CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION=YES
