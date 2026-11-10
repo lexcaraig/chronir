@@ -3,7 +3,7 @@
 **Priority:** P1 (alarm silently missed; not reproduced)
 **Category:** Bug
 **Platform:** iOS
-**Status:** Open (root cause not yet established)
+**Status:** In progress (code-level cause found, fix applied, device verification pending)
 
 ---
 
@@ -27,10 +27,27 @@ No device log exists for this run. The capture started at 14:30:11.
 2. The alarm was edited 6 s after it had been completed, so the stop/complete re-registration and the edit's re-registration overlapped.
 3. The user's exact steps aren't known. It isn't confirmed whether it rang at 14:28 and was stopped by the user.
 
+## Root cause (code, 2026-11-10)
+`AlarmScheduler.register()` (added in f60d9c4 for BUG-07, the day before the miss) skipped any
+registration ID whose AlarmKit state was `.alerting` or `.countdown`. Every stop/edit path calls
+`stopActiveRegistration` → `cancelAlarm` → `scheduleAlarm`, so a just-stopped base ID can still read
+`.alerting` in the `alarmManager.alarms` snapshot. Slot 0 / occurrence 0 is the base ID and is the
+*next* fire, so the edit's 14:29 occurrence was skipped silently while occurrences 1–11 (later days)
+were registered. Matches the store snapshot exactly and explains why it is timing-dependent.
+
+**Fix:** the guard now protects only `.countdown` (the snooze it was written for) and logs
+`alarm_register_skipped_active` when it skips, so a future miss leaves evidence.
+
 ## Acceptance Criteria
+- [ ] Device drive of the fix on lexpresswayyy: stop a ringing alarm, edit it to the next minute within 10 s, force-quit, lock → must ring. Then snooze in-app → must re-ring (guard still protects countdown).
 - [ ] Reproduce with `idevicesyslog | grep AlarmKitCore` running, trying candidate 1 (install over, then edit to the next minute, then force-quit) and candidate 2 (stop a ringing alarm, edit it within 10 s, then force-quit).
 - [ ] If it reproduces: capture the AlarmKit reject or cancel line, find the root cause, fix it, and verify on device.
 - [ ] If neither reproduces after 3 tries each: close as not reproducible, with the logs attached.
 
 ## Evidence
 App-group store snapshot: scratchpad `db-fq/` (2026-11-05 14:29:57). The passing-run log is `fq-syslog.log`. Both are local to the session that filed this ticket.
+
+## Verification (2026-11-10)
+`AlarmScheduler.register` no longer skips a slot whose registration still reads `.alerting`; only `.countdown` (snooze) is protected. A skip now logs `alarm_register_skipped_active`. Root cause: after stop → cancel → schedule the AlarmKit snapshot can still report `.alerting` for seconds, so the next occurrence was dropped silently.
+- Test: `chronir/chronirTests/AlarmSchedulerRegistrationIDTests.swift` (3 cases) + full `chronirTests` run minus `CompleteAlarmIntentTests`: 109 passed, 0 failed (simulator iPhone 17 Pro, 2026-11-10). `CompleteAlarmIntentTests` hangs on the simulator at `requestAuthorization()`; same on HEAD, it is device-only (see memory alarmkit-test-process).
+- Device drive criteria above remain open for QA.

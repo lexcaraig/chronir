@@ -49,10 +49,7 @@ final class AlarmScheduler: AlarmScheduling {
     }
 
     func scheduleAlarm(_ alarm: Alarm, refreshWidget: Bool = true) async throws {
-        if alarmManager.authorizationState != .authorized {
-            let state = try await alarmManager.requestAuthorization()
-            guard state == .authorized else { return }
-        }
+        try await ensureAuthorized()
 
         let snoozeDuration: AlarmKit.Alarm.CountdownDuration? = alarm.isPersistent
             ? AlarmKit.Alarm.CountdownDuration(preAlert: nil, postAlert: 540) // 9-minute snooze
@@ -89,20 +86,37 @@ final class AlarmScheduler: AlarmScheduling {
         }
     }
 
+    /// Returning silently on a denied permission made every caller count the registration as
+    /// a success (BUG-13); a denied state is an error the caller must see.
+    private func ensureAuthorized() async throws {
+        if alarmManager.authorizationState != .authorized {
+            let state = try await alarmManager.requestAuthorization()
+            guard state == .authorized else { throw AlarmSchedulerError.notAuthorized }
+        }
+    }
+
     private func register(
         _ slots: [[Date]], for alarm: Alarm,
         snoozeDuration: AlarmKit.Alarm.CountdownDuration?
     ) async throws {
         var idMap = Self.idMap
         defer { Self.idMap = idMap }
-        // Registrations ringing or in snooze countdown are left alone; replacing one would cut it off.
+        // A snooze countdown is left alone; replacing it would cut the snooze off. A ringing
+        // registration is NOT protected: every caller has already stopped it, and the snapshot can
+        // still report `.alerting` for seconds afterwards. Skipping on that stale state silently
+        // dropped the next occurrence (BUG-08).
         let current = (try? alarmManager.alarms) ?? []
         let registered = Set(current.map(\.id))
-        let active = Set(current.filter { $0.state == .alerting || $0.state == .countdown }.map(\.id))
+        let active = Set(current.filter { $0.state == .countdown }.map(\.id))
         for (slot, fireDates) in slots.enumerated() {
             for (occurrence, fireDate) in fireDates.enumerated() {
                 let id = Self.registrationID(base: alarm.id, slot: slot, occurrence: occurrence)
-                guard !active.contains(id) else { continue }
+                if active.contains(id) {
+                    AnalyticsService.shared.logEvent(
+                        "alarm_register_skipped_active", parameters: ["slot": slot, "occurrence": occurrence]
+                    )
+                    continue
+                }
                 // Replace, never duplicate: AlarmKit rejects an ID that is still registered (invalidInput).
                 if registered.contains(id) { try? alarmManager.cancel(id: id) }
                 if id != alarm.id { idMap[id.uuidString] = alarm.id.uuidString }
@@ -131,11 +145,7 @@ final class AlarmScheduler: AlarmScheduling {
     func scheduleSnoozeRefire(id: UUID, title: String, at fireDate: Date) async throws {
         try? AlarmManager.shared.stop(id: id)
         try? AlarmManager.shared.cancel(id: id)
-
-        if alarmManager.authorizationState != .authorized {
-            let state = try await alarmManager.requestAuthorization()
-            guard state == .authorized else { return }
-        }
+        try await ensureAuthorized()
 
         let snoozeDuration = AlarmKit.Alarm.CountdownDuration(
             preAlert: nil,
@@ -197,14 +207,23 @@ final class AlarmScheduler: AlarmScheduling {
 
     func cancelAlarm(_ alarm: Alarm) async throws {
         var idMap = Self.idMap
-        for id in Self.registrationIDs(for: alarm) {
+        cancelRegistrations(for: alarm, in: (try? AlarmManager.shared.alarms) ?? [], idMap: &idMap)
+        Self.idMap = idMap
+        await LiveActivityService.shared.refreshLiveActivity()
+    }
+
+    /// Shares one AlarmKit snapshot and one ID-map copy across callers that cancel many alarms.
+    private func cancelRegistrations(for alarm: Alarm, in akAlarms: [AlarmKit.Alarm], idMap: inout [String: String]) {
+        // `registrationIDs` reflects the alarm's *current* time slots. An edit that removed a
+        // slot already saved, so its registrations are only findable by resolving every AlarmKit
+        // registration back through the ID map (BUG-10).
+        let mapped = akAlarms.map(\.id).filter { idMap[$0.uuidString] == alarm.id.uuidString }
+        for id in Set(Self.registrationIDs(for: alarm) + mapped) {
             try? AlarmManager.shared.stop(id: id)
             try? AlarmManager.shared.cancel(id: id)
             idMap.removeValue(forKey: id.uuidString)
         }
-        Self.idMap = idMap
         notificationService.cancelAllPreAlarmNotifications(for: alarm)
-        await LiveActivityService.shared.refreshLiveActivity()
     }
 
     func rescheduleAllAlarms() async throws {
@@ -213,16 +232,26 @@ final class AlarmScheduler: AlarmScheduling {
 
         // Cancel ALL alarms first (including disabled/archived) to clear stale AlarmKit registrations,
         // but skip snoozed alarms — their AlarmKit countdown is still active.
+        guard alarmManager.authorizationState == .authorized else { return }
         let allAlarms = try await repository.fetchAll()
-        for alarm in allAlarms where alarm.snoozeCount == 0 {
-            try await cancelAlarm(alarm)
+        // An alarm ringing right now (the tap on it may be what launched us) must keep ringing:
+        // cancelling it would cut the system sound (BUG-11).
+        let akAlarms = (try? alarmManager.alarms) ?? []
+        let untouched = Set(allAlarms.filter {
+            $0.snoozeCount > 0 || Self.activeRegistration(for: $0.id, in: akAlarms) != nil
+        }.map(\.id))
+        var idMap = Self.idMap
+        for alarm in allAlarms where !untouched.contains(alarm.id) {
+            cancelRegistrations(for: alarm, in: akAlarms, idMap: &idMap)
         }
+        Self.idMap = idMap
+        await LiveActivityService.shared.refreshLiveActivity()
 
-        // Reschedule all enabled, non-snoozed alarms.
+        // Reschedule all enabled alarms that are not ringing or snoozed.
         // Snoozed alarms retain their snooze countdown nextFireDate.
         // Always recalculate nextFireDate — past-due alarms must advance to the next occurrence.
         let now = Date()
-        let enabledAlarms = allAlarms.filter { $0.isEnabled && $0.snoozeCount == 0 }
+        let enabledAlarms = allAlarms.filter { $0.isEnabled && !untouched.contains($0.id) }
         var anyDateChanged = false
         for alarm in enabledAlarms {
             let newDate = dateCalculator.calculateNextFireDate(for: alarm, from: now)
@@ -248,6 +277,7 @@ final class AlarmScheduler: AlarmScheduling {
 
     /// Detect alarms that should be registered with AlarmKit but aren't, and re-register them.
     func auditAlarmRegistrations() async {
+        guard alarmManager.authorizationState == .authorized else { return }
         let akAlarms = (try? AlarmManager.shared.alarms) ?? []
         let akIDs = Set(akAlarms.map { $0.id })
         let now = Date()
@@ -323,4 +353,8 @@ final class AlarmScheduler: AlarmScheduling {
             try? AlarmManager.shared.stop(id: active.id)
         }
     }
+}
+
+enum AlarmSchedulerError: Error {
+    case notAuthorized
 }
