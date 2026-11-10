@@ -40,12 +40,14 @@ jobs:
         run: sudo xcode-select -s "$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)/Contents/Developer"
       - name: Test
         # Same destination and flags as IOS-10 (.claude/rules/ios.md). No `|| true`:
-        # a red build or test must fail the job.
+        # a red build or test must fail the job. CompleteAlarmIntentTests needs real AlarmKit
+        # and crashes the simulator test host before bootstrapping (device-only, INFRA-03).
         run: |
           xcodebuild test \
             -project chronir/chronir.xcodeproj \
             -scheme chronir \
             -only-testing:chronirTests \
+            -skip-testing:chronirTests/CompleteAlarmIntentTests \
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
