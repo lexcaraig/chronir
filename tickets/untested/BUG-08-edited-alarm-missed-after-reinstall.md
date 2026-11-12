@@ -39,7 +39,7 @@ were registered. Matches the store snapshot exactly and explains why it is timin
 `alarm_register_skipped_active` when it skips, so a future miss leaves evidence.
 
 ## Acceptance Criteria
-- [ ] Device drive of the fix on lexpresswayyy: stop a ringing alarm, edit it to the next minute within 10 s, force-quit, lock → must ring. Then snooze in-app → must re-ring (guard still protects countdown).
+- [x] Device drive of the fix on lexpresswayyy: stop a ringing alarm, edit it to the next minute within 10 s, force-quit, lock → must ring. Then snooze in-app → must re-ring (guard still protects countdown).
 - [ ] Reproduce with `idevicesyslog | grep AlarmKitCore` running, trying candidate 1 (install over, then edit to the next minute, then force-quit) and candidate 2 (stop a ringing alarm, edit it within 10 s, then force-quit).
 - [ ] If it reproduces: capture the AlarmKit reject or cancel line, find the root cause, fix it, and verify on device.
 - [ ] If neither reproduces after 3 tries each: close as not reproducible, with the logs attached.
@@ -51,3 +51,7 @@ App-group store snapshot: scratchpad `db-fq/` (2026-11-05 14:29:57). The passing
 `AlarmScheduler.register` no longer skips a slot whose registration still reads `.alerting`; only `.countdown` (snooze) is protected. A skip now logs `alarm_register_skipped_active`. Root cause: after stop → cancel → schedule the AlarmKit snapshot can still report `.alerting` for seconds, so the next occurrence was dropped silently.
 - Test: `chronir/chronirTests/AlarmSchedulerRegistrationIDTests.swift` (3 cases) + full `chronirTests` run minus `CompleteAlarmIntentTests`: 109 passed, 0 failed (simulator iPhone 17 Pro, 2026-11-10). `CompleteAlarmIntentTests` hangs on the simulator at `requestAuthorization()`; same on HEAD, it is device-only (see memory alarmkit-test-process).
 - Device drive criteria above remain open for QA.
+
+### Release drive v1.3.1 (2026-11-12, lexpresswayyy)
+- Candidate 2 PASS via `ReleaseDriveUITests.testKilledAppFireSurvivesLaunchAndEditAfterStopRings`: stopped the ringing alarm, edited to the next minute within ~10 s, force-quit; it rang at the edited minute. Evidence `tickets/screenshots/release-v1.3.1/bug08-*.png`.
+- Snooze re-ring not driven: the shortest snooze is 1 hour (custom snooze is Plus-only).

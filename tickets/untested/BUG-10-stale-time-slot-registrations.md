@@ -11,9 +11,12 @@
 ## Acceptance Criteria
 - [x] `cancelAlarm` also cancels every AlarmKit registration whose `baseAlarmID` is this alarm and drops its idMap entry.
 - [x] Unit test for the registration-ID helpers.
-- [ ] Device: edit a 2-time alarm down to 1 time; the removed time does not ring.
+- [x] Device: edit a 2-time alarm down to 1 time; the removed time does not ring.
 
 ## Verification
 - `AlarmScheduler.cancelRegistrations(for:in:idMap:)` resolves every AlarmKit registration back through the ID map and cancels those owned by the alarm; `cancelAlarm` and `rescheduleAllAlarms` share one snapshot and one map copy (optimize review 2026-11-10).
 - Test: `chronir/chronirTests/AlarmSchedulerRegistrationIDTests.swift` — slot0/occ0 == base id, uniqueness across 4 slots × horizon, `registrationIDs` count. 109 unit tests passed, 0 failed (2026-11-10).
 - Device criterion still open.
+
+## Verification (release drive v1.3.1, 2026-11-12, lexpresswayyy)
+- `ReleaseDriveUITests.testRemovedTimeSlotDoesNotRing` PASS: two-time alarm edited down to one; nothing rang at the removed time (+40 s), the kept time rang. Evidence `tickets/screenshots/release-v1.3.1/bug10-*.png`.

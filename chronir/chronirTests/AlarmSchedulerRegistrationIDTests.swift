@@ -22,6 +22,18 @@ struct AlarmSchedulerRegistrationIDTests {
         }
     }
 
+    /// BUG-11: on a cold launch the AlarmKit snapshot is empty while an alarm rings, so a full
+    /// reschedule must leave a past-due alarm alone on the model's own state.
+    @Test func rescheduleLeavesPastDueAlarmAloneWithoutSnapshot() {
+        let now = Date()
+        let ringing = Alarm(title: "R", nextFireDate: now.addingTimeInterval(-30))
+        let future = Alarm(title: "F", nextFireDate: now.addingTimeInterval(3600))
+        let disabled = Alarm(title: "D", nextFireDate: now.addingTimeInterval(-30), isEnabled: false)
+        #expect(AlarmScheduler.leavesRegistrationsAlone(ringing, in: [], now: now))
+        #expect(!AlarmScheduler.leavesRegistrationsAlone(future, in: [], now: now))
+        #expect(!AlarmScheduler.leavesRegistrationsAlone(disabled, in: [], now: now))
+    }
+
     @Test func registrationIDsCoverEveryTimeSlot() {
         let alarm = Alarm(
             title: "T", cycleType: .weekly,

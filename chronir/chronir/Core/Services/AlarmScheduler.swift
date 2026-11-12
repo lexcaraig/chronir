@@ -234,12 +234,9 @@ final class AlarmScheduler: AlarmScheduling {
         // but skip snoozed alarms — their AlarmKit countdown is still active.
         guard alarmManager.authorizationState == .authorized else { return }
         let allAlarms = try await repository.fetchAll()
-        // An alarm ringing right now (the tap on it may be what launched us) must keep ringing:
-        // cancelling it would cut the system sound (BUG-11).
         let akAlarms = (try? alarmManager.alarms) ?? []
-        let untouched = Set(allAlarms.filter {
-            $0.snoozeCount > 0 || Self.activeRegistration(for: $0.id, in: akAlarms) != nil
-        }.map(\.id))
+        let now = Date()
+        let untouched = Set(allAlarms.filter { Self.leavesRegistrationsAlone($0, in: akAlarms, now: now) }.map(\.id))
         var idMap = Self.idMap
         for alarm in allAlarms where !untouched.contains(alarm.id) {
             cancelRegistrations(for: alarm, in: akAlarms, idMap: &idMap)
@@ -247,10 +244,8 @@ final class AlarmScheduler: AlarmScheduling {
         Self.idMap = idMap
         await LiveActivityService.shared.refreshLiveActivity()
 
-        // Reschedule all enabled alarms that are not ringing or snoozed.
+        // Reschedule all enabled alarms that are not ringing, missed or snoozed.
         // Snoozed alarms retain their snooze countdown nextFireDate.
-        // Always recalculate nextFireDate — past-due alarms must advance to the next occurrence.
-        let now = Date()
         let enabledAlarms = allAlarms.filter { $0.isEnabled && !untouched.contains($0.id) }
         var anyDateChanged = false
         for alarm in enabledAlarms {
@@ -335,6 +330,16 @@ final class AlarmScheduler: AlarmScheduling {
     /// Resolves an AlarmKit registration ID to the owning `Alarm.id`.
     static func baseAlarmID(for registrationID: UUID) -> UUID {
         idMap[registrationID.uuidString].flatMap(UUID.init) ?? registrationID
+    }
+
+    /// A full reschedule must not touch an alarm that is snoozed, ringing, or past due. On a cold
+    /// launch the AlarmKit snapshot can still be empty while an alarm is ringing, so the past-due
+    /// check is what reliably keeps the system sound going; the firing screen advances the
+    /// alarm when the user acts on it (BUG-11).
+    static func leavesRegistrationsAlone(_ alarm: Alarm, in akAlarms: [AlarmKit.Alarm], now: Date) -> Bool {
+        alarm.snoozeCount > 0
+            || (alarm.isEnabled && alarm.nextFireDate <= now)
+            || activeRegistration(for: alarm.id, in: akAlarms) != nil
     }
 
     /// The registration currently alerting or in snooze countdown for an alarm, if any.

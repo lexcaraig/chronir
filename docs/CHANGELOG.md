@@ -4,6 +4,26 @@ All notable changes to the Chronir project are documented here.
 
 ---
 
+## [2026-11-12] — Release v1.3.1 (iOS)
+
+**Type:** Release
+**Branch:** sprint-surfaces
+**Tag:** v1.3.1
+
+### Changes
+- **BUG-08:** `register()` no longer drops the next occurrence on a stale `.alerting` registration
+- **BUG-10:** removed time slots are cancelled via the registration ID map
+- **BUG-11:** a ringing or snoozed alarm survives a cold-launch reschedule
+- **BUG-12:** completion logs record the acted-on occurrence
+- **BUG-13:** silent save/schedule failures reach Crashlytics; scheduling throws when AlarmKit is not authorized
+- **INFRA-03:** iOS and Android CI can fail and pass (stub Firebase configs, device-only suite skipped)
+
+### QA Status
+- iOS unit tests: PASS (155)
+- Device (lexpresswayyy): see `docs/appstoreconnect/releases/v1.3.1.md`
+
+---
+
 ## [2026-11-05] — Release v1.3.0 (Android)
 
 **Type:** Release
